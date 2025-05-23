@@ -1,0 +1,68 @@
+<div class="container mt-4">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white" style="color: black;">
+      <h4 class="text-center mb-0">Actualizar Perfil</h4>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="guardarCambios()" #userForm="ngForm">
+        <div class="row">
+          <div class="col-md-6">
+            <label for="nombres">Nombres</label>
+            <input type="text" id="nombres" class="form-control" name="nombres" required />
+          </div>
+          <div class="col-md-6">
+            <label for="apellidos">Apellidos</label>
+            <input type="text" id="apellidos" class="form-control" name="apellidos" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <label for="contraseña">Contraseña</label>
+            <input type="text" id="contraseña" class="form-control" name="contraseña" required disabled/>
+          </div>
+          <div class="col-md-6">
+            <label for="contraseñav">Verificar Contraseña</label>
+            <input type="text" id="contraseñav" class="form-control" name="contraseñav" required disabled/>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <label for="nombreUsuario">Nombre de Usuario</label>
+            <input type="text" id="nombreUsuario" class="form-control" [(ngModel)]="usuario.nombreUsuario" name="nombreUsuario" required />
+          </div>
+          <div class="col-md-6">
+            <label for="email">Email</label>
+            <input type="email" id="email" class="form-control" [(ngModel)]="usuario.email" name="email" required />
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <label for="telefono">Teléfono</label>
+            <input type="text" id="telefono" class="form-control" [(ngModel)]="usuario.telefono" name="telefono" required />
+          </div>
+          <div class="col-md-6">
+            <label for="estado">Estado</label>
+            <select id="estado" class="form-control" [(ngModel)]="usuario.estado" name="estado">
+              <option [value]="true">Activo</option>
+              <option [value]="false">Inactivo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-12 text-center">
+            <button type="submit" class="btn btn-success" [disabled]="userForm.invalid">
+              Guardar Cambios
+            </button>
+            <button type="button" class="btn btn-secondary ms-2" (click)="cancelarEdicion()">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

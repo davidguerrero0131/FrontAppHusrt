@@ -1,0 +1,21 @@
+
+<div class="card">
+  <p-menubar>
+    <ng-template #start>
+      <a class="navbar-brand" href="/userbiomedica">AppHusrt</a>
+    </ng-template>
+    <ng-template #item let-item let-root="root">
+
+    </ng-template>
+    <ng-template #end>
+      <div class="flex items-center gap-2">
+        <button type="button" class="btn btn-outline-dark" style="margin: 1px;" (click)="viewUser()">
+          <i class="bi bi-person"></i>
+        </button>
+        <button type="button" class="btn btn-outline-dark" style="margin: 1px;" (click)="navigateToAbout()">
+          <i class="bi bi-box-arrow-right"></i>
+        </button>
+      </div>
+    </ng-template>
+  </p-menubar>
+</div>

@@ -1,0 +1,24 @@
+<app-biomedicausernavbar></app-biomedicausernavbar>
+<div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
+</div>
+
+<div style="margin-top: 2%; margin-bottom: 2%;">
+  <h1 style="text-align: center;">EQUIPOS BIOMEDICOS COMODATOS</h1>
+  <h6 style="text-align: center;">Busque segun el Responsable de comodatos Requerido.</h6>
+</div>
+
+<input type="text" placeholder="Buscar tipo de equipo..." [(ngModel)]="searchText" class="search-bar">
+
+<div class="grid-container">
+  <div class="grid-item" *ngFor="let responsable of filteredResponsable()">
+    <div class="card">
+      <h1></h1>
+      <h6>{{responsable.nombres}}</h6>
+      <h1></h1>
+      <h6>{{ cantidadesEquipos[responsable.id]}}</h6>
+      <h1></h1>
+      <button type="button" class="btn btn-dark button-ver-equipos" (click)=viewEquiposComodatos(responsable.id)>Ver Equipos</button>
+      <h1></h1>
+    </div>
+  </div>
+</div>
