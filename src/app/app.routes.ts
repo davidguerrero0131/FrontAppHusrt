@@ -30,6 +30,7 @@ import { EquiposTipoComponent } from './Components/userBiomedica/vista-Equipos/e
 import { EquiposComodatosComponent } from './Components/userBiomedica/vista-Equipos/equipos-comodatos/equipos-comodatos.component';
 import { EditarUsuarioComponent } from './Components/editar-usuario/editar-usuario.component';
 import { CambiarContrasenaComponent } from './Components/gestionarContraseña/cambiar-contrasena/cambiar-contrasena.component';
+import { CrearReporteComponent } from './Components/userBiomedica/Reportes/crear-reporte/crear-reporte.component';
 
 export const routes: Routes = [
 
@@ -69,7 +70,8 @@ export const routes: Routes = [
   {path: 'biomedica/empComodatos', component: ClasificacionComodatosComponent, canActivate: [authGuard]},
   {path: 'biomedica/equiposservicio', component: EquiposServicioComponent, canActivate: [authGuard]},
   {path: 'biomedica/equipostipo', component: EquiposTipoComponent, canActivate: [authGuard]},
-  {path: 'biomedica/equiposcomodatos', component: EquiposComodatosComponent, canActivate: [authGuard]}
+  {path: 'biomedica/equiposcomodatos', component: EquiposComodatosComponent, canActivate: [authGuard]},
+  {path: 'biomedica/nuevo-reporte/:id', component: CrearReporteComponent, canActivate: [authGuard]}
 ];
 
 

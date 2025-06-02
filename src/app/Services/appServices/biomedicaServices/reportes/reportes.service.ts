@@ -1,65 +1,33 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http'
-import { Observable } from 'rxjs'
+import { API_URL } from '../../../../constantes'
 import { firstValueFrom } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
 
-import {API_URL} from '../../../../constantes'
-
-
 @Injectable({
   providedIn: 'root'
 })
-export class EquiposService {
+export class ReportesService {
 
   private httpClient = inject(HttpClient);
   private router = inject(Router);
-  private baseUrl: string;
 
   constructor() {
-    this.baseUrl = API_URL;
+
   }
 
-  getAllEquipos() {
+  getReportesPreventivosMesAño(date: any) {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos`, this.createHeaders())
+      this.httpClient.post<any>(`${API_URL}/reportes/preventivosmes`, date, this.createHeaders())
     )
   }
 
-  getEquipoById(id: any) {
+  getReportesCorrectivosMesAño(date: any) {
     return firstValueFrom(
-      this.httpClient.get<any>(`${this.baseUrl}/equipo/${id}`, this.createHeaders())
+      this.httpClient.post<any>(`${API_URL}/reportes/correctivosmes`, date, this.createHeaders())
     )
-  }
-
-  getAllEquiposBajas() {
-    return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/bajas`, this.createHeaders())
-    )
-  }
-
-  getAllEquiposComodatos(idResponsable: any) {
-    return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/responsable/${idResponsable}`, this.createHeaders())
-    )
-  }
-
-  getAllEquiposTipo(idTipoEquipo: any) {
-    return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/tipo/${idTipoEquipo}`, this.createHeaders())
-    )
-  }
-
-  getAllEquiposServicio(idServicio: any) {
-    return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/servicio/${idServicio}`, this.createHeaders())
-    )
-  }
-
-  getToken() {
-    return localStorage.getItem('utoken');
   }
 
   validateToken(token: string): boolean {
@@ -102,4 +70,5 @@ export class EquiposService {
       return null;
     }
   }
+
 }

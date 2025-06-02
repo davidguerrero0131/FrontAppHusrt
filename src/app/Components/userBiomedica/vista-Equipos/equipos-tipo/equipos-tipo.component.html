@@ -3,13 +3,13 @@
 </div>
 
 <div style="margin-top: 2%; margin-bottom: 2%;">
-  <h1 style="text-align: center;">EQUIPOS BIOMEDICOS DEL TIPO:  {{tipoEquipo.nombres}}</h1>
+  <h1 style="text-align: center;">EQUIPOS BIOMEDICOS DEL TIPO: {{tipoEquipo.nombres}}</h1>
   <h6 style="text-align: center;"> Todos los equipos de tipo {{tipoEquipo.nombres}}</h6>
 </div>
 <div style="margin-left: 3%; margin-right: 3%; margin-top: 5%;">
   <div class="card">
-    <p-table #dt2 [value]="equipos" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
-      [paginator]="true" [globalFilterFields]="['nombres', 'marca', 'modelo', 'serie']"
+    <p-table #dt2 [value]="equipos" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+      [loading]="loading" [paginator]="true" [globalFilterFields]="['nombres', 'marca', 'modelo', 'serie']"
       [tableStyle]="{ 'min-width': '10rem' }">
       <ng-template pTemplate="header">
         <tr>
@@ -19,38 +19,10 @@
           <th style="width:7%">Modelo</th>
           <th style="width:7%">Serie</th>
           <th style="width:7%">Ubicacion Especidica</th>
-          <th style="width:7%">Dias Mtto</th>
           <th style="width:7%">Meses Mtto</th>
           <th style="width:7%">Registro</th>
           <th style="width:7%">Riesgo</th>
-          <th style="width:7%">Reportes</th>
-        </tr>
-        <tr>
-          <th>  </th>
-          <th>
-            <p-columnFilter type="text" field="nombres" placeholder="Buscar" ariaLabel="filtrar nombre" />
-          </th>
-          <th>
-            <p-columnFilter type="text" field="marca" placeholder="Buscar" ariaLabel="Filtrar marca" />
-          </th>
-          <th>
-            <p-columnFilter type="text" field="modelo" placeholder="Buscar" ariaLabel="Filtrar modelo" />
-          </th>
-          <th>
-            <p-columnFilter type="text" field="serie" placeholder="Buscar" ariaLabel="Filtrar serie" />
-          </th>
-          <th>
-          </th>
-          <th>
-          </th>
-          <th>
-          </th>
-          <th>
-          </th>
-          <th>
-          </th>
-          <th>
-          </th>
+          <th style="width:7%">Opciones</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-equipo>
@@ -87,17 +59,19 @@
             <!--- PARA LOS BOTONES DE FUNCIONES -->
           </td>
           <td>
-            <!--- PARA LOS BOTONES DE FUNCIONES -->
+            <span class="ml-1 vertical-align-middle">
+              {{ equipo.registroInvima }}
+            </span>
+          </td>
+          <td>
+            <span class="ml-1 vertical-align-middle">
+              {{ equipo.riesgo }}
+            </span>
           </td>
           <td>
             <!--- PARA LOS BOTONES DE FUNCIONES -->
-          </td>
-          <td>
-            <!--- PARA LOS BOTONES DE FUNCIONES -->
-          </td>
-          <td>
-            <!--- PARA LOS BOTONES DE FUNCIONES -->
-             <p-splitbutton label="HV" icon="pi pi-check" dropdownIcon="pi pi-cog" [model]="items" severity="secondary" />
+            <p-splitbutton label="HV" icon="pi pi-check" dropdownIcon="pi pi-cog" [model]="items"
+              severity="secondary" />
           </td>
         </tr>
       </ng-template>
@@ -112,4 +86,3 @@
 <div>
   <h1></h1>
 </div>
-

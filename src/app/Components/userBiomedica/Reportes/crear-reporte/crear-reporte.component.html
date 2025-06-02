@@ -1,0 +1,111 @@
+<!-- reporte-form.component.html -->
+
+<div style="width: 60%; margin-top: 5%; align-items: center;">
+
+  <div class="p-fluid p-grid p-formgrid grid">
+    <div class="field col-12 md:col-6">
+      <label for="añoProgramado">Año Programado</label>
+      <input id="añoProgramado" type="number" pInputText formControlName="añoProgramado" />
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="mesProgramado">Mes Programado</label>
+      <input id="mesProgramado" type="number" pInputText formControlName="mesProgramado" />
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="fechaRealizado">Fecha Realizado</label>
+      <p-calendar id="fechaRealizado" formControlName="fechaRealizado" dateFormat="yy-mm-dd"></p-calendar>
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="horaInicio">Hora Inicio</label>
+      <p-inputMask id="horaInicio" formControlName="horaInicio" mask="99:99" placeholder="HH:MM"></p-inputMask>
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="fechaFin">Fecha Fin</label>
+      <p-calendar id="fechaFin" formControlName="fechaFin" dateFormat="yy-mm-dd"></p-calendar>
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="horaTerminacion">Hora Terminación</label>
+      <p-inputMask id="horaTerminacion" formControlName="horaTerminacion" mask="99:99"
+        placeholder="HH:MM"></p-inputMask>
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="horaTotal">Hora Total</label>
+      <p-inputMask id="horaTotal" formControlName="horaTotal" mask="99:99" placeholder="HH:MM"></p-inputMask>
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="tipoMantenimiento">Tipo Mantenimiento</label>
+      <p-dropdown id="tipoMantenimiento" formControlName="tipoMantenimiento"
+        [options]="tiposMantenimiento"></p-dropdown>
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="tipoFalla">Tipo Falla</label>
+      <p-dropdown id="tipoFalla" formControlName="tipoFalla" [options]="tiposFalla"></p-dropdown>
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="ubicacion">Ubicación</label>
+      <input id="ubicacion" type="text" pInputText formControlName="ubicacion" />
+    </div>
+
+    <div class="field col-12">
+      <label for="motivo">Motivo</label>
+      <textarea id="motivo" pInputTextarea formControlName="motivo" rows="3"></textarea>
+    </div>
+
+    <div class="field col-12">
+      <label for="trabajoRealizado">Trabajo Realizado</label>
+      <input id="trabajoRealizado" type="text" pInputText formControlName="trabajoRealizado" />
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="calificacion">Calificación</label>
+      <input id="calificacion" type="number" pInputText formControlName="calificacion" />
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="nombreRecibio">Nombre Recibió</label>
+      <input id="nombreRecibio" type="text" pInputText formControlName="nombreRecibio" />
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="cedulaRecibio">Cédula Recibió</label>
+      <input id="cedulaRecibio" type="text" pInputText formControlName="cedulaRecibio" />
+    </div>
+
+    <div class="field col-12">
+      <label for="observaciones">Observaciones</label>
+      <textarea id="observaciones" pInputTextarea formControlName="observaciones" rows="3"></textarea>
+    </div>
+
+    <div class="field col-12 md:col-4">
+      <p-checkbox formControlName="mantenimientoPropio" binary="true" label="Mantenimiento Propio"></p-checkbox>
+    </div>
+
+    <div class="field col-12 md:col-4">
+      <p-checkbox formControlName="realizado" binary="true" label="Realizado"></p-checkbox>
+    </div>
+
+    <div class="field col-12 md:col-4">
+      <label for="rutaPdf">Ruta PDF</label>
+      <input id="rutaPdf" type="text" pInputText formControlName="rutaPdf" />
+    </div>
+
+    <div class="field col-12">
+      <label for="servicioIdFk">Servicio ID</label>
+      <input id="servicioIdFk" type="number" pInputText formControlName="servicioIdFk" />
+    </div>
+
+    <div class="field col-12">
+      <button pButton type="submit" label="Guardar" class="p-button-success"></button>
+    </div>
+  </div>
+
+</div>

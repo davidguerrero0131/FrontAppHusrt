@@ -102,47 +102,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { RippleModule } from 'primeng/ripple';
 import { StyleClassModule } from 'primeng/styleclass';
 import { MessageService } from 'primeng/api';
-import { ReportspediatricsComponent } from './Components/Servinte/Reports/reportspediatrics/reportspediatrics.component';
-import { HomeComponent } from './Components/reportsHome/home/home.component';
-import { UsuariosServicioComponent } from './Components/News2/usuarios-servicio/usuarios-servicio.component';
-import { AerolineaComponent } from './Components/Aerolinea/aerolinea/aerolinea.component';
-import { RealidadComponent } from './Components/Aerolinea/realidad/realidad/realidad.component';
-import { HomeadminsistemasComponent } from './Components/Homepage/homeadminsistemas/homeadminsistemas.component';
-import { HomeadminbiomedicaComponent } from './Components/Homepage/homeadminbiomedica/homeadminbiomedica.component';
-import { HomeadminmantenimientoComponent } from './Components/Homepage/homeadminmantenimiento/homeadminmantenimiento.component';
-import { HomesuperadminComponent } from './Components/Homepage/homesuperadmin/homesuperadmin.component';
-import { RegistroComponent } from './Components/registro/registro.component';
-import { LoginComponent } from './Components/login/login.component';
-import { SistemasadminnavbarComponent } from './Components/navbars/sistemasadminnavbar/sistemasadminnavbar.component';
-import { BiomedicaadminnavbarComponent } from './Components/navbars/biomedicaadminnavbar/biomedicaadminnavbar.component';
-import { MantenimientoadminnavbarComponent } from './Components/navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
-import { SuperadminnavbarComponent } from './Components/navbars/superadminnavbar/superadminnavbar.component';
-import { GestionUsuariosComponent } from './Components/gestion-usuarios/gestion-usuarios.component';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { HomeusermantenimientoComponent } from './Components/Homepage/homeusermantenimiento/homeusermantenimiento.component';
-import { HomeusersistemasComponent } from './Components/Homepage/homeusersistemas/homeusersistemas.component';
-import { HomeuserbiomedicaComponent } from './Components/Homepage/homeuserbiomedica/homeuserbiomedica.component';
-import { HomeadminmesaserviciosComponent } from './Components/Homepage/homeadminmesaservicios/homeadminmesaservicios.component';
-import { BiomedicausernavbarComponent } from './Components/navbars/biomedicausernavbar/biomedicausernavbar.component';
-import { ClasificacionInventarioComponent } from './Components/userBiomedica/clasificacion-inventario/clasificacion-inventario.component';
-import { ManteniminetoComponent } from './Components/userBiomedica/mantenimineto/mantenimineto.component';
-import { SemaforizacionComponent } from './Components/userBiomedica/semaforizacion/semaforizacion.component';
-import { IndicadoresComponent } from './Components/userBiomedica/indicadores/indicadores.component';
-import { CalendarioComponent } from './Components/userBiomedica/calendario/calendario.component';
-import { ClasificacionTipoEquipoComponent } from './Components/userBiomedica/clasificacion-tipo-equipo/clasificacion-tipo-equipo.component';
-import { ClasificacionServicioComponent } from './Components/userBiomedica/clasificacion-servicio/clasificacion-servicio.component';
-import { ClasificacionComodatosComponent } from './Components/userBiomedica/clasificacion-comodatos/clasificacion-comodatos.component';
-import { EquiposServicioComponent } from './Components/userBiomedica/vista-Equipos/equipos-servicio/equipos-servicio.component';
-import { EquiposTipoComponent } from './Components/userBiomedica/vista-Equipos/equipos-tipo/equipos-tipo.component';
-import { EquiposComodatosComponent } from './Components/userBiomedica/vista-Equipos/equipos-comodatos/equipos-comodatos.component';
-import { EditarUsuarioComponent } from './Components/editar-usuario/editar-usuario.component';
-import { ReportesEquipoComponent } from './Components/userBiomedica/vista-Equipos/reportes-equipo/reportes-equipo.component';
-import { NuevoReporteComponent } from './Components/userBiomedica/vista-Equipos/reportes-equipo/nuevo-reporte/nuevo-reporte.component';
-import { OlvidoContrasenaComponent } from './Components/gestionarContraseña/olvido-contrasena/olvido-contrasena.component';
-import { CambiarContrasenaComponent } from './Components/gestionarContraseña/cambiar-contrasena/cambiar-contrasena.component';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { ActividadesMetrologicasComponent } from './Components/userBiomedica/actividades-metrologicas/actividades-metrologicas.component';
 
 @Component({
   selector: 'app-root',
@@ -150,6 +111,7 @@ import { ActividadesMetrologicasComponent } from './Components/userBiomedica/act
 
     AvatarModule,
     AvatarGroupModule,
+    MessageModule,
     FormsModule,
     ReactiveFormsModule,
     AccordionModule,
