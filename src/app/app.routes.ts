@@ -31,6 +31,8 @@ import { EquiposComodatosComponent } from './Components/userBiomedica/vista-Equi
 import { EditarUsuarioComponent } from './Components/editar-usuario/editar-usuario.component';
 import { CambiarContrasenaComponent } from './Components/gestionarContraseña/cambiar-contrasena/cambiar-contrasena.component';
 import { CrearReporteComponent } from './Components/userBiomedica/Reportes/crear-reporte/crear-reporte.component';
+import { HojavidaComponent } from './Components/userBiomedica/vista-Equipos/hojavida/hojavida.component';
+import { VerReporteComponent } from './Components/userBiomedica/Reportes/ver-reporte/ver-reporte.component';
 
 export const routes: Routes = [
 
@@ -71,7 +73,9 @@ export const routes: Routes = [
   {path: 'biomedica/equiposservicio', component: EquiposServicioComponent, canActivate: [authGuard]},
   {path: 'biomedica/equipostipo', component: EquiposTipoComponent, canActivate: [authGuard]},
   {path: 'biomedica/equiposcomodatos', component: EquiposComodatosComponent, canActivate: [authGuard]},
-  {path: 'biomedica/nuevo-reporte/:id', component: CrearReporteComponent, canActivate: [authGuard]}
+  {path: 'biomedica/nuevoreporte/:id', component: CrearReporteComponent, canActivate: [authGuard]},
+  {path: 'biomedica/reportesequipos/:id', component: VerReporteComponent, canActivate: [authGuard]},
+  {path: 'biomedica/hojavidaequipo/:id', component: HojavidaComponent, canActivate: [authGuard]}
 ];
 
 

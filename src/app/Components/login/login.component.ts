@@ -14,7 +14,7 @@ import { UserService } from '../../Services/appServices/userServices/user.servic
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
   formulario: FormGroup;
   userServices = inject(UserService);
@@ -30,24 +30,29 @@ export class LoginComponent {
     });
   }
 
+  ngOnInit(): void {
+    localStorage.setItem('utoken', '');
+  }
+
   async onSubmit() {
+
     try {
       const response = await this.userServices.login(this.formulario.value);
       if (!response.error) {
-          localStorage.setItem('utoken', response.token);
-          if(this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'SYSTEMADMIN'){
-            this.router.navigate(['/adminsistemas']);
-          }else if(this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'SUPERADMIN'){
-            this.router.navigate(['/superadmin']);
-          }else if(this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'MANTENIMIENTOADMIN'){
-            this.router.navigate(['/adminmantenimiento']);
-          }else if(this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'BIOMEDICAADMIN'){
-            this.router.navigate(['/adminbiomedica']);
-          }else if(this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'BIOMEDICAUSER'){
-            this.router.navigate(['/userbiomedica']);
-          }
-
+        localStorage.setItem('utoken', response.token);
+        if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'SYSTEMADMIN') {
+          this.router.navigate(['/adminsistemas']);
+        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'SUPERADMIN') {
+          this.router.navigate(['/superadmin']);
+        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'MANTENIMIENTOADMIN') {
+          this.router.navigate(['/adminmantenimiento']);
+        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'BIOMEDICAADMIN') {
+          this.router.navigate(['/adminbiomedica']);
+        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'BIOMEDICAUSER') {
+          this.router.navigate(['/userbiomedica']);
         }
+
+      }
     } catch {
       Swal.fire({
         icon: 'warning',

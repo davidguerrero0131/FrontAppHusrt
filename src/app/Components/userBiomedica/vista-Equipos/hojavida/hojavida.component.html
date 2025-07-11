@@ -1,0 +1,78 @@
+<app-biomedicausernavbar></app-biomedicausernavbar>
+
+<div style="width: 90%; margin-left: 5%; margin-right: 5%; margin-top: 2%;">
+  <p-card *ngIf="hojaVida" header="Detalle de Hoja de Vida" class="mb-4">
+    <div class="p-fluid grid p-3">
+
+      <!-- Columna izquierda: Imagen -->
+      <div class="col-12 md:col-4 flex justify-content-center align-items-center">
+        <p-image *ngIf="hojaVida.foto" [src]="hojaVida.foto" [alt]="hojaVida.equipo?.nombres" width="250"
+          preview></p-image>
+      </div>
+
+      <!-- Columna derecha: Datos generales -->
+      <div class="col-12 md:col-8">
+        <div class="grid">
+          <div class="col-12 sm:col-6" *ngIf="hojaVida.codigoInternacional">
+            <strong>Código Internacional:</strong> {{ hojaVida.codigoInternacional }}
+          </div>
+          <div class="col-12 sm:col-6">
+            <strong>Año de Ingreso:</strong> {{ hojaVida.anoIngreso }}
+          </div>
+          <div class="col-12 sm:col-6">
+            <strong>Tipo de Adquisición:</strong> {{ hojaVida.tipoAdquisicion }}
+          </div>
+          <div class="col-12 sm:col-6">
+            <strong>Tipo de Uso:</strong> {{ hojaVida.tipoUso }}
+          </div>
+          <div class="col-12 sm:col-6">
+            <strong>Clase:</strong> {{ hojaVida.clase }}
+          </div>
+          <div class="col-12 sm:col-6">
+            <strong>Mantenimiento:</strong> {{ hojaVida.mantenimiento }}
+          </div>
+          <div class="col-12 sm:col-6">
+            <strong>Propiedad:</strong> {{ hojaVida.propiedad }}
+          </div>
+          <div class="col-12 sm:col-6">
+            <strong>Equipo Portátil:</strong> {{ hojaVida.equipoPortatil ? 'Sí' : 'No' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Accordion para secciones adicionales -->
+    <p-accordion [multiple]="true">
+      <!-- Datos del equipo -->
+      <p-accordionTab header="Datos del Equipo" *ngIf="hojaVida.equipo">
+        <div class="grid">
+          <div class="col-12 sm:col-6"><strong>Marca:</strong> {{ hojaVida.equipo.marca }}</div>
+          <div class="col-12 sm:col-6"><strong>Modelo:</strong> {{ hojaVida.equipo.modelo }}</div>
+          <div class="col-12 sm:col-6"><strong>Serie:</strong> {{ hojaVida.equipo.serie }}</div>
+          <div class="col-12 sm:col-6"><strong>Placa:</strong> {{ hojaVida.equipo.placa }}</div>
+          <div class="col-12 sm:col-6"><strong>Ubicación:</strong> {{ hojaVida.equipo.ubicacion }}</div>
+          <div class="col-12 sm:col-6"><strong>Ubicación específica:</strong> {{ hojaVida.equipo.ubicacionEspecifica }}
+          </div>
+          <div class="col-12 sm:col-6"><strong>Registro Invima:</strong> {{ hojaVida.equipo.registroInvima }}</div>
+        </div>
+      </p-accordionTab>
+
+      <!-- Datos técnicos -->
+      <p-accordionTab header="Datos Técnicos" *ngIf="hojaVida.datosTecnicos">
+        <div class="grid">
+          <div class="col-12 sm:col-6" *ngFor="let key of datosTecnicosKeys()">
+            <strong>{{ key }}:</strong> {{ hojaVida.datosTecnicos[key] }}
+          </div>
+        </div>
+      </p-accordionTab>
+    </p-accordion>
+
+    <p-divider></p-divider>
+
+    <div class="p-3">
+      <p><strong>Observaciones:</strong> {{ hojaVida.observaciones }}</p>
+    </div>
+  </p-card>
+</div>

@@ -1,88 +1,87 @@
+<!-- Navbar -->
 <app-biomedicausernavbar></app-biomedicausernavbar>
-<div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
-</div>
 
-<div style="margin-top: 2%; margin-bottom: 2%;">
-  <h1 style="text-align: center;">EQUIPOS BIOMEDICOS DEL TIPO: {{tipoEquipo.nombres}}</h1>
-  <h6 style="text-align: center;"> Todos los equipos de tipo {{tipoEquipo.nombres}}</h6>
-</div>
-<div style="margin-left: 3%; margin-right: 3%; margin-top: 5%;">
-  <div class="card">
-    <p-table #dt2 [value]="equipos" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
-      [loading]="loading" [paginator]="true" [globalFilterFields]="['nombres', 'marca', 'modelo', 'serie']"
-      [tableStyle]="{ 'min-width': '10rem' }">
+<!-- Contenedor principal -->
+<div class="p-mx-5 p-mt-4 p-p-4 bg-white shadow-2 border-round">
+
+  <!-- Títulos -->
+  <div class="text-center mb-4" style="margin-top: 2%;">
+    <h1>EQUIPOS BIOMÉDICOS DEL TIPO: {{ tipoEquipo?.nombres }}</h1>
+    <h6>Todos los equipos de tipo {{ tipoEquipo?.nombres }}</h6>
+  </div>
+
+  <!-- Tabla -->
+  <div class="card" style="margin-top: 3%; width: 94%; margin-left: 3%; margin-right: 3%;">
+    <p-table #dt2
+             [value]="equipos"
+             dataKey="id"
+             [paginator]="true"
+             [rows]="10"
+             [rowsPerPageOptions]="[10, 25, 50, 100]"
+             [loading]="loading"
+             [globalFilterFields]="['nombres', 'marca', 'modelo', 'serie', 'ubicacionEspecifica']"
+             [tableStyle]="{ 'min-width': '10rem' }">
+
+      <!-- Filtro -->
+      <ng-template #caption>
+        <div class="flex justify-content-end">
+          <p-iconfield iconPosition="left">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda General" />
+          </p-iconfield>
+        </div>
+      </ng-template>
+
+      <!-- Cabecera -->
       <ng-template pTemplate="header">
         <tr>
-          <th style="width:5%;">ID(Hv)</th>
-          <th style="width:7%;">Nombre</th>
-          <th style="width:7%">Marca</th>
-          <th style="width:7%">Modelo</th>
-          <th style="width:7%">Serie</th>
-          <th style="width:7%">Ubicacion Especidica</th>
-          <th style="width:7%">Meses Mtto</th>
-          <th style="width:7%">Registro</th>
-          <th style="width:7%">Riesgo</th>
-          <th style="width:7%">Opciones</th>
+          <th style="width:5%">ID(Hv)</th>
+          <th>Nombre</th>
+          <th>Marca</th>
+          <th>Modelo</th>
+          <th>Serie</th>
+          <th>Ubicación Específica</th>
+          <th>Meses Mtto</th>
+          <th>Registro Invima</th>
+          <th>Riesgo</th>
+          <th>Opciones</th>
         </tr>
       </ng-template>
+
+      <!-- Cuerpo -->
       <ng-template pTemplate="body" let-equipo>
         <tr>
-          <td style="text-align: center;">
-            <button type="button" class="btn btn-primary btn-sm">{{equipo.id}}</button>
+          <td class="text-center">
+            <button type="button" class="btn btn-primary btn-sm">{{ equipo.id }}</button>
           </td>
+          <td>{{ equipo.nombres }}</td>
+          <td>{{ equipo.marca }}</td>
+          <td>{{ equipo.modelo }}</td>
+          <td>{{ equipo.serie }}</td>
+          <td>{{ equipo.ubicacionEspecifica }}</td>
+          <td>{{ equipo.periodicidadM }}</td>
+          <td>{{ equipo.registroInvima }}</td>
+          <td>{{ equipo.riesgo }}</td>
           <td>
-            <span class="ml-1 vertical-align-middle">
-              {{ equipo.nombres }}
-            </span>
-          </td>
-          <td>
-            <span class="ml-1 vertical-align-middle">
-              {{ equipo.marca }}
-            </span>
-          </td>
-          <td>
-            <span class="ml-1 vertical-align-middle">
-              {{ equipo.modelo }}
-            </span>
-          </td>
-          <td>
-            <span class="ml-1 vertical-align-middle">
-              {{ equipo.serie }}
-            </span>
-          </td>
-          <td>
-            <span class="ml-1 vertical-align-middle">
-              {{ equipo.ubicacionEspecifica }}
-            </span>
-          </td>
-          <td>
-            <!--- PARA LOS BOTONES DE FUNCIONES -->
-          </td>
-          <td>
-            <span class="ml-1 vertical-align-middle">
-              {{ equipo.registroInvima }}
-            </span>
-          </td>
-          <td>
-            <span class="ml-1 vertical-align-middle">
-              {{ equipo.riesgo }}
-            </span>
-          </td>
-          <td>
-            <!--- PARA LOS BOTONES DE FUNCIONES -->
-            <p-splitbutton label="HV" icon="pi pi-check" dropdownIcon="pi pi-cog" [model]="items"
-              severity="secondary" />
+            <p-splitbutton label="HV"
+                           icon="pi pi-check"
+                           dropdownIcon="pi pi-cog"
+                           [model]="equipo.opcionesHV"
+                           severity="secondary"
+                           (onClick)="equipo.opcionesHV[1].command(equipo)">
+            </p-splitbutton>
           </td>
         </tr>
       </ng-template>
+
+      <!-- Mensaje vacío -->
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="5">No hay Equipos.</td>
+          <td colspan="10" class="text-center">No hay Equipos.</td>
         </tr>
       </ng-template>
     </p-table>
   </div>
-</div>
-<div>
-  <h1></h1>
 </div>

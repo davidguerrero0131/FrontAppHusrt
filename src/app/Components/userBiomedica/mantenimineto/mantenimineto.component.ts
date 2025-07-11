@@ -11,7 +11,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { Table } from 'primeng/table';
 import { CalendarModule } from 'primeng/calendar';
-import { DatePicker } from 'primeng/datepicker';
+import { DatePicker } from 'primeng/datepicker'
+import { Location } from '@angular/common';
+import { Console } from 'node:console';
+
 @Component({
   selector: 'app-mantenimineto',
   standalone: true,
@@ -37,7 +40,10 @@ export class ManteniminetoComponent implements OnInit {
   panelCorrectivos: boolean = false;
   panelMetas: boolean = false;
 
-  constructor() { }
+  panelRealizados: boolean = true;
+  panelPendientes: boolean = false;
+
+  constructor(private location: Location) { }
 
   async ngOnInit() {
 
@@ -105,6 +111,18 @@ export class ManteniminetoComponent implements OnInit {
     this.panelMetas = true;
   }
 
+  panelRealizadosView() {
+    this.panelRealizados = true;
+    this.panelPendientes = false;
+    console.log("Realizados");
+  }
+
+  panelPendientesView() {
+    this.panelRealizados = false;
+    this.panelPendientes = true;
+    console.log("Pendientes");
+  }
+
   onGlobalFilter(event: Event): void {
     const target = event.target as HTMLInputElement | null;
     if (target) {
@@ -122,5 +140,9 @@ export class ManteniminetoComponent implements OnInit {
       throw new Error("El número debe estar entre 1 y 12.");
     }
     return meses[numeroMes - 1];
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

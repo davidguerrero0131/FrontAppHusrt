@@ -28,6 +28,12 @@ export class EquiposService {
     )
   }
 
+  getAllEquiposSeries(){
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/seriesequipos`, this.createHeaders())
+    )
+  }
+
   getEquipoById(id: any) {
     return firstValueFrom(
       this.httpClient.get<any>(`${this.baseUrl}/equipo/${id}`, this.createHeaders())

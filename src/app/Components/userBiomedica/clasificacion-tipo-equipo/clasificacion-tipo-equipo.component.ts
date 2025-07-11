@@ -45,7 +45,7 @@ export class ClasificacionTipoEquipoComponent implements OnInit {
   }
 
   filteredTiposEquipos() {
-    return this.tiposEquipos.filter(tipoEquipo =>
+    return this.tiposEquipos?.filter(tipoEquipo =>
       tipoEquipo.nombres.toLowerCase().includes(this.searchText.toLowerCase())
     );
   }

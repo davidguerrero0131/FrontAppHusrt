@@ -1,1 +1,79 @@
-<p>ver-reporte works!</p>
+<!-- Navbar -->
+<app-biomedicausernavbar></app-biomedicausernavbar>
+
+<!-- Contenedor principal -->
+<div class="p-mx-5 p-mt-4 p-p-4 bg-white shadow-2 border-round">
+
+  <!-- Títulos -->
+  <div class="text-center mb-4" style="margin-top: 2%;">
+    <h1>REPORTES DEL EQUIPO: {{ equipo?.nombres }}</h1>
+    <h3>{{ equipo?.marca }} {{equipo?.modelo}}</h3>
+    <h6>Serie {{ equipo?.serie }}</h6>
+  </div>
+
+  <!-- Tabla -->
+  <div class="card" style="margin-top: 3%; width: 94%; margin-left: 3%; margin-right: 3%;">
+    <p-table #dt2
+             [value]="reportes"
+             dataKey="id"
+             [paginator]="true"
+             [rows]="10"
+             [rowsPerPageOptions]="[10, 25, 50, 100]"
+             [loading]="loading"
+             [globalFilterFields]="['tipoMantenimiento', 'tipoFalla', 'nombreRecibio']"
+             [tableStyle]="{ 'min-width': '10rem' }">
+
+      <!-- Filtro -->
+      <ng-template #caption>
+        <div class="flex justify-content-end">
+          <p-iconfield iconPosition="left">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda General" />
+          </p-iconfield>
+        </div>
+      </ng-template>
+
+      <!-- Cabecera -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:5%">Numero</th>
+          <th>Fecha</th>
+          <th>Total Horas</th>
+          <th>Tipo Mantenimiento</th>
+          <th>Tipo Falla</th>
+          <th>Realizo</th>
+          <th>Recibio</th>
+          <th>Observaciones</th>
+          <th>Opciones</th>
+        </tr>
+      </ng-template>
+
+      <!-- Cuerpo -->
+      <ng-template pTemplate="body" let-reportes>
+        <tr>
+          <td>{{ reportes.id }}</td>
+          <td>{{ reportes.fechaRealizado }}</td>
+          <td>{{ reportes.horaTotal }}</td>
+          <td>{{ reportes.tipoMantenimiento }}</td>
+          <td>{{ reportes.tipoFalla }}</td>
+          <td>{{ reportes.usuario?.nombres }} {{reportes.usuario?.apellidos}}</td>
+          <td>{{ reportes.nombreRecibio }}</td>
+          <td>{{ reportes.observaciones }}</td>
+          <td style="text-align: center;">
+            <p-button label="Ver" variant="text" severity="success" />
+           <p-button label="Editar" variant="text" severity="warn" />
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Mensaje vacío -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="10" class="text-center">No hay Registros de Reportes.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

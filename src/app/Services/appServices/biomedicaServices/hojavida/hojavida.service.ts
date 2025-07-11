@@ -1,40 +1,54 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http'
-import { API_URL } from '../../../../constantes'
+import { Observable } from 'rxjs'
 import { firstValueFrom } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
 
+import { API_URL } from '../../../../constantes'
+
 @Injectable({
   providedIn: 'root'
 })
-export class ReportesService {
+
+export class HojavidaService {
 
   private httpClient = inject(HttpClient);
   private router = inject(Router);
+  private baseUrl: string;
 
   constructor() {
-
+    this.baseUrl = API_URL;
   }
 
 
-  getReportesEquipo(idEquipo: any) {
+  getAllHojasVida() {
     return firstValueFrom(
-      this.httpClient.get<any>(`${API_URL}/reportes/equipo/${idEquipo}`, this.createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/hojasvida`, this.createHeaders())
     )
   }
 
-  getReportesPreventivosMesAño(date: any) {
+  getHojaVidaByIdEquipo(id: any) {
     return firstValueFrom(
-      this.httpClient.post<any>(`${API_URL}/reportes/preventivosmes`, date, this.createHeaders())
+      this.httpClient.get<any>(`${this.baseUrl}/hojavidaequipo/${id}`, this.createHeaders())
     )
   }
 
-  getReportesCorrectivosMesAño(date: any) {
+  getHojaVidaById(id: any) {
     return firstValueFrom(
-      this.httpClient.post<any>(`${API_URL}/reportes/correctivosmes`, date, this.createHeaders())
+      this.httpClient.get<any>(`${this.baseUrl}/hojasvida/${id}`, this.createHeaders())
     )
+  }
+
+  addHojaVida(hojaVida: any){
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/addhojasvida`, hojaVida, this.createHeaders())
+    )
+  }
+
+  getToken() {
+    return localStorage.getItem('utoken');
   }
 
   validateToken(token: string): boolean {

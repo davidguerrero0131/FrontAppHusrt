@@ -1,1 +1,49 @@
-<p>calendario works!</p>
+<app-biomedicausernavbar></app-biomedicausernavbar>
+<div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
+</div>
+
+<div style="margin-bottom: 2%;">
+  <h3 style="text-align: center;">PROGRAMACION DE MANTENIMIENTOS Y ACTIVIDADES METROLOGICAS</h3>
+</div>
+
+<div class="filtromes flex flex-column md:flex-row align-items-center gap-3" style="margin-bottom: 2%;">
+  <h6 class="m-0">Seleccione un mes para visualizar:</h6>
+
+  <p-datepicker [(ngModel)]="date" view="month" dateFormat="mm/yy" [readonlyInput]="true"
+    inputStyleClass="w-full md:w-10rem"></p-datepicker>
+
+  <button type="button" class="btn btn-dark" (click)="setDate()">
+    Buscar
+  </button>
+</div>
+
+<div class="btn-group botonesMenu" role="group" aria-label="Basic example">
+  <button type="button" class="btn" [ngClass]="panelActivo === 'seguimiento' ? 'btn-dark' : 'btn-light'"
+    (click)="setPanel('seguimiento')">
+    Seguimiento Actividades
+  </button>
+
+  <button type="button" class="btn" [ngClass]="panelActivo === 'mantenimientos' ? 'btn-dark' : 'btn-light'"
+    (click)="setPanel('mantenimientos')">
+    Programación Mantenimientos
+  </button>
+
+  <button type="button" class="btn" [ngClass]="panelActivo === 'metrologia' ? 'btn-dark' : 'btn-light'"
+    (click)="setPanel('metrologia')">
+    Programación Metrología
+  </button>
+
+  <button type="button" class="btn" [ngClass]="panelActivo === 'mensuales' ? 'btn-dark' : 'btn-light'"
+    (click)="setPanel('mensuales')">
+    Actividades Mensuales
+  </button>
+</div>
+
+<div style="margin-top: 1%;">
+
+</div>
+
+<div class="panelMantenimientos" *ngIf="panelActivo === 'seguimiento'">Contenido del panel Seguimiento</div>
+<div class="panelMantenimientos" *ngIf="panelActivo === 'mantenimientos'">Contenido del panel Mantenimientos</div>
+<div class="panelMantenimientos" *ngIf="panelActivo === 'metrologia'">Contenido del panel Metrología</div>
+<div class="panelMantenimientos" *ngIf="panelActivo === 'mensuales'">Contenido del panel Mensuales</div>
