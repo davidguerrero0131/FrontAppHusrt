@@ -13,7 +13,7 @@ import { Table } from 'primeng/table';
 import { CalendarModule } from 'primeng/calendar';
 import { DatePicker } from 'primeng/datepicker'
 import { Location } from '@angular/common';
-import { Console } from 'node:console';
+
 
 @Component({
   selector: 'app-mantenimineto',
@@ -50,17 +50,13 @@ export class ManteniminetoComponent implements OnInit {
     try {
       this.preventivos = await this.reportesService.getReportesPreventivosMesAño({ mes: this.mes, anio: this.anio });
       this.correctivos = await this.reportesService.getReportesCorrectivosMesAño({ mes: this.mes, anio: this.anio });
-      console.log("Preventivos:", this.preventivos.length);
-      console.log("Correctivos:", this.correctivos.length);
     } catch (error) {
-      console.log(error);
       Swal.fire({
         icon: 'error',
         title: 'No es posible cargar la informacion de los reportes',
         text: 'Error al cargar los reportes, intente más tarde.'
       })
     }
-
   }
 
   async setDate() {
@@ -93,19 +89,16 @@ export class ManteniminetoComponent implements OnInit {
   }
 
   viewPreventivos() {
-    console.log("Preventivos");
     this.panelPreventivos = true;
     this.panelCorrectivos = false;
     this.panelMetas = false;
   }
   viewCorrectivos() {
-    console.log("Correctivos");
     this.panelPreventivos = false;
     this.panelCorrectivos = true;
     this.panelMetas = false;
   }
   viewMetas() {
-    console.log("Metas");
     this.panelPreventivos = false;
     this.panelCorrectivos = false;
     this.panelMetas = true;
@@ -114,13 +107,11 @@ export class ManteniminetoComponent implements OnInit {
   panelRealizadosView() {
     this.panelRealizados = true;
     this.panelPendientes = false;
-    console.log("Realizados");
   }
 
   panelPendientesView() {
     this.panelRealizados = false;
     this.panelPendientes = true;
-    console.log("Pendientes");
   }
 
   onGlobalFilter(event: Event): void {

@@ -1,4 +1,5 @@
 <app-biomedicausernavbar></app-biomedicausernavbar>
+
 <div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
 </div>
 
@@ -106,7 +107,7 @@
             </td>
             <td style="text-align: center; align-items: center; text-align: center">
               <span class="ml-1 vertical-align-middle">
-                {{ reporte.usuario.nombres}} {{reporte.usuario.apellidos}}
+                -{{ reporte.usuario?.nombres}} {{reporte.usuario?.apellidos}}
               </span>
             </td>
             <td style="text-align: center; align-items: center; text-align: center">
@@ -117,7 +118,7 @@
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="5">No hay Equipos.</td>
+            <td colspan="5">No hay Reportes.</td>
           </tr>
         </ng-template>
       </p-table>
@@ -206,7 +207,7 @@
             </td>
             <td style="text-align: center; align-items: center; text-align: center">
               <span class="ml-1 vertical-align-middle">
-                {{ reporte.usuario.nombres}} {{reporte.usuario.apellidos}}
+                -{{ reporte.usuario?.nombres}} {{reporte.usuario?.apellidos}}
               </span>
             </td>
             <td style="text-align: center; align-items: center; text-align: center">
@@ -217,7 +218,7 @@
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="5">No hay Equipos.</td>
+            <td colspan="5">No hay Reportes.</td>
           </tr>
         </ng-template>
       </p-table>
@@ -295,7 +296,7 @@
             </td>
             <td style="text-align: center; align-items: center; text-align: center">
               <span class="ml-1 vertical-align-middle">
-                {{ reporte.usuario.nombres}} {{reporte.usuario.apellidos}}
+                -{{ reporte.usuario?.nombres}} {{reporte.usuario?.apellidos}}
               </span>
             </td>
             <td style="text-align: center; align-items: center; text-align: center">
@@ -306,7 +307,7 @@
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="5">No hay Equipos.</td>
+            <td colspan="5">No hay Reportes.</td>
           </tr>
         </ng-template>
       </p-table>
@@ -392,7 +393,7 @@
             </td>
             <td style="text-align: center; align-items: center; text-align: center">
               <span class="ml-1 vertical-align-middle" *ngIf="reporte.usuario">
-                {{ reporte.usuario.nombres}} {{reporte.usuario.apellidos}}
+                -{{ reporte.usuario?.nombres}} {{reporte.usuario?.apellidos}}
               </span>
               <span class="ml-1 vertical-align-middle" *ngIf="!reporte.usuario">x
               </span>
@@ -404,7 +405,7 @@
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="5">No hay Equipos.</td>
+            <td colspan="5">No hay Reportes.</td>
           </tr>
         </ng-template>
       </p-table>

@@ -34,4 +34,8 @@ export class HomeuserbiomedicaComponent {
   showViewCalendarioBio(){
     this.router.navigate(['/biomedica/calendario']);
   }
+
+  showViewActividadesMetrologicasBio(){
+    this.router.navigate(['/biomedica/actividadesmetrologicas']);
+  }
 }

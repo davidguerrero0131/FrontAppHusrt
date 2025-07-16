@@ -33,6 +33,7 @@ import { CambiarContrasenaComponent } from './Components/gestionarContraseña/ca
 import { CrearReporteComponent } from './Components/userBiomedica/Reportes/crear-reporte/crear-reporte.component';
 import { HojavidaComponent } from './Components/userBiomedica/vista-Equipos/hojavida/hojavida.component';
 import { VerReporteComponent } from './Components/userBiomedica/Reportes/ver-reporte/ver-reporte.component';
+import { ActividadesMetrologicasComponent } from './Components/userBiomedica/actividades-metrologicas/actividades-metrologicas.component';
 
 export const routes: Routes = [
 
@@ -67,6 +68,7 @@ export const routes: Routes = [
   {path: 'biomedica/semaforizacion', component: SemaforizacionComponent, canActivate: [authGuard]},
   {path: 'biomedica/indicadores', component: IndicadoresComponent, canActivate: [authGuard]},
   {path: 'biomedica/calendario', component: CalendarioComponent, canActivate: [authGuard]},
+  {path: 'biomedica/actividadesmetrologicas', component: ActividadesMetrologicasComponent, canActivate: [authGuard]},
   {path: 'biomedica/tiposequipo', component: ClasificacionTipoEquipoComponent, canActivate: [authGuard]},
   {path: 'biomedica/servicios', component: ClasificacionServicioComponent, canActivate: [authGuard]},
   {path: 'biomedica/empComodatos', component: ClasificacionComodatosComponent, canActivate: [authGuard]},
