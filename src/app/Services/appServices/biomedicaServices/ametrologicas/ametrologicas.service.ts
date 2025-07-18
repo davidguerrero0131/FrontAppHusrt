@@ -3,22 +3,21 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { createHeaders } from './../../../../utilidades';
 
+
 import { API_URL } from '../../../../constantes'
 
 @Injectable({
   providedIn: 'root'
 })
-export class MantenimientosService {
+export class AmetrologicasService {
 
   private httpClient = inject(HttpClient);
 
-  constructor() {
-  }
+  constructor() { }
 
-  getPlanMantenimientoMes(mes: any) {
+  getPlanABiometricasMes(mes: any) {
     return firstValueFrom(
-      this.httpClient.post<any>(`${API_URL}/planmantenimientomes`, mes, createHeaders())
+      this.httpClient.post<any>(`${API_URL}/planactividadmetrologicames`, mes, createHeaders())
     )
   }
 }
-

@@ -63,13 +63,9 @@ export class ManteniminetoComponent implements OnInit {
     if (this.date) {
       this.mes = this.date.getMonth() + 1;
       this.anio = this.date.getFullYear();
-      console.log("Mes:", this.mes);
-      console.log("Año:", this.anio);
       try {
         this.preventivos = await this.reportesService.getReportesPreventivosMesAño({ mes: this.mes, anio: this.anio });
         this.correctivos = await this.reportesService.getReportesCorrectivosMesAño({ mes: this.mes, anio: this.anio });
-        console.log("Preventivos:", this.preventivos.length);
-        console.log("Correctivos:", this.correctivos.length);
       } catch (error) {
         console.log(error);
         Swal.fire({

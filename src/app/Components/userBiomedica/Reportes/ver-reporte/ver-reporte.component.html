@@ -13,15 +13,10 @@
 
   <!-- Tabla -->
   <div class="card" style="margin-top: 3%; width: 94%; margin-left: 3%; margin-right: 3%;">
-    <p-table #dt2
-             [value]="reportes"
-             dataKey="id"
-             [paginator]="true"
-             [rows]="10"
-             [rowsPerPageOptions]="[10, 25, 50, 100]"
-             [loading]="loading"
-             [globalFilterFields]="['tipoMantenimiento', 'tipoFalla', 'nombreRecibio']"
-             [tableStyle]="{ 'min-width': '10rem' }">
+    <p-table #dt2 [value]="reportes" dataKey="id" [paginator]="true" [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
+      [globalFilterFields]="['tipoMantenimiento', 'tipoFalla', 'nombreRecibio']"
+      [tableStyle]="{ 'min-width': '10rem' }">
 
       <!-- Filtro -->
       <ng-template #caption>
@@ -61,9 +56,12 @@
           <td>{{ reportes.usuario?.nombres }} {{reportes.usuario?.apellidos}}</td>
           <td>{{ reportes.nombreRecibio }}</td>
           <td>{{ reportes.observaciones }}</td>
-          <td style="text-align: center;">
+          <td style="text-align: center;" *ngIf=" reportes.tipoMantenimiento === 'Correctivo' ||  reportes.realizado">
             <p-button label="Ver" variant="text" severity="success" />
-           <p-button label="Editar" variant="text" severity="warn" />
+            <p-button label="Editar" variant="text" severity="warn" />
+          </td>
+          <td style="text-align: center;" *ngIf="!reportes.realizado && reportes.tipoMantenimiento !== 'Correctivo'">
+            <p-button label="Pendiente"  severity="danger" />
           </td>
         </tr>
       </ng-template>

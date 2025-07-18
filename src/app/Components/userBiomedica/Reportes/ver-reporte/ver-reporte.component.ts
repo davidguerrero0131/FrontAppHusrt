@@ -10,9 +10,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-ver-reporte',
-  imports: [BiomedicausernavbarComponent, TableModule, IconFieldModule, InputIconModule, InputTextModule, SplitButtonModule, ButtonModule],
+  imports: [BiomedicausernavbarComponent, TableModule, IconFieldModule, InputIconModule, InputTextModule, SplitButtonModule, ButtonModule, CommonModule],
   templateUrl: './ver-reporte.component.html',
   styleUrl: './ver-reporte.component.css'
 })
