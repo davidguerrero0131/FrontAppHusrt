@@ -27,4 +27,28 @@ export class MetrologiaService {
       this.httpClient.post<any>(`${API_URL}/reportesMetrologicosmes`, date, createHeaders())
     )
   }
+
+  getPlanActividadesMesAño(date: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${API_URL}/planactividadmetrologicames`, date, createHeaders())
+    )
+  }
+
+  getPlanAMetrologicasTipoEquipo(idTipoEquipo: any) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/planametrologicastipoequipo/` + idTipoEquipo, createHeaders())
+    )
+  }
+
+  getPlanAMetrologicasServicio(idServicio: any) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/planametrologicasservicio/` + idServicio, createHeaders())
+    )
+  }
+
+  programarActividadesMetrologicasMes(date: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${API_URL}/programacionmetrologiames`, date, createHeaders())
+    )
+  }
 }

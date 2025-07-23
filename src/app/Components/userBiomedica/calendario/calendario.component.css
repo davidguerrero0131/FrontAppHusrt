@@ -1,4 +1,4 @@
-.panelMantenimientos{
+.panelPlanes {
 
   width: 95%;
   height: 70%;
@@ -6,7 +6,7 @@
 }
 
 
-.botonesMenu{
+.botonesMenu {
   align-items: center;
   width: 90%;
   margin-left: 5%;
@@ -14,10 +14,29 @@
   align-content: center;
 }
 
-.filtromes{
+.filtromes {
   align-items: center;
   width: 90%;
   margin-left: 5%;
   margin-right: 5%;
   align-content: center;
+}
+
+.contenedor {
+  display: flex;
+  width: 100%;
+  height: 200px;
+}
+
+.izquierda {
+  width: 25%;
+  align-items: center;
+  text-align: center;
+}
+
+.derecha {
+  width: 75%;
+  background-color: #f8d7da;
+  align-items: center;
+  text-align: center;
 }

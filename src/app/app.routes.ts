@@ -34,6 +34,7 @@ import { CrearReporteComponent } from './Components/userBiomedica/Reportes/crear
 import { HojavidaComponent } from './Components/userBiomedica/vista-Equipos/hojavida/hojavida.component';
 import { VerReporteComponent } from './Components/userBiomedica/Reportes/ver-reporte/ver-reporte.component';
 import { ActividadesMetrologicasComponent } from './Components/userBiomedica/actividades-metrologicas/actividades-metrologicas.component';
+import { IntranetComponent } from './Components/intranet/intranet.component';
 
 export const routes: Routes = [
 
@@ -77,7 +78,9 @@ export const routes: Routes = [
   {path: 'biomedica/equiposcomodatos', component: EquiposComodatosComponent, canActivate: [authGuard]},
   {path: 'biomedica/nuevoreporte/:id', component: CrearReporteComponent, canActivate: [authGuard]},
   {path: 'biomedica/reportesequipos/:id', component: VerReporteComponent, canActivate: [authGuard]},
-  {path: 'biomedica/hojavidaequipo/:id', component: HojavidaComponent, canActivate: [authGuard]}
+  {path: 'biomedica/hojavidaequipo/:id', component: HojavidaComponent, canActivate: [authGuard]},
+
+  {path: 'intranet', component: IntranetComponent}
 ];
 
 

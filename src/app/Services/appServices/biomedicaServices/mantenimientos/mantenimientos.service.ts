@@ -15,10 +15,33 @@ export class MantenimientosService {
   constructor() {
   }
 
+  getPlanABiometricasMes(mes: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${API_URL}/planactividadmetrologicames`, mes, createHeaders())
+    )
+  }
+
   getPlanMantenimientoMes(mes: any) {
     return firstValueFrom(
       this.httpClient.post<any>(`${API_URL}/planmantenimientomes`, mes, createHeaders())
     )
   }
-}
 
+  getPlanMantenimientoServicio(idServicio: any) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/planmantenimientoservicio/` + idServicio, createHeaders())
+    )
+  }
+
+  getPlanMantenimientoTipoEquipo(idTipoEquipo: any) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/planmantenimientotipoequipo/` + idTipoEquipo, createHeaders())
+    )
+  }
+
+  programacionMantenimientoResponsable(date: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${API_URL}/programacionpreventivosresponsable`, date, createHeaders())
+    )
+  }
+}
