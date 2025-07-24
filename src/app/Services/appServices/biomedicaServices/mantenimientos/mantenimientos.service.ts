@@ -15,9 +15,9 @@ export class MantenimientosService {
   constructor() {
   }
 
-  getPlanABiometricasMes(mes: any) {
+  getPlanMantenimientoEquipo(idEquipo: any) {
     return firstValueFrom(
-      this.httpClient.post<any>(`${API_URL}/planactividadmetrologicames`, mes, createHeaders())
+      this.httpClient.get<any>(`${API_URL}/planmantenimientoequipo/` + idEquipo, createHeaders())
     )
   }
 
