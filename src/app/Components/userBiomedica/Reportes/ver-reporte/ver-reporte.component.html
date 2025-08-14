@@ -57,11 +57,12 @@
           <td>{{ reportes.nombreRecibio }}</td>
           <td>{{ reportes.observaciones }}</td>
           <td style="text-align: center;" *ngIf=" reportes.tipoMantenimiento === 'Correctivo' ||  reportes.realizado">
-            <p-button label="Ver" variant="text" severity="success" />
-            <p-button label="Editar" variant="text" severity="warn" />
+            <button type="button" class="btn btn-dark btn-sm" style="margin: 2%;"
+              (click)="viewModalReport(reportes)">Ver</button>
+            <button type="button" class="btn btn-secondary btn-sm" *ngIf="!reportes.rutaPdf">Editar</button>
           </td>
           <td style="text-align: center;" *ngIf="!reportes.realizado && reportes.tipoMantenimiento !== 'Correctivo'">
-            <p-button label="Pendiente"  severity="danger" />
+            <button type="button" class="btn btn-warning btn-sm" (click)="viewModalReport(reportes)">Pendiente</button>
           </td>
         </tr>
       </ng-template>
@@ -74,4 +75,97 @@
       </ng-template>
     </p-table>
   </div>
+</div>
+
+
+
+
+<div class="card flex justify-center">
+
+  <p-dialog header="Reporte N. {{ reportSelected?.id }}" [(visible)]="modalReport" [modal]="true" [responsive]="true"
+    [style]="{ width: '90vw', maxWidth: '95%' }" [baseZIndex]="10000"
+    [breakpoints]="{ '960px': '90vw', '640px': '95vw' }">
+    <div class="p-fluid p-3">
+
+      <!-- 1. Línea: Información del Equipo -->
+      <div class="grid">
+        <div class="col-12">
+          <p-card header="Información del Equipo">
+            <div class="p-text-sm grid">
+              <div class="col-12 md:col-4">
+                <p><strong>Nombre:</strong> {{ reportSelected?.equipo.nombres }}</p>
+                <p><strong>Marca:</strong> {{ reportSelected?.equipo.marca }}</p>
+                <p><strong>Modelo:</strong> {{ reportSelected?.equipo.modelo }}</p>
+              </div>
+              <div class="col-12 md:col-4">
+                <p><strong>Serie:</strong> {{ reportSelected?.equipo.serie }}</p>
+                <p><strong>Placa:</strong> {{ reportSelected?.equipo.placa }}</p>
+                <p><strong>Activo:</strong> {{ reportSelected?.equipo.activo ? 'Sí' : 'No' }}</p>
+              </div>
+              <div class="col-12 md:col-4">
+                <p><strong>Servicio:</strong> {{ reportSelected?.servicio.nombres }}</p>
+                <p><strong>Ubicación:</strong> {{ reportSelected?.equipo.ubicacion }}</p>
+                <p><strong>Ubicación Específica:</strong> {{ reportSelected?.equipo.ubicacionEspecifica }}</p>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+
+      <!-- 2. Línea: Detalles del Reporte -->
+      <div class="grid">
+        <div class="col-12">
+          <p-card header="Detalle del Reporte">
+            <div class="p-text-sm grid">
+              <div class="col-12 md:col-4">
+                <p><strong>Mes Programado:</strong> {{ reportSelected?.mesProgramado + 1 }}</p>
+                <p><strong>Fecha Realizado:</strong> {{ reportSelected?.fechaRealizado }}</p>
+                <p><strong>Hora Inicio:</strong> {{ reportSelected?.horaInicio }}</p>
+                <p><strong>Fecha Fin:</strong> {{ reportSelected?.fechaFin }}</p>
+                <p><strong>Trabajo Realizado:</strong> {{ reportSelected?.trabajoRealizado }}</p>
+              </div>
+              <div class="col-12 md:col-4">
+                <p><strong>Hora Terminación:</strong> {{ reportSelected?.horaTerminacion }}</p>
+                <p><strong>Hora Total:</strong> {{ reportSelected?.horaTotal }}</p>
+                <p><strong>Tipo Mantenimiento:</strong> {{ reportSelected?.tipoMantenimiento }}</p>
+                <p><strong>Tipo Falla:</strong> {{ reportSelected?.tipoFalla }}</p>
+                <p><strong>Observaciones:</strong> {{ reportSelected?.observaciones }}</p>
+              </div>
+              <div class="col-12 md:col-4">
+                <p><strong>Motivo:</strong> {{ reportSelected?.motivo }}</p>
+                <p><strong>Calificación:</strong> {{ reportSelected?.calificacion }}</p>
+                <p><strong>Mantenimiento Propio:</strong> {{ reportSelected?.mantenimientoPropio ? 'Sí' : 'No' }}</p>
+                <p><strong>Realizado:</strong> {{ reportSelected?.realizado ? 'Sí' : 'No' }}</p>
+
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+
+      <!-- 3. Línea: Servicio + Usuario + PDF -->
+      <div class="grid">
+        <div class="col-12 md:col-6 lg:col-4">
+          <p-card header="Usuario Responsable">
+            <div class="p-text-sm">
+              <p><strong>Nombre:</strong> {{ reportSelected?.usuario.nombres }} {{ reportSelected?.usuario.apellidos }}
+              </p>
+              <p><strong>Cédula:</strong> {{ reportSelected?.usuario.numeroId }}</p>
+              <p><strong>Email:</strong> {{ reportSelected?.usuario.email }}</p>
+              <p><strong>Registro Invima:</strong> {{ reportSelected?.usuario.registroInvima }}</p>
+            </div>
+          </p-card>
+        </div>
+
+        <div class="col-12 lg:col-4 text-center flex align-items-center justify-content-center">
+          <div *ngIf="reportSelected?.rutaPdf" class="mt-4">
+            <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)" *ngIf="reportSelected?.rutaPdf">Ver Reporte</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </p-dialog>
+
+
 </div>

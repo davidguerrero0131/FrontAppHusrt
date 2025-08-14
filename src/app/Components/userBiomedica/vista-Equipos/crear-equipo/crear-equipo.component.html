@@ -1,0 +1,122 @@
+
+    <div style="width: 90%; margin-left: 5%;">
+      <h1 style="text-align: center; margin-top: 40px;">Registro de Equipos</h1>
+      <div class="card" style="margin-top: 5%;">
+        <div class="card-body">
+          <form [formGroup]="equipoForm" (ngSubmit)="guardar()">
+
+            <div class="row g-3">
+
+              <div class="col-md-6">
+                <label>Tipo de Equipo</label>
+                <select formControlName="tipoEquipoIdFk" class="form-control">
+                  <option value="">Seleccione...</option>
+                  <option *ngFor="let t of tiposequipo" [value]="t.id">{{ t.nombres }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label>Nombre del equipo</label>
+                <input type="text" formControlName="nombres" class="form-control"
+                  placeholder="Ej: Monitor de signos vitales" appUppercase />
+              </div>
+
+              <div class="col-md-6">
+                <label>Marca</label>
+                <input type="text" formControlName="marca" class="form-control" appUppercase />
+              </div>
+
+              <div class="col-md-6">
+                <label>Modelo</label>
+                <input type="text" formControlName="modelo" class="form-control" appUppercase />
+              </div>
+
+              <div class="col-md-6">
+                <label>Serie</label>
+                <input type="text" formControlName="serie" class="form-control" appUppercase />
+              </div>
+
+              <div class="col-md-6">
+                <label>Placa</label>
+                <input type="text" formControlName="placa" class="form-control" appUppercase />
+              </div>
+
+              <div class="col-md-6">
+                <label>Registro INVIMA</label>
+                <input type="text" formControlName="registroInvima" class="form-control" appUppercase />
+              </div>
+
+              <div class="col-md-6">
+                <label>Riesgo</label>
+                <select formControlName="riesgo" class="form-control">
+                  <option value="I">I</option>
+                  <option value="IIA">IIA</option>
+                  <option value="IIB">IIB</option>
+                  <option value="III">III</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label>Servicio</label>
+                <select formControlName="servicioIdFk" class="form-control">
+                  <option value="">Seleccione...</option>
+                  <option *ngFor="let s of servicios" [value]="s.id">{{ s.nombres }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label>Ubicación</label>
+                <input type="text" formControlName="ubicacion" class="form-control" appUppercase />
+              </div>
+
+              <div class="col-md-6">
+                <label>Ubicación específica</label>
+                <input type="text" formControlName="ubicacionEspecifica" class="form-control" appUppercase />
+              </div>
+
+              <div class="col-md-6">
+                <label>Sede</label>
+                <select formControlName="sedeIdFk" class="form-control">
+                  <option value="">Seleccione...</option>
+                  <option *ngFor="let sd of sedes" [value]="sd.id">{{ sd.nombres }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label>Responsable</label>
+                <select formControlName="responsableIdFk" class="form-control">
+                  <option value="">Seleccione...</option>
+                  <option *ngFor="let r of responsables" [value]="r.id">{{ r.nombres }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label>Numero de Mantenimiento Preventivos Anuales:</label>
+                <input type="number" max="12" formControlName="periodicidadM" class="form-control" />
+              </div>
+
+              <div class="col-md-12" style="margin-top: 30px; margin-bottom: 20px;">
+                <div class="form-check form-check-inline">
+                  <input type="checkbox" formControlName="actividadMetrologica" class="form-check-input" id="calificacion" />
+                  <label for="actividadMetrologica" class="form-check-label">Requiere Actividades Metrologicas</label>
+                </div>
+              </div>
+
+              <div class="col-md-6" *ngIf="equipoForm.get('actividadMetrologica')?.value">
+                <label>Numero de Actividades Metrologicas Anulaes:</label>
+                <input type="number" max="12" formControlName="periodicidadAM" class="form-control" />
+              </div>
+
+            </div>
+
+            <div class="text-center mt-4">
+              <button type="button" (click)="guardar()" class="btn btn-dark px-5" style="margin: 10px;">Guardar</button>
+              <button type="button" class="btn btn-secondary px-5">Regresar</button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+

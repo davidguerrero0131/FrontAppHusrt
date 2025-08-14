@@ -35,6 +35,8 @@ import { HojavidaComponent } from './Components/userBiomedica/vista-Equipos/hoja
 import { VerReporteComponent } from './Components/userBiomedica/Reportes/ver-reporte/ver-reporte.component';
 import { ActividadesMetrologicasComponent } from './Components/userBiomedica/actividades-metrologicas/actividades-metrologicas.component';
 import { IntranetComponent } from './Components/intranet/intranet.component';
+import { ValidadorQRComponent } from './Components/userBiomedica/Reportes/validador-qr/validador-qr.component';
+import { CrearEquipoComponent } from './Components/userBiomedica/vista-Equipos/crear-equipo/crear-equipo.component';
 
 export const routes: Routes = [
 
@@ -64,6 +66,8 @@ export const routes: Routes = [
   {path: 'recuperarcontraseña', component: CambiarContrasenaComponent},
 
   // UsuarioBiomedica
+
+  {path: 'biomedica/nuevoequipo', component: CrearEquipoComponent, canActivate: [authGuard]},
   {path: 'biomedica/inventario', component: ClasificacionInventarioComponent, canActivate: [authGuard]},
   {path: 'biomedica/mantenimiento', component: ManteniminetoComponent, canActivate: [authGuard]},
   {path: 'biomedica/semaforizacion', component: SemaforizacionComponent, canActivate: [authGuard]},
@@ -79,6 +83,7 @@ export const routes: Routes = [
   {path: 'biomedica/nuevoreporte/:id', component: CrearReporteComponent, canActivate: [authGuard]},
   {path: 'biomedica/reportesequipos/:id', component: VerReporteComponent, canActivate: [authGuard]},
   {path: 'biomedica/hojavidaequipo/:id', component: HojavidaComponent, canActivate: [authGuard]},
+  {path: 'biomedica/validarqr', component: ValidadorQRComponent, canActivate: [authGuard]},
 
   {path: 'intranet', component: IntranetComponent}
 ];

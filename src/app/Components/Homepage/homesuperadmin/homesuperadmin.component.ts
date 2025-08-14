@@ -22,4 +22,14 @@ export class HomesuperadminComponent {
   showViewUsers(){
     this.router.navigate(['/admusuarios']);
   }
+
+  newEquipo(){
+    this.router.navigate(['/biomedica/nuevoequipo']);
+  }
+
+  viewEquipos(){
+    this.router.navigate(['/biomedica/inventario']);
+  }
+
+
 }

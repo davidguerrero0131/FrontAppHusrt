@@ -34,4 +34,22 @@ export class ReportesService {
       this.httpClient.post<any>(`${API_URL}/reportes/correctivosmes`, date, createHeaders())
     )
   }
+
+  getPreventivoProgramado(idReporte: any) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/reporte/${idReporte}`, createHeaders())
+    )
+  }
+
+  ActualizarPreventivoProgramado(idReporte: any, reporte: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${API_URL}/actualizarreporte/${idReporte}`, reporte, createHeaders())
+    )
+  }
+
+  CrearReporteCorrectivo(reporte: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${API_URL}/addreporte`, reporte, createHeaders())
+    )
+  }
 }

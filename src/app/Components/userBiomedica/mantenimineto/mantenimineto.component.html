@@ -112,7 +112,7 @@
             </td>
             <td style="text-align: center; align-items: center; text-align: center">
               <button type="button" class="btn btn-success" *ngIf="reporte.realizado">REALIZADO</button>
-              <button type="button" class="btn btn-danger" *ngIf="!reporte.realizado">PENDIENTE</button>
+              <button type="button" class="btn btn-warning" (click) = "nuevoReporte(reporte.equipo.id, reporte.id)" *ngIf="!reporte.realizado" >PENDIENTE</button>
             </td>
           </tr>
         </ng-template>

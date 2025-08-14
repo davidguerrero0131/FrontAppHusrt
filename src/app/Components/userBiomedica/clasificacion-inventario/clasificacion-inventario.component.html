@@ -7,50 +7,71 @@
   <h6 style="text-align: center;">Busque equipos por servicio, tipos de equipo o comodatos.</h6>
 </div>
 
-<div class="contenedor-busqueda">
-  <h6>Busque equipos por serie:</h6>
-  <select class="form-select" id="selectOpciones" [(ngModel)]="equipoSeleccionado">
-    <option *ngFor="let equipo of equipos" [value]="equipo.serie">
-      {{ equipo.serie }}
-    </option>
-  </select>
+<div class="busqueda-container">
+  <h3 class="busqueda-titulo">Búsqueda por serie</h3>
+
+  <p-select
+    [options]="equipos"
+    [(ngModel)]="selectedEquipo"
+    optionLabel="serie"
+    [filter]="true"
+    filterBy="serie"
+    [showClear]="true"
+    placeholder="Buscar por serie"
+    class="busqueda-select"
+  >
+    <ng-template #selectedItem let-selectedOption>
+      <div class="select-item">
+        <div>{{ selectedOption.serie }}</div>
+      </div>
+    </ng-template>
+    <ng-template let-equipo #item>
+      <div class="select-item">
+        <div>{{ equipo.serie }}</div>
+      </div>
+    </ng-template>
+  </p-select>
+
+  <button type="button" class="busqueda-boton" (click)="buscarEquipo()">Buscar</button>
 </div>
+
+
 
 <div style="margin-top: 3%;">
-<div class="grid-container">
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">TIPO DE EQUIPO</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-music-player-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
+  <div class="grid-container">
+    <div class="grid-item">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">TIPO DE EQUIPO</h5>
+          <div style="text-align: center; margin-bottom: 30px;">
+            <i class="bi bi-music-player-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
+          </div>
+          <button type="button" class="btn btn-dark" (click)=showViewTiposEquipoBio()>VER TIPOS DE EQUIPO</button>
         </div>
-        <button type="button" class="btn btn-dark" (click)=showViewTiposEquipoBio()>VER TIPOS DE EQUIPO</button>
       </div>
     </div>
-  </div>
 
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">SERVICIO</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-bookmark-heart-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
+    <div class="grid-item">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">SERVICIO</h5>
+          <div style="text-align: center; margin-bottom: 30px;">
+            <i class="bi bi-bookmark-heart-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
+          </div>
+          <button type="button" class="btn btn-dark" (click)=showViewServicios()>VER SERVICIOS</button>
         </div>
-        <button type="button" class="btn btn-dark" (click)=showViewServicios()>VER SERVICIOS</button>
       </div>
     </div>
-  </div>
 
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">COMODATOS</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-file-earmark-medical-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
+    <div class="grid-item">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">COMODATOS</h5>
+          <div style="text-align: center; margin-bottom: 30px;">
+            <i class="bi bi-file-earmark-medical-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
+          </div>
+          <button type="button" class="btn btn-dark" (click)=showViewEmpComodatos()>VER COMODATOS</button>
         </div>
-        <button type="button" class="btn btn-dark" (click)=showViewEmpComodatos()>VER COMODATOS</button>
       </div>
     </div>
   </div>
-</div>

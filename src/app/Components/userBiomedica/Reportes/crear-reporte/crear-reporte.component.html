@@ -1,7 +1,7 @@
 <app-biomedicausernavbar></app-biomedicausernavbar>
 
 <div class="title-container">
-  <h2><strong> REPORTE DE MANTENIMINETO </strong></h2>
+  <h2><strong> REPORTE DE MANTENIMINETO {{convertirMayusculas(tipoMantenimiento)}}</strong></h2>
 </div>
 
 <div class="title-container">
@@ -83,17 +83,12 @@
         <div class="form-item">
           <label>Tipo de Mantenimiento</label>
           <p-select [options]="tiposMantenimiento" formControlName="tipoMantenimiento"
-            placeholder="Seleccione"></p-select>
+            placeholder="tipoMantenimiento"></p-select>
         </div>
 
         <div class="form-item">
           <label>Tipo de Falla</label>
           <p-select [options]="tiposFalla" formControlName="tipoFalla" placeholder="Seleccione"></p-select>
-        </div>
-
-        <div class="form-item">
-          <label>Ubicación</label>
-          <input pInputText formControlName="ubicacion" />
         </div>
 
         <div class="form-item">
@@ -144,23 +139,31 @@
         <h4><strong> PROTOCOLO PREVENTIVO </strong></h4>
         <H6>Seleccione los pasos realizados en el mantenimiento</H6>
       </div>
-
-      <div style="margin-top: 2%;" *ngIf="reporteForm.get('tipoMantenimiento')?.value === 'Preventivo'">
-        <div *ngFor="let protocolo of protocolos" class="protocolo-div flex items-center">
-          <p-checkbox [inputId]="protocolo.id" name="group" [value]="protocolo.id" />
-          <label [for]="protocolo.id" class="ml-2"> {{ protocolo.paso }} </label>
+      <div *ngIf="reporteForm.get('tipoMantenimiento')?.value === 'Preventivo'">
+        <div formArrayName="cumplimientoProtocolo">
+          <div *ngFor="let grupo of cumplimientoProtocoloFormArray.controls; let i = index" [formGroupName]="i"
+            class="protocolo-div flex items-center">
+            <p-checkbox binary="true" formControlName="cumple"
+              [inputId]="'chk-' + grupo.get('protocoloIdFk')?.value">
+            </p-checkbox>
+            <label [for]="'chk-' + grupo.get('protocoloIdFk')?.value" class="ml-2">
+              {{ grupo.get('paso')?.value }}
+            </label>
+          </div>
         </div>
       </div>
+
 
       <div style="margin-top: 3%;"></div>
 
       <div class="custom-grid">
         <button type="submit" class="btn btn-dark">Guardar</button>
         <button type="button" class="btn btn-secondary" (click)="goBack()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="validarQR()">ValidarQR</button>
+        <button type="button" class="btn btn-primary" (click)="testViewCumplimiento()">Validar Cumplimiento</button>
         <div></div>
         <div></div>
       </div>
-
     </form>
   </p-card>
 </div>

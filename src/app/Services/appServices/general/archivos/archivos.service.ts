@@ -16,10 +16,10 @@ export class ArchivosService {
   constructor() { }
 
   getArchivo(ruta: string) {
-  return firstValueFrom(
-    this.httpClient.post(`${API_URL}/imagenequipohvtest`, { ruta: ruta }, {
-      responseType: 'blob'
-    })
-  );
-}
+    return firstValueFrom(
+      this.httpClient.post(`${API_URL}/obtenerarchivopdf`, { ruta: ruta }, {
+        responseType: 'blob'
+      })
+    );
+  }
 }

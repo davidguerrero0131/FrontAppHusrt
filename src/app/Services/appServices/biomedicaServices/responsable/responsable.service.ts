@@ -6,7 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
 
-import {API_URL} from '../../../../constantes'
+import { API_URL } from '../../../../constantes'
 
 
 @Injectable({
@@ -30,7 +30,15 @@ export class ResponsableService {
     )
   }
 
-  getCantidadEquipos(idResponsable: any){
+  getAllResponsables() {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/responsablestodos`, this.createHeaders())
+    )
+  }
+
+
+
+  getCantidadEquipos(idResponsable: any) {
     return firstValueFrom(
       this.httpClient.get<any>(`${this.baseUrl}/cantidadequiposprov/${idResponsable}`, this.createHeaders())
     )
@@ -43,47 +51,47 @@ export class ResponsableService {
   }
 
   getToken() {
-      return localStorage.getItem('utoken');
-    }
+    return localStorage.getItem('utoken');
+  }
 
-    validateToken(token: string): boolean {
-      if (this.isTokenExpired(token)) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Sesion Expirada',
-          text: 'Ha llegado al límite de tiempo de sesión activa.'
-        })
-        this.router.navigate(['/login']);
-        localStorage.setItem('utoken', '');
-        return true;
-      } else {
-        return false;
-      }
+  validateToken(token: string): boolean {
+    if (this.isTokenExpired(token)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sesion Expirada',
+        text: 'Ha llegado al límite de tiempo de sesión activa.'
+      })
+      this.router.navigate(['/login']);
+      localStorage.setItem('utoken', '');
+      return true;
+    } else {
+      return false;
     }
+  }
 
-    isTokenExpired(token: string): boolean {
-      if (!token) {
-        return true; // Si no hay token, se considera expirado
-      }
-      const decodedToken = this.getDecodedAccessToken(token);
-      const currentTime = Math.floor(Date.now() / 1000);
-
-      return decodedToken.exp < currentTime;
+  isTokenExpired(token: string): boolean {
+    if (!token) {
+      return true; // Si no hay token, se considera expirado
     }
+    const decodedToken = this.getDecodedAccessToken(token);
+    const currentTime = Math.floor(Date.now() / 1000);
 
-    createHeaders() {
-      return {
-        headers: new HttpHeaders({
-          'authorization': localStorage.getItem('utoken')!
-        })
-      }
-    }
+    return decodedToken.exp < currentTime;
+  }
 
-    getDecodedAccessToken(token: string): any {
-      try {
-        return jwtDecode(token);
-      } catch (Error) {
-        return null;
-      }
+  createHeaders() {
+    return {
+      headers: new HttpHeaders({
+        'authorization': localStorage.getItem('utoken')!
+      })
     }
+  }
+
+  getDecodedAccessToken(token: string): any {
+    try {
+      return jwtDecode(token);
+    } catch (Error) {
+      return null;
+    }
+  }
 }

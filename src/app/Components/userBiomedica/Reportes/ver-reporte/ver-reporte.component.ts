@@ -11,9 +11,12 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
+import { Dialog } from "primeng/dialog";
+import { CardModule } from "primeng/card";
+import { ArchivosService } from '../../../../Services/appServices/general/archivos/archivos.service'
 @Component({
   selector: 'app-ver-reporte',
-  imports: [BiomedicausernavbarComponent, TableModule, IconFieldModule, InputIconModule, InputTextModule, SplitButtonModule, ButtonModule, CommonModule],
+  imports: [BiomedicausernavbarComponent, TableModule, IconFieldModule, InputIconModule, InputTextModule, SplitButtonModule, ButtonModule, CommonModule, Dialog, CardModule],
   templateUrl: './ver-reporte.component.html',
   styleUrl: './ver-reporte.component.css'
 })
@@ -24,24 +27,47 @@ export class VerReporteComponent implements OnInit {
   equipo!: any;
   reporteServices = inject(ReportesService);
   equipoService = inject(EquiposService);
+  archivosServices = inject(ArchivosService);
   loading: boolean = false;
+  modalReport: boolean = false;
+  reportSelected: any = null;
 
   constructor(private route: ActivatedRoute) { }
 
 
-  async ngOnInit(){
-      this.idEquipo = this.route.snapshot.paramMap.get('id');
-
-      try {
-        this.equipo = await this.equipoService.getEquipoById(this.idEquipo);
-        this.reportes = await this.reporteServices.getReportesEquipo(this.idEquipo);
-        console.log(this.reportes);
-      } catch (error) {
-
+  async viewPdf(ruta: string) {
+    try {
+      const blob = await this.archivosServices.getArchivo(ruta);
+      if (blob.type === 'application/pdf') {
+        const objectUrl = URL.createObjectURL(blob);
+        window.open(objectUrl, '_blank'); // Abre el PDF en nueva pestaña
+      } else {
+        const errorText = await blob.text();
+        console.error('No se recibió un PDF:', errorText);
       }
+    } catch (error) {
+      console.error('Error al obtener el PDF:', error);
+    }
   }
 
-    onGlobalFilter(event: Event): void {
+  async ngOnInit() {
+    this.idEquipo = this.route.snapshot.paramMap.get('id');
+
+    try {
+      this.equipo = await this.equipoService.getEquipoById(this.idEquipo);
+      this.reportes = await this.reporteServices.getReportesEquipo(this.idEquipo);
+    } catch (error) {
+
+    }
+  }
+
+  viewModalReport(reporte: any) {
+    this.modalReport = true;
+    this.reportSelected = reporte;
+    console.log(this.reportSelected);
+  }
+
+  onGlobalFilter(event: Event): void {
     const target = event.target as HTMLInputElement | null;
     if (target) {
       this.dt2.filterGlobal(target.value, 'contains');

@@ -13,7 +13,7 @@ import { Table } from 'primeng/table';
 import { CalendarModule } from 'primeng/calendar';
 import { DatePicker } from 'primeng/datepicker'
 import { Location } from '@angular/common';
-
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-mantenimineto',
@@ -28,6 +28,7 @@ export class ManteniminetoComponent implements OnInit {
   @ViewChild('dt2') dt2!: Table;
   date: Date | undefined;
   reportesService = inject(ReportesService);
+  router = inject(Router);
   loading: boolean = false;
   fechaActual = new Date();
   mes = this.fechaActual.getMonth() + 1;
@@ -42,6 +43,7 @@ export class ManteniminetoComponent implements OnInit {
 
   panelRealizados: boolean = true;
   panelPendientes: boolean = false;
+
 
   constructor(private location: Location) { }
 
@@ -115,6 +117,13 @@ export class ManteniminetoComponent implements OnInit {
     if (target) {
       this.dt2.filterGlobal(target.value, 'contains');
     }
+  }
+
+  nuevoReporte(idEquipo: number, idReporte: number) {
+    console.log("Nuevo Reporte: " + idEquipo);
+    sessionStorage.setItem('TipoMantenimiento', 'P');
+    sessionStorage.setItem('idReporte', idReporte.toString());
+    this.router.navigate(['biomedica/nuevoreporte/', idEquipo]);
   }
 
   obtenerNombreMes(numeroMes: number): string {
