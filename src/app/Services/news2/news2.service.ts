@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class News2Service {
 
-  baseUrl = 'http://192.168.10.14:3002';
+  baseUrl = 'http://172.30.20.18:3002';
 
   http = inject(HttpClient);
 
