@@ -95,6 +95,7 @@ export class EquiposTipoComponent implements OnInit {
 
   nuevoReporte(id: number) {
     console.log('Nuevo reporte del eqiuipo: ', id);
+    sessionStorage.setItem('TipoMantenimiento', 'C');
     this.router.navigate(['biomedica/nuevoreporte/', id]);
   }
 

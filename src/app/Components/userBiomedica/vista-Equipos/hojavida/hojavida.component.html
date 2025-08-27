@@ -1,18 +1,42 @@
 <app-biomedicausernavbar></app-biomedicausernavbar>
 
 <div style="width: 90%; margin-left: 5%; margin-right: 5%; margin-top: 2%;">
-  <p-card *ngIf="hojaVida" header="Detalle de Hoja de Vida" class="mb-4">
+  <p-card *ngIf="hojaVida" header="Datos del Equipo" class="mb-4">
     <div class="p-fluid grid p-3">
 
       <!-- Columna izquierda: Imagen -->
       <div class="col-12 md:col-4 flex justify-content-center align-items-center">
-        <p-image *ngIf="hojaVida.foto" [src]="hojaVida.foto" [alt]="hojaVida.equipo?.nombres" width="250"
+        <p-image *ngIf="hojaVida.foto" [src]="imagenUrl || undefined" [alt]="hojaVida.equipo?.nombres" width="200"
           preview></p-image>
       </div>
 
       <!-- Columna derecha: Datos generales -->
       <div class="col-12 md:col-8">
         <div class="grid">
+          <div class="col-12 sm:col-6"><strong>Equipo:</strong> {{ hojaVida.equipo.nombres }}</div>
+          <div class="col-12 sm:col-6"><strong>Marca:</strong> {{ hojaVida.equipo.marca }}</div>
+          <div class="col-12 sm:col-6"><strong>Modelo:</strong> {{ hojaVida.equipo.modelo }}</div>
+          <div class="col-12 sm:col-6"><strong>Serie:</strong> {{ hojaVida.equipo.serie }}</div>
+          <div class="col-12 sm:col-6"><strong>Placa:</strong> {{ hojaVida.equipo.placa }}</div>
+          <div class="col-12 sm:col-6"><strong>Sede:</strong> {{ hojaVida.equipo.sedes.nombres }}</div>
+          <div class="col-12 sm:col-6"><strong>Servicio:</strong> {{ hojaVida.equipo.servicios.nombres }}</div>
+          <div class="col-12 sm:col-6"><strong>Ubicación:</strong> {{ hojaVida.equipo.ubicacion }}</div>
+          <div class="col-12 sm:col-6"><strong>Ubicación específica:</strong> {{ hojaVida.equipo.ubicacionEspecifica }}
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Accordion para secciones adicionales -->
+    <p-accordion [multiple]="true">
+      <!-- Datos del equipo -->
+      <p-accordionTab header="Detalle de Hoja de Vida" *ngIf="hojaVida.equipo">
+        <div class="grid">
+
+
           <div class="col-12 sm:col-6" *ngIf="hojaVida.codigoInternacional">
             <strong>Código Internacional:</strong> {{ hojaVida.codigoInternacional }}
           </div>
@@ -37,24 +61,7 @@
           <div class="col-12 sm:col-6">
             <strong>Equipo Portátil:</strong> {{ hojaVida.equipoPortatil ? 'Sí' : 'No' }}
           </div>
-        </div>
-      </div>
-    </div>
-
-    <p-divider></p-divider>
-
-    <!-- Accordion para secciones adicionales -->
-    <p-accordion [multiple]="true">
-      <!-- Datos del equipo -->
-      <p-accordionTab header="Datos del Equipo" *ngIf="hojaVida.equipo">
-        <div class="grid">
-          <div class="col-12 sm:col-6"><strong>Marca:</strong> {{ hojaVida.equipo.marca }}</div>
-          <div class="col-12 sm:col-6"><strong>Modelo:</strong> {{ hojaVida.equipo.modelo }}</div>
-          <div class="col-12 sm:col-6"><strong>Serie:</strong> {{ hojaVida.equipo.serie }}</div>
-          <div class="col-12 sm:col-6"><strong>Placa:</strong> {{ hojaVida.equipo.placa }}</div>
-          <div class="col-12 sm:col-6"><strong>Ubicación:</strong> {{ hojaVida.equipo.ubicacion }}</div>
-          <div class="col-12 sm:col-6"><strong>Ubicación específica:</strong> {{ hojaVida.equipo.ubicacionEspecifica }}
-          </div>
+          <div class="col-12 sm:col-6"><strong>Riesgo:</strong> {{ hojaVida.equipo.riesgo }}</div>
           <div class="col-12 sm:col-6"><strong>Registro Invima:</strong> {{ hojaVida.equipo.registroInvima }}</div>
         </div>
       </p-accordionTab>
@@ -67,6 +74,31 @@
           </div>
         </div>
       </p-accordionTab>
+
+      <p-accordionTab header="Datos de Mantenimiento y Actividades Metrologicas"
+        *ngIf="planMantenimiento.length > 0 || planMetrologia.length > 0">
+        <div class="grid">
+          <div class="col-12 sm:col-12">
+            <strong>Mantenimientos Anuales:</strong> {{ hojaVida.equipo.periodicidadM }}
+          </div>
+
+          <div class="col-12 sm:col-3" *ngFor="let plan of planMantenimiento">
+            <strong>Fecha:</strong> {{ getNombreMes(plan.mes) }} del Año {{ plan.ano }}
+          </div>
+          <div class="col-12 sm:col-12" *ngFor="let plan of planMantenimiento">
+
+          </div>
+          <div *ngIf="planMetrologia.length > 0">
+            <div class="col-12 sm:col-12">
+              <strong>Actividades Metrologicas Anuales:</strong>
+            </div>
+            <div class="col-12 sm:col-6" *ngFor="let plan of planMetrologia">
+              <strong>Fecha:</strong> {{ getNombreMes(plan.mes) }} del Año {{ plan.ano }}
+            </div>
+          </div>
+        </div>
+      </p-accordionTab>
+
     </p-accordion>
 
     <p-divider></p-divider>

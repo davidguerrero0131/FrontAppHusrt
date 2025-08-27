@@ -5,6 +5,7 @@ import { Observable } from 'rxjs'
 import { firstValueFrom } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
+import { createHeaders } from '../../../../utilidades'
 
 import {API_URL} from '../../../../constantes'
 
@@ -22,90 +23,52 @@ export class EquiposService {
     this.baseUrl = API_URL;
   }
 
+  addEquipo(equipo: any){
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/addequipo`, equipo,createHeaders())
+    );
+  }
+
   getAllEquipos() {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos`, this.createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos`, createHeaders())
     )
   }
 
   getAllEquiposSeries(){
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/seriesequipos`, this.createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/seriesequipos`, createHeaders())
     )
   }
 
   getEquipoById(id: any) {
     return firstValueFrom(
-      this.httpClient.get<any>(`${this.baseUrl}/equipo/${id}`, this.createHeaders())
+      this.httpClient.get<any>(`${this.baseUrl}/equipo/${id}`, createHeaders())
     )
   }
 
   getAllEquiposBajas() {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/bajas`, this.createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/bajas`, createHeaders())
     )
   }
 
   getAllEquiposComodatos(idResponsable: any) {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/responsable/${idResponsable}`, this.createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/responsable/${idResponsable}`, createHeaders())
     )
   }
 
   getAllEquiposTipo(idTipoEquipo: any) {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/tipo/${idTipoEquipo}`, this.createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/tipo/${idTipoEquipo}`, createHeaders())
     )
   }
 
   getAllEquiposServicio(idServicio: any) {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/servicio/${idServicio}`, this.createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/servicio/${idServicio}`, createHeaders())
     )
   }
 
-  getToken() {
-    return localStorage.getItem('utoken');
-  }
-
-  validateToken(token: string): boolean {
-    if (this.isTokenExpired(token)) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Sesion Expirada',
-        text: 'Ha llegado al límite de tiempo de sesión activa.'
-      })
-      this.router.navigate(['/login']);
-      localStorage.setItem('utoken', '');
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  isTokenExpired(token: string): boolean {
-    if (!token) {
-      return true; // Si no hay token, se considera expirado
-    }
-    const decodedToken = this.getDecodedAccessToken(token);
-    const currentTime = Math.floor(Date.now() / 1000);
-
-    return decodedToken.exp < currentTime;
-  }
-
-  createHeaders() {
-    return {
-      headers: new HttpHeaders({
-        'authorization': localStorage.getItem('utoken')!
-      })
-    }
-  }
-
-  getDecodedAccessToken(token: string): any {
-    try {
-      return jwtDecode(token);
-    } catch (Error) {
-      return null;
-    }
-  }
 }

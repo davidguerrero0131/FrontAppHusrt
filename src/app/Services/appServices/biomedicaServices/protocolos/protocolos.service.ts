@@ -24,4 +24,10 @@ export class ProtocolosService {
       this.httpClient.get<any[]>(`${API_URL}/protocolos/tipoequipo/` + idTipoEquipo, createHeaders())
     )
   }
+
+  addCumplimientoProtocolo(protocolo: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${API_URL}/addcumplimiento`, protocolo, createHeaders())
+    )
+  }
 }

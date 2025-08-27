@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { BiomedicausernavbarComponent } from '../../navbars/biomedicausernavbar/biomedicausernavbar.component';
 import { CommonModule } from '@angular/common';
 import { SelectModule } from 'primeng/select';
+import Swal from 'sweetalert2';
+
 
 @Component({
   selector: 'app-clasificacion-inventario',
@@ -13,31 +15,43 @@ import { SelectModule } from 'primeng/select';
   templateUrl: './clasificacion-inventario.component.html',
   styleUrl: './clasificacion-inventario.component.css'
 })
-export class ClasificacionInventarioComponent implements OnInit{
+export class ClasificacionInventarioComponent implements OnInit {
 
-  equipos! : any[];
-  selectedEquipo: string | undefined;
+  equipos!: any[];
+  selectedEquipo: any | undefined;
   equipoServices = inject(EquiposService);
-  equipoSeleccionado: string = '';
 
 
-  constructor (private router: Router){
+
+  constructor(private router: Router) {
   }
 
   async ngOnInit() {
-      this.equipos = await this.equipoServices.getAllEquiposSeries();
-      console.log(this.equipos);
+    this.equipos = await this.equipoServices.getAllEquiposSeries();
   }
 
-  showViewTiposEquipoBio(){
+  buscarEquipo() {
+    if (this.selectedEquipo) {
+      this.router.navigate(['/biomedica/reportesequipos/' + this.selectedEquipo.id]);
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Seleccione un equipo',
+        text: 'Debe seleccionar un Equipo.'
+      })
+    }
+
+  }
+
+  showViewTiposEquipoBio() {
     this.router.navigate(['/biomedica/tiposequipo']);
   }
 
-  showViewServicios(){
+  showViewServicios() {
     this.router.navigate(['/biomedica/servicios']);
   }
 
-  showViewEmpComodatos(){
+  showViewEmpComodatos() {
     this.router.navigate(['biomedica/empComodatos']);
   }
 

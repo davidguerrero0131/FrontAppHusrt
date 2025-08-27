@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, FormArray, FormControl } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { InputMaskModule } from 'primeng/inputmask';
@@ -19,6 +19,8 @@ import { BiomedicausernavbarComponent } from '../../../navbars/biomedicausernavb
 import { ProtocolosService } from '../../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { UserService } from '../../../../Services/appServices/userServices/user.service';
+import { Router } from '@angular/router';
+import { ReportesService } from '../../../../Services/appServices/biomedicaServices/reportes/reportes.service';
 
 @Component({
   selector: 'app-crear-reporte',
@@ -31,12 +33,16 @@ export class CrearReporteComponent implements OnInit {
   reporte!: any;
   equipo!: any;
   protocolos!: any[];
+  cumplimientoProtocolo: any[] = [];
   nombreUsuario!: any;
   selectProtocolos: any[] = [];
   reporteForm!: FormGroup;
   equiposervices = inject(EquiposService);
   protocoloservices = inject(ProtocolosService);
   userServices = inject(UserService);
+  reprteServices = inject(ReportesService);
+  router = inject(Router);
+  tipoMantenimiento = '';
 
   tiposMantenimiento = [
     { label: 'Correctivo', value: 'Correctivo' },
@@ -52,48 +58,60 @@ export class CrearReporteComponent implements OnInit {
 
   id!: number;
 
-  constructor(private route: ActivatedRoute, private fb: FormBuilder, private location: Location) { }
-
-  async ngOnInit() {
+  constructor(private route: ActivatedRoute, private fb: FormBuilder, private location: Location) {
+    this.validarTipoMantenimiento();
     this.reporteForm = this.fb.group({
       fechaRealizado: [null],
       horaInicio: [null],
       fechaFin: [null],
       horaTerminacion: [null],
       horaTotal: [null],
-      tipoMantenimiento: [null],
+      tipoMantenimiento: this.tipoMantenimiento,
       tipoFalla: [null],
-      ubicacion: [''],
       motivo: [''],
       trabajoRealizado: [''],
       calificacion: [null],
       nombreRecibio: [''],
       cedulaRecibio: [''],
       observaciones: [''],
+      cumplimientoProtocolo: this.fb.array([])
     });
 
+    if (this.tipoMantenimiento === 'Preventivo') {
+      this.reporteForm.get('tipoFalla')?.setValue('Sin Falla');
+      this.reporteForm.get('tipoFalla')?.disable();
+      this.reporteForm.get('motivo')?.setValue('Programado para mantenimiento preventivo');
+      this.reporteForm.get('motivo')?.disable();
+    }
+
+    this.reporteForm.get('tipoMantenimiento')?.disable();
+  }
+
+  async ngOnInit() {
     this.id = Number(this.route.snapshot.paramMap.get('id'));
+    this.reporte = await this.reprteServices.getPreventivoProgramado(Number(sessionStorage.getItem('idReporte'))) || {};
     this.equipo = await this.equiposervices.getEquipoById(this.id);
     this.protocolos = await this.protocoloservices.getProtocoloTipoEquipo(this.equipo.tipoEquipoIdFk);
     this.nombreUsuario = await this.userServices.getNameUSer(getDecodedAccessToken().id);
     this.selectProtocolos = [this.protocolos[1]];
-
+    await this.iniCumplimientoProtocolo();
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (this.reporteForm.valid) {
       this.reporte =
       {
-        añoProgramado: 2025,
-        mesProgramado: 1,
+        id: this.reporte.id || null,
+        añoProgramado: this.reporte.añoProgramado || null,
+        mesProgramado: this.reporte.mesProgramado || null,
         fechaRealizado: this.reporteForm.value.fechaRealizado,
         horaInicio: this.reporteForm.value.horaInicio,
         fechaFin: this.reporteForm.value.fechaFin,
         horaTerminacion: this.reporteForm.value.horaTerminacion,
         horaTotal: 0,
-        tipoMantenimiento: this.reporteForm.value.tipoMantenimiento,
-        tipoFalla: this.reporteForm.value.tipoFalla,
-        motivo: this.reporteForm.value.motivo,
+        tipoMantenimiento: this.tipoMantenimiento,
+        tipoFalla: this.tipoMantenimiento == 'Preventivo' ? 'Sin Falla' : this.reporteForm.value.tipoFalla,
+        motivo: this.tipoMantenimiento == 'Preventivo' ? 'Programado para mantenimiento preventivo' : this.reporteForm.value.motivo,
         trabajoRealizado: this.reporteForm.value.trabajoRealizado,
         calificacion: this.reporteForm.value.calificacion,
         nombreRecibio: this.reporteForm.value.nombreRecibio,
@@ -101,14 +119,84 @@ export class CrearReporteComponent implements OnInit {
         observaciones: this.reporteForm.value.observaciones,
         mantenimientoPropio: true,
         realizado: true,
-        rutaPdf: 'src/assets/pdf/reporte.pdf',
+        rutaPdf: null,
         servicioIdFk: this.equipo.servicioIdFk,
         equipoIdFk: this.equipo.id,
         usuarioIdFk: getDecodedAccessToken().id,
       }
-      console.log(this.reporte);
+      if (this.tipoMantenimiento === 'Preventivo') {
+        await this.reprteServices.ActualizarPreventivoProgramado(this.reporte.id, this.reporte).then(() => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Se almaceno el reporte correctamente',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          this.guardarCumplimiento();
+          this.router.navigate(['/biomedica/mantenimineto']);
+        }).catch(error => {
+          console.error('Error al actualizar el reporte:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al actualizar el reporte',
+            text: 'Por favor, inténtelo de nuevo más tarde.'
+          });
+        });
+      } else {
+        await this.reprteServices.CrearReporteCorrectivo(this.reporte).then(() => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Se almaceno el reporte correctamente',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          this.guardarCumplimiento();
+          this.router.navigate(['/biomedica/mantenimineto']);
+        }).catch(error => {
+          console.error('Error al crear el reporte:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al crear el reporte',
+            text: 'Por favor, inténtelo de nuevo más tarde.'
+          });
+        });
+      }
     }
   }
+
+  iniCumplimientoProtocolo() {
+    const array = this.reporteForm.get('cumplimientoProtocolo') as FormArray;
+    array.clear();
+    this.protocolos.forEach(p => {
+      array.push(this.fb.group({
+        protocoloPreventivoIdFk: [p.id],
+        cumple: [false],
+        reporteIdFk: [this.reporte.id],
+        paso: [p.paso]
+      }));
+    });
+  }
+
+  async guardarCumplimiento() {
+    for (let i = 0; i < this.reporteForm.value.cumplimientoProtocolo.length; i++) {
+      const cp = {
+        protocoloPreventivoIdFk: this.reporteForm.value.cumplimientoProtocolo[i].protocoloPreventivoIdFk,
+        cumple: this.reporteForm.value.cumplimientoProtocolo[i].cumple,
+        reporteIdFk: this.reporteForm.value.cumplimientoProtocolo[i].reporteIdFk
+      };
+      const response = await this.protocoloservices.addCumplimientoProtocolo(cp);
+    }
+  }
+
+  get cumplimientoProtocoloFormArray(): FormArray {
+    return this.reporteForm.get('cumplimientoProtocolo') as FormArray;
+  }
+
+  testViewCumplimiento() {
+    console.log('Cumplimiento:', this.reporteForm.value.cumplimientoProtocolo);
+    this.guardarCumplimiento();
+  }
+
 
   goBack(): void {
     Swal.fire({
@@ -135,5 +223,20 @@ export class CrearReporteComponent implements OnInit {
 
   }
 
+  validarQR() {
+    this.router.navigate(['/biomedica/validarqr']);
+  }
+
+  validarTipoMantenimiento() {
+    if (sessionStorage.getItem('TipoMantenimiento') === 'C') {
+      this.tipoMantenimiento = 'Correctivo';
+    } else if (sessionStorage.getItem('TipoMantenimiento') === 'P') {
+      this.tipoMantenimiento = 'Preventivo';
+    }
+  }
+
+  convertirMayusculas(texto: string): string {
+    return texto ? texto.toUpperCase() : '';
+  }
 
 }

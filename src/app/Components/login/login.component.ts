@@ -35,7 +35,6 @@ export class LoginComponent implements OnInit {
   }
 
   async onSubmit() {
-
     try {
       const response = await this.userServices.login(this.formulario.value);
       if (!response.error) {
@@ -50,8 +49,9 @@ export class LoginComponent implements OnInit {
           this.router.navigate(['/adminbiomedica']);
         } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'BIOMEDICAUSER') {
           this.router.navigate(['/userbiomedica']);
+        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'BIOMEDICATECNICO') {
+          this.router.navigate(['/userbiomedica']);
         }
-
       }
     } catch {
       Swal.fire({

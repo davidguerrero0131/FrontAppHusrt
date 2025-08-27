@@ -79,23 +79,19 @@ export class EquiposComodatosComponent implements OnInit {
 
 
   verHojaVida(id: number) {
-    console.log('Ver Hoja de Vida', id);
     this.router.navigate(['biomedica/hojavidaequipo/', id]);
   }
 
   editarEquipo(id: number) {
-    //this.router.navigate(['/hojasvida', id, 'editar']);
-    console.log('Editar Equipo', id);
-    console.log(getDecodedAccessToken());
+
   }
 
   nuevoReporte(id: number) {
-    console.log('Nuevo reporte del eqiuipo: ', id);
+    sessionStorage.setItem('TipoMantenimiento', 'C');
     this.router.navigate(['biomedica/nuevoreporte/', id]);
   }
 
   verReportes(id: number) {
-    console.log('Ver reportes del equipo: ', id);
     this.router.navigate(['biomedica/reportesequipos/', id]);
   }
 }
