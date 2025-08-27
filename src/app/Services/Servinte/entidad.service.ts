@@ -7,7 +7,7 @@ import { Observable } from 'rxjs'
 })
 export class EntidadService {
 
-  baseUrl = 'http://172.30.20.18:3002';
+  baseUrl = 'http://192.168.10.14:3002';
 
   constructor(private http: HttpClient) { }
 
@@ -24,5 +24,13 @@ export class EntidadService {
   getConsultasPediatria(object: any): Observable<any>{
     const url = this.baseUrl + '/evolucionesespecialistas';
     return this.http.post<any[]>(url, object,{observe: 'response'})
+  }
+
+
+  // Pacientes Cirugia --Quirofano -- Sala de Recuperación -- Cirugia Ambulatoria
+  
+  getPacientesCirugia(): Observable<any>{
+    const url = this.baseUrl + '/pacientescirugia';
+    return this.http.get<any[]>(url, {observe: 'response'})
   }
 }

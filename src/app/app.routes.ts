@@ -35,6 +35,7 @@ import { HojavidaComponent } from './Components/userBiomedica/vista-Equipos/hoja
 import { VerReporteComponent } from './Components/userBiomedica/Reportes/ver-reporte/ver-reporte.component';
 import { ActividadesMetrologicasComponent } from './Components/userBiomedica/actividades-metrologicas/actividades-metrologicas.component';
 import { IntranetComponent } from './Components/intranet/intranet.component';
+import { CirugiaComponent } from './Components/cirugia/cirugia.component';
 
 export const routes: Routes = [
 
@@ -58,6 +59,7 @@ export const routes: Routes = [
   {path: 'servinte/reportepediatria', component: ReportspediatricsComponent},
   {path: 'servinte/news2', component: UsuariosServicioComponent},
   {path: 'acreditacion/aerolinea', component: AerolineaComponent},
+  {path: 'servinte/cirugia', component: CirugiaComponent},
   {path: 'admusuarios', component: GestionUsuariosComponent, canActivate: [authGuard]},
 
   {path: 'olvidocontraseña', component: OlvidoContrasenaComponent},
