@@ -37,6 +37,7 @@ import { ActividadesMetrologicasComponent } from './Components/userBiomedica/act
 import { IntranetComponent } from './Components/intranet/intranet.component';
 import { ValidadorQRComponent } from './Components/userBiomedica/Reportes/validador-qr/validador-qr.component';
 import { CrearEquipoComponent } from './Components/userBiomedica/vista-Equipos/crear-equipo/crear-equipo.component';
+import { CirugiaComponent } from './Components/cirugia/cirugia.component';
 
 export const routes: Routes = [
 
@@ -59,6 +60,7 @@ export const routes: Routes = [
   {path: 'imagenologia/citasCE', component: ReportceComponent, canActivate: [authGuard]},
   {path: 'servinte/reportepediatria', component: ReportspediatricsComponent},
   {path: 'servinte/news2', component: UsuariosServicioComponent},
+  {path: 'servinte/cirugia', component: CirugiaComponent},
   {path: 'acreditacion/aerolinea', component: AerolineaComponent},
   {path: 'admusuarios', component: GestionUsuariosComponent, canActivate: [authGuard]},
 

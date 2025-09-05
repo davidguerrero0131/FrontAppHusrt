@@ -7,7 +7,7 @@ import { Observable } from 'rxjs'
 })
 export class ImagingService {
 
-  baseUrl = 'http://172.30.20.18:3003';
+  baseUrl = 'http://192.168.10.14:3003';
 
   constructor(private http: HttpClient) { }
 
