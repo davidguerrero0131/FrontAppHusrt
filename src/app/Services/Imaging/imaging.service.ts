@@ -8,11 +8,6 @@ import { API_ENTERPRICE_URL } from '../../constantes';
 })
 export class ImagingService {
 
-<<<<<<< Updated upstream
-  baseUrl = 'http://192.168.10.14:3003';
-
-=======
->>>>>>> Stashed changes
   constructor(private http: HttpClient) { }
 
   getAllcites(): Observable<any>{

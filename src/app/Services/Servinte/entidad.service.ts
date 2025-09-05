@@ -8,11 +8,7 @@ import { API_SERVINTE_URL } from '../../constantes';
 })
 export class EntidadService {
 
-<<<<<<< Updated upstream
-  baseUrl = 'http://192.168.10.14:3002';
 
-=======
->>>>>>> Stashed changes
   constructor(private http: HttpClient) { }
 
   getentidadPaciente(idPaciente: String): Observable<any>{
@@ -32,7 +28,7 @@ export class EntidadService {
 
 
   getPacientesCirugia():Observable<any>{
-    const url = this.baseUrl + '/pacientescirugia';
+    const url = API_SERVINTE_URL + '/pacientescirugia';
     return this.http.get<any[]>(url,{observe: 'response'});
   }
 }

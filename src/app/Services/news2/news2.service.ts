@@ -9,11 +9,6 @@ import { API_SERVINTE_URL } from '../../constantes';
 })
 export class News2Service {
 
-<<<<<<< Updated upstream
-  baseUrl = 'http://192.168.10.14:3002';
-
-=======
->>>>>>> Stashed changes
   http = inject(HttpClient);
 
   getServicios(){
