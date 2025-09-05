@@ -2,27 +2,32 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
 import { firstValueFrom } from 'rxjs';
 
+import { API_SERVINTE_URL } from '../../constantes';
+
 @Injectable({
   providedIn: 'root'
 })
 export class News2Service {
 
+<<<<<<< Updated upstream
   baseUrl = 'http://192.168.10.14:3002';
 
+=======
+>>>>>>> Stashed changes
   http = inject(HttpClient);
 
   getServicios(){
-    const url = this.baseUrl + '/ubicacionesconpacientes';
+    const url = API_SERVINTE_URL + '/ubicacionesconpacientes';
     return firstValueFrom(this.http.get<any[]>(url));
   }
 
   getPacientesServicio(ubicacion: any){
-    const url = this.baseUrl + '/pascientesubicacion/' + ubicacion.ubicod;
+    const url = API_SERVINTE_URL + '/pascientesubicacion/' + ubicacion.ubicod;
     return firstValueFrom(this.http.get<any[]>(url));
   }
 
   getSignosPaciente(epipac: any){
-    const url = this.baseUrl + '/signospaciente/' + epipac;
+    const url = API_SERVINTE_URL + '/signospaciente/' + epipac;
     return firstValueFrom(this.http.get<any>(url));
   }
 }
