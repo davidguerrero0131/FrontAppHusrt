@@ -1,1 +1,35 @@
-<p>cirugia works!</p>
+<div style="margin-top: 2%; text-align: center;">
+  <h4>PACIENTES SALAS DE CIRUGIA</h4>
+</div>
+
+<div style="width: 96%; margin-left: 2%; margin-top: 2%; align-content: center;">
+
+  <div class="grid-container">
+    <div class="grid-item" *ngFor="let paciente of pacientes">
+      <div class="card">
+        <div class="card-body">
+          <h6>{{ paciente.nombre }} {{paciente.primerApellido}} {{paciente.segundoApellido}}</h6>
+          <div *ngIf="paciente.CodigoUbicacion == 'P206'">
+            <button type="button" class="btn btn-primary btn-sm">SALAS DE RECUPERACIÓN</button>
+          </div>
+          <div *ngIf="paciente.CodigoUbicacion == 'P2CA'">
+            <button type="button" class="btn btn-warning btn-sm">SALAS DE CIRUGIA AMBULATORIA</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<p-dialog [(visible)]="visibleSearch">
+  <ng-template pTemplate="headless">
+    <div class="flex flex-column px-8 py-5 gap-4" style="align-items: center; background-color: white;">
+      <h3>CARGANDO DATOS DE PACIENTES</h3>
+      <div class="spinner-border text-primary" style="width: 5rem; height: 5rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>

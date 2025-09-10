@@ -1,7 +1,7 @@
 import { ResponsableService } from './../../../../Services/appServices/biomedicaServices/responsable/responsable.service';
 import { CommonModule } from '@angular/common';
 import { Component, inject, model, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'
+import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { Router } from '@angular/router';
 import { TipoEquipoService } from '../../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
 import { ServicioService } from '../../../../Services/appServices/general/servicio/servicio.service';
@@ -11,10 +11,13 @@ import Swal from 'sweetalert2';
 import { platform } from 'os';
 import e from 'express';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
+import { DialogModule } from "primeng/dialog";
+import { ButtonModule } from "primeng/button";
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
   selector: 'app-crear-equipo',
-  imports: [CommonModule, ReactiveFormsModule, UppercaseDirective],
+  imports: [CommonModule, UppercaseDirective, DialogModule, ButtonModule, FormsModule, DatePickerModule, ReactiveFormsModule],
   templateUrl: './crear-equipo.component.html',
   styleUrl: './crear-equipo.component.css'
 })
@@ -24,6 +27,10 @@ export class CrearEquipoComponent implements OnInit {
   servicios: any[] | undefined;
   responsables: any[] | undefined;
   sedes: any[] | undefined;
+  fechasMantenimiento: (Date | null)[] = [null, null, null];
+
+  modalAddFechasMantenimiento: boolean = false;
+  modalAddFechasCalibracion: boolean = false;
 
   equipo: any;
 
@@ -98,14 +105,18 @@ export class CrearEquipoComponent implements OnInit {
         sedeIdFk: this.equipoForm.get('sedeIdFk')?.value,
         responsableIdFk: this.equipoForm.get('responsableIdFk')?.value
       }
-      this.equipo = await this.equipoServices.addEquipo(this.equipo);
-      console.log(this.equipo);
+      // this.equipo = await this.equipoServices.addEquipo(this.equipo);
+      this.iniciarFechasMantenimiento();
 
       Swal.fire({
         title: "Equipo Creado",
         icon: "success",
-        draggable: true
+        draggable: true,
+        showConfirmButton: false,
+        timer: 1500
+
       });
+
 
     } else {
 
@@ -117,5 +128,30 @@ export class CrearEquipoComponent implements OnInit {
       // Marca todos los campos como tocados para mostrar los mensajes de error
       this.equipoForm.markAllAsTouched();
     }
+  }
+
+  viewModalFechasMantenimiento() {
+    this.modalAddFechasMantenimiento = true;
+    console.log("Modal Mantenimiento: " + this.modalAddFechasMantenimiento);
+  }
+
+  iniciarFechasMantenimiento() {
+    if (this.equipo.periodicidadM > 0) {
+      const cantidad = this.equipo.periodicidadM;
+      this.fechasMantenimiento = [];
+      for (let i = 0; i < cantidad; i++) {
+        this.fechasMantenimiento.push(null);
+      }
+      setTimeout(() => {
+        this.viewModalFechasMantenimiento();
+      }, 1500);
+    }
+  }
+
+  showFechasMantenimiento() {
+    this.fechasMantenimiento.forEach(fecha => {
+      console.log(fecha);
+    });
+    this.modalAddFechasMantenimiento = false;
   }
 }

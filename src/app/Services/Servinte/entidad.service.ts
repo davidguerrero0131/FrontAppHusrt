@@ -1,34 +1,40 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
 import { Observable } from 'rxjs'
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { API_SERVINTE_URL } from '../../constantes';
+
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class EntidadService {
 
+  private httpClient = inject(HttpClient);
+  private router = inject(Router);
 
-  constructor(private http: HttpClient) { }
+  constructor() { }
 
-  getentidadPaciente(idPaciente: String): Observable<any>{
+  getentidadPaciente(idPaciente: String){
     const url = API_SERVINTE_URL + '/EntidadPaciente/' + idPaciente + '';
-    return this.http.get<any[]>(url, {observe: 'response'})
+    return firstValueFrom(this.httpClient.get<any[]>(url))
   }
 
-  getEAPBEntidad(nombreEmpresa: string): Observable<any>{
+  getEAPBEntidad(nombreEmpresa: string){
     const url = API_SERVINTE_URL + '/Entidad/' + nombreEmpresa + '';
-    return this.http.get<any[]>(url, {observe: 'response'})
+    return firstValueFrom(this.httpClient.get<any[]>(url));
   }
 
-  getConsultasPediatria(object: any): Observable<any>{
+  getConsultasPediatria(object: any){
     const url = API_SERVINTE_URL + '/evolucionesespecialistas';
-    return this.http.post<any[]>(url, object,{observe: 'response'})
+    return firstValueFrom(this.httpClient.post<any[]>(url, object));
   }
 
 
-  getPacientesCirugia():Observable<any>{
+  getPacientesCirugia(){
     const url = API_SERVINTE_URL + '/pacientescirugia';
-    return this.http.get<any[]>(url,{observe: 'response'});
+    return firstValueFrom(this.httpClient.get<any[]>(url));
   }
 }

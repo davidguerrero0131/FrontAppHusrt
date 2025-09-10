@@ -58,9 +58,9 @@ export class ReportceComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
-  updateCitesDate() {
+  async updateCitesDate() {
     for (let index = 0; index < this.cites.length; index++) {
       const element = this.cites[index];
       this.entidad = [];
@@ -76,14 +76,12 @@ export class ReportceComponent implements OnInit {
           element.Aseguradora = element.Entidad;
         }
         if (element.EAPB == null) {
-          this.entidadService
-            .getEAPBEntidad(element.Aseguradora)
-            .subscribe((data1) => {
-              this.entidad = data1.body;
-              if (this.entidad[0] != null) {
-                element.EAPB = this.entidad[0].EMPDETADM;
-              }
-            });
+
+          this.entidad = await this.entidadService.getEAPBEntidad(element.Aseguradora);
+          if (this.entidad[0] != null) {
+            element.EAPB = this.entidad[0].EMPDETADM;
+          }
+          ;
         }
       }
       if (
@@ -91,31 +89,28 @@ export class ReportceComponent implements OnInit {
         element.EAPB == null &&
         element.Aseguradora == null
       ) {
-        this.entidadService
-          .getentidadPaciente(element.Num_de_Identificacion)
-          .subscribe((data1) => {
-            this.entidad = data1.body;
-            if (this.entidad[0] != null) {
-              element.EAPB = this.entidad[0].EMPCOD;
-              element.Entidad = this.entidad[0].EMPNOM;
-              element.Aseguradora = this.entidad[0].EMPNOM;
-            }
-          });
-      }
 
-      if (element.Aseguradora != null) {
-        if (element.Tipo_Usuario == null) {
-          if (
-            element.Aseguradora.charAt(element.Aseguradora.length - 1) == 'S'
-          ) {
-            element.Tipo_Usuario = 'SUBSIDIADO';
-          }
-          if (
-            element.Aseguradora.charAt(element.Aseguradora.length - 1) == 'C'
-          ) {
-            element.Tipo_Usuario = 'CONTRIBUTIVO';
-          } else {
-            element.Tipo_Usuario = 'REGIMENES ESPECIALES';
+        this.entidad = await this.entidadService.getentidadPaciente(element.Num_de_Identificacion);
+        if (this.entidad[0] != null) {
+          element.EAPB = this.entidad[0].EMPCOD;
+          element.Entidad = this.entidad[0].EMPNOM;
+          element.Aseguradora = this.entidad[0].EMPNOM;
+        };
+
+        if (element.Aseguradora != null) {
+          if (element.Tipo_Usuario == null) {
+            if (
+              element.Aseguradora.charAt(element.Aseguradora.length - 1) == 'S'
+            ) {
+              element.Tipo_Usuario = 'SUBSIDIADO';
+            }
+            if (
+              element.Aseguradora.charAt(element.Aseguradora.length - 1) == 'C'
+            ) {
+              element.Tipo_Usuario = 'CONTRIBUTIVO';
+            } else {
+              element.Tipo_Usuario = 'REGIMENES ESPECIALES';
+            }
           }
         }
       }
@@ -142,7 +137,7 @@ export class ReportceComponent implements OnInit {
   filtrarporFecha() {
     if (
       (this.formDate.value.fechaI != null &&
-      this.formDate.value.fechaF != null) ||
+        this.formDate.value.fechaF != null) ||
       (this.formDate.value.fechaI != '' &&
         this.formDate.value.fechaF != '')
 

@@ -57,7 +57,7 @@ export const routes: Routes = [
   {path: 'usermantenimiento', component: HomeusermantenimientoComponent, canActivate: [authGuard]},
   {path: 'usersistemas', component: HomeusersistemasComponent, canActivate: [authGuard]},
   {path: 'userbiomedica', component: HomeuserbiomedicaComponent, canActivate: [authGuard]},
-  {path: 'imagenologia/citasCE', component: ReportceComponent, canActivate: [authGuard]},
+  {path: 'imagenologia/citasCE', component: ReportceComponent},
   {path: 'servinte/reportepediatria', component: ReportspediatricsComponent},
   {path: 'servinte/news2', component: UsuariosServicioComponent},
   {path: 'servinte/cirugia', component: CirugiaComponent},
