@@ -13,14 +13,29 @@ import { Dialog } from "primeng/dialog";
 })
 export class CirugiaComponent implements OnInit {
 
-  pacientes!: any[];
+  pacientes: any[] = [];
   servinteServices = inject(EntidadService);
   visibleSearch: boolean = false;
+  vistaPacientes: boolean = false;
 
   async ngOnInit() {
+  }
 
+  async inicierPacientes() {
+    const pacientesC = await this.servinteServices.getPacientesCirugia();
 
-    this.pacientes = await this.servinteServices.getPacientesCirugia();
-
+    for (let i = 0; i < pacientesC.length; i++) {
+      const datosCirugia = await this.servinteServices.getDatosCirugiaPaciente(pacientesC[i].episodio);
+      this.pacientes.push({
+        datosPaciente: pacientesC[i],
+        datosCirugia: datosCirugia[0]
+      });
+    }
+    console.log(this.pacientes);
+    this.vistaPacientes = true;
+    setTimeout(() => {
+      this.pacientes = [];
+      this.inicierPacientes();
+    }, 60000);
   }
 }

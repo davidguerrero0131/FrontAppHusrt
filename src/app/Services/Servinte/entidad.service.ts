@@ -32,9 +32,13 @@ export class EntidadService {
     return firstValueFrom(this.httpClient.post<any[]>(url, object));
   }
 
-
   getPacientesCirugia(){
     const url = API_SERVINTE_URL + '/pacientescirugia';
+    return firstValueFrom(this.httpClient.get<any[]>(url));
+  }
+
+  getDatosCirugiaPaciente(episodio: string){
+    const url = API_SERVINTE_URL + '/datoscirugiapaciente/' + episodio + '';
     return firstValueFrom(this.httpClient.get<any[]>(url));
   }
 }

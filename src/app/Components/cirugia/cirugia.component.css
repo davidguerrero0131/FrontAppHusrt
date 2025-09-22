@@ -1,8 +1,8 @@
     /* Estilos para el contenedor */
     .grid-container {
       display: grid;
-      gap: 10px;
-      padding: 10px;
+      gap: 5px;
+      padding: 5px;
     }
 
     /* Configuración para pantallas grandes: 6 columnas */
@@ -35,9 +35,9 @@
 
     /* Estilos para los elementos dentro del grid */
     .grid-item {
-      background-color: #FFFFFF;
+      background-color: #ffffff;
       color: white;
       text-align: center;
-      padding: 2px;
+      padding: 1px;
       font-size: 15px;
     }
