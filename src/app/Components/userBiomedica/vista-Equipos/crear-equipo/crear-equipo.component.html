@@ -52,6 +52,7 @@
               <option value="IIA">IIA</option>
               <option value="IIB">IIB</option>
               <option value="III">III</option>
+              <option value="NA">NA</option>
             </select>
           </div>
 
@@ -118,17 +119,18 @@
   </div>
 </div>
 
-
-
 <p-dialog header="Agregar Fechas de Mantenimiento" [modal]="true" [(visible)]="modalAddFechasMantenimiento"
-  [style]="{ width: '40rem' }">
-  <div *ngFor="let item of fechasMantenimiento; let i = index">
-    <p>Fecha {{i + 1}}: </p>
-    <p-datepicker [(ngModel)]="fechasMantenimiento[i + 1]" view="month" dateFormat="mm/yy" />
+  [style]="{ width: '20rem' }" [closable]="false">
+  <div *ngFor="let item of fechasMantenimiento; let i = index; trackBy: trackByIndex" class="mb-3">
+    <label class="block mb-2" [for]="'fecha-mant-'+i">Fecha {{ i + 1 }}</label>
+    <p-datepicker [(ngModel)]="fechasMantenimiento[i]" inputId="{{ 'fecha-mant-' + i }}" view="month" dateFormat="mm/yy" [style]="{ width: '100%' }">
+    </p-datepicker>
   </div>
-  <span class="p-text-secondary block mb-8"></span>
+  <div style="height: 150px;">
+
+  </div>
   <div class="flex justify-end gap-2">
-    <p-button label="Cancelar" severity="secondary" (click)="modalAddFechasMantenimiento = false" />
-    <p-button label="Guardar" (click)="showFechasMantenimiento()" />
+    <p-button label="Guardar" (click)="validarFechasMantenimiento()" />
   </div>
 </p-dialog>
+

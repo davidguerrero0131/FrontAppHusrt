@@ -144,14 +144,21 @@ export class CrearEquipoComponent implements OnInit {
       }
       setTimeout(() => {
         this.viewModalFechasMantenimiento();
+        console.log(this.fechasMantenimiento);
       }, 1500);
     }
   }
 
-  showFechasMantenimiento() {
+  validarFechasMantenimiento() {
+
     this.fechasMantenimiento.forEach(fecha => {
       console.log(fecha);
     });
+
     this.modalAddFechasMantenimiento = false;
   }
+
+  trackByIndex(index: number, item: any): number {
+  return index;
+}
 }
