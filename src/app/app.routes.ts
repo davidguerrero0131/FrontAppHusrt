@@ -38,6 +38,8 @@ import { IntranetComponent } from './Components/intranet/intranet.component';
 import { ValidadorQRComponent } from './Components/userBiomedica/Reportes/validador-qr/validador-qr.component';
 import { CrearEquipoComponent } from './Components/userBiomedica/vista-Equipos/crear-equipo/crear-equipo.component';
 import { CirugiaComponent } from './Components/cirugia/cirugia.component';
+import { AdmtiposequipoComponent } from './Components/administracion/admtiposequipo/admtiposequipo.component';
+import { AdmserviciosComponent } from './Components/administracion/admservicios/admservicios.component';
 
 export const routes: Routes = [
 
@@ -83,9 +85,11 @@ export const routes: Routes = [
   {path: 'biomedica/equipostipo', component: EquiposTipoComponent, canActivate: [authGuard]},
   {path: 'biomedica/equiposcomodatos', component: EquiposComodatosComponent, canActivate: [authGuard]},
   {path: 'biomedica/nuevoreporte/:id', component: CrearReporteComponent, canActivate: [authGuard]},
-  {path: 'biomedica/reportesequipos/:id', component: VerReporteComponent, canActivate: [authGuard]},
+  {path: 'biomedica/reportesequipo/:id', component: VerReporteComponent, canActivate: [authGuard]},
   {path: 'biomedica/hojavidaequipo/:id', component: HojavidaComponent, canActivate: [authGuard]},
   {path: 'biomedica/validarqr', component: ValidadorQRComponent, canActivate: [authGuard]},
+  {path: 'admin/tiposequipo', component: AdmtiposequipoComponent, canActivate: [authGuard]},
+  {path: 'admin/servicios', component: AdmserviciosComponent, canActivate: [authGuard]},
 
   {path: 'intranet', component: IntranetComponent}
 ];

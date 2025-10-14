@@ -6,7 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
 
-import {API_URL} from '../../../../constantes';
+import { API_URL } from '../../../../constantes';
 
 @Injectable({
   providedIn: 'root'
@@ -28,13 +28,19 @@ export class TipoEquipoService {
     )
   }
 
-  getCantidadEquipos(idTipoEquipo: any){
+  getCantidadEquipos(idTipoEquipo: any) {
     return firstValueFrom(
       this.httpClient.get<any>(`${this.baseUrl}/cantidadequipostipo/${idTipoEquipo}`, this.createHeaders())
     )
   }
 
   getAllTiposEquiposBiomedica() {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/alltiposequipoBio`, this.createHeaders())
+    )
+  }
+
+  getTiposEquiposBiomedica() {
     return firstValueFrom(
       this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipoBio`, this.createHeaders())
     )
@@ -43,6 +49,12 @@ export class TipoEquipoService {
   getTipoEquipo(idTipoEquipo: any) {
     return firstValueFrom(
       this.httpClient.get<any>(`${this.baseUrl}/tiposequipo/${idTipoEquipo}`, this.createHeaders())
+    )
+  }
+
+  actualizarTipoEquipo(idTipoEquipo: any, data: any){
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/${idTipoEquipo}`, data, this.createHeaders())
     )
   }
 

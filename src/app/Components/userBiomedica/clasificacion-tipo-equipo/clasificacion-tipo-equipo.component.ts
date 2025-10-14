@@ -24,7 +24,7 @@ export class ClasificacionTipoEquipoComponent implements OnInit {
 
   async ngOnInit() {
     try{
-      this.tiposEquipos = await this.tipoEquipoServices.getAllTiposEquiposBiomedica();
+      this.tiposEquipos = await this.tipoEquipoServices.getTiposEquiposBiomedica();
 
       for (let tipoEquipo of this.tiposEquipos) {
         this.obtenerCantidadEquipos(tipoEquipo.id);

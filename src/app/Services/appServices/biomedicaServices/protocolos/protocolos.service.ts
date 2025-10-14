@@ -30,4 +30,10 @@ export class ProtocolosService {
       this.httpClient.post<any>(`${API_URL}/addcumplimiento`, protocolo, createHeaders())
     )
   }
+
+  getCumplimientoProtocoloReporte(idReporte: any) {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${API_URL}/cumplimientos/reporte/` + idReporte, createHeaders())
+    )
+  }
 }

@@ -52,4 +52,10 @@ export class ReportesService {
       this.httpClient.post<any>(`${API_URL}/addreporte`, reporte, createHeaders())
     )
   }
+
+  getReporteById(idReporte: any) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/reporte/${idReporte}`, createHeaders())
+    )
+  }
 }

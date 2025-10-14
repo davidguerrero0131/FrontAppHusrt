@@ -143,27 +143,53 @@
         </div>
       </div>
 
-      <!-- 3. Línea: Servicio + Usuario + PDF -->
+      <div>
+        <p-card header="Rutina de Mantenimiento">
+          <div class="p-text-sm grid">
+            <div class="col-12">
+              <table class="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <th>Descripción</th>
+                    <th>Cumplimiento</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of rutina">
+                    <td>{{ item.protocolo.paso }}</td>
+                    <td>{{ item.cumple ? 'Sí' : 'No' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </p-card>
+      </div>
+
+      <div style="margin-top: 1%;"></div>
+
       <div class="grid">
-        <div class="col-12 md:col-6 lg:col-4">
-          <p-card header="Usuario Responsable">
-            <div class="p-text-sm">
-              <p><strong>Nombre:</strong> {{ reportSelected?.usuario.nombres }} {{ reportSelected?.usuario.apellidos }}
-              </p>
-              <p><strong>Cédula:</strong> {{ reportSelected?.usuario.numeroId }}</p>
-              <p><strong>Email:</strong> {{ reportSelected?.usuario.email }}</p>
-              <p><strong>Registro Invima:</strong> {{ reportSelected?.usuario.registroInvima }}</p>
+        <div class="col-12">
+          <p-card header="Realizado Por:">
+            <div class="p-text-sm grid">
+              <div class="col-12 md:col-4">
+                <p><strong>Nombre:</strong> {{ reportSelected?.usuario.nombres }} {{ reportSelected?.usuario.apellidos}}
+                </p>
+                <p><strong>Email:</strong> {{ reportSelected?.usuario.email }}</p>
+                <p><strong>Registro Invima:</strong> {{ reportSelected?.usuario.registroInvima }}</p>
+
+              </div>
+              <div class="col-12 md:col-4">
+                <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
+                  *ngIf="reportSelected?.rutaPdf">Ver Reporte</button>
+                <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
+                  *ngIf="!reportSelected?.rutaPdf">Generar Formato</button>
+              </div>
+
             </div>
           </p-card>
         </div>
-
-        <div class="col-12 lg:col-4 text-center flex align-items-center justify-content-center">
-          <div *ngIf="reportSelected?.rutaPdf" class="mt-4">
-            <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)" *ngIf="reportSelected?.rutaPdf">Ver Reporte</button>
-          </div>
-        </div>
       </div>
-
     </div>
   </p-dialog>
 

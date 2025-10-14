@@ -31,5 +31,12 @@ export class HomesuperadminComponent {
     this.router.navigate(['/biomedica/inventario']);
   }
 
+  viewTiposEquipo(){
+    this.router.navigate(['/admin/tiposequipo']);
+  }
+
+  viewServicios(){
+    this.router.navigate(['/admin/servicios']);
+  }
 
 }

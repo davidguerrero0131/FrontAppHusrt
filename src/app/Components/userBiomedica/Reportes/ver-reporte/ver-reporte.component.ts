@@ -2,6 +2,7 @@ import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ReportesService } from '../../../../Services/appServices/biomedicaServices/reportes/reportes.service';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
+import { ProtocolosService } from '../../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
 import { BiomedicausernavbarComponent } from '../../../navbars/biomedicausernavbar/biomedicausernavbar.component';
 import { Table } from 'primeng/table';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -24,10 +25,12 @@ export class VerReporteComponent implements OnInit {
   @ViewChild('dt2') dt2!: Table;
   idEquipo: string | null = null;
   reportes!: any[];
+  rutina!: any[];
   equipo!: any;
   reporteServices = inject(ReportesService);
   equipoService = inject(EquiposService);
   archivosServices = inject(ArchivosService);
+  protocolosServices = inject(ProtocolosService);
   loading: boolean = false;
   modalReport: boolean = false;
   reportSelected: any = null;
@@ -61,10 +64,10 @@ export class VerReporteComponent implements OnInit {
     }
   }
 
-  viewModalReport(reporte: any) {
+  async viewModalReport(reporte: any) {
     this.modalReport = true;
     this.reportSelected = reporte;
-    console.log(this.reportSelected);
+    this.rutina = await this.protocolosServices.getCumplimientoProtocoloReporte(this.reportSelected.id);
   }
 
   onGlobalFilter(event: Event): void {

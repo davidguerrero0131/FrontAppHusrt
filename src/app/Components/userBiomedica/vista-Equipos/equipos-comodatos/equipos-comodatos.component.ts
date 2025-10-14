@@ -92,6 +92,6 @@ export class EquiposComodatosComponent implements OnInit {
   }
 
   verReportes(id: number) {
-    this.router.navigate(['biomedica/reportesequipos/', id]);
+    this.router.navigate(['biomedica/reportesequipo/', id]);
   }
 }
