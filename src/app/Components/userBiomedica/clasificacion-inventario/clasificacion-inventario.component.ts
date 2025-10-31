@@ -6,6 +6,7 @@ import { BiomedicausernavbarComponent } from '../../navbars/biomedicausernavbar/
 import { CommonModule } from '@angular/common';
 import { SelectModule } from 'primeng/select';
 import Swal from 'sweetalert2';
+import { Console } from 'node:console';
 
 
 @Component({
@@ -31,8 +32,10 @@ export class ClasificacionInventarioComponent implements OnInit {
   }
 
   buscarEquipo() {
+
+    console.log(this.selectedEquipo);
     if (this.selectedEquipo) {
-      this.router.navigate(['/biomedica/reportesequipos/' + this.selectedEquipo.id]);
+      this.router.navigate(['/biomedica/reportesequipo/' + this.selectedEquipo.id]);
     } else {
       Swal.fire({
         icon: 'warning',

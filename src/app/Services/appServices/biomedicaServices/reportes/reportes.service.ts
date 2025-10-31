@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http'
 import { API_URL } from '../../../../constantes'
 import { firstValueFrom } from 'rxjs';
-import { createHeaders} from './../../../../utilidades'
+import { createHeaders } from './../../../../utilidades'
 
 @Injectable({
   providedIn: 'root'
@@ -57,5 +57,16 @@ export class ReportesService {
     return firstValueFrom(
       this.httpClient.get<any>(`${API_URL}/reporte/${idReporte}`, createHeaders())
     )
+  }
+
+  getReportesPorRango(inicio: string, fin: string, limit = 1000, offset = 0) {
+    const base = createHeaders(); // { headers: ..., withCredentials?: ... }
+    const options = {
+      ...(base || {}),
+      params: { inicio, fin, limit, offset } as any
+    };
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/reportes/rango`, options)
+    );
   }
 }

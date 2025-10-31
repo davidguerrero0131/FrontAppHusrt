@@ -13,13 +13,14 @@ import { Table } from 'primeng/table';
 import { CalendarModule } from 'primeng/calendar';
 import { DatePicker } from 'primeng/datepicker'
 import { Location } from '@angular/common';
-
+import { Dialog } from 'primeng/dialog';
+import { Console } from 'console';
 
 @Component({
   selector: 'app-actividades-metrologicas',
   standalone: true,
   imports: [CommonModule, TabsModule, BiomedicausernavbarComponent, DatePicker, FormsModule,
-    TableModule, IconFieldModule, InputIconModule, InputTextModule, CalendarModule],
+    TableModule, IconFieldModule, InputIconModule, InputTextModule, CalendarModule, Dialog],
   templateUrl: './actividades-metrologicas.component.html',
   styleUrl: './actividades-metrologicas.component.css'
 })
@@ -32,6 +33,12 @@ export class ActividadesMetrologicasComponent implements OnInit {
   fechaActual = new Date();
   mes = this.fechaActual.getMonth() + 1;
   anio = this.fechaActual.getFullYear();
+
+
+  actividadMetrologicaSelected: any;
+
+  modalAddActividadMetrologica: boolean = false;
+  modalViewActividadMetrologica: boolean = false;
 
   actividadesMetrologicas: any[] = [];
 
@@ -122,5 +129,18 @@ export class ActividadesMetrologicasComponent implements OnInit {
 
   goBack(): void {
     this.location.back();
+  }
+
+  viewmodalAddActividadMetrologica(actividad: any) {
+    this.modalAddActividadMetrologica = true;
+
+    this.actividadMetrologicaSelected = actividad;
+    console.log(this.actividadMetrologicaSelected);
+  }
+
+  viewActividadMetrologica(actividad: any) {
+    this.modalViewActividadMetrologica = true;
+    this.actividadMetrologicaSelected = actividad;
+    console.log(this.actividadMetrologicaSelected);
   }
 }

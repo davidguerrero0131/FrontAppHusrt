@@ -108,8 +108,10 @@
               </span>
             </td>
             <td style="text-align: center; align-items: center; text-align: center">
-              <button type="button" class="btn btn-success" *ngIf="reporte.realizado">REALIZADO</button>
-              <button type="button" class="btn btn-danger" *ngIf="!reporte.realizado">PENDIENTE</button>
+              <button type="button" class="btn btn-success" *ngIf="reporte.realizado"
+                (click)="viewActividadMetrologica(reporte)">REALIZADO</button>
+              <button type="button" class="btn btn-danger" *ngIf="!reporte.realizado"
+                (click)="viewmodalAddActividadMetrologica(reporte)">PENDIENTE</button>
             </td>
           </tr>
         </ng-template>
@@ -209,8 +211,10 @@
                   </span>
                 </td>
                 <td style="text-align: center; align-items: center; text-align: center">
-                  <button type="button" class="btn btn-success" *ngIf="reporte.realizado">REALIZADO</button>
-                  <button type="button" class="btn btn-danger" *ngIf="!reporte.realizado">PENDIENTE</button>
+                  <button type="button" class="btn btn-success" *ngIf="reporte.realizado"
+                    (click)="viewActividadMetrologica(reporte)">REALIZADO</button>
+                  <button type="button" class="btn btn-danger" *ngIf="!reporte.realizado"
+                    (click)="viewmodalAddActividadMetrologica(reporte)">PENDIENTE</button>
                 </td>
               </tr>
             </ng-template>
@@ -299,8 +303,10 @@
                   </span>
                 </td>
                 <td style="text-align: center; align-items: center; text-align: center">
-                  <button type="button" class="btn btn-success" *ngIf="reporte.realizado">REALIZADO</button>
-                  <button type="button" class="btn btn-danger" *ngIf="!reporte.realizado">PENDIENTE</button>
+                  <button type="button" class="btn btn-success" *ngIf="reporte.realizado"
+                    (click)="viewActividadMetrologica(reporte)">REALIZADO</button>
+                  <button type="button" class="btn btn-danger" *ngIf="!reporte.realizado"
+                    (click)="viewmodalAddActividadMetrologica(reporte)">PENDIENTE</button>
                 </td>
               </tr>
             </ng-template>
@@ -311,9 +317,150 @@
             </ng-template>
           </p-table>
         </div>
-
-
       </div>
     </div>
   </div>
 </div>
+
+
+<p-dialog header="Registrar Actividad Metrologica" [modal]="true" [(visible)]="modalAddActividadMetrologica"
+  [style]="{ width: '70rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="false">
+
+  <div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
+
+    <div class="form-item">
+      <label>Nombre Equipo</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.nombres}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Marca</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.marca}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Modelo</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.modelo}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Serie</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.serie}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Servicio</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.servicios.nombres}}"
+        disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Ubicación</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.ubicacion}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Ubicación especifica</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.ubicacionEspecifica}}"
+        disabled />
+    </div>
+  </div>
+
+  <div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
+
+
+  </div>
+
+</p-dialog>
+
+<p-dialog header="Actividad Metrologica" [modal]="true" [(visible)]="modalViewActividadMetrologica"
+  [style]="{ width: '70rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="false">
+
+  <h3 style="text-align: center;">Datos del Equipo</h3>
+
+  <div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
+    <div class="form-item">
+      <label>Nombre Equipo</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.nombres}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Marca</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.marca}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Modelo</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.modelo}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Serie</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.serie}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Servicio</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.servicios.nombres}}"
+        disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Ubicación</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.ubicacion}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Ubicación especifica</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.ubicacionEspecifica}}"
+        disabled />
+    </div>
+  </div>
+
+  <h3 style="text-align: center;">Datos de la Actividad Metrologica</h3>
+
+  <div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
+
+    <div class="form-item">
+      <label>Tipo de Actividad</label>
+      <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.tipoActividad}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Empresa</label>
+      <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.empresa}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Fecha Realizado</label>
+      <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.fechaRealizado}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Resultado</label>
+      <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.resultado}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Error Maximo Identificado</label>
+      <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.errorMaximoIdentificado}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Usuario que Aprobo</label>
+      <input pInputText type="text"
+        placeholder="{{actividadMetrologicaSelected?.usuarioAprobo?.nombres}} {{actividadMetrologicaSelected?.usuarioAprobo?.apellidos}}"
+        disabled />
+    </div>
+
+    <div class="form-item">
+
+    </div>
+
+    <div class="form-item">
+      <button type="button" class="btn btn-dark">Ver Certificado</button>
+    </div>
+
+  </div>
+
+</p-dialog>

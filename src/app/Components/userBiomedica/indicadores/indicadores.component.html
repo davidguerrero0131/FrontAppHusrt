@@ -1,1 +1,57 @@
-<p>indicadores works!</p>
+<div class="p-4 grid grid-cols-1 gap-4 md:grid-cols-12">
+  <p-card class="md:col-span-12">
+    <div class="flex flex-col md:flex-row gap-3 items-center">
+      <div class="flex items-center gap-2">
+        <span class="font-semibold">Rango de fechas:</span>
+        <p-calendar [ngModel]="dateRange()" selectionMode="range"
+          [showIcon]="true" dateFormat="yy-mm-dd" placeholder="YYYY-MM-DD - YYYY-MM-DD"></p-calendar>
+
+      </div>
+      <div class="flex items-center gap-2">
+        <button pButton label="Refrescar" icon="pi pi-refresh" (click)="refrescar()"></button>
+        <span *ngIf="loading()" class="ml-2">
+          <p-progressSpinner styleClass="w-3rem h-3rem" strokeWidth="4"></p-progressSpinner>
+        </span>
+      </div>
+      <div class="ml-auto flex items-center gap-3">
+        <p-tag severity="info" [value]="totalReportesLabel()"></p-tag>
+      </div>
+    </div>
+  </p-card>
+
+  <p-card header="Realizados vs. No realizados" class="md:col-span-6">
+    <p-chart type="pie" [data]="realizadosChartData()" [options]="chartOptions()"></p-chart>
+  </p-card>
+
+  <p-card header="Mantenimientos por tipo" class="md:col-span-6">
+    <p-chart type="doughnut" [data]="porTipoChartData()" [options]="chartOptions()"></p-chart>
+  </p-card>
+
+  <p-card header="Mantenimientos por usuario" class="md:col-span-12">
+    <p-chart type="bar" [data]="porUsuarioChartData()" [options]="barOptions('Reportes por usuario')"></p-chart>
+  </p-card>
+
+  <p-card header="Mantenimientos por servicio" class="md:col-span-12">
+    <p-chart type="bar" [data]="porServicioChartData()" [options]="barOptions('Reportes por servicio')"></p-chart>
+  </p-card>
+
+  <p-card header="Mantenimientos por tipo de falla" class="md:col-span-12">
+    <p-chart type="bar" [data]="porFallaChartData()" [options]="barOptions('Reportes por tipo de falla')"></p-chart>
+  </p-card>
+
+  <p-card header="Tendencia por mes (fecha realizado)" class="md:col-span-12">
+    <p-chart type="line" [data]="porMesChartData()" [options]="lineOptions('Reportes por mes')"></p-chart>
+  </p-card>
+
+  <p-card header="Top equipos con más reportes" class="md:col-span-12">
+    <p-chart type="bar" [data]="topEquiposChartData()" [options]="barOptions('Top equipos')"></p-chart>
+  </p-card>
+
+  <p-card header="(Opcional) Duración promedio (min) por tipo" class="md:col-span-12">
+    <p-chart type="bar" [data]="duracionPromedioPorTipoChartData()"
+      [options]="barOptions('Duración promedio (min) por tipo')"></p-chart>
+  </p-card>
+</div>
+
+
+

@@ -24,6 +24,7 @@ import { ReportesService } from '../../../../Services/appServices/biomedicaServi
 
 @Component({
   selector: 'app-crear-reporte',
+  standalone: true,
   imports: [DatePickerModule, SelectModule, TextareaModule, InputTextModule, ButtonModule, CardModule, CalendarModule, InputMaskModule, CommonModule, DropdownModule, CheckboxModule, ReactiveFormsModule, FormsModule, BiomedicausernavbarComponent],
   templateUrl: './crear-reporte.component.html',
   styleUrl: './crear-reporte.component.css'
@@ -128,12 +129,13 @@ export class CrearReporteComponent implements OnInit {
         await this.reprteServices.ActualizarPreventivoProgramado(this.reporte.id, this.reporte).then(() => {
           Swal.fire({
             icon: 'success',
-            title: 'Se almaceno el reporte correctamente',
+            title: 'Se almaceno el reporte Preventivo',
             showConfirmButton: false,
             timer: 1500
           });
           this.guardarCumplimiento();
-          this.router.navigate(['/biomedica/mantenimineto']);
+          console.log(this.reporte)
+          this.router.navigate(['/biomedica/reportesequipo/', this.reporte.equipoIdFk]);
         }).catch(error => {
           console.error('Error al actualizar el reporte:', error);
           Swal.fire({
