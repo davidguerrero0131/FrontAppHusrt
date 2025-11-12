@@ -28,6 +28,18 @@ export class TipoEquipoService {
     )
   }
 
+  activarTipoEquipo(idTipoEquipo: any){
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/activar/` + idTipoEquipo, {},this.createHeaders())
+    )
+  }
+
+  desactivarTipoEquipo(idTipoEquipo: any){
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/desactivar/` + idTipoEquipo, {},this.createHeaders())
+    )
+  }
+
   getCantidadEquipos(idTipoEquipo: any) {
     return firstValueFrom(
       this.httpClient.get<any>(`${this.baseUrl}/cantidadequipostipo/${idTipoEquipo}`, this.createHeaders())

@@ -6,7 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
 
-import {API_URL} from '../../../../constantes';
+import { API_URL } from '../../../../constantes';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +27,7 @@ export class ServicioService {
     )
   }
 
-  getCantidadEquipos(idServicio: any){
+  getCantidadEquipos(idServicio: any) {
     return firstValueFrom(
       this.httpClient.get<any>(`${this.baseUrl}/cantidadequiposserv/${idServicio}`, this.createHeaders())
     )
@@ -39,48 +39,60 @@ export class ServicioService {
     )
   }
 
-    getToken() {
-      return localStorage.getItem('utoken');
-    }
+  activarServicio(idServicio: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/servicios/activar/${idServicio}`, {}, this.createHeaders())
+    )
+  }
 
-    validateToken(token: string): boolean {
-      if (this.isTokenExpired(token)) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Sesion Expirada',
-          text: 'Ha llegado al límite de tiempo de sesión activa.'
-        })
-        this.router.navigate(['/login']);
-        localStorage.setItem('utoken', '');
-        return true;
-      } else {
-        return false;
-      }
-    }
+  desactivarServicio(idServicio: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/servicios/desactivar/${idServicio}`, {}, this.createHeaders())
+    )
+  }
 
-    isTokenExpired(token: string): boolean {
-      if (!token) {
-        return true; // Si no hay token, se considera expirado
-      }
-      const decodedToken = this.getDecodedAccessToken(token);
-      const currentTime = Math.floor(Date.now() / 1000);
+  getToken() {
+    return localStorage.getItem('utoken');
+  }
 
-      return decodedToken.exp < currentTime;
+  validateToken(token: string): boolean {
+    if (this.isTokenExpired(token)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sesion Expirada',
+        text: 'Ha llegado al límite de tiempo de sesión activa.'
+      })
+      this.router.navigate(['/login']);
+      localStorage.setItem('utoken', '');
+      return true;
+    } else {
+      return false;
     }
+  }
 
-    createHeaders() {
-      return {
-        headers: new HttpHeaders({
-          'authorization': localStorage.getItem('utoken')!
-        })
-      }
+  isTokenExpired(token: string): boolean {
+    if (!token) {
+      return true; // Si no hay token, se considera expirado
     }
+    const decodedToken = this.getDecodedAccessToken(token);
+    const currentTime = Math.floor(Date.now() / 1000);
 
-    getDecodedAccessToken(token: string): any {
-      try {
-        return jwtDecode(token);
-      } catch (Error) {
-        return null;
-      }
+    return decodedToken.exp < currentTime;
+  }
+
+  createHeaders() {
+    return {
+      headers: new HttpHeaders({
+        'authorization': localStorage.getItem('utoken')!
+      })
     }
+  }
+
+  getDecodedAccessToken(token: string): any {
+    try {
+      return jwtDecode(token);
+    } catch (Error) {
+      return null;
+    }
+  }
 }

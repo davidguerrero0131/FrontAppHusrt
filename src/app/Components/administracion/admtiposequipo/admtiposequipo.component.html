@@ -1,12 +1,12 @@
 <app-superadminnavbar></app-superadminnavbar>
 
 <div style="text-align: center;">
-  <h1>Tipos de Equipo Biomedicos</h1>
+  <h1>Tipos de Equipo</h1>
 </div>
 
 <div class="card" style="margin-top: 3%; width: 94%; margin-left: 3%; margin-right: 3%;">
   <p-table #dt2 [value]="tiposEquipos" dataKey="id" [paginator]="true" [rows]="10"
-    [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [globalFilterFields]="['nombres']"
+    [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [globalFilterFields]="['nombres', 'tipoR']"
     [tableStyle]="{ 'min-width': '10rem' }">
 
     <!-- Filtro -->
@@ -29,6 +29,7 @@
         <th>Materiales consumibles</th>
         <th>Herramientas</th>
         <th>Tiempo Mantenimiento (min)</th>
+        <th>Area</th>
         <th>Opciones</th>
       </tr>
     </ng-template>
@@ -37,18 +38,21 @@
     <ng-template pTemplate="body" let-equipo>
       <tr>
         <td class="text-center">
-          {{ equipo.id }}
+          {{ equipo?.id }}
         </td>
         <td><button type="button" class="btn btn-link" style="color: black;" (click)="viewTipoEquipo(equipo)">{{ equipo.nombres }}</button></td>
         <td>{{ equipo.materialConsumible }}</td>
         <td>{{ equipo.herramienta }}</td>
         <td>{{ equipo.tiempoMinutos }}</td>
+        <td *ngIf="equipo.tipoR == 1">Biomedica</td>
+        <td *ngIf="equipo.tipoR == 2">Sistemas</td>
+        <td *ngIf="equipo.tipoR == 3">Mantenimiento</td>
         <td>
           <button type="button" class="btn btn-outline-secondary"><i class="bi bi-pencil-square"></i></button>
           <button type="button" class="btn btn-outline-danger" *ngIf="equipo.activo"><i
-              class="bi bi-x-circle"></i></button>
+              class="bi bi-x-circle" (click)="estadoTipoEquipo(equipo.id, 'D')"></i></button>
           <button type="button" class="btn btn-outline-success" *ngIf="!equipo.activo"><i
-              class="bi bi-check2-circle"></i></button>
+              class="bi bi-check2-circle" (click)="estadoTipoEquipo(equipo.id, 'A')"></i></button>
         </td>
       </tr>
     </ng-template>

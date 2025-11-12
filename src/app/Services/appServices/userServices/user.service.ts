@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
 import { isTokenExpired, createHeaders, validateToken, getDecodedAccessToken } from '../../../utilidades';
-import {API_URL} from '../../../constantes'
+import { API_URL } from '../../../constantes'
 
 
 @Injectable({
@@ -21,21 +21,21 @@ export class UserService {
 
   constructor() {
     this.baseUrl = API_URL;
-   }
+  }
 
-   getToken(){
+  getToken() {
     return localStorage.getItem('utoken');
-   }
+  }
 
-   registro(formValue: any) {
+  registro(formValue: any) {
     return firstValueFrom(
       this.httpClient.post<any>(`${this.baseUrl}/adduser`, formValue)
     )
   }
 
-  recuperarContrasena(email: String){
+  recuperarContrasena(email: String) {
     return firstValueFrom(
-      this.httpClient.post<any>(`${this.baseUrl}/olvidocontrasena`, {email})
+      this.httpClient.post<any>(`${this.baseUrl}/olvidocontrasena`, { email })
     )
   }
 
@@ -51,13 +51,26 @@ export class UserService {
     )
   }
 
-    getNameUSer(idUser: number) {
+  desactivarUsuario(idUser: number) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/desactivarusuario/` + idUser, {}, createHeaders())
+    )
+  }
+
+  activarUsuario(idUser: number) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/activarusuario/` + idUser, {},createHeaders())
+    )
+  }
+
+
+  getNameUSer(idUser: number) {
     return firstValueFrom(
       this.httpClient.get<any>(`${this.baseUrl}/nombreusuario/` + idUser, createHeaders())
     )
   }
 
-  getUserProfil(idUser: any){
+  getUserProfil(idUser: any) {
     return firstValueFrom(
       this.httpClient.get<any>(`${this.baseUrl}/userprofil/` + idUser, createHeaders())
     );
@@ -69,13 +82,13 @@ export class UserService {
     )
   }
 
-  getAllUsers(){
+  getAllUsers() {
     return firstValueFrom(
       this.httpClient.get<any[]>(`${this.baseUrl}/users`, createHeaders())
     )
   }
 
-  getAllRoles(){
+  getAllRoles() {
     return firstValueFrom(
       this.httpClient.get<any[]>(`${this.baseUrl}/roles`, createHeaders())
     )

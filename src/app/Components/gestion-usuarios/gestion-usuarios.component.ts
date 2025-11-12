@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 import { jwtDecode } from 'jwt-decode';
 import { TableModule } from 'primeng/table';
 import { SuperadminnavbarComponent } from '../navbars/superadminnavbar/superadminnavbar.component';
+import { char } from '@zxing/library/esm/customTypings';
 
 @Component({
   selector: 'app-gestion-usuarios',
@@ -29,15 +30,13 @@ export class GestionUsuariosComponent {
     private router: Router,
     private formBuilder: FormBuilder,
     private messageService: MessageService
-  ){}
+  ) { }
 
 
   async ngOnInit() {
     try {
       this.usuarios = await this.userService.getAllUsers();
       this.loading = false;
-
-      console.log(this.usuarios);
 
     } catch {
       Swal.fire({
@@ -48,9 +47,44 @@ export class GestionUsuariosComponent {
     }
   }
 
-  showRegisterForm(){
+  showRegisterForm() {
     this.router.navigate(['/registro']);
   }
+
+  async estadoUsuario(idUsuario: any, accion: string) {
+    if (accion === 'A') {
+      Swal.fire({
+        title: "Desea activar el Usuario?",
+        showCancelButton: true,
+        confirmButtonText: "Activar",
+        cancelButtonText: `Cancelar`
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          const res = await this.userService.activarUsuario(idUsuario);
+          this.usuarios = await this.userService.getAllUsers();
+          Swal.fire("Usuario Activo!", "", "success");
+        } else if (result.isDenied) {
+          Swal.fire("Se descarto la activacion del usuario", "", "info");
+        }
+      });
+    } else if (accion === 'D') {
+      Swal.fire({
+        title: "Desea desactivar el Usuario?",
+        showCancelButton: true,
+        confirmButtonText: "Desactivar",
+        cancelButtonText: `Cancelar`
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          const res = await this.userService.desactivarUsuario(idUsuario);
+          this.usuarios = await this.userService.getAllUsers();
+          Swal.fire("Usuario Inactivo!", "", "success");
+        } else if (result.isDenied) {
+          Swal.fire("Se descarto la activacion del usuario", "", "info");
+        }
+      });
+    }
+  }
+
 
   getDecodedAccessToken(token: string): any {
     try {
@@ -59,5 +93,7 @@ export class GestionUsuariosComponent {
       return null;
     }
   }
+
+
 
 }

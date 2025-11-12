@@ -30,7 +30,7 @@ export class HomesuperadminComponent {
   viewEquipos(){
     this.router.navigate(['/biomedica/inventario']);
   }
-
+ 
   viewTiposEquipo(){
     this.router.navigate(['/admin/tiposequipo']);
   }

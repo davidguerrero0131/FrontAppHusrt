@@ -39,7 +39,6 @@
             </p-columnFilter>
           </th>
           <th>
-            <p-columnFilter type="boolean" field="verified" />
           </th>
           <th>
             <button type="button" class="btn btn-outline-primary" (click)="showRegisterForm()">
@@ -88,12 +87,12 @@
 
             <span class="ml-1 vertical-align-middle" *ngIf="usuario.estado">
               <button type="button" class="btn btn-outline-danger btn-sm">
-                <i class="bi bi-x-circle"></i>
+                <i class="bi bi-x-circle" (click)="estadoUsuario(usuario.id, 'D')"></i>
               </button>
             </span>
 
             <span class="ml-1 vertical-align-middle" *ngIf="!usuario.estado">
-              <button type="button" class="btn btn-outline-success btn-sm">
+              <button type="button" class="btn btn-outline-success btn-sm" (click)="estadoUsuario(usuario.id, 'A')">
                 <i class="bi bi-check-circle"></i>
               </button>
             </span>

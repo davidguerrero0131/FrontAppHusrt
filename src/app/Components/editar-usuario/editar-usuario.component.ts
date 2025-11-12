@@ -14,10 +14,10 @@ import Swal from 'sweetalert2';
 })
 export class EditarUsuarioComponent implements OnInit {
 
-   usuarioServices = inject(UserService);
+  usuarioServices = inject(UserService);
   usuario!: any;
 
-  constructor(private location: Location) {}
+  constructor(private location: Location) { }
 
   async ngOnInit() {
     try {
@@ -55,11 +55,11 @@ export class EditarUsuarioComponent implements OnInit {
   }
 
   cancelarEdicion() {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Usuario o contraseña incorecto',
-            text: 'Verifique los campos.'
-          })
+    Swal.fire({
+      icon: 'warning',
+      title: 'Usuario o contraseña incorecto',
+      text: 'Verifique los campos.'
+    })
     this.location.back();
   }
 
