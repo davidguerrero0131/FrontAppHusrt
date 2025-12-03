@@ -1,0 +1,77 @@
+<app-superadminnavbar></app-superadminnavbar>
+
+<div style="text-align: center;">
+  <h1>Tipos de Equipo</h1>
+</div>
+
+<div class="card" style="margin-top: 3%; width: 94%; margin-left: 3%; margin-right: 3%;">
+  <p-table #dt2 [value]="tiposEquipos" dataKey="id" [paginator]="true" [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [globalFilterFields]="['nombres', 'tipoR']"
+    [tableStyle]="{ 'min-width': '10rem' }">
+
+    <!-- Filtro -->
+    <ng-template #caption>
+      <div class="flex justify-content-end">
+        <p-iconfield iconPosition="left">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda" />
+        </p-iconfield>
+      </div>
+    </ng-template>
+
+    <!-- Cabecera -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:5%">ID</th>
+        <th>Nombre</th>
+        <th>Materiales consumibles</th>
+        <th>Herramientas</th>
+        <th>Tiempo Mantenimiento (min)</th>
+        <th>Area</th>
+        <th>Opciones</th>
+      </tr>
+    </ng-template>
+
+    <!-- Cuerpo -->
+    <ng-template pTemplate="body" let-equipo>
+      <tr>
+        <td class="text-center">
+          {{ equipo?.id }}
+        </td>
+        <td><button type="button" class="btn btn-link" style="color: black;" (click)="viewTipoEquipo(equipo)">{{ equipo.nombres }}</button></td>
+        <td>{{ equipo.materialConsumible }}</td>
+        <td>{{ equipo.herramienta }}</td>
+        <td>{{ equipo.tiempoMinutos }}</td>
+        <td *ngIf="equipo.tipoR == 1">Biomedica</td>
+        <td *ngIf="equipo.tipoR == 2">Sistemas</td>
+        <td *ngIf="equipo.tipoR == 3">Mantenimiento</td>
+        <td>
+          <button type="button" class="btn btn-outline-secondary"><i class="bi bi-pencil-square"></i></button>
+          <button type="button" class="btn btn-outline-danger" *ngIf="equipo.activo"><i
+              class="bi bi-x-circle" (click)="estadoTipoEquipo(equipo.id, 'D')"></i></button>
+          <button type="button" class="btn btn-outline-success" *ngIf="!equipo.activo"><i
+              class="bi bi-check2-circle" (click)="estadoTipoEquipo(equipo.id, 'A')"></i></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <!-- Mensaje vacío -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="10" class="text-center">No hay Equipos.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+
+<p-dialog header="{{ tipoEquipoSelected?.nombres }}" [(visible)]="viewModalTipoEquipo" [modal]="true" [responsive]="true"
+  [style]="{ width: '90vw', maxWidth: '95%' }" [baseZIndex]="10000"
+  [breakpoints]="{ '960px': '90vw', '640px': '95vw' }">
+  <div class="p-fluid p-3">
+
+
+  </div>
+</p-dialog>

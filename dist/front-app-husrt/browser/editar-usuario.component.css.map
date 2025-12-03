@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/Components/editar-usuario/editar-usuario.component.css"],
+  "sourcesContent": [".container {\n  max-width: 1000px;\n}\n\n.card {\n  border-radius: 12px;\n}\n\nbutton {\n  min-width: 120px;\n}\n"],
+  "mappings": ";AAAA,CAAC;AACC,aAAW;AACb;AAEA,CAAC;AACC,iBAAe;AACjB;AAEA;AACE,aAAW;AACb;",
+  "names": []
+}

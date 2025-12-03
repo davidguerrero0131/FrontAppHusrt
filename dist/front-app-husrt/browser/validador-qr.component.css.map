@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/Components/userBiomedica/Reportes/validador-qr/validador-qr.component.css"],
+  "sourcesContent": ["/* qr-scanner.component.css */\n.scanner-container {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 1rem;\n}\n\nzxing-scanner {\n  width: 100%;\n  max-width: 600px;\n  height: auto;\n  border: 2px dashed #007bff;\n  border-radius: 8px;\n}\n"],
+  "mappings": ";AACA,CAAC;AACC,WAAS;AACT,kBAAgB;AAChB,eAAa;AACb,OAAK;AACP;AAEA;AACE,SAAO;AACP,aAAW;AACX,UAAQ;AACR,UAAQ,IAAI,OAAO;AACnB,iBAAe;AACjB;",
+  "names": []
+}

@@ -1,0 +1,228 @@
+<div class="space-y-6" @fadeIn>
+  <!-- Header -->
+  <div class="flex items-center justify-between bg-white rounded-xl shadow-medium p-6 mb-6" @scaleIn>
+    <div>
+      <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-700 to-hospital-700 bg-clip-text text-transparent">Casos</h1>
+      <p class="text-gray-600 mt-2 font-medium">Gestión de casos de la mesa de servicios</p>
+    </div>
+    <button (click)="crearNuevoCaso()" class="py-3 px-6 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-xl shadow-medium hover:shadow-strong transition-all duration-200 flex items-center transform hover:scale-[1.02] active:scale-[0.98]">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+      Nuevo Caso
+    </button>
+  </div>
+
+  <!-- Indicador de visibilidad -->
+  <div *ngIf="mostrarIndicadorVisibilidad()" class="bg-gradient-to-r from-hospital-50 to-primary-50 border-2 border-hospital-200 rounded-xl px-5 py-4 shadow-soft">
+    <div class="flex items-start">
+      <div class="w-10 h-10 bg-gradient-to-br from-hospital-500 to-primary-500 rounded-lg flex items-center justify-center flex-shrink-0 shadow-soft">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-bold text-hospital-900">Visibilidad de casos</p>
+        <p class="text-sm text-hospital-700 mt-1 font-medium">{{ getMensajeVisibilidad() }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="bg-white rounded-xl shadow-medium p-6">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div>
+        <label class="label-field">Estado</label>
+        <select [(ngModel)]="filtros.estado" (change)="aplicarFiltros()" class="input-field">
+          <option value="">Todos</option>
+          <option *ngFor="let estado of estados" [value]="estado">
+            {{ formatearEstado(estado) }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label class="label-field">Tipo</label>
+        <select [(ngModel)]="filtros.tipo" (change)="aplicarFiltros()" class="input-field">
+          <option value="">Todos</option>
+          <option *ngFor="let tipo of tipos" [value]="tipo" class="capitalize">
+            {{ tipo }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label class="label-field">Área</label>
+        <select [(ngModel)]="filtros.area_id" (change)="aplicarFiltros()" class="input-field">
+          <option value="">Todas</option>
+          <option *ngFor="let area of areas" [value]="area.id">
+            {{ area.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label class="label-field">Prioridad</label>
+        <select [(ngModel)]="filtros.prioridad" (change)="aplicarFiltros()" class="input-field">
+          <option value="">Todas</option>
+          <option *ngFor="let prioridad of prioridades" [value]="prioridad" class="capitalize">
+            {{ prioridad }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label class="label-field">Búsqueda</label>
+        <input
+          type="text"
+          [(ngModel)]="filtros.busqueda"
+          (input)="aplicarFiltros()"
+          placeholder="Buscar..."
+          class="input-field"
+        />
+      </div>
+    </div>
+
+    <div class="mt-4 flex justify-end">
+      <button (click)="limpiarFiltros()" class="py-2 px-4 bg-white border-2 border-gray-300 hover:border-primary-500 text-gray-700 hover:text-primary-700 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200">
+        Limpiar Filtros
+      </button>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="bg-gradient-to-r from-danger-50 to-danger-100 border-2 border-danger-300 text-danger-800 px-5 py-4 rounded-xl font-semibold shadow-soft">
+    {{ error }}
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="bg-white rounded-xl shadow-medium text-center py-12">
+    <svg class="animate-spin h-10 w-10 text-primary-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    <p class="text-gray-600 mt-3 font-semibold">Cargando casos...</p>
+  </div>
+
+  <!-- Lista de casos -->
+  <div *ngIf="!cargando" class="bg-white rounded-xl shadow-medium overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Número
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Tipo
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Área / Categoría
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Descripción
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Estado
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Prioridad
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Asignado a
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Fecha
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let caso of casos" class="hover:bg-gray-50 cursor-pointer transition-colors" (click)="verDetalle(caso)">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm font-medium text-blue-600">{{ caso.numero_caso }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm text-gray-900 capitalize">{{ caso.tipo }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ caso.area?.nombre || caso.area_nombre || 'Sin área' }}</div>
+              <div class="text-xs text-gray-500">{{ caso.categoria?.nombre || caso.categoria_nombre || 'Sin categoría' }}</div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="text-sm text-gray-900 max-w-xs truncate">{{ caso.descripcion }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span [class]="'badge ' + getEstadoColor(caso.estado)">
+                {{ formatearEstado(caso.estado) }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span [class]="'text-sm font-medium capitalize ' + getPrioridadColor(caso.prioridad)">
+                {{ caso.prioridad }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div *ngIf="caso.asignadoA" class="text-sm text-gray-900">
+                {{ caso.asignadoA.nombre_completo }}
+              </div>
+              <div *ngIf="!caso.asignadoA" class="text-sm text-gray-400 italic">
+                Sin asignar
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ formatearFecha(caso.fecha_creacion || caso.createdAt || '') }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <div class="flex items-center gap-3">
+                <button
+                  (click)="verDetalle(caso); $event.stopPropagation()"
+                  class="text-blue-600 hover:text-blue-900"
+                >
+                  Ver
+                </button>
+                <button
+                  *ngIf="puedeAsignarCasos()"
+                  (click)="abrirModalAsignar(caso, $event)"
+                  class="text-green-600 hover:text-green-900"
+                  title="Asignar caso"
+                >
+                  Asignar
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Sin resultados -->
+          <tr *ngIf="casos.length === 0">
+            <td colspan="9" class="px-6 py-8 text-center">
+              <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <p class="text-gray-600 font-medium">{{ getMensajeSinCasos() }}</p>
+              <button
+                (click)="crearNuevoCaso()"
+                class="mt-4 btn-primary inline-flex items-center"
+              >
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Crear Nuevo Caso
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal de asignación -->
+  <app-asignar-caso-modal
+    *ngIf="mostrarModalAsignar"
+    [caso]="casoSeleccionado"
+    (cerrar)="cerrarModalAsignar()"
+    (asignado)="onCasoAsignado($event)"
+  ></app-asignar-caso-modal>
+</div>

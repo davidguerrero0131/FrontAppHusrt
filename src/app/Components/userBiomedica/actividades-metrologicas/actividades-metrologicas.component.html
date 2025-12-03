@@ -1,0 +1,466 @@
+<app-biomedicausernavbar></app-biomedicausernavbar>
+
+<div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
+</div>
+
+<div style="margin-bottom: 2%;">
+  <h1 style="text-align: center;">ACTIVIDADES METROLOGICAS DE EQUIPOS BIOMEDICOS</h1>
+</div>
+
+<div class="filtromes flex flex-column md:flex-row align-items-center gap-3" style="margin-bottom: 2%;">
+  <h6 class="m-0">Seleccione un mes para visualizar:</h6>
+
+  <p-datepicker [(ngModel)]="date" view="month" dateFormat="mm/yy" [readonlyInput]="true"
+    inputStyleClass="w-full md:w-10rem"></p-datepicker>
+
+  <button type="button" class="btn btn-dark" (click)="setDate()">
+    Buscar
+  </button>
+</div>
+
+<div>
+  <h6 style="text-align: center;"> Actividades Metrologicas del mes de {{obtenerNombreMes(mes)}} del año {{anio}}</h6>
+</div>
+
+<div class="btn-group botonesMenu" role="group" aria-label="Basic example">
+  <button type="button" class="btn" [ngClass]="panelActividadesMetrologicas ? 'btn-light' : 'btn-dark'"
+    (click)="viewActividadesMetrologicas()">
+    Actividades Metrologicas
+  </button>
+
+  <button type="button" class="btn" [ngClass]="panelMetas ? 'btn-light' : 'btn-dark'" (click)="viewMetas()">
+    Metas
+  </button>
+</div>
+
+<div style="margin-top: 1%;">
+  <div class="panelMantenimientos" *ngIf="panelActividadesMetrologicas">
+
+    <div class="card">
+      <p-table #dt2 [value]="actividadesMetrologicas" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [loading]="loading" [paginator]="true" [tableStyle]="{ 'min-width': '10rem' }"
+        [globalFilterFields]="['equipo.nombres', 'usuario.nombres', 'equipo.serie', 'equipo.placa', 'servicio.nombres']">
+
+        <ng-template #caption>
+          <div class="flex">
+            <p-iconfield iconPosition="left" class="ml-auto">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda General" />
+            </p-iconfield>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width:10%; align-items: center; text-align: center">Nombre</th>
+            <th style="width:10%; align-items: center; text-align: center">Marca</th>
+            <th style="width:10%; align-items: center; text-align: center">Modelo</th>
+            <th style="width:10%; align-items: center; text-align: center">Serie</th>
+            <th style="width:10%; align-items: center; text-align: center">Placa</th>
+            <th style="width:15%; align-items: center; text-align: center">Servicio</th>
+            <th style="width:15%; align-items: center; text-align: center">Ubicacion Especidica</th>
+            <th style="width:15%; align-items: center; text-align: center">Asignado</th>
+            <th style="width:10%; align-items: center; text-align: center">Realizado</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-reporte>
+          <tr>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{reporte.equipo.nombres}}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ reporte.equipo.marca }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ reporte.equipo.modelo }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ reporte.equipo.serie }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ reporte.equipo.placa }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ reporte.equipo.servicios.nombres}}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ reporte.equipo.servicios.ubicacion}}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ reporte.usuarioAprobo?.nombres}} {{reporte.usuarioAprobo?.apellidos}}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <button type="button" class="btn btn-success" *ngIf="reporte.realizado"
+                (click)="viewActividadMetrologica(reporte)">REALIZADO</button>
+              <button type="button" class="btn btn-danger" *ngIf="!reporte.realizado"
+                (click)="viewmodalAddActividadMetrologica(reporte)">PENDIENTE</button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5">No hay Reportes.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <div class="panelMantenimientos" *ngIf="panelMetas">
+
+    <div class="contenedor">
+      <div class="izquierda">
+
+        <button type="button" class="btn btn-dark btn-sm" style="width: 100%; margin-bottom: 2%;"
+          (click)="panelRealizadosView()"> Realzados </button>
+        <button type="button" class="btn btn-dark btn-sm" style="width: 100%;" (click)="panelPendientesView()">
+          Pendientes </button>
+
+      </div>
+      <div class="derecha" *ngIf="panelRealizados">
+
+
+        <div class="card">
+          <p-table #dt2 [value]="actividadesMetrologicas" dataKey="id" [rows]="10"
+            [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
+            [tableStyle]="{ 'min-width': '10rem' }"
+            [globalFilterFields]="['equipo.nombres', 'usuario.nombres', 'equipo.serie', 'equipo.placa', 'servicio.nombres']">
+
+            <ng-template #caption>
+              <div class="flex">
+                <p-iconfield iconPosition="left" class="ml-auto">
+                  <p-inputicon>
+                    <i class="pi pi-search"></i>
+                  </p-inputicon>
+                  <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda General" />
+                </p-iconfield>
+              </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width:10%; align-items: center; text-align: center">Nombre</th>
+                <th style="width:10%; align-items: center; text-align: center">Marca</th>
+                <th style="width:10%; align-items: center; text-align: center">Modelo</th>
+                <th style="width:10%; align-items: center; text-align: center">Serie</th>
+                <th style="width:10%; align-items: center; text-align: center">Placa</th>
+                <th style="width:15%; align-items: center; text-align: center">Servicio</th>
+                <th style="width:15%; align-items: center; text-align: center">Ubicacion Especidica</th>
+                <th style="width:15%; align-items: center; text-align: center">Asignado</th>
+                <th style="width:10%; align-items: center; text-align: center">Realizado</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-reporte>
+              <tr *ngIf="reporte.realizado == true">
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{reporte.equipo.nombres}}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.equipo.marca }}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.equipo.modelo }}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.equipo.serie }}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.equipo.placa }}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.equipo.servicios.nombres}}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.equipo.servicios.ubicacion}}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.usuarioAprobo?.nombres}} {{reporte.usuarioAprobo?.apellidos}}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <button type="button" class="btn btn-success" *ngIf="reporte.realizado"
+                    (click)="viewActividadMetrologica(reporte)">REALIZADO</button>
+                  <button type="button" class="btn btn-danger" *ngIf="!reporte.realizado"
+                    (click)="viewmodalAddActividadMetrologica(reporte)">PENDIENTE</button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="5">No hay Reportes.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+
+      </div>
+      <div class="derecha" *ngIf="panelPendientes" style=" background-color: #d1e7dd;">
+
+        <div class="card">
+          <p-table #dt2 [value]="actividadesMetrologicas" dataKey="id" [rows]="10"
+            [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
+            [tableStyle]="{ 'min-width': '10rem' }"
+            [globalFilterFields]="['equipo.nombres', 'usuario.nombres', 'equipo.serie', 'equipo.placa', 'servicio.nombres']">
+
+            <ng-template #caption>
+              <div class="flex">
+                <p-iconfield iconPosition="left" class="ml-auto">
+                  <p-inputicon>
+                    <i class="pi pi-search"></i>
+                  </p-inputicon>
+                  <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda General" />
+                </p-iconfield>
+              </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width:10%; align-items: center; text-align: center">Nombre</th>
+                <th style="width:10%; align-items: center; text-align: center">Marca</th>
+                <th style="width:10%; align-items: center; text-align: center">Modelo</th>
+                <th style="width:10%; align-items: center; text-align: center">Serie</th>
+                <th style="width:10%; align-items: center; text-align: center">Placa</th>
+                <th style="width:15%; align-items: center; text-align: center">Servicio</th>
+                <th style="width:15%; align-items: center; text-align: center">Ubicacion Especidica</th>
+                <th style="width:15%; align-items: center; text-align: center">Asignado</th>
+                <th style="width:10%; align-items: center; text-align: center">Realizado</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-reporte>
+              <tr *ngIf="!reporte.realizado">
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{reporte.equipo.nombres}}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.equipo.marca }}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.equipo.modelo }}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.equipo.serie }}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.equipo.placa }}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.equipo.servicios.nombres}}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.equipo.servicios.ubicacion}}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ reporte.usuarioAprobo?.nombres}} {{reporte.usuarioAprobo?.apellidos}}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <button type="button" class="btn btn-success" *ngIf="reporte.realizado"
+                    (click)="viewActividadMetrologica(reporte)">REALIZADO</button>
+                  <button type="button" class="btn btn-danger" *ngIf="!reporte.realizado"
+                    (click)="viewmodalAddActividadMetrologica(reporte)">PENDIENTE</button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="5">No hay Reportes.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<p-dialog header="Registrar Actividad Metrologica" [modal]="true" [(visible)]="modalAddActividadMetrologica"
+  [style]="{ width: '70rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="false">
+
+  <div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
+
+    <div class="form-item">
+      <label>Nombre Equipo</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.nombres}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Marca</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.marca}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Modelo</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.modelo}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Serie</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.serie}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Servicio</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.servicios.nombres}}"
+        disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Ubicación</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.ubicacion}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Ubicación especifica</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.ubicacionEspecifica}}"
+        disabled />
+    </div>
+  </div>
+
+  <div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
+
+
+  </div>
+
+</p-dialog>
+
+<p-dialog header="Actividad Metrologica" [modal]="true" [(visible)]="modalViewActividadMetrologica"
+  [style]="{ width: '70rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="false">
+
+  <h3 style="text-align: center;">Datos del Equipo</h3>
+
+  <div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
+    <div class="form-item">
+      <label>Nombre Equipo</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.nombres}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Marca</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.marca}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Modelo</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.modelo}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Serie</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.serie}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Servicio</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.servicios.nombres}}"
+        disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Ubicación</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.ubicacion}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Ubicación especifica</label>
+      <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.ubicacionEspecifica}}"
+        disabled />
+    </div>
+  </div>
+
+  <h3 style="text-align: center;">Datos de la Actividad Metrologica</h3>
+
+  <div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
+
+    <div class="form-item">
+      <label>Tipo de Actividad</label>
+      <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.tipoActividad}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Empresa</label>
+      <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.empresa}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Fecha Realizado</label>
+      <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.fechaRealizado}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Resultado</label>
+      <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.resultado}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Error Maximo Identificado</label>
+      <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.errorMaximoIdentificado}}" disabled />
+    </div>
+
+    <div class="form-item">
+      <label>Usuario que Aprobo</label>
+      <input pInputText type="text"
+        placeholder="{{actividadMetrologicaSelected?.usuarioAprobo?.nombres}} {{actividadMetrologicaSelected?.usuarioAprobo?.apellidos}}"
+        disabled />
+    </div>
+
+    <div class="form-item">
+
+    </div>
+
+    <div class="form-item">
+      <button type="button" class="btn btn-dark">Ver Certificado</button>
+    </div>
+
+  </div>
+
+</p-dialog>

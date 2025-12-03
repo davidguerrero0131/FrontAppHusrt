@@ -1,0 +1,145 @@
+<div class="min-h-screen bg-gradient-to-br from-primary-50 via-hospital-50 to-primary-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+  <!-- Decorative elements -->
+  <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+    <div class="absolute -bottom-40 -right-40 w-80 h-80 bg-hospital-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style="animation-delay: 2s;"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style="animation-delay: 4s;"></div>
+  </div>
+
+  <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+    <!-- Logo del Hospital -->
+    <div class="flex justify-center mb-8">
+      <img
+        src="/logo-hospital.png"
+        alt="Hospital Universitario San Rafael de Tunja"
+        class="h-24 w-auto object-contain"
+      />
+    </div>
+
+    <h2 class="text-center text-4xl font-extrabold bg-gradient-to-r from-primary-600 to-hospital-600 bg-clip-text text-transparent mb-2">
+      Mesa de Servicios
+    </h2>
+    <p class="mt-2 text-center text-base text-gray-700 font-medium">
+      Hospital Universitario San Rafael de Tunja
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+    <div class="bg-white/95 backdrop-blur-sm py-10 px-6 shadow-strong sm:rounded-2xl sm:px-12 border border-white">
+      <form class="space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <!-- Campo de usuario -->
+        <div>
+          <label for="codigo" class="block text-sm font-semibold text-gray-700 mb-2">
+            Nombre de usuario
+          </label>
+          <div class="mt-1 relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+            </div>
+            <input
+              id="codigo"
+              name="codigo"
+              type="text"
+              autocomplete="username"
+              required
+              formControlName="codigo"
+              class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 shadow-soft"
+              [class.border-danger-500]="loginForm.get('codigo')?.invalid && loginForm.get('codigo')?.touched"
+              [class.focus:ring-danger-500]="loginForm.get('codigo')?.invalid && loginForm.get('codigo')?.touched"
+              placeholder="Ingrese su código"
+            />
+          </div>
+          <p
+            *ngIf="loginForm.get('codigo')?.invalid && loginForm.get('codigo')?.touched"
+            class="mt-2 text-sm text-danger-600 font-medium"
+          >
+            El código de usuario es requerido
+          </p>
+        </div>
+
+        <!-- Campo de contraseña -->
+        <div>
+          <label for="contrasena" class="block text-sm font-semibold text-gray-700 mb-2">
+            Contraseña
+          </label>
+          <div class="mt-1 relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+            </div>
+            <input
+              id="contrasena"
+              name="contrasena"
+              type="password"
+              autocomplete="current-password"
+              required
+              formControlName="contrasena"
+              class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 shadow-soft"
+              [class.border-danger-500]="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched"
+              [class.focus:ring-danger-500]="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched"
+              placeholder="Ingrese su contraseña"
+            />
+          </div>
+          <p
+            *ngIf="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched"
+            class="mt-2 text-sm text-danger-600 font-medium"
+          >
+            La contraseña es requerida
+          </p>
+        </div>
+
+        <!-- Mensaje de error -->
+        <div
+          *ngIf="errorMensaje"
+          class="rounded-xl bg-danger-50 border-2 border-danger-200 p-4 shadow-soft"
+        >
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-6 w-6 text-danger-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-semibold text-danger-800">
+                {{ errorMensaje }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón de inicio de sesión -->
+        <div>
+          <button
+            type="submit"
+            [disabled]="loginForm.invalid || cargando"
+            class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-medium text-base font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <span *ngIf="!cargando">Iniciar sesión</span>
+            <span *ngIf="cargando" class="flex items-center">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Iniciando sesión...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Pie de página -->
+  <footer class="mt-8 text-center relative z-10">
+    <div class="bg-white/80 backdrop-blur-sm rounded-xl shadow-soft px-6 py-4 inline-block">
+      <p class="text-sm font-semibold text-gray-700">
+        © {{currentYear}} Hospital Universitario San Rafael de Tunja
+      </p>
+      <p class="mt-1 text-xs text-gray-600">
+        Sistema de Gestión de Casos y Soporte
+      </p>
+    </div>
+  </footer>
+</div>

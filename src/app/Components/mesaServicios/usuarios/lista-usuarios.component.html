@@ -1,0 +1,335 @@
+<div class="space-y-6" @fadeIn>
+  <!-- Header limpio y elegante -->
+  <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-primary-600" @scaleIn>
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">Gestión de Usuarios</h1>
+        <p class="text-gray-600 mt-1">Administra los usuarios del sistema</p>
+      </div>
+      <button
+        (click)="abrirModalNuevo()"
+        class="px-4 py-2 text-white font-medium rounded-lg shadow transition-all duration-200 flex items-center gap-2"
+        style="background-color: #2563eb;"
+        onmouseover="this.style.backgroundColor='#1d4ed8'"
+        onmouseout="this.style.backgroundColor='#2563eb'"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Nuevo Usuario
+      </button>
+    </div>
+  </div>
+
+  <!-- Mensajes -->
+  <div *ngIf="exitoMensaje" class="bg-green-50 border-l-4 border-green-500 text-green-700 px-4 py-3 rounded-lg shadow-sm" @scaleIn>
+    <div class="flex items-center">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      {{ exitoMensaje }}
+    </div>
+  </div>
+
+  <div *ngIf="errorMensaje" class="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-sm" @scaleIn>
+    <div class="flex items-center">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      {{ errorMensaje }}
+    </div>
+  </div>
+
+  <!-- Barra de búsqueda y filtros -->
+  <div class="bg-white rounded-xl shadow-md p-4" @fadeIn>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        <input
+          type="text"
+          [(ngModel)]="busqueda"
+          (input)="aplicarFiltros()"
+          placeholder="Buscar por nombre, correo o código..."
+          class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+        />
+        <button
+          *ngIf="busqueda"
+          (click)="limpiarBusqueda()"
+          class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+        >
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div>
+        <select
+          [(ngModel)]="filtroPerfil"
+          (change)="aplicarFiltros()"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+        >
+          <option value="">Todos los perfiles</option>
+          <option *ngFor="let perfil of perfiles" [value]="perfil.id">{{ perfil.nombre }}</option>
+        </select>
+      </div>
+
+      <div>
+        <select
+          [(ngModel)]="filtroArea"
+          (change)="aplicarFiltros()"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+        >
+          <option value="">Todas las áreas</option>
+          <option *ngFor="let area of areas" [value]="area.id">{{ area.ruta_completa || area.nombre }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="bg-white rounded-xl shadow-md text-center py-12" @scaleIn>
+    <div class="animate-spin h-10 w-10 border-4 border-primary-200 border-t-primary-600 rounded-full mx-auto"></div>
+    <p class="text-gray-600 mt-3">Cargando usuarios...</p>
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div *ngIf="!cargando" class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perfil</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Área</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200" [@listAnimation]="usuariosFiltrados.length">
+          <tr *ngFor="let usuario of usuariosFiltrados" class="hover:bg-gray-50 transition-colors">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900">{{ usuario.codigo }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ usuario.nombre_completo }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-600">{{ usuario.correo || usuario.email }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-700">{{ usuario.rol?.nombre || usuario.rol_nombre }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-700">{{ usuario.area?.nombre || 'N/A' }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span [class]="usuario.activo || usuario.estado ? 'px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800' : 'px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800'">
+                {{ usuario.activo || usuario.estado ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <div class="flex justify-end gap-2">
+                <button (click)="abrirModalCambiarContrasena(usuario)" class="text-primary-600 hover:text-primary-900" title="Cambiar contraseña">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                  </svg>
+                </button>
+                <button
+                  *ngIf="usuario.activo || usuario.estado"
+                  (click)="desactivarUsuario(usuario.id)"
+                  class="text-yellow-600 hover:text-yellow-900"
+                  title="Desactivar"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                  </svg>
+                </button>
+                <button
+                  *ngIf="!usuario.activo && !usuario.estado"
+                  (click)="activarUsuario(usuario.id)"
+                  class="text-green-600 hover:text-green-900"
+                  title="Activar"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="usuariosFiltrados.length === 0">
+            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+              <p class="mt-2">No se encontraron usuarios</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nuevo Usuario -->
+<div *ngIf="mostrarModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4" @modalAnimation>
+  <div class="modal-content relative bg-white rounded-xl shadow-xl max-w-2xl w-full">
+    <div class="bg-primary-600 px-6 py-4 rounded-t-xl">
+      <h3 class="text-xl font-semibold text-white">Nuevo Usuario</h3>
+    </div>
+
+    <form [formGroup]="usuarioForm" (ngSubmit)="guardarUsuario()" class="p-6">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label for="codigo" class="block text-sm font-medium text-gray-700 mb-1">Código de Usuario *</label>
+          <input id="codigo" type="text" formControlName="codigo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Ej: user001" />
+          <p *ngIf="usuarioForm.get('codigo')?.invalid && usuarioForm.get('codigo')?.touched" class="mt-1 text-sm text-red-600">
+            El código es requerido
+          </p>
+        </div>
+
+        <div>
+          <label for="cedula" class="block text-sm font-medium text-gray-700 mb-1">Cédula *</label>
+          <input id="cedula" type="text" formControlName="cedula" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Ej: 1053456789" />
+          <p *ngIf="usuarioForm.get('cedula')?.invalid && usuarioForm.get('cedula')?.touched" class="mt-1 text-sm text-red-600">
+            La cédula es requerida
+          </p>
+        </div>
+
+        <div class="col-span-2">
+          <label for="nombre_completo" class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo *</label>
+          <input id="nombre_completo" type="text" formControlName="nombre_completo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Nombre completo" />
+          <p *ngIf="usuarioForm.get('nombre_completo')?.invalid && usuarioForm.get('nombre_completo')?.touched" class="mt-1 text-sm text-red-600">
+            El nombre es requerido
+          </p>
+        </div>
+
+        <div class="col-span-2">
+          <label for="correo" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico *</label>
+          <input id="correo" type="email" formControlName="correo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="usuario@hospital.gov.co" />
+          <p *ngIf="usuarioForm.get('correo')?.invalid && usuarioForm.get('correo')?.touched" class="mt-1 text-sm text-red-600">
+            Ingrese un correo válido
+          </p>
+        </div>
+
+        <div class="col-span-2">
+          <label for="perfil_id" class="block text-sm font-medium text-gray-700 mb-1">Perfil *</label>
+          <select id="perfil_id" formControlName="perfil_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" (change)="onPerfilChange()">
+            <option value="">Seleccione un perfil</option>
+            <option *ngFor="let perfil of perfiles" [value]="perfil.id">{{ perfil.nombre }}</option>
+          </select>
+          <p *ngIf="usuarioForm.get('perfil_id')?.invalid && usuarioForm.get('perfil_id')?.touched" class="mt-1 text-sm text-red-600">
+            El perfil es requerido
+          </p>
+        </div>
+
+        <div *ngIf="perfilSeleccionado === 2" class="col-span-2">
+          <label for="area_id" class="block text-sm font-medium text-gray-700 mb-1">Área *</label>
+          <select id="area_id" formControlName="area_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            <option value="">Seleccione un área</option>
+            <option *ngFor="let area of areasGestion" [value]="area.id">{{ area.ruta_completa || area.nombre }}</option>
+          </select>
+          <p *ngIf="usuarioForm.get('area_id')?.invalid && usuarioForm.get('area_id')?.touched" class="mt-1 text-sm text-red-600">
+            El área es requerida para Soporte Profesional
+          </p>
+        </div>
+
+        <div *ngIf="perfilSeleccionado === 3" class="col-span-2">
+          <label for="servicio" class="block text-sm font-medium text-gray-700 mb-1">Servicio *</label>
+          <select id="servicio" formControlName="servicio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+            <option value="">Seleccione un servicio</option>
+            <option *ngFor="let servicio of servicios" [value]="servicio.nombre">{{ servicio.nombre }}</option>
+          </select>
+          <p *ngIf="usuarioForm.get('servicio')?.invalid && usuarioForm.get('servicio')?.touched" class="mt-1 text-sm text-red-600">
+            El servicio es requerido para Solicitante
+          </p>
+        </div>
+
+        <div class="col-span-2">
+          <label for="contrasena" class="block text-sm font-medium text-gray-700 mb-1">Contraseña *</label>
+          <input id="contrasena" type="password" formControlName="contrasena" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Mínimo 6 caracteres" />
+          <p *ngIf="usuarioForm.get('contrasena')?.invalid && usuarioForm.get('contrasena')?.touched" class="mt-1 text-sm text-red-600">
+            La contraseña debe tener al menos 6 caracteres
+          </p>
+        </div>
+
+        <div *ngIf="errorMensaje" class="col-span-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p class="text-sm text-red-800">{{ errorMensaje }}</p>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 mt-6">
+        <button type="button" (click)="cerrarModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" [disabled]="enviando">
+          Cancelar
+        </button>
+        <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors disabled:opacity-50" [disabled]="usuarioForm.invalid || enviando">
+          <span *ngIf="!enviando">Crear Usuario</span>
+          <span *ngIf="enviando" class="flex items-center">
+            <div class="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            Guardando...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Cambiar Contraseña -->
+<div *ngIf="mostrarModalContrasena" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4" @modalAnimation>
+  <div class="modal-content relative bg-white rounded-xl shadow-xl max-w-md w-full">
+    <div class="bg-primary-600 px-6 py-4 rounded-t-xl">
+      <h3 class="text-xl font-semibold text-white">Cambiar Contraseña</h3>
+    </div>
+
+    <form [formGroup]="contrasenaForm" (ngSubmit)="cambiarContrasena()" class="p-6">
+      <p class="text-sm text-gray-600 mb-4">
+        Usuario: <strong>{{ usuarioSeleccionado?.nombre_completo }}</strong>
+      </p>
+
+      <div class="space-y-4">
+        <div>
+          <label for="nueva_contrasena" class="block text-sm font-medium text-gray-700 mb-1">Nueva Contraseña *</label>
+          <input id="nueva_contrasena" type="password" formControlName="nueva_contrasena" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Mínimo 6 caracteres" />
+          <p *ngIf="contrasenaForm.get('nueva_contrasena')?.invalid && contrasenaForm.get('nueva_contrasena')?.touched" class="mt-1 text-sm text-red-600">
+            La contraseña debe tener al menos 6 caracteres
+          </p>
+        </div>
+
+        <div>
+          <label for="confirmar_contrasena" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña *</label>
+          <input id="confirmar_contrasena" type="password" formControlName="confirmar_contrasena" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Repita la contraseña" />
+          <p *ngIf="contrasenaForm.get('confirmar_contrasena')?.invalid && contrasenaForm.get('confirmar_contrasena')?.touched" class="mt-1 text-sm text-red-600">
+            La contraseña debe tener al menos 6 caracteres
+          </p>
+          <p *ngIf="contrasenaForm.errors?.['mismatch'] && contrasenaForm.get('confirmar_contrasena')?.touched" class="mt-1 text-sm text-red-600">
+            Las contraseñas no coinciden
+          </p>
+        </div>
+
+        <div *ngIf="errorMensaje" class="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p class="text-sm text-red-800">{{ errorMensaje }}</p>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 mt-6">
+        <button type="button" (click)="cerrarModalContrasena()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" [disabled]="enviando">
+          Cancelar
+        </button>
+        <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors disabled:opacity-50" [disabled]="contrasenaForm.invalid || enviando">
+          <span *ngIf="!enviando">Cambiar Contraseña</span>
+          <span *ngIf="enviando" class="flex items-center">
+            <div class="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            Guardando...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

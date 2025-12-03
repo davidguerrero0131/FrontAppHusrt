@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/Components/userBiomedica/actividades-metrologicas/actividades-metrologicas.component.css"],
+  "sourcesContent": [".panelMantenimientos {\n\n  width: 95%;\n  height: 70%;\n  margin: 0 auto;\n}\n\n\n.botonesMenu {\n  align-items: center;\n  width: 90%;\n  margin-left: 5%;\n  margin-right: 5%;\n  align-content: center;\n}\n\n.filtromes {\n  align-items: center;\n  width: 90%;\n  margin-left: 5%;\n  margin-right: 5%;\n  align-content: center;\n}\n\n\n\n.contenedor {\n  display: flex;\n  width: 100%;\n  height: 200px;\n}\n\n.izquierda {\n  width: 20%;\n  align-items: center;\n  text-align: center;\n}\n\n.derecha {\n  width: 80%;\n  background-color: #f8d7da;\n  align-items: center;\n  text-align: center;\n}\n\n.custom-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\n  gap: 1rem;\n}\n\n.form-item {\n  display: flex;\n  flex-direction: column;\n}\n"],
+  "mappings": ";AAAA,CAAC;AAEC,SAAO;AACP,UAAQ;AACR,UAAQ,EAAE;AACZ;AAGA,CAAC;AACC,eAAa;AACb,SAAO;AACP,eAAa;AACb,gBAAc;AACd,iBAAe;AACjB;AAEA,CAAC;AACC,eAAa;AACb,SAAO;AACP,eAAa;AACb,gBAAc;AACd,iBAAe;AACjB;AAIA,CAAC;AACC,WAAS;AACT,SAAO;AACP,UAAQ;AACV;AAEA,CAAC;AACC,SAAO;AACP,eAAa;AACb,cAAY;AACd;AAEA,CAAC;AACC,SAAO;AACP,oBAAkB;AAClB,eAAa;AACb,cAAY;AACd;AAEA,CAAC;AACC,WAAS;AACT,yBAAuB,OAAO,QAAQ,EAAE,OAAO,KAAK,EAAE;AACtD,OAAK;AACP;AAEA,CAAC;AACC,WAAS;AACT,kBAAgB;AAClB;",
+  "names": []
+}

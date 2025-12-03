@@ -1,0 +1,439 @@
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Gestión de Usuarios</h1>
+    <p class="text-gray-600">Administra usuarios, perfiles y permisos del sistema</p>
+  </div>
+
+  <!-- Mensajes -->
+  <div *ngIf="exitoMensaje" class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+    <p class="text-green-800">{{ exitoMensaje }}</p>
+  </div>
+
+  <div *ngIf="errorMensaje" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+    <p class="text-red-800">{{ errorMensaje }}</p>
+  </div>
+
+  <!-- Barra de herramientas -->
+  <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <!-- Búsqueda y filtros -->
+      <div class="flex-1 flex flex-col md:flex-row gap-3">
+        <div class="flex-1 max-w-md">
+          <div class="relative">
+            <input
+              type="text"
+              [(ngModel)]="busqueda"
+              (keyup.enter)="buscar()"
+              placeholder="Buscar por nombre, código o correo..."
+              class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <button
+              *ngIf="busqueda"
+              (click)="limpiarBusqueda()"
+              class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtro por perfil -->
+        <select
+          [(ngModel)]="filtroPerfil"
+          (change)="buscar()"
+          class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option [value]="null">Todos los perfiles</option>
+          <option *ngFor="let perfil of perfiles" [value]="perfil.id">{{ perfil.nombre }}</option>
+        </select>
+
+        <!-- Filtro por área -->
+        <select
+          [(ngModel)]="filtroArea"
+          (change)="buscar()"
+          class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option [value]="null">Todas las áreas</option>
+          <option *ngFor="let area of areas" [value]="area.id">{{ area.nombre }}</option>
+        </select>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="flex items-center gap-3">
+        <label class="flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            [(ngModel)]="mostrarInactivos"
+            (change)="toggleMostrarInactivos()"
+            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <span class="ml-2 text-sm text-gray-700">Mostrar inactivos</span>
+        </label>
+
+        <button
+          (click)="abrirModalCrear()"
+          class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Nuevo Usuario
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div *ngIf="!cargando" class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Nombre de Usuario
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Nombre Completo
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Correo
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Perfil
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Área
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Estado
+            </th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let usuario of usuariosFiltrados" [class.bg-gray-50]="!usuario.activo">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900">{{ usuario.codigo }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900">{{ usuario.nombre_completo }}</div>
+              <div class="text-sm text-gray-500">{{ usuario.numeroId }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-500">{{ usuario.correo }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span [class]="'px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ' + getColorPerfil(usuario.rolId)">
+                {{ usuario.rol?.nombre || usuario.rol_nombre }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ usuario.area?.nombre || '-' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span
+                [class]="usuario.activo
+                  ? 'px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'
+                  : 'px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800'"
+              >
+                {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <div class="flex justify-end gap-2">
+                <button
+                  (click)="abrirModalEditar(usuario)"
+                  class="text-blue-600 hover:text-blue-900"
+                  title="Editar"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+                <button
+                  (click)="toggleActivo(usuario)"
+                  [class]="usuario.activo ? 'text-yellow-600 hover:text-yellow-900' : 'text-green-600 hover:text-green-900'"
+                  [title]="usuario.activo ? 'Desactivar' : 'Activar'"
+                >
+                  <svg *ngIf="usuario.activo" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                  </svg>
+                  <svg *ngIf="!usuario.activo" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="usuariosFiltrados.length === 0">
+            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+              <p class="mt-2">No se encontraron usuarios</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Crear/Editar -->
+<div *ngIf="mostrarModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-lg bg-white">
+    <div class="mb-4">
+      <h3 class="text-lg font-bold text-gray-900">
+        {{ modoEdicion ? 'Editar Usuario' : 'Nuevo Usuario' }}
+      </h3>
+    </div>
+
+    <form [formGroup]="usuarioForm" (ngSubmit)="guardar()">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Nombres -->
+        <div>
+          <label for="nombres" class="block text-sm font-medium text-gray-700 mb-1">
+            Nombres *
+          </label>
+          <input
+            id="nombres"
+            type="text"
+            formControlName="nombres"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Ej: Juan Carlos"
+          />
+          <p
+            *ngIf="usuarioForm.get('nombres')?.invalid && usuarioForm.get('nombres')?.touched"
+            class="mt-1 text-sm text-red-600"
+          >
+            Los nombres son requeridos (mínimo 2 caracteres)
+          </p>
+        </div>
+
+        <!-- Apellidos -->
+        <div>
+          <label for="apellidos" class="block text-sm font-medium text-gray-700 mb-1">
+            Apellidos *
+          </label>
+          <input
+            id="apellidos"
+            type="text"
+            formControlName="apellidos"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Ej: Pérez García"
+          />
+          <p
+            *ngIf="usuarioForm.get('apellidos')?.invalid && usuarioForm.get('apellidos')?.touched"
+            class="mt-1 text-sm text-red-600"
+          >
+            Los apellidos son requeridos (mínimo 2 caracteres)
+          </p>
+        </div>
+
+        <!-- Nombre de Usuario -->
+        <div>
+          <label for="nombreUsuario" class="block text-sm font-medium text-gray-700 mb-1">
+            Nombre de Usuario *
+          </label>
+          <input
+            id="nombreUsuario"
+            type="text"
+            formControlName="nombreUsuario"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Ej: jperez123"
+          />
+          <p
+            *ngIf="usuarioForm.get('nombreUsuario')?.invalid && usuarioForm.get('nombreUsuario')?.touched"
+            class="mt-1 text-sm text-red-600"
+          >
+            El nombre de usuario es requerido (mínimo 3 caracteres)
+          </p>
+        </div>
+
+        <!-- Cédula -->
+        <div>
+          <label for="numeroId" class="block text-sm font-medium text-gray-700 mb-1">
+            Cédula *
+          </label>
+          <input
+            id="numeroId"
+            type="text"
+            formControlName="numeroId"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Ej: 123456789"
+          />
+          <p
+            *ngIf="usuarioForm.get('numeroId')?.invalid && usuarioForm.get('numeroId')?.touched"
+            class="mt-1 text-sm text-red-600"
+          >
+            La cédula es requerida (mínimo 6 caracteres)
+          </p>
+        </div>
+
+        <!-- Correo -->
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+            Correo Electrónico *
+          </label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Ej: usuario@hospital.com"
+          />
+          <p
+            *ngIf="usuarioForm.get('email')?.invalid && usuarioForm.get('email')?.touched"
+            class="mt-1 text-sm text-red-600"
+          >
+            Ingrese un correo electrónico válido
+          </p>
+        </div>
+
+        <!-- Teléfono -->
+        <div>
+          <label for="telefono" class="block text-sm font-medium text-gray-700 mb-1">
+            Teléfono (Opcional)
+          </label>
+          <input
+            id="telefono"
+            type="text"
+            formControlName="telefono"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Ej: 3001234567"
+          />
+        </div>
+
+        <!-- Contraseña -->
+        <div class="md:col-span-2">
+          <label for="contraseña" class="block text-sm font-medium text-gray-700 mb-1">
+            Contraseña <span *ngIf="!modoEdicion">*</span> <span *ngIf="modoEdicion" class="text-gray-500">(dejar vacío para mantener)</span>
+          </label>
+          <input
+            id="contraseña"
+            type="password"
+            formControlName="contraseña"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Mínimo 6 caracteres"
+          />
+          <p
+            *ngIf="usuarioForm.get('contraseña')?.invalid && usuarioForm.get('contraseña')?.touched"
+            class="mt-1 text-sm text-red-600"
+          >
+            La contraseña debe tener al menos 6 caracteres
+          </p>
+        </div>
+
+        <!-- Perfil -->
+        <div>
+          <label for="rolId" class="block text-sm font-medium text-gray-700 mb-1">
+            Perfil *
+          </label>
+          <select
+            id="rolId"
+            formControlName="rolId"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="" disabled selected>Seleccionar perfil</option>
+            <option *ngFor="let perfil of perfiles" [value]="perfil.id">
+              {{ perfil.nombre }}
+            </option>
+          </select>
+          <p
+            *ngIf="usuarioForm.get('rolId')?.invalid && usuarioForm.get('rolId')?.touched"
+            class="mt-1 text-sm text-red-600"
+          >
+            Seleccione un perfil
+          </p>
+        </div>
+
+        <!-- Área (Condicional según perfil) -->
+        <div *ngIf="mostrarCampoArea">
+          <label for="areaId" class="block text-sm font-medium text-gray-700 mb-1">
+            Área
+            <span *ngIf="usuarioForm.get('rolId')?.value === 5" class="text-red-600">*</span>
+            <span *ngIf="usuarioForm.get('rolId')?.value !== 5" class="text-gray-500">(Opcional)</span>
+          </label>
+          <select
+            id="areaId"
+            formControlName="areaId"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            [class.border-red-500]="usuarioForm.get('areaId')?.invalid && usuarioForm.get('areaId')?.touched"
+          >
+            <option [value]="null">Sin área asignada</option>
+            <option *ngFor="let area of areas" [value]="area.id">
+              {{ area.nombre }}
+            </option>
+          </select>
+          <p
+            *ngIf="usuarioForm.get('areaId')?.invalid && usuarioForm.get('areaId')?.touched"
+            class="mt-1 text-sm text-red-600"
+          >
+            El área es requerida para el perfil Soporte
+          </p>
+        </div>
+
+        <!-- Servicio -->
+        <div [class.md:col-span-2]="!mostrarCampoArea">
+          <label for="servicioId" class="block text-sm font-medium text-gray-700 mb-1">
+            Servicio / Localización (Opcional)
+          </label>
+          <select
+            id="servicioId"
+            formControlName="servicioId"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option [value]="null">Sin servicio asignado</option>
+            <option *ngFor="let servicio of servicios" [value]="servicio.id">
+              {{ servicio.nombre }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Error del formulario -->
+      <div *ngIf="errorMensaje" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <p class="text-sm text-red-800">{{ errorMensaje }}</p>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex justify-end gap-3 mt-6">
+        <button
+          type="button"
+          (click)="cerrarModal()"
+          class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          [disabled]="enviando"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="usuarioForm.invalid || enviando"
+        >
+          <span *ngIf="!enviando">{{ modoEdicion ? 'Actualizar' : 'Crear' }}</span>
+          <span *ngIf="enviando" class="flex items-center">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Guardando...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/Components/userBiomedica/vista-Equipos/equipos-tipo/equipos-tipo.component.css"],
+  "sourcesContent": [".search-bar {\n  width: 90%;\n  margin-left: 5%;\n  padding: 10px;\n  margin-bottom: 15px;\n  border: 1px solid #ccc;\n  border-radius: 5px;\n  font-size: 16px;\n}\n"],
+  "mappings": ";AAAA,CAAC;AACC,SAAO;AACP,eAAa;AACb,WAAS;AACT,iBAAe;AACf,UAAQ,IAAI,MAAM;AAClB,iBAAe;AACf,aAAW;AACb;",
+  "names": []
+}

@@ -1,0 +1,169 @@
+<app-biomedicausernavbar></app-biomedicausernavbar>
+
+<div class="title-container">
+  <h2><strong> REPORTE DE MANTENIMINETO {{convertirMayusculas(tipoMantenimiento)}}</strong></h2>
+</div>
+
+<div class="title-container">
+  <h4><strong> DATOS DEL EQUIPO </strong></h4>
+</div>
+
+<div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
+
+  <div class="form-item">
+    <label>Nombre Equipo</label>
+    <input pInputText type="nombreEquipo" placeholder="{{equipo?.nombres}}" disabled />
+  </div>
+
+  <div class="form-item">
+    <label>Marca</label>
+    <input pInputText type="nombreEquipo" placeholder="{{equipo?.marca}}" disabled />
+  </div>
+
+  <div class="form-item">
+    <label>Modelo</label>
+    <input pInputText type="nombreEquipo" placeholder="{{equipo?.modelo}}" disabled />
+  </div>
+
+  <div class="form-item">
+    <label>Serie</label>
+    <input pInputText type="nombreEquipo" placeholder="{{equipo?.serie}}" disabled />
+  </div>
+
+  <div class="form-item">
+    <label>Servicio</label>
+    <input pInputText type="nombreEquipo" placeholder="{{equipo?.servicios.nombres}}" disabled />
+  </div>
+
+  <div class="form-item">
+    <label>Ubicación</label>
+    <input pInputText type="nombreEquipo" placeholder="{{equipo?.ubicacion}}" disabled />
+  </div>
+
+  <div class="form-item">
+    <label>Ubicación especifica</label>
+    <input pInputText type="nombreEquipo" placeholder="{{equipo?.ubicacionEspecifica}}" disabled />
+  </div>
+</div>
+
+<div class="title-container">
+  <h4><strong> DATOS DEL REPORTE </strong></h4>
+</div>
+
+<div class="form-container">
+  <p-card>
+    <form [formGroup]="reporteForm" (ngSubmit)="onSubmit()">
+      <div class="custom-grid">
+
+        <div class="form-item">
+          <label>Fecha Inicio</label>
+          <p-datePicker formControlName="fechaRealizado" inputId="fechaRealizado" showIcon dateFormat="yy-mm-dd" />
+        </div>
+
+        <div class="form-item">
+          <label>Hora Inicio</label>
+          <input pInputText type="time" formControlName="horaInicio" />
+        </div>
+
+        <div class="form-item">
+          <label>Fecha Fin</label>
+          <p-datePicker formControlName="fechaFin" inputId="fechaFin" showIcon dateFormat="yy-mm-dd" />
+        </div>
+
+        <div class="form-item">
+          <label>Hora Terminación</label>
+          <input pInputText type="time" formControlName="horaTerminacion" />
+        </div>
+
+        <div class="form-item">
+          <label>Hora Total</label>
+          <input pInputText type="text" formControlName="horaTotal" />
+        </div>
+
+        <div class="form-item">
+          <label>Tipo de Mantenimiento</label>
+          <p-select [options]="tiposMantenimiento" formControlName="tipoMantenimiento"
+            placeholder="tipoMantenimiento"></p-select>
+        </div>
+
+        <div class="form-item">
+          <label>Tipo de Falla</label>
+          <p-select [options]="tiposFalla" formControlName="tipoFalla" placeholder="Seleccione"></p-select>
+        </div>
+
+        <div class="form-item">
+          <label>Trabajo Realizado</label>
+          <input pInputText formControlName="trabajoRealizado" />
+        </div>
+
+        <div class="form-item">
+          <label>Calificación</label>
+          <input pInputText type="number" formControlName="calificacion" />
+        </div>
+
+        <div class="form-item">
+          <label>Nombre Realizo</label>
+          <input pInputText placeholder="{{nombreUsuario?.nombreCompleto}}" type="nombreRealizo" disabled />
+        </div>
+
+        <div class="form-item">
+          <label>Identificacion Realizo</label>
+          <input pInputText placeholder="{{nombreUsuario?.numeroId}}" type="nombreRealizo" disabled />
+        </div>
+
+        <div class="form-item">
+          <label>Nombre Recibió</label>
+          <input pInputText formControlName="nombreRecibio" />
+        </div>
+
+        <div class="form-item">
+          <label>Cédula Recibió</label>
+          <input pInputText formControlName="cedulaRecibio" />
+        </div>
+
+      </div>
+      <div style="margin-top: 3%;"></div>
+      <div class="custom-grid">
+        <div class="form-item">
+          <label>Motivo</label>
+          <textarea pInputTextarea rows="3" formControlName="motivo"></textarea>
+        </div>
+
+        <div class="form-item">
+          <label>Observaciones</label>
+          <textarea pInputTextarea rows="3" formControlName="observaciones"></textarea>
+        </div>
+      </div>
+
+      <div class="title-container" *ngIf="reporteForm.get('tipoMantenimiento')?.value === 'Preventivo'">
+        <h4><strong> PROTOCOLO PREVENTIVO </strong></h4>
+        <H6>Seleccione los pasos realizados en el mantenimiento</H6>
+      </div>
+      <div *ngIf="reporteForm.get('tipoMantenimiento')?.value === 'Preventivo'">
+        <div formArrayName="cumplimientoProtocolo">
+          <div *ngFor="let grupo of cumplimientoProtocoloFormArray.controls; let i = index" [formGroupName]="i"
+            class="protocolo-div flex items-center">
+            <p-checkbox binary="true" formControlName="cumple"
+              [inputId]="'chk-' + grupo.get('protocoloIdFk')?.value">
+            </p-checkbox>
+            <label [for]="'chk-' + grupo.get('protocoloIdFk')?.value" class="ml-2">
+              {{ grupo.get('paso')?.value }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+
+      <div style="margin-top: 3%;"></div>
+
+      <div class="custom-grid">
+        <button type="submit" class="btn btn-dark">Guardar</button>
+        <button type="button" class="btn btn-secondary" (click)="goBack()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="validarQR()">ValidarQR</button>
+        <button type="button" class="btn btn-primary" (click)="testViewCumplimiento()">Validar Cumplimiento</button>
+        <div></div>
+        <div></div>
+      </div>
+    </form>
+  </p-card>
+</div>

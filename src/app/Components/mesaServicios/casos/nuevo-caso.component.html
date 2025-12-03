@@ -1,0 +1,351 @@
+<div class="space-y-6" @fadeIn>
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Nuevo Caso</h1>
+      <p class="text-gray-600 mt-1">Crear una nueva solicitud de servicio</p>
+    </div>
+  </div>
+
+  <!-- Mensajes de error/éxito -->
+  <div *ngIf="errorMensaje" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
+    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+    </svg>
+    {{ errorMensaje }}
+  </div>
+
+  <div *ngIf="exitoMensaje" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
+    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+    </svg>
+    {{ exitoMensaje }}
+  </div>
+
+  <!-- Formulario -->
+  <div class="card">
+    <form [formGroup]="casoForm" (ngSubmit)="enviar()">
+
+      <!-- Tipo de Caso -->
+      <div class="mb-6">
+        <label class="label-field">Tipo de Caso *</label>
+        <div class="flex space-x-4 mt-2">
+          <label class="inline-flex items-center cursor-pointer">
+            <input
+              type="radio"
+              formControlName="tipo"
+              value="requerimiento"
+              (change)="onTipoChange()"
+              class="form-radio h-4 w-4 text-blue-600"
+            >
+            <span class="ml-2 text-gray-700">Requerimiento</span>
+          </label>
+          <label class="inline-flex items-center cursor-pointer">
+            <input
+              type="radio"
+              formControlName="tipo"
+              value="incidencia"
+              (change)="onTipoChange()"
+              class="form-radio h-4 w-4 text-blue-600"
+            >
+            <span class="ml-2 text-gray-700">Incidencia</span>
+          </label>
+        </div>
+        <p class="text-sm text-gray-500 mt-1">
+          Requerimiento: Nueva solicitud de servicio. Incidencia: Problema o falla a resolver.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Área -->
+        <div>
+          <label class="label-field">Área *</label>
+          <select
+            formControlName="area_id"
+            (change)="onAreaChange()"
+            class="input-field"
+            [class.border-red-500]="casoForm.get('area_id')?.invalid && casoForm.get('area_id')?.touched"
+          >
+            <option value="">Seleccione un área</option>
+            <option *ngFor="let area of areas" [value]="area.id">
+              {{ area.nombre }}
+            </option>
+          </select>
+          <div *ngIf="casoForm.get('area_id')?.invalid && casoForm.get('area_id')?.touched"
+               class="text-red-600 text-sm mt-1">
+            El área es requerida
+          </div>
+        </div>
+
+        <!-- Categoría -->
+        <div>
+          <label class="label-field">Categoría *</label>
+          <select
+            formControlName="categoria_id"
+            (change)="onCategoriaChange()"
+            class="input-field"
+            [class.border-red-500]="casoForm.get('categoria_id')?.invalid && casoForm.get('categoria_id')?.touched"
+            [disabled]="categoriasFiltradas.length === 0"
+          >
+            <option value="">{{ categoriasFiltradas.length > 0 ? 'Seleccione una categoría' : 'Primero seleccione un área' }}</option>
+            <option *ngFor="let categoria of categoriasFiltradas" [value]="categoria.id">
+              {{ categoria.nombre }}
+            </option>
+          </select>
+          <div *ngIf="casoForm.get('categoria_id')?.invalid && casoForm.get('categoria_id')?.touched"
+               class="text-red-600 text-sm mt-1">
+            La categoría es requerida
+          </div>
+        </div>
+
+        <!-- Servicio -->
+        <div>
+          <label class="label-field">Servicio/Ubicación *</label>
+          <select
+            formControlName="servicio_id"
+            class="input-field"
+            [class.border-red-500]="casoForm.get('servicio_id')?.invalid && casoForm.get('servicio_id')?.touched"
+          >
+            <option value="">Seleccione un servicio</option>
+            <option *ngFor="let servicio of servicios" [value]="servicio.id">
+              {{ servicio.nombre }}
+            </option>
+          </select>
+          <div *ngIf="casoForm.get('servicio_id')?.invalid && casoForm.get('servicio_id')?.touched"
+               class="text-red-600 text-sm mt-1">
+            El servicio es requerido
+          </div>
+          <p class="text-sm text-gray-500 mt-1">
+            Seleccione el servicio o ubicación donde se presenta la solicitud
+          </p>
+        </div>
+
+        <!-- Prioridad -->
+        <div>
+          <label class="label-field">Prioridad *</label>
+          <select formControlName="prioridad" class="input-field">
+            <option value="baja">Baja</option>
+            <option value="media">Media</option>
+            <option value="alta">Alta</option>
+            <option value="critica">Crítica</option>
+          </select>
+          <p class="text-sm text-gray-500 mt-1">
+            Seleccione la urgencia de la solicitud
+          </p>
+        </div>
+      </div>
+
+      <!-- Ubicación específica -->
+      <div class="mt-6">
+        <label class="label-field">Ubicación Específica</label>
+        <input
+          type="text"
+          formControlName="ubicacion_especifica"
+          class="input-field"
+          placeholder="Ej: Piso 2, Consultorio 5, Torre A"
+        />
+        <p class="text-sm text-gray-500 mt-1">
+          Indique una ubicación más detallada si es necesario
+        </p>
+      </div>
+
+      <!-- Promesa de Valor -->
+      <div class="mt-6">
+        <label class="label-field">Promesa de Valor</label>
+        <select formControlName="promesa_valor" class="input-field">
+          <option value="">Seleccione una promesa de valor (opcional)</option>
+          <option *ngFor="let promesa of promesasValor" [value]="promesa">
+            {{ promesa }}
+          </option>
+        </select>
+        <p class="text-sm text-gray-500 mt-1">
+          SEGURO, UNIVERSITARIO, MEJORADO, EFICIENTE, RESPONSABLE, CÁLIDO, EXCELENTE
+        </p>
+      </div>
+
+      <!-- Descripción -->
+      <div class="mt-6">
+        <label class="label-field">Descripción Detallada *</label>
+        <textarea
+          formControlName="descripcion"
+          class="input-field"
+          rows="5"
+          placeholder="Describa detalladamente la solicitud o problema. Incluya toda la información relevante para que el equipo de soporte pueda entender y atender su caso..."
+          [class.border-red-500]="casoForm.get('descripcion')?.invalid && casoForm.get('descripcion')?.touched"
+        ></textarea>
+        <div *ngIf="casoForm.get('descripcion')?.invalid && casoForm.get('descripcion')?.touched"
+             class="text-red-600 text-sm mt-1">
+          La descripción es requerida (mínimo 10 caracteres)
+        </div>
+      </div>
+
+      <!-- Formatos personalizados (condicional para requerimiento) -->
+      <div *ngIf="mostrarFormatos && formatosPersonalizados.length > 0" class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Información Adicional</h3>
+        <div [formGroup]="formatosForm" class="space-y-4">
+          <div *ngFor="let formato of formatosPersonalizados">
+            <!-- Campo de texto -->
+            <div *ngIf="formato.tipo_campo === 'texto'">
+              <label class="label-field">
+                {{ formato.etiqueta }}
+                <span *ngIf="formato.obligatorio" class="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                [formControlName]="'formato_' + formato.id"
+                class="input-field"
+                [placeholder]="formato.placeholder || ''"
+              />
+            </div>
+
+            <!-- Campo de área de texto -->
+            <div *ngIf="formato.tipo_campo === 'textarea'">
+              <label class="label-field">
+                {{ formato.etiqueta }}
+                <span *ngIf="formato.obligatorio" class="text-red-600">*</span>
+              </label>
+              <textarea
+                [formControlName]="'formato_' + formato.id"
+                class="input-field"
+                rows="3"
+                [placeholder]="formato.placeholder || ''"
+              ></textarea>
+            </div>
+
+            <!-- Campo de número -->
+            <div *ngIf="formato.tipo_campo === 'numero'">
+              <label class="label-field">
+                {{ formato.etiqueta }}
+                <span *ngIf="formato.obligatorio" class="text-red-600">*</span>
+              </label>
+              <input
+                type="number"
+                [formControlName]="'formato_' + formato.id"
+                class="input-field"
+                [placeholder]="formato.placeholder || ''"
+              />
+            </div>
+
+            <!-- Campo de fecha -->
+            <div *ngIf="formato.tipo_campo === 'fecha'">
+              <label class="label-field">
+                {{ formato.etiqueta }}
+                <span *ngIf="formato.obligatorio" class="text-red-600">*</span>
+              </label>
+              <input
+                type="date"
+                [formControlName]="'formato_' + formato.id"
+                class="input-field"
+              />
+            </div>
+
+            <!-- Campo de selección -->
+            <div *ngIf="formato.tipo_campo === 'select'">
+              <label class="label-field">
+                {{ formato.etiqueta }}
+                <span *ngIf="formato.obligatorio" class="text-red-600">*</span>
+              </label>
+              <select
+                [formControlName]="'formato_' + formato.id"
+                class="input-field"
+              >
+                <option value="">Seleccione una opción</option>
+                <option *ngFor="let opcion of formato.opciones" [value]="opcion">
+                  {{ opcion }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Archivos Adjuntos -->
+      <div class="mt-6">
+        <label class="label-field">Archivos Adjuntos</label>
+        <div class="mt-2">
+          <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+              <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+              <p class="mb-2 text-sm text-gray-500">
+                <span class="font-semibold">Click para subir</span> o arrastre archivos aquí
+              </p>
+              <p class="text-xs text-gray-500">
+                PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, ZIP, RAR (máx. 10MB)
+              </p>
+            </div>
+            <input
+              type="file"
+              (change)="onFileSelect($event)"
+              class="hidden"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.zip,.rar"
+              multiple
+            />
+          </label>
+        </div>
+
+        <!-- Lista de archivos seleccionados -->
+        <div *ngIf="archivosSeleccionados.length > 0" class="mt-4 space-y-2">
+          <p class="text-sm font-medium text-gray-700">Archivos seleccionados ({{ archivosSeleccionados.length }}):</p>
+          <div class="space-y-2">
+            <div *ngFor="let archivo of archivosSeleccionados; let i = index"
+                 class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <div class="flex items-center space-x-3">
+                <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clip-rule="evenodd"></path>
+                </svg>
+                <div>
+                  <p class="text-sm font-medium text-gray-900">{{ archivo.name }}</p>
+                  <p class="text-xs text-gray-500">{{ (archivo.size / 1024).toFixed(2) }} KB</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                (click)="eliminarArchivo(i)"
+                class="text-red-600 hover:text-red-800 transition-colors"
+              >
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="mt-8 flex items-center justify-end space-x-4">
+        <button
+          type="button"
+          (click)="cancelar()"
+          class="btn-secondary"
+          [disabled]="enviando"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="casoForm.invalid || enviando"
+        >
+          <span *ngIf="!enviando" class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Crear Caso
+          </span>
+          <span *ngIf="enviando" class="flex items-center">
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Creando caso...
+          </span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
