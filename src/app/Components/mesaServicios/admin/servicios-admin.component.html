@@ -8,12 +8,9 @@
       </div>
       <button
         (click)="abrirModalCrear()"
-        class="px-4 py-2 text-white font-medium rounded-lg shadow transition-all duration-200 flex items-center gap-2"
-        style="background-color: #2563eb;"
-        onmouseover="this.style.backgroundColor='#1d4ed8'"
-        onmouseout="this.style.backgroundColor='#2563eb'"
+        class="px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 transform hover:scale-105"
       >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
         Nuevo Servicio
@@ -209,10 +206,15 @@
         <button type="button" (click)="cerrarModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" [disabled]="enviando">
           Cancelar
         </button>
-        <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors disabled:opacity-50" [disabled]="servicioForm.invalid || enviando">
-          <span *ngIf="!enviando">{{ modoEdicion ? 'Actualizar' : 'Crear' }}</span>
-          <span *ngIf="enviando" class="flex items-center">
-            <div class="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none transform hover:scale-105" [disabled]="servicioForm.invalid || enviando">
+          <span *ngIf="!enviando" class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            {{ modoEdicion ? 'Actualizar' : 'Crear' }}
+          </span>
+          <span *ngIf="enviando" class="flex items-center gap-2">
+            <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             Guardando...
           </span>
         </button>

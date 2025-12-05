@@ -73,11 +73,7 @@ export class ListaCasosComponent implements OnInit {
     if (this.filtros.prioridad) filtrosAPI.prioridad = this.filtros.prioridad;
     if (this.filtros.busqueda) filtrosAPI.busqueda = this.filtros.busqueda;
 
-    // Si es usuario regular, solo ver sus casos
-    const rol = this.usuarioActual?.perfil_nombre || this.usuarioActual?.rol_nombre;
-    if (rol === 'MESASERVICIOSUSUARIO') {
-      filtrosAPI.usuario_solicitante_id = this.usuarioActual.id;
-    }
+    // El backend ahora maneja automáticamente el filtrado según el rol del usuario
 
     this.casosService.listar(filtrosAPI).subscribe({
       next: (response) => {
@@ -170,9 +166,9 @@ export class ListaCasosComponent implements OnInit {
     if (rol === 'SUPERADMIN' || rol === 'MESASERVICIOSADMIN') {
       return 'Como Administrador, puedes ver todos los casos del sistema.';
     } else if (rol === 'MESASERVICIOSUSUARIO') {
-      return 'Estás viendo únicamente los casos que has creado.';
+      return 'Estás viendo los casos que has creado y los casos asignados a ti.';
     } else if (rol === 'MESASERVICIOSSOPORTE') {
-      return 'Estás viendo casos asignados a ti y casos nuevos.';
+      return 'Estás viendo los casos que has creado y los casos asignados a ti.';
     }
 
     return '';
@@ -187,9 +183,9 @@ export class ListaCasosComponent implements OnInit {
     if (rol === 'SUPERADMIN' || rol === 'MESASERVICIOSADMIN') {
       return 'No hay casos en el sistema. Los casos aparecerán aquí cuando los usuarios los creen.';
     } else if (rol === 'MESASERVICIOSUSUARIO') {
-      return 'Aún no has creado ningún caso. Crea tu primer caso para empezar.';
+      return 'Aún no tienes casos. Verás aquí los casos que crees o que te sean asignados.';
     } else if (rol === 'MESASERVICIOSSOPORTE') {
-      return 'No hay casos disponibles. Verás aquí los casos asignados a ti.';
+      return 'No hay casos disponibles. Verás aquí los casos que crees o que te sean asignados.';
     }
 
     return 'No se encontraron casos.';
@@ -229,6 +225,14 @@ export class ListaCasosComponent implements OnInit {
   // Verificar si el usuario puede asignar casos
   puedeAsignarCasos(): boolean {
     return this.authService.esAdministrador() || this.authService.esTecnico();
+  }
+
+  // Obtener nombre completo de un usuario
+  getNombreCompleto(usuario: any): string {
+    if (!usuario) return '';
+    if (usuario.nombre_completo) return usuario.nombre_completo;
+    if (usuario.nombres && usuario.apellidos) return `${usuario.nombres} ${usuario.apellidos}`;
+    return usuario.nombreUsuario || usuario.codigo || 'Usuario';
   }
 }
 

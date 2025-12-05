@@ -74,6 +74,7 @@ export interface Rol {
 
 export interface CrearUsuarioDTO {
   codigo?: string;
+  tipoId?: string;
   contraseña: string;
   email: string;
   numeroId: string;

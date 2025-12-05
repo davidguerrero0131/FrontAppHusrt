@@ -36,7 +36,7 @@ import { Usuario } from '../../../models/mesaServicios/usuario.model';
                 </span>
               </p>
               <p *ngIf="caso?.asignadoA">
-                <strong>Actualmente asignado a:</strong> {{ caso?.asignadoA?.nombre_completo }}
+                <strong>Actualmente asignado a:</strong> {{ getNombreCompleto(caso?.asignadoA) }}
               </p>
             </div>
 
@@ -60,7 +60,7 @@ import { Usuario } from '../../../models/mesaServicios/usuario.model';
               <div class="bg-blue-50 border border-blue-200 rounded p-3">
                 <p class="text-sm">
                   <strong>Usuario seleccionado:</strong>
-                  {{ getUsuarioSeleccionado()?.nombre_completo }}
+                  {{ getNombreCompleto(getUsuarioSeleccionado()) }}
                 </p>
                 <p class="text-sm">
                   <strong>Área:</strong>
@@ -369,6 +369,13 @@ export class AsignarCasoModalComponent implements OnInit {
 
   getUsuarioSeleccionado(): Usuario | undefined {
     return this.usuariosTecnicos.find(u => u.id === this.usuarioSeleccionadoId);
+  }
+
+  getNombreCompleto(usuario: any): string {
+    if (!usuario) return '';
+    if (usuario.nombre_completo) return usuario.nombre_completo;
+    if (usuario.nombres && usuario.apellidos) return `${usuario.nombres} ${usuario.apellidos}`;
+    return usuario.nombreUsuario || usuario.codigo || 'Usuario';
   }
 
   asignarCaso(): void {

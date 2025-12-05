@@ -19,8 +19,11 @@ export interface Caso {
   solicitante?: {
     id: number;
     codigo: string;
-    nombre_completo: string;
-    correo: string;
+    nombres?: string;
+    apellidos?: string;
+    nombre_completo?: string;
+    email?: string;
+    correo?: string;
   };
   usuario_solicitante_id?: number;
   solicitante_nombre?: string;
@@ -42,8 +45,11 @@ export interface Caso {
   asignadoA?: {
     id: number;
     codigo: string;
-    nombre_completo: string;
-    correo: string;
+    nombres?: string;
+    apellidos?: string;
+    nombre_completo?: string;
+    email?: string;
+    correo?: string;
   } | null;
   asignado_a_nombre?: string;
   solucion?: string;

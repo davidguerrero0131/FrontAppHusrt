@@ -184,4 +184,8 @@ export class MainLayoutComponent implements OnInit {
     this.router.navigate(['/mesaservicios/notificaciones']);
     this.notificacionesAbiertas = false;
   }
+
+  isRouteActive(ruta: string): boolean {
+    return this.router.url === ruta;
+  }
 }

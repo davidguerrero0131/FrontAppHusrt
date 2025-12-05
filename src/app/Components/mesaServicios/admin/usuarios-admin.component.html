@@ -49,8 +49,8 @@
           (change)="buscar()"
           class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
-          <option [value]="null">Todos los perfiles</option>
-          <option *ngFor="let perfil of perfiles" [value]="perfil.id">{{ perfil.nombre }}</option>
+          <option [ngValue]="null">Todos los perfiles</option>
+          <option *ngFor="let perfil of perfiles" [ngValue]="perfil.id">{{ perfil.nombre }}</option>
         </select>
 
         <!-- Filtro por área -->
@@ -59,8 +59,8 @@
           (change)="buscar()"
           class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
-          <option [value]="null">Todas las áreas</option>
-          <option *ngFor="let area of areas" [value]="area.id">{{ area.nombre }}</option>
+          <option [ngValue]="null">Todas las áreas</option>
+          <option *ngFor="let area of areas" [ngValue]="area.id">{{ area.nombre }}</option>
         </select>
       </div>
 

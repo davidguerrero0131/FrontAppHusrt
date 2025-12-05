@@ -52,6 +52,7 @@ export class UsuariosAdminComponent implements OnInit {
       apellidos: ['', [Validators.required, Validators.minLength(2)]],
       nombreUsuario: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
+      tipoId: ['CC'], // Agregar campo tipoId con valor por defecto
       numeroId: ['', [Validators.required, Validators.minLength(6)]],
       telefono: [''],
       contraseña: ['', [Validators.required, Validators.minLength(6)]],
@@ -146,6 +147,7 @@ export class UsuariosAdminComponent implements OnInit {
       apellidos: '',
       nombreUsuario: '',
       email: '',
+      tipoId: 'CC',
       numeroId: '',
       telefono: '',
       contraseña: '',
@@ -210,18 +212,28 @@ export class UsuariosAdminComponent implements OnInit {
   }
 
   crear(): void {
-    const datos: CrearUsuarioDTO = {
+    const datos: any = {
+      // NO enviar codigo - se genera automáticamente en el backend
       nombres: this.usuarioForm.value.nombres,
       apellidos: this.usuarioForm.value.apellidos,
       nombreUsuario: this.usuarioForm.value.nombreUsuario,
       email: this.usuarioForm.value.email,
       numeroId: this.usuarioForm.value.numeroId,
-      telefono: this.usuarioForm.value.telefono || undefined,
+      tipoId: this.usuarioForm.value.tipoId || 'CC', // Agregar tipoId con valor por defecto
       contraseña: this.usuarioForm.value.contraseña,
-      rolId: this.usuarioForm.value.rolId,
-      areaId: this.usuarioForm.value.areaId || undefined,
-      servicioId: this.usuarioForm.value.servicioId || undefined
+      rolId: parseInt(this.usuarioForm.value.rolId), // Asegurar que sea número
     };
+
+    // Solo agregar telefono, areaId y servicioId si tienen valor
+    if (this.usuarioForm.value.telefono) {
+      datos.telefono = this.usuarioForm.value.telefono;
+    }
+    if (this.usuarioForm.value.areaId) {
+      datos.areaId = parseInt(this.usuarioForm.value.areaId);
+    }
+    if (this.usuarioForm.value.servicioId) {
+      datos.servicioId = parseInt(this.usuarioForm.value.servicioId);
+    }
 
     this.usuariosService.crear(datos).subscribe({
       next: (response) => {

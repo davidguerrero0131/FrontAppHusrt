@@ -314,4 +314,11 @@ export class DetalleCasoComponent implements OnInit {
     return this.authService.esAdministrador() || this.authService.esTecnico();
   }
 
+  getNombreCompleto(usuario: any): string {
+    if (!usuario) return '';
+    if (usuario.nombre_completo) return usuario.nombre_completo;
+    if (usuario.nombres && usuario.apellidos) return `${usuario.nombres} ${usuario.apellidos}`;
+    return usuario.nombreUsuario || usuario.codigo || 'Usuario';
+  }
+
 }
