@@ -1,0 +1,67 @@
+<p-toast></p-toast>
+
+<div class="card">
+    <p-toolbar styleClass="mb-4 gap-2">
+        <ng-template pTemplate="left">
+            <button pButton pRipple label="Nuevo" icon="pi pi-plus" class="p-button-success mr-2"
+                (click)="openNew()"></button>
+        </ng-template>
+    </p-toolbar>
+
+    <p-table #dt [value]="tiposDocumento" [rows]="10" [paginator]="true" [globalFilterFields]="['nombres']"
+        [rowHover]="true" dataKey="id" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} entradas"
+        [showCurrentPageReport]="true">
+        <ng-template pTemplate="caption">
+            <div class="flex align-items-center justify-content-between">
+                <h5 class="m-0">Administrar Tipos de Documento</h5>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                        placeholder="Buscar..." />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="nombres" style="width: 80%">Nombre <p-sortIcon field="nombres"></p-sortIcon></th>
+                <th style="width: 20%">Acciones</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-tipo>
+            <tr>
+                <td>{{tipo.nombres}}</td>
+                <td>
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
+                        (click)="editTipoDocumento(tipo)"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
+                        (click)="deleteTipoDocumento(tipo)"></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div class="flex align-items-center justify-content-between">
+                En total hay {{tiposDocumento ? tiposDocumento.length : 0 }} tipos de documento.
+            </div>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="tipoDocumentoDialog" [style]="{width: '450px'}" header="Detalles Tipo Documento" [modal]="true"
+    styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="field">
+            <label for="nombres">Nombre</label>
+            <input type="text" pInputText id="nombres" [(ngModel)]="tipoDocumento.nombres" required autofocus />
+            <small class="p-error" *ngIf="submitted && !tipoDocumento.nombres">El nombre es requerido.</small>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text"
+            (click)="hideDialog()"></button>
+        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-text"
+            (click)="saveTipoDocumento()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

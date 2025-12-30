@@ -3,6 +3,7 @@ import { CardModule } from 'primeng/card';
 import { AccordionModule } from 'primeng/accordion';
 import { PanelModule } from 'primeng/panel';
 import { DividerModule } from 'primeng/divider';
+import { ButtonModule } from 'primeng/button';
 import { ImageModule } from 'primeng/image';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -12,19 +13,40 @@ import { HojavidaService } from './../../../../Services/appServices/biomedicaSer
 import { ImagenesService } from './../../../../Services/appServices/general/imagenes/imagenes.service'
 import { MantenimientosService } from './../../../../Services/appServices/biomedicaServices/mantenimientos/mantenimientos.service';
 import { MetrologiaService } from './../../../../Services/appServices/biomedicaServices/metrologia/metrologia.service'
-import { obtenerNombreMes } from '../../../../utilidades';
+import { obtenerNombreMes, getDecodedAccessToken } from '../../../../utilidades';
+import { CrearHojavidaComponent } from '../crear-hojavida/crear-hojavida.component';
+import { DocumentosService } from './../../../../Services/appServices/general/documentos/documentos.service';
+import { TipoDocumentoService } from './../../../../Services/appServices/general/tipoDocumento/tipo-documento.service';
+import { TableModule } from 'primeng/table';
+import { DialogModule } from 'primeng/dialog';
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+import { API_URL } from '../../../../constantes';
+import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-hojavida',
-  imports: [BiomedicausernavbarComponent,
+  standalone: true,
+  imports: [
     CommonModule,
     CardModule,
     AccordionModule,
     PanelModule,
     DividerModule,
-    ImageModule],
+    ButtonModule,
+    ImageModule,
+    CrearHojavidaComponent,
+    TableModule,
+    DialogModule,
+    FormsModule,
+    InputTextModule,
+    ConfirmDialogModule
+  ],
+  providers: [ConfirmationService],
   templateUrl: './hojavida.component.html',
   styleUrl: './hojavida.component.css'
-
 })
 export class HojavidaComponent implements OnInit {
 
@@ -33,20 +55,47 @@ export class HojavidaComponent implements OnInit {
   hojaVida: any;
   planMantenimiento: any[] = [];
   planMetrologia: any[] = [];
+  dataToEdit: any = null;
+
+  showCreate: boolean = false; // State to toggle create form
+
   hojavidaService = inject(HojavidaService);
   imagenesServices = inject(ImagenesService);
   mantenimientosService = inject(MantenimientosService);
   metrologiaServices = inject(MetrologiaService);
+  documentosService = inject(DocumentosService);
+  tipoDocumentoService = inject(TipoDocumentoService);
+  confirmationService = inject(ConfirmationService);
+
+
+  // Documentos properties
+  documentos: any[] = [];
+  tiposDocumento: any[] = [];
+  modalAddDocumento: boolean = false;
+  nuevoDocumento: any = {
+    nombres: '',
+    tipoDocumntoIdFk: '',
+    archivo: null
+  };
+  loadingDocumentos: boolean = false;
 
   constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer) { }
 
   async ngOnInit() {
+    this.id = this.route.snapshot.paramMap.get('id');
+    await this.cargarHojaVida();
+    await this.cargarTiposDocumento();
+    await this.cargarDocumentos();
+  }
+
+  async cargarHojaVida() {
     try {
-      this.id = this.route.snapshot.paramMap.get('id');
+      this.showCreate = false;
       this.hojaVida = await this.hojavidaService.getHojaVidaByIdEquipo(this.id);
+
       this.planMantenimiento = await this.mantenimientosService.getPlanMantenimientoEquipo(this.id);
       this.planMetrologia = await this.metrologiaServices.getPlanMetrologiaEquipo(this.id);
-      console.log({ruta: this.hojaVida?.foto});
+      console.log({ ruta: this.hojaVida?.foto });
       if (this.hojaVida?.foto) {
         const blob = await this.imagenesServices.getImagen(this.hojaVida.foto);
         console.log('Tipo MIME recibido:', blob);
@@ -56,9 +105,46 @@ export class HojavidaComponent implements OnInit {
         console.warn('No hay imagen en hoja de vida');
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error cargando hoja de vida o imagen:', error);
+      // Check if it's a 404 error
+      if (error?.status === 404 || error?.status === 400 || (error?.error?.error && error.error.error.includes('Hoja de vida no encontrada'))) {
+        this.showCreate = true;
+      }
     }
+  }
+
+  async cargarTiposDocumento() {
+    try {
+      this.tiposDocumento = await this.tipoDocumentoService.getAllTiposDocumento();
+    } catch (error) {
+      console.error('Error cargando tipos de documento', error);
+    }
+  }
+
+  async cargarDocumentos() {
+    if (!this.id) return;
+    try {
+      this.loadingDocumentos = true;
+      this.documentos = await this.documentosService.getDocumentosByEquipo(this.id);
+      this.loadingDocumentos = false;
+    } catch (error) {
+      this.loadingDocumentos = false;
+      console.error('Error cargando documentos', error);
+    }
+  }
+
+  onHojaVidaCreated() {
+    // Reload data when created
+    console.log("Hoja de vida creada/actualizada, recargando...");
+    this.cargarHojaVida();
+    this.showCreate = false; // Hide form
+    this.dataToEdit = null; // Reset edit data
+  }
+
+  onEdit() {
+    this.dataToEdit = this.hojaVida;
+    this.showCreate = true;
   }
 
   datosTecnicosKeys(): string[] {
@@ -80,6 +166,76 @@ export class HojavidaComponent implements OnInit {
 
   getNombreMes(numeroMes: number): string {
     return obtenerNombreMes(numeroMes);
+  }
+
+  // Métodos para gestión de documentos
+
+  openModalAddDocumento() {
+    this.nuevoDocumento = {
+      nombres: '',
+      tipoDocumntoIdFk: '',
+      archivo: null
+    };
+    this.modalAddDocumento = true;
+  }
+
+  onFileSelectedDocumento(event: any) {
+    if (event.target.files.length > 0) {
+      this.nuevoDocumento.archivo = event.target.files[0];
+    }
+  }
+
+  async guardarDocumento() {
+    if (!this.nuevoDocumento.nombres || !this.nuevoDocumento.tipoDocumntoIdFk || !this.nuevoDocumento.archivo) {
+      Swal.fire('Error', 'Por favor complete todos los campos y seleccione un archivo.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('nombres', this.nuevoDocumento.nombres);
+    formData.append('ruta', this.nuevoDocumento.archivo);
+    formData.append('activo', 'true');
+    formData.append('equipoIdFk', this.id!);
+    formData.append('tipoDocumntoIdFk', this.nuevoDocumento.tipoDocumntoIdFk);
+
+    try {
+      await this.documentosService.addDocumento(formData);
+      Swal.fire('Éxito', 'Documento agregado correctamente.', 'success');
+      this.modalAddDocumento = false;
+      this.cargarDocumentos();
+    } catch (error) {
+      console.error('Error al guardar documento:', error);
+      Swal.fire('Error', 'No se pudo guardar el documento.', 'error');
+    }
+  }
+
+  descargarDocumento(doc: any) {
+    const token = sessionStorage.getItem('utoken');
+    const url = `${API_URL}/downloadDocumento/${doc.id}?token=${token}`;
+    window.open(url, '_blank');
+  }
+
+  eliminarDocumento(doc: any) {
+    this.confirmationService.confirm({
+      message: '¿Está seguro de eliminar este documento?',
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: async () => {
+        try {
+          await this.documentosService.deleteDocumento(doc.id);
+          this.cargarDocumentos();
+          Swal.fire('Eliminado', 'El documento ha sido eliminado.', 'success');
+        } catch (error) {
+          Swal.fire('Error', 'No se pudo eliminar el documento.', 'error');
+        }
+      }
+    });
+  }
+  isGuest(): boolean {
+    const token = sessionStorage.getItem('utoken');
+    if (!token) return true; // Assume guest if no token, though authGuard handles this
+    const decoded = getDecodedAccessToken();
+    return decoded?.rol === 'INVITADO';
   }
 }
 

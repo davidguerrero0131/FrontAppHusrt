@@ -1,9 +1,9 @@
-// file: src/app/Components/indicadores/indicadores.component.ts
+
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-// PrimeNG 19+
+
 import { ChartModule } from 'primeng/chart';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -11,7 +11,10 @@ import { CalendarModule } from 'primeng/calendar';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
 import { DatePicker } from 'primeng/datepicker';
-import { ReportesService } from '../../../Services/appServices/biomedicaServices/reportes/reportes.service'; // <-- AJUSTA esta ruta
+import { ReportesService } from '../../../Services/appServices/biomedicaServices/reportes/reportes.service';
+import { IndicadoresService } from '../../../Services/appServices/biomedicaServices/indicadores/indicadores.service';
+import { MeterGroupModule } from 'primeng/metergroup';
+import { BiomedicausernavbarComponent } from '../../navbars/biomedicausernavbar/biomedicausernavbar.component';
 
 type TipoMantenimiento = 'Correctivo' | 'Preventivo' | 'Predictivo' | 'Otro';
 type TipoFalla =
@@ -54,6 +57,7 @@ interface Reporte {
     CalendarModule,
     ProgressSpinnerModule,
     TagModule,
+    MeterGroupModule
   ],
   templateUrl: `./indicadores.component.html`,
 })
@@ -61,24 +65,40 @@ export class IndicadoresComponent {
 
 
   private srv = inject(ReportesService);
+  private indicadoresSrv = inject(IndicadoresService);
 
   loading = signal(false);
   reportes = signal<Reporte[]>([]);
-  dateRange = signal<[Date | null, Date | null]>(this.mesActual());
+  indicadoresData = signal<any>(null);
+
+  // Fecha única (Mes/Año)
+  selectedMonth = signal<Date | null>(new Date());
 
   totalReportesLabel = computed(() => `Total: ${this.reportes().length}`);
 
   constructor() { this.refrescar(); }
 
   async refrescar() {
-    const [ini, fin] = this.dateRange();
-    if (!ini || !fin) return;
-    const inicio = this.yyyyMMdd(ini);
-    const finStr = this.yyyyMMdd(fin);
+    const mes = this.selectedMonth();
+    if (!mes) return;
+
+    // Calcular Start y End del mes seleccionado
+    const year = mes.getFullYear();
+    const month = mes.getMonth(); // 0-11
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0); // Último día del mes
+
+    const inicioStr = this.yyyyMMdd(firstDay);
+    const finStr = this.yyyyMMdd(lastDay);
+
     this.loading.set(true);
     try {
-      const data = await this.srv.getReportesPorRango(inicio, finStr, 2000, 0);
+      const data = await this.srv.getReportesPorRango(inicioStr, finStr, 2000, 0);
       this.reportes.set(Array.isArray(data) ? data : []);
+
+      const ind = await this.indicadoresSrv.getIndicadoresCumplimiento(inicioStr, finStr);
+      this.indicadoresData.set(ind);
     } catch (e) {
       console.error(e);
       this.reportes.set([]);
@@ -111,23 +131,81 @@ export class IndicadoresComponent {
   chartOptions = computed(() => ({
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { position: 'bottom' }, tooltip: { mode: 'index', intersect: false } }
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 14 } } },
+      tooltip: { mode: 'index', intersect: false }
+    }
   }) as any);
 
   barOptions(title?: string) {
     return {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'top' }, title: title ? { display: true, text: title } : undefined, tooltip: { mode: 'index', intersect: false } },
-      scales: { x: { ticks: { autoSkip: true } }, y: { beginAtZero: true, ticks: { precision: 0 } } }
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 14 } } },
+        title: title ? { display: true, text: title, font: { size: 18 } } : undefined,
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: {
+        x: { ticks: { autoSkip: true, font: { size: 12 } } },
+        y: { beginAtZero: true, ticks: { precision: 0, font: { size: 12 } } }
+      }
     } as any;
   }
   lineOptions(title?: string) {
     return {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'top' }, title: title ? { display: true, text: title } : undefined, tooltip: { mode: 'index', intersect: false } },
-      scales: { x: { ticks: { autoSkip: true } }, y: { beginAtZero: true, ticks: { precision: 0 } } }
+      plugins: {
+        legend: { position: 'top', labels: { font: { size: 14 } } },
+        title: title ? { display: true, text: title, font: { size: 18 } } : undefined,
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: {
+        x: { ticks: { autoSkip: true, font: { size: 12 } } },
+        y: { beginAtZero: true, ticks: { precision: 0, font: { size: 12 } } }
+      }
     } as any;
   }
+
+  // --- Nuevos Computed para Indicadores Backend ---
+
+  preventivoMeterData = computed(() => {
+    const d = this.indicadoresData();
+    if (!d || !d.preventivo) return [];
+    const c = d.preventivo.cumplimiento || 0;
+    return [
+      { label: 'Realizados', value: c, color: '#34d399', icon: 'pi pi-check-circle' },
+      { label: 'Pendientes', value: 100 - c, color: '#fbbf24', icon: 'pi pi-exclamation-circle' }
+    ];
+  });
+
+  correctivoMeterData = computed(() => {
+    const d = this.indicadoresData();
+    if (!d || !d.correctivo) return [];
+    const c = d.correctivo.cumplimiento || 0;
+    return [
+      { label: 'Atendidos', value: c, color: '#60a5fa', icon: 'pi pi-check-circle' },
+      { label: 'Pendientes', value: 100 - c, color: '#f87171', icon: 'pi pi-exclamation-circle' }
+    ];
+  });
+
+  duracionStats = computed(() => {
+    const d = this.indicadoresData();
+    if (!d) return { preventivo: '00:00:00', correctivo: '00:00:00' };
+    return {
+      preventivo: d.preventivo?.promedioDuracion || '00:00:00',
+      correctivo: d.correctivo?.promedioDuracion || '00:00:00'
+    };
+  });
+
+  preventivoInfo = computed(() => {
+    const d = this.indicadoresData();
+    return d?.preventivo || { programados: 0, realizados: 0, cumplimiento: 0 };
+  });
+
+  correctivoInfo = computed(() => {
+    const d = this.indicadoresData();
+    return d?.correctivo || { reportados: 0, realizados: 0, cumplimiento: 0 };
+  });
 
   realizadosChartData = computed(() => {
     const rs = this.reportes();
@@ -231,16 +309,5 @@ export class IndicadoresComponent {
   }
 
 
-  onRangeChange(val: Date[] | null) {
-    if (!val || val.length === 0) {
-      this.dateRange.set(this.mesActual());
-      return;
-    }
-    if (val.length === 1) {
-      const d = val[0];
-      this.dateRange.set([d, d]);
-      return;
-    }
-    this.dateRange.set([val[0], val[1]]);
-  }
+
 }

@@ -2,7 +2,7 @@ import { ResponsableService } from './../../../../Services/appServices/biomedica
 import { CommonModule } from '@angular/common';
 import { Component, inject, model, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms'
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { TipoEquipoService } from '../../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
 import { ServicioService } from '../../../../Services/appServices/general/servicio/servicio.service';
 import { SedeService } from '../../../../Services/appServices/general/sede/sede.service';
@@ -17,7 +17,8 @@ import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
   selector: 'app-crear-equipo',
-  imports: [CommonModule, UppercaseDirective, DialogModule, ButtonModule, FormsModule, DatePickerModule, ReactiveFormsModule],
+  standalone: true,
+  imports: [CommonModule, DialogModule, ButtonModule, FormsModule, DatePickerModule, ReactiveFormsModule],
   templateUrl: './crear-equipo.component.html',
   styleUrl: './crear-equipo.component.css'
 })
@@ -45,6 +46,7 @@ export class CrearEquipoComponent implements OnInit {
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
+    private activatedRoute: ActivatedRoute
   ) {
 
     this.equipoForm = this.formBuilder.group({
@@ -76,11 +78,45 @@ export class CrearEquipoComponent implements OnInit {
       this.servicios = await this.serviciosServices.getAllServicios();
       this.responsables = await this.responsablesServices.getAllResponsables();
       this.sedes = await this.sedesServices.getAllSedes();
-      this
+      this.checkEditMode();
     } catch (error) {
 
     }
   }
+
+  async checkEditMode() {
+    this.activatedRoute.params.subscribe(async params => {
+      const id = params['id'];
+      if (id) {
+        try {
+          this.equipo = await this.equipoServices.getEquipoById(id);
+          this.equipoForm.patchValue({
+            nombres: this.equipo.nombres,
+            marca: this.equipo.marca,
+            modelo: this.equipo.modelo,
+            serie: this.equipo.serie,
+            placa: this.equipo.placa,
+            registroInvima: this.equipo.registroInvima,
+            riesgo: this.equipo.riesgo,
+            ubicacion: this.equipo.ubicacion,
+            ubicacionEspecifica: this.equipo.ubicacionEspecifica,
+            activo: this.equipo.activo,
+            periodicidadM: this.equipo.periodicidadM,
+            periodicidadAM: this.equipo.periodicidadC, // Note: backend might use periodicidadC for AM
+            estadoBaja: this.equipo.estadoBaja,
+            tipoEquipoIdFk: this.equipo.tipoEquipoIdFk,
+            servicioIdFk: this.equipo.servicioIdFk,
+            sedeIdFk: this.equipo.sedeIdFk,
+            responsableIdFk: this.equipo.responsableIdFk,
+            actividadMetrologica: this.equipo.periodicidadC > 0
+          });
+        } catch (error) {
+          console.error("Error loading equipment for edit", error);
+        }
+      }
+    });
+  }
+
   async guardar() {
     if (this.equipoForm.valid) {
       this.equipo = {
@@ -103,19 +139,30 @@ export class CrearEquipoComponent implements OnInit {
         tipoEquipoIdFk: this.equipoForm.get('tipoEquipoIdFk')?.value,
         servicioIdFk: this.equipoForm.get('servicioIdFk')?.value,
         sedeIdFk: this.equipoForm.get('sedeIdFk')?.value,
-        responsableIdFk: this.equipoForm.get('responsableIdFk')?.value
+        responsableIdFk: this.equipoForm.get('responsableIdFk')?.value,
+        id: this.equipo ? this.equipo.id : null
       }
-      // this.equipo = await this.equipoServices.addEquipo(this.equipo);
-      this.iniciarFechasMantenimiento();
-
-      Swal.fire({
-        title: "Equipo Creado",
-        icon: "success",
-        draggable: true,
-        showConfirmButton: false,
-        timer: 1500
-
-      });
+      if (this.equipo.id) {
+        await this.equipoServices.updateEquipo(this.equipo.id, this.equipo);
+        Swal.fire({
+          title: "Equipo Actualizado",
+          icon: "success",
+          draggable: true,
+          showConfirmButton: false,
+          timer: 1500
+        });
+      } else {
+        await this.equipoServices.addEquipo(this.equipo);
+        this.iniciarFechasMantenimiento();
+        Swal.fire({
+          title: "Equipo Creado",
+          icon: "success",
+          draggable: true,
+          showConfirmButton: false,
+          timer: 1500
+        });
+      }
+      this.router.navigate(['/biomedica/lista-equipos']);
 
 
     } else {
@@ -159,6 +206,6 @@ export class CrearEquipoComponent implements OnInit {
   }
 
   trackByIndex(index: number, item: any): number {
-  return index;
-}
+    return index;
+  }
 }

@@ -1,21 +1,27 @@
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ProtocolosService } from './../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
 import { TipoEquipoService } from './../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
 import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { TableModule } from 'primeng/table';
-import { SuperadminnavbarComponent } from '../../navbars/superadminnavbar/superadminnavbar.component';
 import { CommonModule } from '@angular/common';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
-import { Dialog } from "primeng/dialog";
+import { TextareaModule } from 'primeng/textarea';
+import { DialogModule } from "primeng/dialog";
 import { Table } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TagModule } from 'primeng/tag';
 import Swal from 'sweetalert2';
+
+import { getDecodedAccessToken } from '../../../utilidades';
 
 @Component({
   selector: 'app-admtiposequipo',
   standalone: true,
-  imports: [TableModule, SuperadminnavbarComponent, CommonModule, InputIconModule, IconFieldModule, InputTextModule, Dialog],
+  imports: [TableModule, TextareaModule, CommonModule, InputIconModule, IconFieldModule, InputTextModule, DialogModule, ReactiveFormsModule, ButtonModule, FormsModule, TooltipModule, ToolbarModule, TagModule],
   templateUrl: './admtiposequipo.component.html',
   styleUrl: './admtiposequipo.component.css'
 })
@@ -30,24 +36,49 @@ export class AdmtiposequipoComponent implements OnInit {
   tiposEquipos!: any[];
   loading: boolean = false;
   viewModalTipoEquipo: boolean = false;
+  viewAddTipoEquipo: boolean = false;
   tipoEquipoSelected!: any;
   protocoloTipoEquipo!: any[];
+  isEditing: boolean = false;
+  viewProtocolsModal: boolean = false;
+  newProtocoloPaso: string = ''; // For the new protocol input
 
+  isAdminBiomedica: boolean = false;
 
   constructor() {
     this.formGroup = this.formBuilder.group({
-      nombres: this.formBuilder.control(this.tipoEquipoSelected?.nombres || '', [Validators.required]),
-      materialConsumible: this.formBuilder.control(this.tipoEquipoSelected?.materialConsumible || '', [Validators.required]),
-      herramienta: this.formBuilder.control(this.tipoEquipoSelected?.herramienta || '', [Validators.required]),
-      tiempoMinutos: this.formBuilder.control(this.tipoEquipoSelected?.tiempoMinutos || '', [Validators.required]),
-      repuestosMinimos: this.formBuilder.control(this.tipoEquipoSelected?.repuestosMinimos || '', [Validators.required]),
-      actividad: this.formBuilder.control(this.tipoEquipoSelected?.actividad || '', [Validators.required]),
+      nombres: ['', [Validators.required]],
+      materialConsumible: ['', [Validators.required]],
+      herramienta: ['', [Validators.required]],
+      tiempoMinutos: ['', [Validators.required]],
+      repuestosMinimos: ['', [Validators.required]],
+      actividad: ['', [Validators.required]],
+      tipoR: ['', [Validators.required]]
     });
   }
 
   async ngOnInit() {
+    this.checkRole();
+    const all = await this.tipoequipoService.getAllTiposEquipos();
 
-    this.tiposEquipos = await this.tipoequipoService.getAllTiposEquipos();
+    if (this.isAdminBiomedica) {
+      // Filter only Type 1 (Biomedica)
+      this.tiposEquipos = all.filter(t => t.tipoR === 1);
+      // Pre-set the form control for tipoR and disable logic in HTML if needed, 
+      // though formGroup patchValue handled in modal open
+    } else {
+      this.tiposEquipos = all;
+    }
+  }
+
+  checkRole() {
+    const token = sessionStorage.getItem('utoken');
+    if (token) {
+      const decoded = getDecodedAccessToken();
+      if (decoded?.rol === 'BIOMEDICAADMIN') {
+        this.isAdminBiomedica = true;
+      }
+    }
   }
 
   onGlobalFilter(event: Event): void {
@@ -60,8 +91,52 @@ export class AdmtiposequipoComponent implements OnInit {
   async viewTipoEquipo(tipoEquipo: any) {
     this.tipoEquipoSelected = tipoEquipo;
     this.protocoloTipoEquipo = await this.protocolosServices.getProtocoloTipoEquipo(this.tipoEquipoSelected.id);
-    this.viewModalTipoEquipo = true;
-    console.log(this.protocoloTipoEquipo);
+    this.viewProtocolsModal = true;
+  }
+
+  viewModalAddTipoEquipo() {
+    this.formGroup.reset();
+    if (this.isAdminBiomedica) {
+      this.formGroup.patchValue({ tipoR: 1 }); // Force Biomedica
+    }
+    this.isEditing = false;
+    this.viewAddTipoEquipo = true;
+  }
+
+  openEditModal(tipoEquipo: any) {
+    this.tipoEquipoSelected = tipoEquipo;
+    this.isEditing = true;
+    this.formGroup.patchValue({
+      nombres: tipoEquipo.nombres,
+      materialConsumible: tipoEquipo.materialConsumible,
+      herramienta: tipoEquipo.herramienta,
+      tiempoMinutos: tipoEquipo.tiempoMinutos,
+      repuestosMinimos: tipoEquipo.repuestosMinimos || 'No aplica',
+      actividad: tipoEquipo.actividad || 'Mantenimiento Preventivo',
+      tipoR: tipoEquipo.tipoR
+    });
+    this.viewAddTipoEquipo = true;
+  }
+
+  async saveTipoEquipo() {
+    if (this.formGroup.valid) {
+      if (this.isEditing) {
+        // Update
+        try {
+          await this.tipoequipoService.actualizarTipoEquipo(this.tipoEquipoSelected.id, this.formGroup.value);
+          this.tiposEquipos = await this.tipoequipoService.getAllTiposEquipos();
+          this.viewAddTipoEquipo = false;
+          Swal.fire("Tipo de Equipo actualizado!", "", "success");
+        } catch (error) {
+          Swal.fire("Error al actualizar", "No se pudo actualizar", "error");
+        }
+      } else {
+        // Create
+        Swal.fire("Funcionalidad en desarrollo", "La creación de equipos se habilitará pronto", "info");
+      }
+    } else {
+      Swal.fire("Formulario inválido", "Completa los campos", "warning");
+    }
   }
 
 
@@ -100,6 +175,71 @@ export class AdmtiposequipoComponent implements OnInit {
           Swal.fire("Se descarto la activacion del tipo de equipo", "", "info");
         }
       });
+    }
+  }
+
+  async toggleProtocolStatus(protocolo: any) {
+    const action = protocolo.estado ? 'desactivar' : 'activar';
+    const newStatus = !protocolo.estado;
+
+    try {
+      await this.protocolosServices.updateProtocolo(protocolo.id, { estado: newStatus });
+      // Refresh the list
+      this.protocoloTipoEquipo = await this.protocolosServices.getProtocoloTipoEquipo(this.tipoEquipoSelected.id);
+
+      const toastMsg = newStatus ? 'Protocolo habilitado' : 'Protocolo deshabilitado';
+      const toastIcon = newStatus ? 'success' : 'info'; // SweetAlert icons
+
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+        }
+      });
+      Toast.fire({
+        icon: toastIcon,
+        title: toastMsg
+      });
+
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", `No se pudo ${action} el protocolo`, "error");
+    }
+  }
+
+  async addProtocolo() {
+    if (!this.newProtocoloPaso.trim()) {
+      Swal.fire("Atención", "Escribe la descripción del paso", "warning");
+      return;
+    }
+
+    const newProto = {
+      paso: this.newProtocoloPaso,
+      estado: true,
+      tipoEquipoIdFk: this.tipoEquipoSelected.id
+    };
+
+    try {
+      await this.protocolosServices.createProtocolo(newProto);
+      this.newProtocoloPaso = ''; // Reset input
+      // Refresh list
+      this.protocoloTipoEquipo = await this.protocolosServices.getProtocoloTipoEquipo(this.tipoEquipoSelected.id);
+      Swal.fire({
+        icon: 'success',
+        title: 'Protocolo agregado',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "No se pudo agregar el protocolo", "error");
     }
   }
 }

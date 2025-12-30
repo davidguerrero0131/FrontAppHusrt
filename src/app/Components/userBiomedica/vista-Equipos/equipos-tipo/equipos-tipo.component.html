@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<app-biomedicausernavbar></app-biomedicausernavbar>
+
 
 <!-- Contenedor principal -->
 <div class="p-mx-5 p-mt-4 p-p-4 bg-white shadow-2 border-round">
@@ -12,15 +12,9 @@
 
   <!-- Tabla -->
   <div class="card" style="margin-top: 3%; width: 94%; margin-left: 3%; margin-right: 3%;">
-    <p-table #dt2
-             [value]="equipos"
-             dataKey="id"
-             [paginator]="true"
-             [rows]="10"
-             [rowsPerPageOptions]="[10, 25, 50, 100]"
-             [loading]="loading"
-             [globalFilterFields]="['nombres', 'marca', 'modelo', 'serie', 'ubicacionEspecifica']"
-             [tableStyle]="{ 'min-width': '10rem' }">
+    <p-table #dt2 [value]="equipos" dataKey="id" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+      [loading]="loading" [globalFilterFields]="['nombres', 'marca', 'modelo', 'serie', 'ubicacionEspecifica']"
+      [tableStyle]="{ 'min-width': '10rem' }">
 
       <!-- Filtro -->
       <ng-template #caption>
@@ -37,11 +31,12 @@
       <!-- Cabecera -->
       <ng-template pTemplate="header">
         <tr>
-          <th style="width:5%">ID(Hv)</th>
           <th>Nombre</th>
           <th>Marca</th>
           <th>Modelo</th>
           <th>Serie</th>
+          <th>Sede</th>
+          <th>Servicio</th>
           <th>Ubicación Específica</th>
           <th>Meses Mtto</th>
           <th>Registro Invima</th>
@@ -53,24 +48,22 @@
       <!-- Cuerpo -->
       <ng-template pTemplate="body" let-equipo>
         <tr>
-          <td class="text-center">
-            <button type="button" class="btn btn-primary btn-sm">{{ equipo.id }}</button>
-          </td>
           <td>{{ equipo.nombres }}</td>
           <td>{{ equipo.marca }}</td>
           <td>{{ equipo.modelo }}</td>
           <td>{{ equipo.serie }}</td>
+          <td>{{ equipo.servicios?.sede?.nombres }}</td>
+          <td>{{ equipo.servicios?.nombres }}</td>
           <td>{{ equipo.ubicacionEspecifica }}</td>
-          <td>{{ equipo.periodicidadM }}</td>
+          <td>{{ obtenerMesesTexto(equipo.planesMantenimiento) }}</td>
           <td>{{ equipo.registroInvima }}</td>
-          <td>{{ equipo.riesgo }}</td>
+          <td
+            [ngStyle]="{'background-color': obtenerColorRiesgo(equipo.riesgo), 'color': 'black', 'font-weight': 'bold', 'text-align': 'center'}">
+            {{ equipo.riesgo }}
+          </td>
           <td>
-            <p-splitbutton label="HV"
-                           icon="pi pi-check"
-                           dropdownIcon="pi pi-cog"
-                           [model]="equipo.opcionesHV"
-                           severity="secondary"
-                           (onClick)="equipo.opcionesHV[1].command(equipo)">
+            <p-splitbutton label="HV" icon="pi pi-check" dropdownIcon="pi pi-cog" [model]="equipo.opcionesHV"
+              severity="secondary" (onClick)="equipo.opcionesHV[1].command(equipo)">
             </p-splitbutton>
           </td>
         </tr>

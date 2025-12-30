@@ -3,7 +3,6 @@ import { EquiposService } from '../../../../Services/appServices/biomedicaServic
 import { ServicioService } from '../../../../Services/appServices/general/servicio/servicio.service';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
-import { BiomedicausernavbarComponent } from '../../../navbars/biomedicausernavbar/biomedicausernavbar.component';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { Table } from 'primeng/table';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -12,11 +11,14 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MenuItem, MessageService } from 'primeng/api';
 import { getDecodedAccessToken, obtenerNombreMes } from '../../../../utilidades';
 import { Router } from '@angular/router';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { HistorialEquiposComponent } from '../historial-equipos/historial-equipos.component';
 @Component({
   selector: 'app-equipos-servicio',
   standalone: true,
-  imports: [TableModule, CommonModule, BiomedicausernavbarComponent, IconFieldModule,
+  imports: [TableModule, CommonModule, IconFieldModule,
     InputIconModule, InputTextModule, SplitButtonModule],
+  providers: [DialogService],
   templateUrl: './equipos-servicio.component.html',
   styleUrl: './equipos-servicio.component.css'
 })
@@ -29,17 +31,20 @@ export class EquiposServicioComponent implements OnInit {
   servicioServices = inject(ServicioService);
   loading: boolean = false;
   items: MenuItem[] | undefined;
+  ref: DynamicDialogRef | undefined;
 
   constructor(
     private messageService: MessageService,
-    private router: Router,) {
+    private router: Router,
+    public dialogService: DialogService
+  ) {
 
   }
 
   async ngOnInit() {
 
-    const equiposdatos = await this.equipoServices.getAllEquiposServicio(localStorage.getItem("idServicio"));
-    this.servicio = await this.servicioServices.getServicio(localStorage.getItem("idServicio"));
+    const equiposdatos = await this.equipoServices.getAllEquiposServicio(sessionStorage.getItem("idServicio"));
+    this.servicio = await this.servicioServices.getServicio(sessionStorage.getItem("idServicio"));
 
     this.equipos = equiposdatos.map((equipo: any) => ({
       ...equipo,
@@ -63,7 +68,13 @@ export class EquiposServicioComponent implements OnInit {
         {
           label: 'Nuevo reporte',
           icon: 'pi pi-upload',
-          command: () => this.nuevoReporte(equipo.id)
+          command: () => this.nuevoReporte(equipo.id),
+          visible: getDecodedAccessToken().rol !== 'INVITADO'
+        },
+        {
+          label: 'Historial',
+          icon: 'pi pi-history',
+          command: () => this.verHistorial(equipo.id)
         }
       ]
     }));
@@ -97,6 +108,43 @@ export class EquiposServicioComponent implements OnInit {
   verReportes(id: number) {
     console.log('Ver reportes del equipo: ', id);
     this.router.navigate(['biomedica/reportesequipo/', id]);
+  }
+
+  verHistorial(id: number) {
+    this.ref = this.dialogService.open(HistorialEquiposComponent, {
+      header: 'Historial de Cambios',
+      width: '50vw',
+      contentStyle: { overflow: 'auto' },
+      baseZIndex: 10000,
+      maximizable: true,
+      data: {
+        idEquipo: id
+      }
+    });
+  }
+
+  obtenerMesesTexto(planes: any[]): string {
+    if (!planes || planes.length === 0) {
+      return 'Sin programación';
+    }
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    // Filter duplicates and sort
+    const uniqueMeses = [...new Set(planes.map(p => p.mes))].sort((a: any, b: any) => a - b);
+
+    return uniqueMeses.map((m: any) => meses[m]).join(', ');
+  }
+
+  obtenerColorRiesgo(riesgo: string): string {
+    switch (riesgo) {
+      case 'I': return '#4caf50'; // Verde
+      case 'IIA': return '#90EE90'; // Verde claro
+      case 'IIB': return '#ffff00'; // Amarillo
+      case 'III': return '#ffcc80'; // Naranja claro
+      default: return 'transparent';
+    }
   }
 
 }

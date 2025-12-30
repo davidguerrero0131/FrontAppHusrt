@@ -1,0 +1,284 @@
+<div class="dashboard-container">
+
+    <div class="text-center mb-5">
+        <h1 class="text-3xl font-bold mb-2">Mis Mantenimientos</h1>
+        <p class="text-secondary text-lg">Gestión de tareas asignadas</p>
+    </div>
+
+    <!-- Navigation Pills/Tabs -->
+    <ul class="nav nav-pills nav-fill gap-3 p-1 mb-5" id="pillNav2" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link py-3" [ngClass]="{'active': panelPreventivos}" (click)="viewPreventivos()"
+                type="button" role="tab" aria-selected="true">
+                <i class="bi bi-tools mr-2"></i> PREVENTIVOS
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link py-3" [ngClass]="{'active': panelCorrectivos}" (click)="viewCorrectivos()"
+                type="button" role="tab" aria-selected="false">
+                <i class="bi bi-wrench-adjustable mr-2"></i> CORRECTIVOS
+            </button>
+        </li>
+    </ul>
+
+    <!-- PANEL PREVENTIVOS -->
+    <div *ngIf="panelPreventivos">
+
+        <!-- Date Filter Card -->
+        <div class="card border-0 shadow-sm border-round-xl surface-card p-4 mb-4">
+            <div class="flex flex-column sm:flex-row justify-content-center align-items-center gap-3">
+                <label class="font-bold text-lg text-700">Filtrar Preventivos (Programado):</label>
+                <div class="flex gap-2">
+                    <p-datepicker [(ngModel)]="datePreventivo" view="month" dateFormat="mm/yy" [readonlyInput]="true"
+                        (onSelect)="filtrarPreventivos()" placeholder="Seleccione Mes/Año" [showIcon]="true"
+                        inputStyleClass="p-inputtext-sm"></p-datepicker>
+                    <button pButton icon="pi pi-refresh" (click)="cargarReportes()"
+                        class="p-button-outlined p-button-secondary" pTooltip="Recargar"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sub-Tabs for Preventivos -->
+        <ul class="nav nav-pills sub-tabs nav-fill gap-2 p-1 mb-4" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link py-2" [ngClass]="{'active': panelPendientes}" (click)="viewPendientes()"
+                    type="button" role="tab">
+                    <i class="pi pi-clock mr-2"></i> PENDIENTES
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link py-2" [ngClass]="{'active': panelEjecutados}" (click)="viewEjecutados()"
+                    type="button" role="tab">
+                    <i class="pi pi-check-circle mr-2"></i> EJECUTADOS
+                </button>
+            </li>
+        </ul>
+
+        <!-- Section: PENDIENTES -->
+        <div class="card border-0 shadow-sm border-round-xl surface-card p-4" *ngIf="panelPendientes">
+            <p-table #dtPendientes [value]="preventivosPendientes" dataKey="id" [paginator]="true" [rows]="10"
+                [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
+                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica', 'mesProgramado']"
+                styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true" [scrollable]="true"
+                scrollHeight="500px">
+
+                <ng-template pTemplate="caption">
+                    <div class="flex justify-content-end">
+                        <span class="p-input-icon-left w-full sm:w-auto">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter($event, dtPendientes)"
+                                placeholder="Buscar Pendientes..." class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="min-width:200px">Equipo</th>
+                        <th style="min-width:120px">Placa</th>
+                        <th style="min-width:200px">Ubicación</th>
+                        <th style="min-width:150px">Fecha Programada</th>
+                        <th style="min-width:100px" class="text-center">Acción</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-report>
+                    <tr>
+                        <td><span class="font-bold">{{ report.equipo?.nombres || 'N/A' }}</span></td>
+                        <td><p-tag [value]="report.equipo?.placa || 'N/A'" severity="secondary"></p-tag></td>
+                        <td>{{ report.equipo?.ubicacionEspecifica || 'N/A' }}</td>
+                        <td>{{ report.mesProgramado }}/{{ report['añoProgramado'] }}</td>
+                        <td class="text-center">
+                            <button pButton icon="pi pi-play" class="p-button-success p-button-rounded p-button-sm"
+                                pTooltip="Realizar Mantenimiento" tooltipPosition="left"
+                                (click)="realizarReporte(report.equipo.id, report.id)"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="5" class="text-center p-4">
+                            <div class="flex flex-column align-items-center">
+                                <i class="pi pi-check-circle text-green-500 text-6xl mb-3"></i>
+                                <span class="text-xl text-500">¡Todo al día! No hay mantenimientos pendientes.</span>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <!-- Section: EJECUTADOS -->
+        <div class="card border-0 shadow-sm border-round-xl surface-card p-4" *ngIf="panelEjecutados">
+            <p-table #dtEjecutados [value]="preventivosEjecutados" dataKey="id" [paginator]="true" [rows]="10"
+                [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
+                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica', 'mesProgramado']"
+                styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true" [scrollable]="true"
+                scrollHeight="500px">
+
+                <ng-template pTemplate="caption">
+                    <div class="flex justify-content-end">
+                        <span class="p-input-icon-left w-full sm:w-auto">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter($event, dtEjecutados)"
+                                placeholder="Buscar Ejecutados..." class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="min-width:200px">Equipo</th>
+                        <th style="min-width:120px">Placa</th>
+                        <th style="min-width:200px">Ubicación</th>
+                        <th style="min-width:150px">Fecha Programada</th>
+                        <th style="min-width:120px" class="text-center">Opciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-report>
+                    <tr>
+                        <td><span class="font-bold">{{ report.equipo?.nombres || 'N/A' }}</span></td>
+                        <td><p-tag [value]="report.equipo?.placa || 'N/A'" severity="secondary"></p-tag></td>
+                        <td>{{ report.equipo?.ubicacionEspecifica || 'N/A' }}</td>
+                        <td>{{ report.mesProgramado }}/{{ report['añoProgramado'] }}</td>
+                        <td class="text-center">
+                            <button pButton icon="pi pi-eye"
+                                class="p-button-info p-button-rounded p-button-outlined p-button-sm mr-2"
+                                pTooltip="Ver Detalles" tooltipPosition="left"
+                                (click)="viewModalReport(report)"></button>
+                            <button *ngIf="report.urlReporte" pButton icon="pi pi-file-pdf"
+                                class="p-button-danger p-button-rounded p-button-text p-button-sm" pTooltip="Ver PDF"
+                                tooltipPosition="left" (click)="viewPdf(report.urlReporte)"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="5" class="text-center p-4">No hay mantenimientos preventivos ejecutados.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+    <!-- PANEL CORRECTIVOS -->
+    <div *ngIf="panelCorrectivos">
+
+        <!-- Date Filter Card -->
+        <div class="card border-0 shadow-sm border-round-xl surface-card p-4 mb-4">
+            <div class="flex flex-column sm:flex-row justify-content-center align-items-center gap-3">
+                <label class="font-bold text-lg text-700">Filtrar Correctivos (Realizado):</label>
+                <div class="flex gap-2">
+                    <p-datepicker [(ngModel)]="dateCorrectivo" view="month" dateFormat="mm/yy" [readonlyInput]="true"
+                        (onSelect)="filtrarCorrectivos()" placeholder="Seleccione Mes/Año" [showIcon]="true"
+                        inputStyleClass="p-inputtext-sm"></p-datepicker>
+                    <button pButton icon="pi pi-refresh" (click)="cargarReportes()"
+                        class="p-button-outlined p-button-secondary" pTooltip="Recargar"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm border-round-xl surface-card p-4">
+            <p-table #dtCorrectivos [value]="correctivos" dataKey="id" [paginator]="true" [rows]="10"
+                [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
+                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica']"
+                styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true" [scrollable]="true"
+                scrollHeight="500px">
+
+                <ng-template pTemplate="caption">
+                    <div class="flex justify-content-end">
+                        <span class="p-input-icon-left w-full sm:w-auto">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter($event, dtCorrectivos)"
+                                placeholder="Buscar..." class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="min-width:100px">ID</th>
+                        <th style="min-width:200px">Equipo</th>
+                        <th style="min-width:120px">Placa</th>
+                        <th style="min-width:150px">Fecha Realización</th>
+                        <th style="min-width:120px" class="text-center">Opciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-report>
+                    <tr>
+                        <td><span class="font-bold">#{{ report.id }}</span></td>
+                        <td>{{ report.equipo?.nombres }}</td>
+                        <td><p-tag [value]="report.equipo?.placa" severity="secondary"></p-tag></td>
+                        <td>{{ report.fechaRealizado }}</td>
+                        <td class="text-center">
+                            <button pButton icon="pi pi-eye"
+                                class="p-button-info p-button-rounded p-button-outlined p-button-sm mr-2"
+                                pTooltip="Ver Detalles" (click)="viewModalReport(report)"></button>
+                            <button *ngIf="report.urlReporte" pButton icon="pi pi-file-pdf"
+                                class="p-button-danger p-button-rounded p-button-text p-button-sm" pTooltip="Ver PDF"
+                                (click)="viewPdf(report.urlReporte)"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="5" class="text-center p-4">
+                            <div class="flex flex-column align-items-center">
+                                <i class="pi pi-inbox text-500 text-6xl mb-3"></i>
+                                <span class="text-xl text-500">No hay mantenimientos correctivos.</span>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal Detalle Reporte -->
+<p-dialog header="Detalle del Mantenimiento" [(visible)]="modalReport" [style]="{width: '50vw'}" [modal]="true"
+    [draggable]="false" [resizable]="false" [breakpoints]="{'960px': '75vw', '640px': '95vw'}">
+    <div *ngIf="reportSelected">
+        <h5 class="text-primary font-bold mb-3 border-bottom-1 border-200 pb-2">Información General</h5>
+        <div class="grid">
+            <div class="col-12 sm:col-6 mb-2"><strong>Equipo:</strong> <span class="text-700 ml-2">{{
+                    reportSelected.equipo?.nombres }}</span></div>
+            <div class="col-12 sm:col-6 mb-2"><strong>Placa:</strong> <span class="text-700 ml-2">{{
+                    reportSelected.equipo?.placa }}</span></div>
+            <div class="col-12 sm:col-6 mb-2"><strong>Realizado por:</strong> <span class="text-700 ml-2">{{
+                    reportSelected.usuario?.nombres }} {{ reportSelected.usuario?.apellidos }}</span></div>
+            <div class="col-12 sm:col-6 mb-2"><strong>Fecha:</strong> <span class="text-700 ml-2">{{
+                    reportSelected.updatedAt | date:'medium' }}</span></div>
+            <div class="col-12 mt-3">
+                <div class="surface-ground p-3 border-round">
+                    <strong>Observaciones:</strong>
+                    <p class="m-0 mt-2 line-height-3">{{ reportSelected.recomendaciones || 'Sin observaciones.' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="mt-4 text-primary font-bold mb-3 border-bottom-1 border-200 pb-2"
+            *ngIf="rutina && rutina.length > 0">Rutina de Mantenimiento</h5>
+        <p-table [value]="rutina" *ngIf="rutina && rutina.length > 0" styleClass="p-datatable-sm p-datatable-gridlines"
+            [scrollable]="true" scrollHeight="300px">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Paso</th>
+                    <th style="width: 120px">Estado</th>
+                    <th>Observación</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-paso>
+                <tr>
+                    <td>{{ paso.protocolo?.paso }}</td>
+                    <td class="text-center">
+                        <p-tag [severity]="paso.cumple ? 'success' : 'danger'"
+                            [value]="paso.cumple ? 'Cumple' : 'No Cumple'"
+                            [icon]="paso.cumple ? 'pi pi-check' : 'pi pi-times'"></p-tag>
+                    </td>
+                    <td>{{ paso.observacion || 'N/A' }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</p-dialog>

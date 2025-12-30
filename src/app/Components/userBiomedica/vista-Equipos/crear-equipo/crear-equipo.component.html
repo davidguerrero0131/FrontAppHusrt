@@ -86,7 +86,7 @@
             <label>Responsable</label>
             <select formControlName="responsableIdFk" class="form-control">
               <option value="">Seleccione...</option>
-              <option *ngFor="let r of responsables" [value]="r.id">{{ r.nombres }}</option>
+              <option *ngFor="let r of responsables" [value]="r.id">{{ r.nombres }} {{ r.apellidos }}</option>
             </select>
           </div>
 
@@ -123,7 +123,8 @@
   [style]="{ width: '20rem' }" [closable]="false">
   <div *ngFor="let item of fechasMantenimiento; let i = index; trackBy: trackByIndex" class="mb-3">
     <label class="block mb-2" [for]="'fecha-mant-'+i">Fecha {{ i + 1 }}</label>
-    <p-datepicker [(ngModel)]="fechasMantenimiento[i]" inputId="{{ 'fecha-mant-' + i }}" view="month" dateFormat="mm/yy" [style]="{ width: '100%' }">
+    <p-datepicker [(ngModel)]="fechasMantenimiento[i]" inputId="{{ 'fecha-mant-' + i }}" view="month" dateFormat="mm/yy"
+      [style]="{ width: '100%' }">
     </p-datepicker>
   </div>
   <div style="height: 150px;">
@@ -133,4 +134,3 @@
     <p-button label="Guardar" (click)="validarFechasMantenimiento()" />
   </div>
 </p-dialog>
-

@@ -36,4 +36,16 @@ export class ProtocolosService {
       this.httpClient.get<any[]>(`${API_URL}/cumplimientos/reporte/` + idReporte, createHeaders())
     )
   }
+
+  updateProtocolo(id: any, protocolo: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${API_URL}/actprotocolo/` + id, protocolo, createHeaders())
+    )
+  }
+
+  createProtocolo(protocolo: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${API_URL}/addprotocolo`, protocolo, createHeaders())
+    )
+  }
 }

@@ -6,7 +6,6 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
-import { BiomedicausernavbarComponent } from '../../../navbars/biomedicausernavbar/biomedicausernavbar.component';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { SpeedDialModule } from 'primeng/speeddial';
 import { Table } from 'primeng/table';
@@ -15,12 +14,15 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { getDecodedAccessToken, obtenerNombreMes } from '../../../../utilidades';
 import { Console } from 'console';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { HistorialEquiposComponent } from '../historial-equipos/historial-equipos.component';
 
 @Component({
   selector: 'app-equipos-tipo',
   standalone: true,
-  imports: [FormsModule, CommonModule, TableModule, BiomedicausernavbarComponent,
+  imports: [FormsModule, CommonModule, TableModule,
     SplitButtonModule, SpeedDialModule, IconFieldModule, InputIconModule, InputTextModule],
+  providers: [DialogService],
   templateUrl: './equipos-tipo.component.html',
   styleUrl: './equipos-tipo.component.css'
 })
@@ -34,14 +36,16 @@ export class EquiposTipoComponent implements OnInit {
   searchText: string = '';
 
   loading: boolean = false;
+  ref: DynamicDialogRef | undefined;
 
   constructor(
     private messageService: MessageService,
     private router: Router,
+    public dialogService: DialogService
   ) { }
 
   async ngOnInit() {
-    const idTipo = localStorage.getItem('idTipoEquipo');
+    const idTipo = sessionStorage.getItem('idTipoEquipo');
     const equiposData = await this.equipoServices.getAllEquiposTipo(idTipo);
 
     this.equipos = equiposData.map((equipo: any) => ({
@@ -51,7 +55,7 @@ export class EquiposTipoComponent implements OnInit {
           label: 'Editar',
           icon: 'pi pi-pencil',
           command: () => this.editarEquipo(equipo.id),
-          visible:  getDecodedAccessToken().rol === 'BIOMEDICAADMIN'
+          visible: getDecodedAccessToken().rol === 'BIOMEDICAADMIN'
         },
         {
           label: 'Ver Hoja de Vida',
@@ -66,7 +70,13 @@ export class EquiposTipoComponent implements OnInit {
         {
           label: 'Nuevo reporte',
           icon: 'pi pi-upload',
-          command: () => this.nuevoReporte(equipo.id)
+          command: () => this.nuevoReporte(equipo.id),
+          visible: getDecodedAccessToken().rol !== 'INVITADO'
+        },
+        {
+          label: 'Historial',
+          icon: 'pi pi-history',
+          command: () => this.verHistorial(equipo.id)
         }
       ]
     }));
@@ -90,7 +100,7 @@ export class EquiposTipoComponent implements OnInit {
   editarEquipo(id: number) {
     //this.router.navigate(['/hojasvida', id, 'editar']);
     console.log('Editar Equipo', id);
-    console.log( getDecodedAccessToken());
+    console.log(getDecodedAccessToken());
   }
 
   nuevoReporte(id: number) {
@@ -102,6 +112,43 @@ export class EquiposTipoComponent implements OnInit {
   verReportes(id: number) {
     console.log('Ver reportes del equipo: ', id);
     this.router.navigate(['biomedica/reportesequipo/', id]);
+  }
+
+  verHistorial(id: number) {
+    this.ref = this.dialogService.open(HistorialEquiposComponent, {
+      header: 'Historial de Cambios',
+      width: '50vw',
+      contentStyle: { overflow: 'auto' },
+      baseZIndex: 10000,
+      maximizable: true,
+      data: {
+        idEquipo: id
+      }
+    });
+  }
+
+  obtenerMesesTexto(planes: any[]): string {
+    if (!planes || planes.length === 0) {
+      return 'Sin programación';
+    }
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    // Filter duplicates and sort
+    const uniqueMeses = [...new Set(planes.map(p => p.mes))].sort((a: any, b: any) => a - b);
+
+    return uniqueMeses.map((m: any) => meses[m]).join(', ');
+  }
+
+  obtenerColorRiesgo(riesgo: string): string {
+    switch (riesgo) {
+      case 'I': return '#4caf50'; // Verde
+      case 'IIA': return '#90EE90'; // Verde claro
+      case 'IIB': return '#ffff00'; // Amarillo
+      case 'III': return '#ffcc80'; // Naranja claro
+      default: return 'transparent';
+    }
   }
 
 }

@@ -1,24 +1,25 @@
-<app-biomedicausernavbar></app-biomedicausernavbar>
-<div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
-</div>
+<div class="dashboard-container">
 
-<div style="margin-top: 2%; margin-bottom: 2%;">
-  <h1 style="text-align: center;">EQUIPOS BIOMEDICOS</h1>
-  <h6 style="text-align: center;">Busque segun el Servicio Requerido.</h6>
-</div>
+  <div class="text-center mb-5">
+    <h1 class="text-3xl font-bold mb-2">Equipos Biomédicos</h1>
+    <p class="text-secondary text-lg">Busque según el Servicio Requerido.</p>
+  </div>
 
-<input type="text" placeholder="Buscar tipo de equipo..." [(ngModel)]="searchText" class="search-bar">
+  <div class="search-container">
+    <input type="text" placeholder="Buscar servicio..." [(ngModel)]="searchText" class="search-bar">
+  </div>
 
-<div class="grid-container">
-  <div class="grid-item" *ngFor="let servicio of filteredServicios()">
-    <div class="card">
-      <h1></h1>
-      <h6>{{ servicio.nombres }}</h6>
-      <h1></h1>
-      <h6>{{ cantidadesEquipos[servicio.id]}}</h6>
-      <h1></h1>
-      <button type="button" class="btn btn-dark button-ver-equipos" (click)=viewEquiposServicio(servicio.id)>Ver Equipos</button>
-      <h1></h1>
+  <div class="cards-grid">
+    <div class="dashboard-card" *ngFor="let servicio of filteredServicios()" (click)="viewEquiposServicio(servicio.id)">
+      <div class="card-icon-container gradient-blue">
+        <i class="pi pi-briefcase"></i>
+      </div>
+      <div class="card-content">
+        <h3>{{ servicio.nombres }}</h3>
+        <p>Total Equipos: <strong>{{ cantidadesEquipos[servicio.id] || 0 }}</strong></p>
+        <span class="card-action">Ver Equipos <i class="pi pi-arrow-right"></i></span>
+      </div>
     </div>
   </div>
+
 </div>

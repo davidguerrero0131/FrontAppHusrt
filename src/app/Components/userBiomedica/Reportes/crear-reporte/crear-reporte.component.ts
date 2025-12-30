@@ -15,7 +15,6 @@ import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import Swal from 'sweetalert2';
 import { getDecodedAccessToken } from '../../../../utilidades';
-import { BiomedicausernavbarComponent } from '../../../navbars/biomedicausernavbar/biomedicausernavbar.component';
 import { ProtocolosService } from '../../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { UserService } from '../../../../Services/appServices/userServices/user.service';
@@ -25,7 +24,7 @@ import { ReportesService } from '../../../../Services/appServices/biomedicaServi
 @Component({
   selector: 'app-crear-reporte',
   standalone: true,
-  imports: [DatePickerModule, SelectModule, TextareaModule, InputTextModule, ButtonModule, CardModule, CalendarModule, InputMaskModule, CommonModule, DropdownModule, CheckboxModule, ReactiveFormsModule, FormsModule, BiomedicausernavbarComponent],
+  imports: [DatePickerModule, SelectModule, TextareaModule, InputTextModule, ButtonModule, CardModule, CalendarModule, InputMaskModule, CommonModule, DropdownModule, CheckboxModule, ReactiveFormsModule, FormsModule],
   templateUrl: './crear-reporte.component.html',
   styleUrl: './crear-reporte.component.css'
 })

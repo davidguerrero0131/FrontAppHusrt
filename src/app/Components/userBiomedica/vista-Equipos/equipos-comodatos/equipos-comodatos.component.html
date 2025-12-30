@@ -1,4 +1,3 @@
-<app-biomedicausernavbar></app-biomedicausernavbar>
 <div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
 </div>
 
@@ -7,76 +6,69 @@
   <h6 style="text-align: center;"> Todos los equipos comodatos de {{responsable.nombres}}</h6>
 </div>
 
- <div class="card" style="margin-top: 3%; width: 94%; margin-left: 3%; margin-right: 3%;">
-    <p-table #dt2
-             [value]="equipos"
-             dataKey="id"
-             [paginator]="true"
-             [rows]="10"
-             [rowsPerPageOptions]="[10, 25, 50, 100]"
-             [loading]="loading"
-             [globalFilterFields]="['nombres', 'marca', 'modelo', 'serie', 'ubicacionEspecifica']"
-             [tableStyle]="{ 'min-width': '10rem' }">
+<div class="card" style="margin-top: 3%; width: 94%; margin-left: 3%; margin-right: 3%;">
+  <p-table #dt2 [value]="equipos" dataKey="id" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+    [loading]="loading" [globalFilterFields]="['nombres', 'marca', 'modelo', 'serie', 'ubicacionEspecifica']"
+    [tableStyle]="{ 'min-width': '10rem' }">
 
-      <!-- Filtro -->
-      <ng-template #caption>
-        <div class="flex justify-content-end">
-          <p-iconfield iconPosition="left">
-            <p-inputicon>
-              <i class="pi pi-search"></i>
-            </p-inputicon>
-            <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda General" />
-          </p-iconfield>
-        </div>
-      </ng-template>
+    <!-- Filtro -->
+    <ng-template #caption>
+      <div class="flex justify-content-end">
+        <p-iconfield iconPosition="left">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda General" />
+        </p-iconfield>
+      </div>
+    </ng-template>
 
-      <!-- Cabecera -->
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width:5%">ID(Hv)</th>
-          <th>Nombre</th>
-          <th>Marca</th>
-          <th>Modelo</th>
-          <th>Serie</th>
-          <th>Ubicación Específica</th>
-          <th>Meses Mtto</th>
-          <th>Registro Invima</th>
-          <th>Riesgo</th>
-          <th>Opciones</th>
-        </tr>
-      </ng-template>
+    <!-- Cabecera -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Nombre</th>
+        <th>Marca</th>
+        <th>Modelo</th>
+        <th>Serie</th>
+        <th>Sede</th>
+        <th>Servicio</th>
+        <th>Ubicación Específica</th>
+        <th>Meses Mtto</th>
+        <th>Registro Invima</th>
+        <th>Riesgo</th>
+        <th>Opciones</th>
+      </tr>
+    </ng-template>
 
-      <!-- Cuerpo -->
-      <ng-template pTemplate="body" let-equipo>
-        <tr>
-          <td class="text-center">
-            <button type="button" class="btn btn-primary btn-sm">{{ equipo.id }}</button>
-          </td>
-          <td>{{ equipo.nombres }}</td>
-          <td>{{ equipo.marca }}</td>
-          <td>{{ equipo.modelo }}</td>
-          <td>{{ equipo.serie }}</td>
-          <td>{{ equipo.ubicacionEspecifica }}</td>
-          <td>{{ equipo.periodicidadM }}</td>
-          <td>{{ equipo.registroInvima }}</td>
-          <td>{{ equipo.riesgo }}</td>
-          <td>
-            <p-splitbutton label="HV"
-                           icon="pi pi-check"
-                           dropdownIcon="pi pi-cog"
-                           [model]="equipo.opcionesHV"
-                           severity="secondary"
-                           (onClick)="equipo.opcionesHV[1].command(equipo)">
-            </p-splitbutton>
-          </td>
-        </tr>
-      </ng-template>
+    <!-- Cuerpo -->
+    <ng-template pTemplate="body" let-equipo>
+      <tr>
+        <td>{{ equipo.nombres }}</td>
+        <td>{{ equipo.marca }}</td>
+        <td>{{ equipo.modelo }}</td>
+        <td>{{ equipo.serie }}</td>
+        <td>{{ equipo.servicios?.sede?.nombres }}</td>
+        <td>{{ equipo.servicios?.nombres }}</td>
+        <td>{{ equipo.ubicacionEspecifica }}</td>
+        <td>{{ obtenerMesesTexto(equipo.planesMantenimiento) }}</td>
+        <td>{{ equipo.registroInvima }}</td>
+        <td
+          [ngStyle]="{'background-color': obtenerColorRiesgo(equipo.riesgo), 'color': 'black', 'font-weight': 'bold', 'text-align': 'center'}">
+          {{ equipo.riesgo }}
+        </td>
+        <td>
+          <p-splitbutton label="HV" icon="pi pi-check" dropdownIcon="pi pi-cog" [model]="equipo.opcionesHV"
+            severity="secondary" (onClick)="equipo.opcionesHV[1].command(equipo)">
+          </p-splitbutton>
+        </td>
+      </tr>
+    </ng-template>
 
-      <!-- Mensaje vacío -->
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="10" class="text-center">No hay Equipos.</td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
+    <!-- Mensaje vacío -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="10" class="text-center">No hay Equipos.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

@@ -7,7 +7,7 @@ import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
 import { createHeaders } from '../../../../utilidades'
 
-import {API_URL} from '../../../../constantes'
+import { API_URL } from '../../../../constantes'
 
 @Injectable({
   providedIn: 'root'
@@ -22,9 +22,15 @@ export class EquiposService {
     this.baseUrl = API_URL;
   }
 
-  addEquipo(equipo: any){
+  addEquipo(equipo: any) {
     return firstValueFrom(
-      this.httpClient.post<any>(`${this.baseUrl}/addequipo`, equipo,createHeaders())
+      this.httpClient.post<any>(`${this.baseUrl}/addequipo`, equipo, createHeaders())
+    );
+  }
+
+  updateEquipo(id: any, equipo: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/Actequipo/${id}`, equipo, createHeaders())
     );
   }
 
@@ -34,7 +40,7 @@ export class EquiposService {
     )
   }
 
-  getAllEquiposSeries(){
+  getAllEquiposSeries() {
     return firstValueFrom(
       this.httpClient.get<any[]>(`${this.baseUrl}/seriesequipos`, createHeaders())
     )
@@ -67,6 +73,24 @@ export class EquiposService {
   getAllEquiposServicio(idServicio: any) {
     return firstValueFrom(
       this.httpClient.get<any[]>(`${this.baseUrl}/equipos/servicio/${idServicio}`, createHeaders())
+    )
+  }
+
+  getAllEquiposSede(idSede: any) {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/sede/${idSede}`, createHeaders())
+    )
+  }
+
+  getTrazabilidadByEquipo(idEquipo: any) {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/trazabilidad/equipo/${idEquipo}`, createHeaders())
+    )
+  }
+
+  createTrazabilidad(trazabilidad: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/trazabilidad`, trazabilidad, createHeaders())
     )
   }
 

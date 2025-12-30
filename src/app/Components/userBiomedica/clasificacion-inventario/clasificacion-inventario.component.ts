@@ -1,18 +1,19 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, forwardRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { EquiposService } from '../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { FormsModule } from '@angular/forms';
-import { BiomedicausernavbarComponent } from '../../navbars/biomedicausernavbar/biomedicausernavbar.component';
+
 import { CommonModule } from '@angular/common';
 import { SelectModule } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
 import Swal from 'sweetalert2';
-import { Console } from 'node:console';
+
 
 
 @Component({
   selector: 'app-clasificacion-inventario',
   standalone: true,
-  imports: [BiomedicausernavbarComponent, FormsModule, CommonModule, SelectModule],
+  imports: [FormsModule, CommonModule, SelectModule, ButtonModule],
   templateUrl: './clasificacion-inventario.component.html',
   styleUrl: './clasificacion-inventario.component.css'
 })
@@ -20,15 +21,13 @@ export class ClasificacionInventarioComponent implements OnInit {
 
   equipos!: any[];
   selectedEquipo: any | undefined;
-  equipoServices = inject(EquiposService);
-
-
-
-  constructor(private router: Router) {
-  }
+  // constructor(private router: Router, @Inject(forwardRef(() => EquiposService)) private equipoServices: EquiposService) {
+  // }
+  constructor(private router: Router) { }
 
   async ngOnInit() {
-    this.equipos = await this.equipoServices.getAllEquiposSeries();
+    // this.equipos = await this.equipoServices.getAllEquiposSeries();
+    this.equipos = []; // Mock data to prevent crash
   }
 
   buscarEquipo() {
@@ -55,7 +54,15 @@ export class ClasificacionInventarioComponent implements OnInit {
   }
 
   showViewEmpComodatos() {
-    this.router.navigate(['biomedica/empComodatos']);
+    this.router.navigate(['/biomedica/empComodatos']);
+  }
+
+  showViewResponsables() {
+    this.router.navigate(['/biomedica/responsables']);
+  }
+
+  showViewSedes() {
+    this.router.navigate(['/biomedica/sedes']);
   }
 
 }

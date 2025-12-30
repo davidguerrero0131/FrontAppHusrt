@@ -1,4 +1,3 @@
-<app-biomedicausernavbar></app-biomedicausernavbar>
 <div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
 </div>
 
@@ -62,9 +61,11 @@
             <th style="width:10%; align-items: center; text-align: center">Serie</th>
             <th style="width:10%; align-items: center; text-align: center">Placa</th>
             <th style="width:15%; align-items: center; text-align: center">Servicio</th>
+            <th style="width:15%; align-items: center; text-align: center">Sede</th>
             <th style="width:15%; align-items: center; text-align: center">Ubicacion Especidica</th>
             <th style="width:15%; align-items: center; text-align: center">Asignado</th>
             <th style="width:10%; align-items: center; text-align: center">Estado</th>
+            <th style="width:10%; align-items: center; text-align: center">Opciones</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-reporte>
@@ -102,6 +103,11 @@
             </td>
             <td style="text-align: center; align-items: center; text-align: center">
               <span class="ml-1 vertical-align-middle">
+                {{ reporte.servicio.sede?.nombres || 'Sin Sede' }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
                 {{ reporte.servicio.ubicacion}}
               </span>
             </td>
@@ -113,12 +119,18 @@
             <td style="text-align: center; align-items: center; text-align: center">
               <button type="button" class="btn btn-secondary" *ngIf="reporte.realizado && reporte.rutaPdf == null"
                 (click)="viewModalReport(reporte.id)">REALIZADO</button>
-              <button type="button" class="btn btn-success"
-                *ngIf="reporte.realizado && reporte.rutaPdf != null" (click)="viewModalReport(reporte.id)">COMPLETADO</button>
+              <button type="button" class="btn btn-success" *ngIf="reporte.realizado && reporte.rutaPdf != null"
+                (click)="viewModalReport(reporte.id)">COMPLETADO</button>
               <button type="button" class="btn btn-warning" (click)="nuevoReporte(reporte.equipo.id, reporte.id)"
                 *ngIf="!reporte.realizado && verificarVencimiento(reporte.mesProgramado, reporte['añoProgramado'])">PROGRAMADO</button>
               <button type="button" class="btn btn-danger" (click)="nuevoReporte(reporte.equipo.id, reporte.id)"
                 *ngIf="!reporte.realizado && !verificarVencimiento(reporte.mesProgramado, reporte['añoProgramado'])">PENDIENTE</button>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <button type="button" class="btn btn-info ml-1" *ngIf="isAdmin && !reporte.realizado"
+                (click)="openAdminEdit(reporte)" pTooltip="Editar Admin">
+                <i class="pi pi-pencil"></i>
+              </button>
             </td>
           </tr>
         </ng-template>
@@ -179,7 +191,7 @@
                 <td style="text-align: center; align-items: center; text-align: center">
                   <span class="ml-1 vertical-align-middle">
                     <a href="/biomedica/reportesequipo/{{reporte.equipo.id}}" role="button"
-                  style="color: black;">{{reporte.equipo.nombres}}</a>
+                      style="color: black;">{{reporte.equipo.nombres}}</a>
                   </span>
                 </td>
                 <td style="text-align: center; align-items: center; text-align: center">
@@ -272,7 +284,7 @@
                 <td style="text-align: center; align-items: center; text-align: center">
                   <span class="ml-1 vertical-align-middle">
                     <a href="/biomedica/reportesequipo/{{reporte.equipo.id}}" role="button"
-                  style="color: black;">{{reporte.equipo.nombres}}</a>
+                      style="color: black;">{{reporte.equipo.nombres}}</a>
                   </span>
                 </td>
                 <td style="text-align: center; align-items: center; text-align: center">
@@ -360,6 +372,7 @@
             <th style="width:10%; align-items: center; text-align: center">Serie</th>
             <th style="width:10%; align-items: center; text-align: center">Placa</th>
             <th style="width:15%; align-items: center; text-align: center">Servicio</th>
+            <th style="width:15%; align-items: center; text-align: center">Sede</th>
             <th style="width:15%; align-items: center; text-align: center">Ubicacion Especidica</th>
             <th style="width:15%; align-items: center; text-align: center">Asignado</th>
             <th style="width:10%; align-items: center; text-align: center">Realizado</th>
@@ -536,4 +549,33 @@
       </div>
     </div>
   </div>
+</p-dialog>
+
+<p-dialog header="Edición Administrativa" [(visible)]="showAdminModal" [modal]="true" [style]="{width: '400px'}"
+  styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <form [formGroup]="adminForm">
+      <div class="field mb-3">
+        <label class="block font-bold mb-2">Responsable</label>
+        <p-dropdown [options]="users" formControlName="usuarioIdFk" optionLabel="nombres" optionValue="id"
+          placeholder="Seleccione un usuario" [filter]="true" filterBy="nombres" appendTo="body"
+          styleClass="w-full"></p-dropdown>
+      </div>
+      <div class="field mb-3">
+        <label class="block font-bold mb-2">Mes Programado</label>
+        <p-dropdown [options]="meses" formControlName="mesProgramado" optionLabel="label" optionValue="value"
+          placeholder="Seleccione mes" appendTo="body" styleClass="w-full"></p-dropdown>
+      </div>
+      <div class="field mb-3">
+        <label class="block font-bold mb-2">Año Programado</label>
+        <input pInputText type="number" formControlName="añoProgramado" class="w-full p-inputtext p-component">
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="showAdminModal=false"></button>
+    <button pButton label="Guardar" icon="pi pi-check" class="p-button-text" (click)="saveAdminEdit()"
+      [disabled]="adminForm.invalid"></button>
+  </ng-template>
 </p-dialog>

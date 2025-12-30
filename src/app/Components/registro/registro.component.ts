@@ -1,4 +1,5 @@
 import { UserService } from './../../Services/appServices/userServices/user.service';
+import { SuperadminnavbarComponent } from '../navbars/superadminnavbar/superadminnavbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'
@@ -6,10 +7,18 @@ import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 
 
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { DropdownModule } from 'primeng/dropdown';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+
+import { DividerModule } from 'primeng/divider';
+
 @Component({
   selector: 'app-registro',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [SuperadminnavbarComponent, ReactiveFormsModule, CommonModule, InputTextModule, PasswordModule, DropdownModule, ButtonModule, CardModule, DividerModule],
   templateUrl: './registro.component.html',
   styleUrl: './registro.component.css'
 })
@@ -17,6 +26,11 @@ export class RegistroComponent implements OnInit {
 
   formGroup: FormGroup;
   roles!: any[];
+  tipoIdOptions = [
+    { label: 'Cédula de Ciudadanía', value: 'CC' },
+    { label: 'Tarjeta de Identidad', value: 'TI' },
+    { label: 'Cédula de Extranjería', value: 'CE' }
+  ];
   private userService = inject(UserService);
 
   constructor(
@@ -78,9 +92,14 @@ export class RegistroComponent implements OnInit {
             Swal.fire({
               icon: 'success',
               title: 'Registro Exitoso',
-              text: 'Inicie sesión para continuar.'
-            })
-            this.router.navigate(['/login']);
+              text: 'Usuario registrado correctamente.'
+            });
+
+            if (this.userService.getToken()) {
+              this.router.navigate(['/admusuarios']);
+            } else {
+              this.router.navigate(['/login']);
+            }
           }
         } catch {
           Swal.fire({

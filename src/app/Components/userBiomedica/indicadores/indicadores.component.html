@@ -1,57 +1,180 @@
-<div class="p-4 grid grid-cols-1 gap-4 md:grid-cols-12">
-  <p-card class="md:col-span-12">
-    <div class="flex flex-col md:flex-row gap-3 items-center">
-      <div class="flex items-center gap-2">
-        <span class="font-semibold">Rango de fechas:</span>
-        <p-calendar [ngModel]="dateRange()" selectionMode="range"
-          [showIcon]="true" dateFormat="yy-mm-dd" placeholder="YYYY-MM-DD - YYYY-MM-DD"></p-calendar>
+<div class="dashboard-container">
 
+  <!-- Header / Filtros -->
+  <div class="card border-0 shadow-sm border-round-xl surface-card p-4 mb-5">
+    <div class="flex flex-column md:flex-row justify-content-between align-items-center gap-4">
+
+      <div class="flex flex-column md:flex-row gap-4 align-items-center w-full md:w-auto">
+        <div class="flex flex-column gap-2 w-full md:w-auto">
+          <label class="text-sm font-bold text-500 uppercase">Seleccionar Mes y Año</label>
+          <p-calendar [(ngModel)]="selectedMonth" view="month" dateFormat="mm/yy" [showIcon]="true"
+            placeholder="Mes/Año" appendTo="body" styleClass="w-full md:w-16rem p-inputtext-lg"
+            (onSelect)="refrescar()"></p-calendar>
+        </div>
+
+        <div class="flex align-items-end h-full">
+          <button pButton label="Refrescar" icon="pi pi-sync" (click)="refrescar()"
+            class="p-button-rounded p-button-primary px-4 font-bold"></button>
+        </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button pButton label="Refrescar" icon="pi pi-refresh" (click)="refrescar()"></button>
-        <span *ngIf="loading()" class="ml-2">
-          <p-progressSpinner styleClass="w-3rem h-3rem" strokeWidth="4"></p-progressSpinner>
+
+      <div class="flex align-items-center gap-3">
+        <span *ngIf="loading()"
+          class="flex align-items-center gap-2 text-primary bg-primary-reverse px-3 py-2 border-round-3xl text-sm font-medium">
+          <i class="pi pi-spin pi-spinner"></i> Actualizando...
         </span>
-      </div>
-      <div class="ml-auto flex items-center gap-3">
-        <p-tag severity="info" [value]="totalReportesLabel()"></p-tag>
+        <p-tag severity="info" [value]="totalReportesLabel()" styleClass="text-lg px-3 py-2 border-round-3xl"></p-tag>
       </div>
     </div>
-  </p-card>
+  </div>
 
-  <p-card header="Realizados vs. No realizados" class="md:col-span-6">
-    <p-chart type="pie" [data]="realizadosChartData()" [options]="chartOptions()"></p-chart>
-  </p-card>
+  <!-- Dashboard Grid -->
+  <div class="grid" *ngIf="indicadoresData()">
 
-  <p-card header="Mantenimientos por tipo" class="md:col-span-6">
-    <p-chart type="doughnut" [data]="porTipoChartData()" [options]="chartOptions()"></p-chart>
-  </p-card>
+    <!-- Tarjeta: Cumplimiento Preventivo -->
+    <div class="col-12 md:col-6 lg:col-4">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-4 h-full flex flex-column">
+        <h3 class="text-xl font-bold text-900 mb-4 flex align-items-center gap-2">
+          <div class="p-2 border-round bg-green-100"><i class="pi pi-shield text-green-600 text-xl"></i></div>
+          Preventivo
+        </h3>
 
-  <p-card header="Mantenimientos por usuario" class="md:col-span-12">
-    <p-chart type="bar" [data]="porUsuarioChartData()" [options]="barOptions('Reportes por usuario')"></p-chart>
-  </p-card>
+        <div class="flex-1 flex flex-column align-items-center justify-content-center">
+          <p-meterGroup [value]="preventivoMeterData()" labelPosition="start" [max]="100"
+            styleClass="w-full mb-4"></p-meterGroup>
 
-  <p-card header="Mantenimientos por servicio" class="md:col-span-12">
-    <p-chart type="bar" [data]="porServicioChartData()" [options]="barOptions('Reportes por servicio')"></p-chart>
-  </p-card>
+          <div class="grid w-full text-center">
+            <div class="col-4 p-1">
+              <div class="surface-ground p-3 border-round-xl">
+                <div class="text-xs text-500 uppercase font-bold mb-2">Programados</div>
+                <div class="text-2xl font-bold text-900">{{ preventivoInfo().programados }}</div>
+              </div>
+            </div>
+            <div class="col-4 p-1">
+              <div class="surface-ground p-3 border-round-xl">
+                <div class="text-xs text-500 uppercase font-bold mb-2">Realizados</div>
+                <div class="text-2xl font-bold text-green-600">{{ preventivoInfo().realizados }}</div>
+              </div>
+            </div>
+            <div class="col-4 p-1">
+              <div class="surface-ground p-3 border-round-xl">
+                <div class="text-xs text-500 uppercase font-bold mb-2">Cumplimiento</div>
+                <div class="text-2xl font-bold text-green-600">{{ preventivoInfo().cumplimiento }}%</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-  <p-card header="Mantenimientos por tipo de falla" class="md:col-span-12">
-    <p-chart type="bar" [data]="porFallaChartData()" [options]="barOptions('Reportes por tipo de falla')"></p-chart>
-  </p-card>
+        <div
+          class="mt-4 pt-4 border-top-1 surface-border text-lg text-500 flex justify-content-between align-items-center">
+          <span class="font-medium">Tiempo Promedio:</span>
+          <span class="font-bold surface-100 px-3 py-1 border-round text-700 font-monospace">{{
+            duracionStats().preventivo }}</span>
+        </div>
+      </div>
+    </div>
 
-  <p-card header="Tendencia por mes (fecha realizado)" class="md:col-span-12">
-    <p-chart type="line" [data]="porMesChartData()" [options]="lineOptions('Reportes por mes')"></p-chart>
-  </p-card>
+    <!-- Tarjeta: Mantenimientos Correctivos (Conteo) -->
+    <div class="col-12 md:col-6 lg:col-4">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-4 h-full flex flex-column">
+        <h3 class="text-xl font-bold text-900 mb-4 flex align-items-center gap-2">
+          <div class="p-2 border-round bg-blue-100"><i class="pi pi-wrench text-blue-600 text-xl"></i></div>
+          Correctivo
+        </h3>
 
-  <p-card header="Top equipos con más reportes" class="md:col-span-12">
-    <p-chart type="bar" [data]="topEquiposChartData()" [options]="barOptions('Top equipos')"></p-chart>
-  </p-card>
+        <div class="flex-1 flex flex-column align-items-center justify-content-center gap-4">
+          <!-- Gran número de realizados -->
+          <div class="text-center w-full">
+            <div class="text-6xl font-black text-blue-600 mb-2">{{ correctivoInfo().realizados }}</div>
+            <div class="text-500 font-bold uppercase text-sm">Mantenimientos Realizados</div>
+          </div>
 
-  <p-card header="(Opcional) Duración promedio (min) por tipo" class="md:col-span-12">
-    <p-chart type="bar" [data]="duracionPromedioPorTipoChartData()"
-      [options]="barOptions('Duración promedio (min) por tipo')"></p-chart>
-  </p-card>
+          <div class="grid w-full">
+            <div class="col-6 p-1">
+              <div class="bg-blue-50 p-3 border-round-xl text-center h-full">
+                <div class="text-xs text-blue-600 uppercase font-bold mb-2">Total Reportados</div>
+                <div class="text-2xl font-bold text-blue-800">{{ correctivoInfo().reportados }}</div>
+              </div>
+            </div>
+            <div class="col-6 p-1">
+              <div class="bg-red-50 p-3 border-round-xl text-center h-full">
+                <div class="text-xs text-red-600 uppercase font-bold mb-2">Pendientes</div>
+                <div class="text-2xl font-bold text-red-800">{{ correctivoInfo().reportados -
+                  correctivoInfo().realizados }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="mt-4 pt-4 border-top-1 surface-border text-lg text-500 flex justify-content-between align-items-center">
+          <span class="font-medium">Tiempo Promedio:</span>
+          <span class="font-bold surface-100 px-3 py-1 border-round text-700 font-monospace">{{
+            duracionStats().correctivo }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjeta: Duración Promedio General (Gráfica) -->
+    <div class="col-12 lg:col-4">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-4 h-full flex flex-column">
+        <h3 class="text-xl font-bold text-900 mb-4">Tiempos Promedio (min)</h3>
+        <div style="height: 300px;">
+          <p-chart type="bar" [data]="duracionPromedioPorTipoChartData()" [options]="barOptions()"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fila 2: Gráficas Principales -->
+
+    <!-- Por Usuario Responsable -->
+    <div class="col-12 lg:col-8">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-4 h-full">
+        <h3 class="text-xl font-bold text-900 mb-4">Mantenimientos por Responsable</h3>
+        <div style="height: 400px;">
+          <p-chart type="bar" [data]="porUsuarioChartData()" [options]="barOptions()"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- Por Tipo de Mantenimiento -->
+    <div class="col-12 lg:col-4">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-4 h-full">
+        <h3 class="text-xl font-bold text-900 mb-4">Distribución por Tipo</h3>
+        <div class="flex align-items-center justify-content-center" style="height: 400px;">
+          <p-chart type="doughnut" [data]="porTipoChartData()" [options]="chartOptions()"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fila 3: Gráficas Secundarias -->
+
+    <div class="col-12 md:col-6">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-4 h-full">
+        <h3 class="text-xl font-bold text-900 mb-4">Por Servicio</h3>
+        <div style="height: 400px;">
+          <p-chart type="bar" [data]="porServicioChartData()" [options]="barOptions()"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 md:col-6">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-4 h-full">
+        <h3 class="text-xl font-bold text-900 mb-4">Por Tipo de Falla</h3>
+        <div style="height: 400px;">
+          <p-chart type="bar" [data]="porFallaChartData()" [options]="barOptions()"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-4 h-full">
+        <h3 class="text-xl font-bold text-900 mb-4">Tendencia Mensual</h3>
+        <div style="height: 350px;">
+          <p-chart type="line" [data]="porMesChartData()" [options]="lineOptions()"></p-chart>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
-
-
-

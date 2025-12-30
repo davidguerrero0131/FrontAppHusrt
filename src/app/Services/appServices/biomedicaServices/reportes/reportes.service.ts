@@ -69,4 +69,10 @@ export class ReportesService {
       this.httpClient.get<any>(`${API_URL}/reportes/rango`, options)
     );
   }
+
+  getReportesUsuario(idUsuario: any) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/reportes/usuario/${idUsuario}`, createHeaders())
+    )
+  }
 }

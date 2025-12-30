@@ -1,77 +1,97 @@
-<app-biomedicausernavbar></app-biomedicausernavbar>
-<div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
-</div>
+<div class="dashboard-container">
 
-<div style="margin-top: 5%; margin-bottom: 5%;">
-  <h1 style="text-align: center;">CALSIFICAR EQUIPOS</h1>
-  <h6 style="text-align: center;">Busque equipos por servicio, tipos de equipo o comodatos.</h6>
-</div>
+  <div class="text-center mb-5">
+    <h1 class="text-3xl font-bold mb-2">Clasificar Equipos</h1>
+    <p class="text-secondary text-lg">Busque equipos por servicio, tipos de equipo o comodatos.</p>
+  </div>
 
-<div class="busqueda-container">
-  <h3 class="busqueda-titulo">Búsqueda por serie</h3>
+  <!-- Search Section -->
+  <div class="busqueda-container">
+    <h3 class="mb-3 font-semibold text-xl">Búsqueda por Serie</h3>
 
-  <p-select
-    [options]="equipos"
-    [(ngModel)]="selectedEquipo"
-    optionLabel="serie"
-    [filter]="true"
-    filterBy="serie"
-    [showClear]="true"
-    placeholder="Buscar por serie"
-    class="busqueda-select"
-  >
-    <ng-template #selectedItem let-selectedOption>
-      <div class="select-item">
-        <div>{{ selectedOption.serie }}</div>
-      </div>
-    </ng-template>
-    <ng-template let-equipo #item>
-      <div class="select-item">
-        <div>{{ equipo.serie }}</div>
-      </div>
-    </ng-template>
-  </p-select>
-
-  <button type="button" class="busqueda-boton" (click)="buscarEquipo()">Buscar</button>
-</div>
-
-
-
-<div style="margin-top: 3%;">
-  <div class="grid-container">
-    <div class="grid-item">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">TIPO DE EQUIPO</h5>
-          <div style="text-align: center; margin-bottom: 30px;">
-            <i class="bi bi-music-player-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
+    <div class="flex flex-column md:flex-row justify-content-center gap-3 align-items-center">
+      <p-select [options]="equipos" [(ngModel)]="selectedEquipo" optionLabel="serie" [filter]="true" filterBy="serie"
+        [showClear]="true" placeholder="Seleccione una serie" styleClass="w-full md:w-20rem">
+        <ng-template #selectedItem let-selectedOption>
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-box"></i>
+            <div>{{ selectedOption.serie }}</div>
           </div>
-          <button type="button" class="btn btn-dark" (click)=showViewTiposEquipoBio()>VER TIPOS DE EQUIPO</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid-item">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">SERVICIO</h5>
-          <div style="text-align: center; margin-bottom: 30px;">
-            <i class="bi bi-bookmark-heart-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
+        </ng-template>
+        <ng-template let-equipo #item>
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-box"></i>
+            <div>{{ equipo.serie }}</div>
           </div>
-          <button type="button" class="btn btn-dark" (click)=showViewServicios()>VER SERVICIOS</button>
-        </div>
-      </div>
-    </div>
+        </ng-template>
+      </p-select>
 
-    <div class="grid-item">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">COMODATOS</h5>
-          <div style="text-align: center; margin-bottom: 30px;">
-            <i class="bi bi-file-earmark-medical-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-          </div>
-          <button type="button" class="btn btn-dark" (click)=showViewEmpComodatos()>VER COMODATOS</button>
-        </div>
-      </div>
+      <button pButton label="Buscar" icon="pi pi-search" (click)="buscarEquipo()" class="p-button-primary"></button>
     </div>
   </div>
+
+  <!-- Grid Section -->
+  <div class="cards-grid mt-5">
+
+    <!-- Tipo de Equipo -->
+    <div class="dashboard-card" (click)="showViewTiposEquipoBio()">
+      <div class="card-icon-container gradient-purple">
+        <i class="pi pi-cog"></i>
+      </div>
+      <div class="card-content">
+        <h3>Tipo de Equipo</h3>
+        <p>Clasificación técnica de activos.</p>
+        <span class="card-action">Ver Tipos <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+    <!-- Servicio -->
+    <div class="dashboard-card" (click)="showViewServicios()">
+      <div class="card-icon-container gradient-blue">
+        <i class="pi pi-briefcase"></i>
+      </div>
+      <div class="card-content">
+        <h3>Servicio</h3>
+        <p>Ubicación funcional (UCI, Urgencias...).</p>
+        <span class="card-action">Ver Servicios <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+    <!-- Comodatos -->
+    <div class="dashboard-card" (click)="showViewEmpComodatos()">
+      <div class="card-icon-container gradient-orange">
+        <i class="pi pi-file"></i>
+      </div>
+      <div class="card-content">
+        <h3>Comodatos</h3>
+        <p>Equipos en modalidad de préstamo.</p>
+        <span class="card-action">Ver Comodatos <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+    <!-- Sede -->
+    <div class="dashboard-card" (click)="showViewSedes()">
+      <div class="card-icon-container gradient-teal">
+        <i class="pi pi-building"></i>
+      </div>
+      <div class="card-content">
+        <h3>Sede</h3>
+        <p>Ubicación física del equipo.</p>
+        <span class="card-action">Ver Sedes <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+    <!-- Responsables -->
+    <div class="dashboard-card" (click)="showViewResponsables()">
+      <div class="card-icon-container gradient-cyan">
+        <i class="pi pi-users"></i>
+      </div>
+      <div class="card-content">
+        <h3>Responsables</h3>
+        <p>Personal a cargo de los equipos.</p>
+        <span class="card-action">Ver Responsables <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+  </div>
+</div>

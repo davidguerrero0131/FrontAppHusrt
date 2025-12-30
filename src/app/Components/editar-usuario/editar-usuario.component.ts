@@ -2,13 +2,13 @@ import { Component, inject, OnInit } from '@angular/core';
 import { UserService } from '../../Services/appServices/userServices/user.service';
 import { FormsModule } from '@angular/forms';
 import { jwtDecode } from 'jwt-decode';
-import { Location } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-editar-usuario',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './editar-usuario.component.html',
   styleUrl: './editar-usuario.component.css'
 })
@@ -21,7 +21,7 @@ export class EditarUsuarioComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      this.usuario = await this.usuarioServices.getUserProfil(this.getDecodedAccessToken(localStorage.getItem('utoken') + "").id);
+      this.usuario = await this.usuarioServices.getUserProfil(this.getDecodedAccessToken(sessionStorage.getItem('utoken') + "").id);
       console.log(this.usuario);
     } catch {
 

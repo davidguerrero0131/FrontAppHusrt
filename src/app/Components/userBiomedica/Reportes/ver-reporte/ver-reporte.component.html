@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<app-biomedicausernavbar></app-biomedicausernavbar>
+
 
 <!-- Contenedor principal -->
 <div class="p-mx-5 p-mt-4 p-p-4 bg-white shadow-2 border-round">
@@ -59,7 +59,9 @@
           <td style="text-align: center;" *ngIf=" reportes.tipoMantenimiento === 'Correctivo' ||  reportes.realizado">
             <button type="button" class="btn btn-dark btn-sm" style="margin: 2%;"
               (click)="viewModalReport(reportes)">Ver</button>
-            <button type="button" class="btn btn-secondary btn-sm" (click)="editarReporte(reportes.id, reportes.equipoIdFk)" *ngIf="!reportes.rutaPdf">Editar</button>
+            <button type="button" class="btn btn-secondary btn-sm"
+              (click)="editarReporte(reportes.id, reportes.equipoIdFk)"
+              *ngIf="!reportes.rutaPdf && !isGuest()">Editar</button>
           </td>
           <td style="text-align: center;" *ngIf="!reportes.realizado && reportes.tipoMantenimiento !== 'Correctivo'">
             <button type="button" class="btn btn-warning btn-sm" (click)="viewModalReport(reportes)">Pendiente</button>

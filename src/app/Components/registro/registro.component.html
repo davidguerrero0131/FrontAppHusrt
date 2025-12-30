@@ -1,82 +1,89 @@
-<div class="container mt--8 pb-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-10 col-md-7">
-      <h1 style="text-align: center; margin-top: 40px;">Registro de Usuario</h1>
-      <div class="card " style="margin-top: 5%;">
-        <div class="card-body">
-          <form [formGroup]="formGroup">
+<app-superadminnavbar></app-superadminnavbar>
 
-            <div class="form-floating mb-3">
-              <input type="text" class="form-control" formControlName="nombres" id="nombres">
-              <label for="nombre">Nombres</label>
-            </div>
+<div class="bg-white flex justify-content-center align-items-center min-h-screen px-3">
 
-            <div class="form-floating mb-3">
-              <input type="text" class="form-control" formControlName="apellidos" id="apellidos">
-              <label for="apellidos">Apellidos</label>
-            </div>
+  <p-card styleClass="w-full max-w-6xl shadow-6 border-round-xl p-fluid surface-card overflow-hidden">
 
-            <div class="form-floating mb-3">
-              <input type="text" class="form-control" formControlName="nombreUsuario" id="nombreUsuario">
-              <label for="username">Nombre de usuario</label>
-            </div>
-
-            <div class="form-floating mb-3">
-              <select class="form-select" aria-label="Default select example" formControlName="tipoId" id="tipoId">
-                <option value="CC">CC</option>
-                <option value="TI">TI</option>
-                <option value="CE">CE</option>
-              </select>
-              <label for="tipoId">Tipo de identificación</label>
-            </div>
-
-
-            <div class="form-floating mb-3">
-              <input type="text" class="form-control" formControlName="numeroId" id="numeroid">
-              <label for="numeroid">Numero de identificación</label>
-            </div>
-
-            <div class="form-floating mb-3">
-              <input type="text" class="form-control" formControlName="telefono" id="telefono">
-              <label for="telefono">Telefono</label>
-            </div>
-
-            <div class="form-floating mb-3">
-              <input type="email" class="form-control" formControlName="email" id="email">
-              <label for="email">Correo electronico</label>
-            </div>
-
-            <div class="form-floating mb-3">
-              <input type="password" class="form-control" formControlName="password" id="password">
-              <label for="pasword">Contraseña</label>
-            </div>
-
-            <div class="form-floating mb-3">
-              <input type="password" class="form-control" formControlName="password2" id="password2">
-              <label for="pasword2">Confirmar contraseña</label>
-            </div>
-
-            <div class="form-floating mb-3">
-              <input type="text" class="form-control" formControlName="registroInvima" id="registroInvima">
-              <label for="telefono">Registro Invima</label>
-            </div>
-
-            <div class="form-floating mb-3">
-              <select class="form-select" aria-label="Default select example" formControlName="rolId"
-              id="rolId">
-                <option *ngFor="let rol of roles" [value]="rol.id">
-                  {{ rol.nombre }}
-                </option>
-              </select>
-              <label for="rolId">Rol</label>
-            </div>
-
-            <h1></h1>
-            <button type="submit" (click)="registro()" class="btn btn-primary">Crear cuenta</button>
-          </form>
-        </div>
-      </div>
+    <div class="text-center mb-5">
+      <h2 class="text-3xl font-bold text-900 m-0">Registro de Usuario</h2>
+      <span class="text-600 font-medium">
+        Complete la información del nuevo usuario
+      </span>
     </div>
-  </div>
-</div>
 
+    <form [formGroup]="formGroup" (ngSubmit)="registro()" class="grid formgrid p-2">
+
+      <!-- Row 1 -->
+      <div class="field col-12 md:col-6 lg:col-4">
+        <label class="font-bold">Nombres</label>
+        <input pInputText formControlName="nombres" class="w-full" />
+      </div>
+
+      <div class="field col-12 md:col-6 lg:col-4">
+        <label class="font-bold">Apellidos</label>
+        <input pInputText formControlName="apellidos" class="w-full" />
+      </div>
+
+      <div class="field col-12 md:col-6 lg:col-4">
+        <label class="font-bold">Usuario</label>
+        <input pInputText formControlName="nombreUsuario" class="w-full" />
+      </div>
+
+      <!-- Row 2 -->
+      <div class="field col-12 md:col-6 lg:col-4">
+        <label class="font-bold">Tipo Documento</label>
+        <p-dropdown [options]="tipoIdOptions" formControlName="tipoId" optionLabel="label" optionValue="value"
+          placeholder="Seleccionar" styleClass="w-full" appendTo="body"></p-dropdown>
+      </div>
+
+      <div class="field col-12 md:col-6 lg:col-4">
+        <label class="font-bold">No. Documento</label>
+        <input pInputText formControlName="numeroId" class="w-full" />
+      </div>
+
+      <div class="field col-12 md:col-6 lg:col-4">
+        <label class="font-bold">Teléfono</label>
+        <input pInputText formControlName="telefono" class="w-full" />
+      </div>
+
+      <!-- Row 3 -->
+      <div class="field col-12 md:col-6 lg:col-4">
+        <label class="font-bold">Correo</label>
+        <input pInputText type="email" formControlName="email" class="w-full" />
+      </div>
+
+      <div class="field col-12 md:col-6 lg:col-4">
+        <label class="font-bold">Registro Invima</label>
+        <input pInputText formControlName="registroInvima" class="w-full" />
+      </div>
+
+      <div class="field col-12 md:col-6 lg:col-4">
+        <label class="font-bold">Rol</label>
+        <p-dropdown [options]="roles" formControlName="rolId" optionLabel="nombre" optionValue="id"
+          placeholder="Seleccionar Rol" styleClass="w-full" appendTo="body"></p-dropdown>
+      </div>
+
+      <div class="field col-12 md:col-6 lg:col-4">
+        <label for="password" class="font-bold text-900">Contraseña</label>
+
+        <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false" styleClass="w-full"
+          inputStyleClass="w-full">
+        </p-password>
+      </div>
+
+      <div class="field col-12 md:col-6 lg:col-4">
+        <label for="password2" class="font-bold text-900">Confirmar</label>
+
+        <p-password id="password2" formControlName="password2" [toggleMask]="true" [feedback]="false"
+          styleClass="w-full" inputStyleClass="w-full">
+        </p-password>
+      </div>
+
+      <div class="field col-12 md:col-6 lg:col-4 flex align-items-end">
+        <p-button label="REGISTRAR" icon="pi pi-user-plus" styleClass="w-full font-bold" severity="primary">
+        </p-button>
+      </div>
+
+    </form>
+  </p-card>
+</div>
