@@ -10,7 +10,11 @@
     <div class="cards-grid">
 
         <!-- Usuarios -->
+<<<<<<< Updated upstream
         <div class="dashboard-card" (click)="showViewUsuarios()">
+=======
+        <div class="dashboard-card" *ngIf="isSuperAdmin" (click)="showViewUsuarios()">
+>>>>>>> Stashed changes
             <div class="card-icon-container gradient-blue">
                 <i class="pi pi-users"></i>
             </div>
@@ -22,7 +26,11 @@
         </div>
 
         <!-- Servicios -->
+<<<<<<< Updated upstream
         <div class="dashboard-card" (click)="showViewServicios()">
+=======
+        <div class="dashboard-card" *ngIf="isSuperAdmin" (click)="showViewServicios()">
+>>>>>>> Stashed changes
             <div class="card-icon-container gradient-teal">
                 <i class="pi pi-list"></i>
             </div>

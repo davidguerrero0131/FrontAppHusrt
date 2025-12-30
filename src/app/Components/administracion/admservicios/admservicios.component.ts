@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { SuperadminnavbarComponent } from '../../navbars/superadminnavbar/superadminnavbar.component';
+
 import { ServicioService } from '../../../Services/appServices/general/servicio/servicio.service';
 import { SedeService } from '../../../Services/appServices/general/sede/sede.service';
 import { Table } from 'primeng/table';
@@ -21,7 +21,11 @@ import { TagModule } from 'primeng/tag';
 @Component({
   selector: 'app-admservicios',
   standalone: true,
+<<<<<<< Updated upstream
   imports: [SuperadminnavbarComponent, TableModule, CommonModule, InputIconModule, IconFieldModule, InputTextModule, DialogModule, ReactiveFormsModule, ButtonModule, TooltipModule, ToolbarModule, TagModule, DropdownModule],
+=======
+  imports: [TableModule, CommonModule, InputIconModule, IconFieldModule, InputTextModule, DialogModule, ReactiveFormsModule, ButtonModule, TooltipModule, ToolbarModule, TagModule, DropdownModule],
+>>>>>>> Stashed changes
   templateUrl: './admservicios.component.html',
   styleUrl: './admservicios.component.css'
 })

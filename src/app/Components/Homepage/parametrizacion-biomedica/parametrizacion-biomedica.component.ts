@@ -3,6 +3,11 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
+<<<<<<< Updated upstream
+=======
+import { getDecodedAccessToken } from '../../../utilidades';
+
+>>>>>>> Stashed changes
 @Component({
     selector: 'app-parametrizacion-biomedica',
     standalone: true,
@@ -12,8 +17,26 @@ import { ButtonModule } from 'primeng/button';
 })
 export class ParametrizacionBiomedicaComponent {
     router = inject(Router);
+<<<<<<< Updated upstream
 
     constructor() { }
+=======
+    isSuperAdmin: boolean = false;
+
+    constructor() {
+        this.checkRole();
+    }
+
+    checkRole() {
+        const token = sessionStorage.getItem('utoken');
+        if (token) {
+            const decoded = getDecodedAccessToken();
+            if (decoded?.rol === 'SUPERADMIN') {
+                this.isSuperAdmin = true;
+            }
+        }
+    }
+>>>>>>> Stashed changes
 
     showViewUsuarios() { this.router.navigate(['/admusuarios']); }
     showViewServicios() { this.router.navigate(['/admin/servicios']); }
