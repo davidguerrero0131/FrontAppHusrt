@@ -15,7 +15,7 @@ import { MenuItem } from 'primeng/api';
   standalone: true,
   imports: [MenubarModule, BadgeModule, CommonModule, AvatarModule, Sidebar, ButtonModule, PanelMenuModule],
   templateUrl: './biomedicausernavbar.component.html',
-  styleUrl: './biomedicausernavbar.component.css'
+  styleUrls: ['./biomedicausernavbar.component.css']
 })
 export class BiomedicausernavbarComponent implements OnInit {
 

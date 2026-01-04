@@ -1,0 +1,339 @@
+<div class="container-fluid p-4">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Formulario de Edición -->
+  <div *ngIf="!loading" class="card">
+    <div class="card-header">
+      <h3 class="mb-0">
+        <i class="bi bi-pencil-square me-2"></i>Editar Equipo Industrial
+      </h3>
+    </div>
+
+    <div class="card-body">
+      <form [formGroup]="equipoForm" (ngSubmit)="actualizar()">
+        
+        <!-- Información Básica -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <h5 class="text-primary border-bottom pb-2">
+              <i class="bi bi-info-circle me-2"></i>Información Básica
+            </h5>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Nombre del Equipo <span class="text-danger">*</span></label>
+            <input 
+              type="text" 
+              class="form-control" 
+              formControlName="nombres"
+              appUppercase
+              [class.is-invalid]="equipoForm.get('nombres')?.invalid && equipoForm.get('nombres')?.touched">
+            <div class="invalid-feedback">
+              Este campo es obligatorio
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Marca <span class="text-danger">*</span></label>
+            <input 
+              type="text" 
+              class="form-control" 
+              formControlName="marca"
+              appUppercase
+              [class.is-invalid]="equipoForm.get('marca')?.invalid && equipoForm.get('marca')?.touched">
+            <div class="invalid-feedback">
+              Este campo es obligatorio
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Modelo <span class="text-danger">*</span></label>
+            <input 
+              type="text" 
+              class="form-control" 
+              formControlName="modelo"
+              appUppercase
+              [class.is-invalid]="equipoForm.get('modelo')?.invalid && equipoForm.get('modelo')?.touched">
+            <div class="invalid-feedback">
+              Este campo es obligatorio
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Serie <span class="text-danger">*</span></label>
+            <input 
+              type="text" 
+              class="form-control" 
+              formControlName="serie"
+              appUppercase
+              [class.is-invalid]="equipoForm.get('serie')?.invalid && equipoForm.get('serie')?.touched">
+            <div class="invalid-feedback">
+              Este campo es obligatorio
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Placa <span class="text-danger">*</span></label>
+            <input 
+              type="text" 
+              class="form-control" 
+              formControlName="placa"
+              appUppercase
+              [class.is-invalid]="equipoForm.get('placa')?.invalid && equipoForm.get('placa')?.touched">
+            <div class="invalid-feedback">
+              Este campo es obligatorio
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Registro INVIMA</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              formControlName="registroInvima"
+              appUppercase>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Riesgo <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="riesgo">
+              <option value="NA">No Aplica</option>
+              <option value="I">I</option>
+              <option value="IIA">IIA</option>
+              <option value="IIB">IIB</option>
+              <option value="III">III</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Estado <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="estado">
+              <option value="Bueno">Bueno</option>
+              <option value="Regular">Regular</option>
+              <option value="Malo">Malo</option>
+              <option value="Ruina">Ruina</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Ubicación y Asignación -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <h5 class="text-primary border-bottom pb-2">
+              <i class="bi bi-geo-alt me-2"></i>Ubicación y Asignación
+            </h5>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Tipo de Equipo <span class="text-danger">*</span></label>
+            <select 
+              class="form-select" 
+              formControlName="tipoEquipoIdFk"
+              [class.is-invalid]="equipoForm.get('tipoEquipoIdFk')?.invalid && equipoForm.get('tipoEquipoIdFk')?.touched">
+              <option [value]="null">Seleccione un tipo</option>
+              <option *ngFor="let tipo of tiposequipo" [value]="tipo.id">
+                {{ tipo.nombre }}
+              </option>
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar un tipo de equipo
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Servicio <span class="text-danger">*</span></label>
+            <select 
+              class="form-select" 
+              formControlName="servicioIdFk"
+              [class.is-invalid]="equipoForm.get('servicioIdFk')?.invalid && equipoForm.get('servicioIdFk')?.touched">
+              <option [value]="null">Seleccione un servicio</option>
+              <option *ngFor="let servicio of servicios" [value]="servicio.id">
+                {{ servicio.nombre }}
+              </option>
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar un servicio
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Sede <span class="text-danger">*</span></label>
+            <select 
+              class="form-select" 
+              formControlName="sedeIdFk"
+              [class.is-invalid]="equipoForm.get('sedeIdFk')?.invalid && equipoForm.get('sedeIdFk')?.touched">
+              <option [value]="null">Seleccione una sede</option>
+              <option *ngFor="let sede of sedes" [value]="sede.id">
+                {{ sede.nombre }}
+              </option>
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar una sede
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Responsable <span class="text-danger">*</span></label>
+            <select 
+              class="form-select" 
+              formControlName="responsableIdFk"
+              [class.is-invalid]="equipoForm.get('responsableIdFk')?.invalid && equipoForm.get('responsableIdFk')?.touched">
+              <option [value]="null">Seleccione un responsable</option>
+              <option *ngFor="let responsable of responsables" [value]="responsable.id">
+                {{ responsable.nombres }}
+              </option>
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar un responsable
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label">Ubicación Específica <span class="text-danger">*</span></label>
+            <input 
+              type="text" 
+              class="form-control" 
+              formControlName="ubicacionEspecifica"
+              appUppercase
+              placeholder="Ej: Piso 2, Sala 201"
+              [class.is-invalid]="equipoForm.get('ubicacionEspecifica')?.invalid && equipoForm.get('ubicacionEspecifica')?.touched">
+            <div class="invalid-feedback">
+              Este campo es obligatorio
+            </div>
+          </div>
+        </div>
+
+        <!-- Mantenimiento y Calibración -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <h5 class="text-primary border-bottom pb-2">
+              <i class="bi bi-tools me-2"></i>Mantenimiento y Calibración
+            </h5>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Periodicidad Mantenimiento (meses) <span class="text-danger">*</span></label>
+            <input 
+              type="number" 
+              class="form-control" 
+              formControlName="periodicidadM"
+              min="0"
+              [class.is-invalid]="equipoForm.get('periodicidadM')?.invalid && equipoForm.get('periodicidadM')?.touched">
+            <div class="invalid-feedback">
+              Este campo es obligatorio
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Periodicidad Calibración (meses) <span class="text-danger">*</span></label>
+            <input 
+              type="number" 
+              class="form-control" 
+              formControlName="periodicidadC"
+              min="0"
+              [class.is-invalid]="equipoForm.get('periodicidadC')?.invalid && equipoForm.get('periodicidadC')?.touched">
+            <div class="invalid-feedback">
+              Este campo es obligatorio
+            </div>
+          </div>
+        </div>
+
+        <!-- Características Especiales -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <h5 class="text-primary border-bottom pb-2">
+              <i class="bi bi-check2-square me-2"></i>Características Especiales
+            </h5>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="form-check form-switch">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                id="activo"
+                formControlName="activo">
+              <label class="form-check-label" for="activo">
+                Activo
+              </label>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="form-check form-switch">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                id="calibracion"
+                formControlName="calibracion">
+              <label class="form-check-label" for="calibracion">
+                Requiere Calibración
+              </label>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="form-check form-switch">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                id="calificacion"
+                formControlName="calificacion">
+              <label class="form-check-label" for="calificacion">
+                Requiere Calificación
+              </label>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="form-check form-switch">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                id="validacion"
+                formControlName="validacion">
+              <label class="form-check-label" for="validacion">
+                Requiere Validación
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="row">
+          <div class="col-12">
+            <hr>
+            <div class="d-flex justify-content-end gap-2">
+              <button 
+                type="button" 
+                class="btn btn-secondary" 
+                (click)="regresar()">
+                <i class="bi bi-x-circle me-2"></i>Cancelar
+              </button>
+              <button 
+                type="submit" 
+                class="btn btn-primary"
+                [disabled]="equipoForm.invalid">
+                <i class="bi bi-save me-2"></i>Actualizar Equipo
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

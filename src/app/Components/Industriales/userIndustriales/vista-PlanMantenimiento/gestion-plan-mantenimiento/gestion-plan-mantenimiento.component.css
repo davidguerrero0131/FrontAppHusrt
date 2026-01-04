@@ -1,0 +1,54 @@
+.card {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 8px;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+h2 {
+  color: #495057;
+  font-weight: 600;
+}
+
+.btn {
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.btn-dark {
+  background-color: #212529;
+  border-color: #212529;
+}
+
+.btn-dark:hover {
+  background-color: #1c1f23;
+  border-color: #1a1d20;
+}
+
+.badge {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.btn-group .btn {
+  padding: 0.25rem 0.5rem;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}

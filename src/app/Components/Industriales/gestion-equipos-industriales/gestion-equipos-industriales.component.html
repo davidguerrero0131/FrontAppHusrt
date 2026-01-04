@@ -1,0 +1,133 @@
+<app-industriales-navbar></app-industriales-navbar>
+
+<div class="container-fluid p-4">
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h3 class="mb-0">Gestión de Equipos Industriales</h3>
+      <button class="btn btn-primary" (click)="showRegisterForm()">
+        <i class="bi bi-plus-circle me-2"></i>Registrar Nuevo Equipo
+      </button>
+    </div>
+
+    <div class="card-body">
+      <p-table 
+        #dt
+        [value]="equipos" 
+        [loading]="loading"
+        [paginator]="true" 
+        [rows]="10"
+        [rowsPerPageOptions]="[5, 10, 20, 50]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} equipos"
+        [globalFilterFields]="['nombre', 'marca', 'modelo', 'serie', 'ubicacion']"
+        styleClass="p-datatable-striped"
+        [tableStyle]="{'min-width': '60rem'}">
+        
+        <ng-template pTemplate="caption">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="p-input-icon-left w-50">
+              <i class="pi pi-search"></i>
+              <input 
+                pInputText 
+                type="text" 
+                #searchInput
+                (input)="dt.filterGlobal(searchInput.value, 'contains')" 
+                placeholder="Buscar equipos..." 
+                class="form-control" />
+            </span>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="nombre">
+              Nombre <p-sortIcon field="nombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="marca">
+              Marca <p-sortIcon field="marca"></p-sortIcon>
+            </th>
+            <th pSortableColumn="modelo">
+              Modelo <p-sortIcon field="modelo"></p-sortIcon>
+            </th>
+            <th pSortableColumn="serie">
+              Serie <p-sortIcon field="serie"></p-sortIcon>
+            </th>
+            <th pSortableColumn="ubicacion">
+              Ubicación <p-sortIcon field="ubicacion"></p-sortIcon>
+            </th>
+            <th pSortableColumn="activo">
+              Estado <p-sortIcon field="activo"></p-sortIcon>
+            </th>
+            <th style="width: 200px">Acciones</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-equipo>
+          <tr>
+            <td>{{ equipo.nombre || 'N/A' }}</td>
+            <td>{{ equipo.marca || 'N/A' }}</td>
+            <td>{{ equipo.modelo || 'N/A' }}</td>
+            <td>{{ equipo.serie || 'N/A' }}</td>
+            <td>{{ equipo.ubicacion || 'N/A' }}</td>
+            <td>
+              <span 
+                [class]="equipo.activo ? 'badge bg-success' : 'badge bg-danger'">
+                {{ equipo.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td>
+              <div class="btn-group" role="group">
+                <button 
+                  class="btn btn-sm btn-info" 
+                  (click)="verDetalle(equipo.id)"
+                  title="Ver detalle">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button 
+                  class="btn btn-sm btn-warning" 
+                  (click)="editarEquipo(equipo.id)"
+                  title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button 
+                  *ngIf="equipo.activo"
+                  class="btn btn-sm btn-danger" 
+                  (click)="cambiarEstadoActivo(equipo.id, true)"
+                  title="Dar de baja">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+                <button 
+                  *ngIf="!equipo.activo"
+                  class="btn btn-sm btn-success" 
+                  (click)="cambiarEstadoActivo(equipo.id, false)"
+                  title="Reactivar">
+                  <i class="bi bi-check-circle"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center py-4">
+              <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+              <p class="text-muted">No se encontraron equipos industriales</p>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="loadingbody">
+          <tr>
+            <td colspan="7" class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+              <p class="mt-2 text-muted">Cargando equipos...</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>

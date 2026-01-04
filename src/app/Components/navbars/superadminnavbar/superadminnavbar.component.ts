@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [],
   templateUrl: './superadminnavbar.component.html',
-  styleUrl: './superadminnavbar.component.css'
+  styleUrls: ['./superadminnavbar.component.css']
 })
 export class SuperadminnavbarComponent {
 
@@ -16,8 +16,8 @@ export class SuperadminnavbarComponent {
   handleSidebarToggle = () => this.toggleSidebar.emit(!this.isExpanded);
 
   constructor(private router: Router){}
-  navigateToAbout(){
-    localStorage.setItem('utoken', "");
-    this.router.navigate(['/login'])
+  navigateToAbout() {
+    localStorage.removeItem('utoken'); // 👈 Mejor práctica para el logout
+    this.router.navigate(['/login']);
   }
 }

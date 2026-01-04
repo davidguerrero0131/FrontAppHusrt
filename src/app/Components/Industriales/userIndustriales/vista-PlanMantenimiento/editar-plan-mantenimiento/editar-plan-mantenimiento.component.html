@@ -1,0 +1,140 @@
+<div class="container-fluid p-4">
+  <div class="card" *ngIf="!loading">
+    <div class="card-header">
+      <h3 class="mb-0">
+        <i class="bi bi-pencil-square me-2"></i>Editar Plan de Mantenimiento
+      </h3>
+    </div>
+
+    <div class="card-body">
+      <form [formGroup]="planForm" (ngSubmit)="actualizar()">
+        
+        <div class="row mb-4">
+          <div class="col-12">
+            <h5 class="text-primary border-bottom pb-2">
+              <i class="bi bi-info-circle me-2"></i>Información del Plan
+            </h5>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-12">
+            <label class="form-label">Equipo <span class="text-danger">*</span></label>
+            <select 
+              class="form-select" 
+              formControlName="idEquipo"
+              [class.is-invalid]="planForm.get('idEquipo')?.invalid && planForm.get('idEquipo')?.touched">
+              <option [value]="null">Seleccione un equipo</option>
+              <option *ngFor="let equipo of equipos" [value]="equipo.id">
+                {{ equipo.nombres }} - {{ equipo.serie }}
+              </option>
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar un equipo
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Mes <span class="text-danger">*</span></label>
+            <select 
+              class="form-select" 
+              formControlName="mes"
+              [class.is-invalid]="planForm.get('mes')?.invalid && planForm.get('mes')?.touched">
+              <option [value]="null">Seleccione un mes</option>
+              <option *ngFor="let mes of meses" [value]="mes.valor">
+                {{ mes.nombre }}
+              </option>
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar un mes
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Año <span class="text-danger">*</span></label>
+            <select 
+              class="form-select" 
+              formControlName="ano"
+              [class.is-invalid]="planForm.get('ano')?.invalid && planForm.get('ano')?.touched">
+              <option *ngFor="let ano of getAnosDisponibles()" [value]="ano">
+                {{ ano }}
+              </option>
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar un año
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Día de Inicio (1-31) <span class="text-danger">*</span></label>
+            <input 
+              type="number" 
+              class="form-control" 
+              formControlName="rangoDeInicio"
+              min="1"
+              max="31"
+              [class.is-invalid]="planForm.get('rangoDeInicio')?.invalid && planForm.get('rangoDeInicio')?.touched">
+            <div class="invalid-feedback">
+              Ingrese un día válido entre 1 y 31
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Día de Fin (1-31) <span class="text-danger">*</span></label>
+            <input 
+              type="number" 
+              class="form-control" 
+              formControlName="rangoDeFin"
+              min="1"
+              max="31"
+              [class.is-invalid]="planForm.get('rangoDeFin')?.invalid && planForm.get('rangoDeFin')?.touched">
+            <div class="invalid-feedback">
+              Ingrese un día válido entre 1 y 31
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="form-check form-switch">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                id="estado"
+                formControlName="estado">
+              <label class="form-check-label" for="estado">
+                Plan Activo
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <hr>
+            <div class="d-flex justify-content-end gap-2">
+              <button 
+                type="button" 
+                class="btn btn-secondary" 
+                (click)="regresar()">
+                <i class="bi bi-x-circle me-2"></i>Cancelar
+              </button>
+              <button 
+                type="submit" 
+                class="btn btn-primary"
+                [disabled]="planForm.invalid">
+                <i class="bi bi-save me-2"></i>Actualizar Plan
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+</div>

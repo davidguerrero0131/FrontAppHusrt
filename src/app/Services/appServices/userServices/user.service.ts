@@ -77,10 +77,12 @@ export class UserService {
   }
 
   login(formValue: any) {
-    return firstValueFrom(
-      this.httpClient.post<any>(`${this.baseUrl}/login`, formValue)
-    )
-  }
+  console.log('🔄 UserService - Enviando al backend:', formValue); // ✅ Log para debugging
+  
+  return firstValueFrom(
+    this.httpClient.post<any>(`${this.baseUrl}/login`, formValue)
+  );
+}
 
   getAllUsers() {
     return firstValueFrom(

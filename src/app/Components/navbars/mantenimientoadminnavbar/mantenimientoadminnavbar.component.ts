@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './mantenimientoadminnavbar.component.html',
-  styleUrl: './mantenimientoadminnavbar.component.css'
+  styleUrls: ['./mantenimientoadminnavbar.component.css']
 })
 export class MantenimientoadminnavbarComponent {
 

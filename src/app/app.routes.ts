@@ -41,6 +41,18 @@ import { CirugiaComponent } from './Components/cirugia/cirugia.component';
 import { AdmtiposequipoComponent } from './Components/administracion/admtiposequipo/admtiposequipo.component';
 import { AdmserviciosComponent } from './Components/administracion/admservicios/admservicios.component';
 
+//industriales
+import { homeadminindustrialescomponent} from './Components/Homepage/homeadminindustriales/homesadminindustriales.component'
+import {CrearEquipoIndustrialComponent} from './Components/Industriales/userIndustriales/vista-Equipos/crear-equipo/crear-equipo-industrial.component'
+import { GestionEquiposIndustrialesComponent } from './Components/Industriales/gestion-equipos-industriales/gestion-equipos-industriales.component';
+import { EditarEquipoIndustrialComponent } from './Components/Industriales/userIndustriales/vista-Equipos/editar-equipo/editar-equipo-industrial.component';
+import { DetalleEquipoIndustrialComponent } from './Components/Industriales/userIndustriales/vista-Equipos/detalle-equipo/detalle-equipo-industrial.component';
+
+import { GestionPlanMantenimientoComponent } from './Components/Industriales/userIndustriales/vista-PlanMantenimiento/gestion-plan-mantenimiento/gestion-plan-mantenimiento.component';
+import { CrearPlanMantenimientoComponent } from './Components/Industriales/userIndustriales/vista-PlanMantenimiento/crear-plan-mantenimiento/crear-plan-mantenimiento.component';
+import { EditarPlanMantenimientoComponent } from './Components/Industriales/userIndustriales/vista-PlanMantenimiento/editar-plan-mantenimiento/editar-plan-mantenimiento.component';
+import { DetallePlanMantenimientoComponent } from './Components/Industriales/userIndustriales/vista-PlanMantenimiento/detalle-plan-mantenimiento/detalle-plan-mantenimiento.component';
+
 export const routes: Routes = [
 
   {
@@ -91,9 +103,22 @@ export const routes: Routes = [
   {path: 'admin/tiposequipo', component: AdmtiposequipoComponent, canActivate: [authGuard]},
   {path: 'admin/servicios', component: AdmserviciosComponent, canActivate: [authGuard]},
 
-  {path: 'intranet', component: IntranetComponent}
-];
+  {path: 'intranet', component: IntranetComponent},
 
+  //industriales
+  {path: 'adminindustriales', component: homeadminindustrialescomponent, canActivate: [authGuard]},
+
+  {path: 'Industriales/nuevoequipoindustrial', component: CrearEquipoIndustrialComponent, canActivate: [authGuard]},
+  {path: 'adminequipos', component: GestionEquiposIndustrialesComponent, canActivate: [authGuard]},
+  {path: 'editar-equipo-industrial/:id', component: EditarEquipoIndustrialComponent, canActivate: [authGuard]},
+  {path: 'detalle-equipo-industrial/:id', component: DetalleEquipoIndustrialComponent, canActivate: [authGuard]},
+
+  {path: 'industriales/gestion-plan-mantenimiento', component: GestionPlanMantenimientoComponent, canActivate: [authGuard]},
+  {path: 'industriales/crear-plan-mantenimiento', component: CrearPlanMantenimientoComponent, canActivate: [authGuard]},
+  {path: 'industriales/editar-plan-mantenimiento/:id', component: EditarPlanMantenimientoComponent, canActivate: [authGuard]},
+  {path: 'industriales/detalle-plan-mantenimiento/:id', component: DetallePlanMantenimientoComponent, canActivate: [authGuard]}
+
+];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

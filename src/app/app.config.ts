@@ -5,7 +5,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import Aura from '@primeng/themes/aura';
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withFetch} from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { MyPreset } from './mypreset';
 
@@ -18,6 +18,6 @@ export const appConfig: ApplicationConfig = {
             darkModeSelector: false || 'none'
         }}}),
     provideAnimations(),
-    provideHttpClient(),
+    provideHttpClient(withFetch()),
     provideClientHydration(withEventReplay())]
 };

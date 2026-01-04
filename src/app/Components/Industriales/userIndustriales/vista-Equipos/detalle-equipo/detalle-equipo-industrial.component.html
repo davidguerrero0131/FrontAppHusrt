@@ -1,0 +1,278 @@
+<div class="container-fluid p-4">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Detalle del Equipo -->
+  <div *ngIf="!loading && equipo" class="card">
+    <!-- Header -->
+    <div class="card-header d-flex justify-content-between align-items-center no-print">
+      <h3 class="mb-0">
+        <i class="bi bi-info-circle me-2"></i>Detalle del Equipo Industrial
+      </h3>
+      <div class="btn-group">
+        <button class="btn btn-warning" (click)="editarEquipo()">
+          <i class="bi bi-pencil me-2"></i>Editar
+        </button>
+        <button class="btn btn-secondary" (click)="regresar()">
+          <i class="bi bi-arrow-left me-2"></i>Volver
+        </button>
+      </div>
+    </div>
+
+    <div class="card-body">
+      
+      <!-- Información Básica -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h5 class="section-title">
+            <i class="bi bi-gear-fill me-2"></i>Información Básica
+          </h5>
+          <hr>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Nombre del Equipo:</label>
+            <p class="detail-value">{{ equipo.nombres || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Marca:</label>
+            <p class="detail-value">{{ equipo.marca || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Modelo:</label>
+            <p class="detail-value">{{ equipo.modelo || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Serie:</label>
+            <p class="detail-value">{{ equipo.serie || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Placa:</label>
+            <p class="detail-value">{{ equipo.placa || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Registro INVIMA:</label>
+            <p class="detail-value">{{ equipo.registroInvima || 'No aplica' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Clasificación de Riesgo:</label>
+            <p class="detail-value">
+              <span [class]="'badge bg-' + getRiesgoColor(equipo.riesgo)">
+                {{ equipo.riesgo }}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Estado:</label>
+            <p class="detail-value">
+              <span [class]="'badge bg-' + getEstadoColor(equipo.estado)">
+                {{ equipo.estado }}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ubicación y Asignación -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h5 class="section-title">
+            <i class="bi bi-geo-alt-fill me-2"></i>Ubicación y Asignación
+          </h5>
+          <hr>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Tipo de Equipo:</label>
+            <p class="detail-value">{{ equipo.tipoEquipoInd?.nombre || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Servicio:</label>
+            <p class="detail-value">{{ equipo.servicioInd?.nombre || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Sede:</label>
+            <p class="detail-value">{{ equipo.sedeInd?.nombre || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Responsable:</label>
+            <p class="detail-value">{{ equipo.responsableInd?.nombres || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-12">
+          <div class="detail-item">
+            <label class="detail-label">Ubicación Específica:</label>
+            <p class="detail-value">{{ equipo.ubicacionEspecifica || 'N/A' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mantenimiento y Calibración -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h5 class="section-title">
+            <i class="bi bi-tools me-2"></i>Mantenimiento y Calibración
+          </h5>
+          <hr>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Periodicidad de Mantenimiento:</label>
+            <p class="detail-value">
+              {{ equipo.periodicidadM }} {{ equipo.periodicidadM === 1 ? 'mes' : 'meses' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Periodicidad de Calibración:</label>
+            <p class="detail-value">
+              {{ equipo.periodicidadC }} {{ equipo.periodicidadC === 1 ? 'mes' : 'meses' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Características Especiales -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h5 class="section-title">
+            <i class="bi bi-check2-square me-2"></i>Características Especiales
+          </h5>
+          <hr>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="detail-item">
+            <label class="detail-label">Activo:</label>
+            <p class="detail-value">
+              <span [class]="equipo.activo ? 'badge bg-success' : 'badge bg-danger'">
+                {{ equipo.activo ? 'Sí' : 'No' }}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="detail-item">
+            <label class="detail-label">Requiere Calibración:</label>
+            <p class="detail-value">
+              <span [class]="equipo.calibracion ? 'badge bg-success' : 'badge bg-secondary'">
+                {{ equipo.calibracion ? 'Sí' : 'No' }}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="detail-item">
+            <label class="detail-label">Requiere Calificación:</label>
+            <p class="detail-value">
+              <span [class]="equipo.calificacion ? 'badge bg-success' : 'badge bg-secondary'">
+                {{ equipo.calificacion ? 'Sí' : 'No' }}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="detail-item">
+            <label class="detail-label">Requiere Validación:</label>
+            <p class="detail-value">
+              <span [class]="equipo.validacion ? 'badge bg-success' : 'badge bg-secondary'">
+                {{ equipo.validacion ? 'Sí' : 'No' }}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información Adicional -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h5 class="section-title">
+            <i class="bi bi-clock-history me-2"></i>Información Adicional
+          </h5>
+          <hr>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Fecha de Registro:</label>
+            <p class="detail-value">{{ equipo.createdAt | date:'dd/MM/yyyy HH:mm' : 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Última Actualización:</label>
+            <p class="detail-value">{{ equipo.updatedAt | date:'dd/MM/yyyy HH:mm' : 'N/A' }}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer con botones -->
+    <div class="card-footer no-print">
+      <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-secondary" (click)="regresar()">
+          <i class="bi bi-arrow-left me-2"></i>Volver al Listado
+        </button>
+        <button class="btn btn-warning" (click)="editarEquipo()">
+          <i class="bi bi-pencil me-2"></i>Editar Equipo
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

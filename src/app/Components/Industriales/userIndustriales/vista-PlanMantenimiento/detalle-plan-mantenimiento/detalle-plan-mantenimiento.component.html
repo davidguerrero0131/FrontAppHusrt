@@ -1,0 +1,191 @@
+<div class="container-fluid p-4">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Detalle del Plan -->
+  <div *ngIf="!loading && plan" class="card">
+    <!-- Header -->
+    <div class="card-header d-flex justify-content-between align-items-center no-print">
+      <h3 class="mb-0">
+        <i class="bi bi-calendar-check me-2"></i>Detalle del Plan de Mantenimiento
+      </h3>
+      <div class="btn-group">
+        <button class="btn btn-warning" (click)="editarPlan()">
+          <i class="bi bi-pencil me-2"></i>Editar
+        </button>
+        <button class="btn btn-secondary" (click)="regresar()">
+          <i class="bi bi-arrow-left me-2"></i>Volver
+        </button>
+      </div>
+    </div>
+
+    <div class="card-body">
+      
+      <!-- Información del Equipo -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h5 class="section-title">
+            <i class="bi bi-gear-fill me-2"></i>Información del Equipo
+          </h5>
+          <hr>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Nombre del Equipo:</label>
+            <p class="detail-value">{{ plan.equipo?.nombres || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Marca:</label>
+            <p class="detail-value">{{ plan.equipo?.marca || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Modelo:</label>
+            <p class="detail-value">{{ plan.equipo?.modelo || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Serie:</label>
+            <p class="detail-value">{{ plan.equipo?.serie || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Placa:</label>
+            <p class="detail-value">{{ plan.equipo?.placa || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Ubicación Específica:</label>
+            <p class="detail-value">{{ plan.equipo?.ubicacionEspecifica || 'N/A' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información del Plan -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h5 class="section-title">
+            <i class="bi bi-calendar2-week me-2"></i>Detalles del Plan
+          </h5>
+          <hr>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Mes Programado:</label>
+            <p class="detail-value">{{ obtenerNombreMes(plan.mes) }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Año:</label>
+            <p class="detail-value">{{ plan.ano }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Día de Inicio:</label>
+            <p class="detail-value">{{ plan.rangoDeInicio }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Día de Fin:</label>
+            <p class="detail-value">{{ plan.rangoDeFin }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Rango de Días:</label>
+            <p class="detail-value">
+              Del día {{ plan.rangoDeInicio }} al día {{ plan.rangoDeFin }} 
+              ({{ plan.rangoDeFin - plan.rangoDeInicio + 1 }} días)
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Estado del Plan:</label>
+            <p class="detail-value">
+              <span [class]="'badge bg-' + getEstadoColor(plan.estado)">
+                {{ plan.estado ? 'Activo' : 'Inactivo' }}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información Adicional -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h5 class="section-title">
+            <i class="bi bi-clock-history me-2"></i>Información Adicional
+          </h5>
+          <hr>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Fecha de Creación:</label>
+            <p class="detail-value">{{ plan.creado ? (plan.creado | date:'dd/MM/yyyy HH:mm') : 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="detail-item">
+            <label class="detail-label">Última Actualización:</label>
+            <p class="detail-value">{{ plan.actualizado ? (plan.actualizado | date:'dd/MM/yyyy HH:mm') : 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-12">
+          <div class="detail-item">
+            <label class="detail-label">ID del Plan:</label>
+            <p class="detail-value">#{{ plan.id }}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer con botones -->
+    <div class="card-footer no-print">
+      <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-secondary" (click)="regresar()">
+          <i class="bi bi-arrow-left me-2"></i>Volver al Listado
+        </button>
+        <button class="btn btn-warning" (click)="editarPlan()">
+          <i class="bi bi-pencil me-2"></i>Editar Plan
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
