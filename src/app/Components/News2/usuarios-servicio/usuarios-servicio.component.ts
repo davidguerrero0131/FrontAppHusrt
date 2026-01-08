@@ -15,52 +15,52 @@ import { DialogModule } from 'primeng/dialog';
 })
 export class UsuariosServicioComponent implements OnInit {
 
-  services! : any[];
-  pacientes! : any[];
-  signosVitales! : any[];
-  itemselected : Number | undefined;
+  services!: any[];
+  pacientes!: any[];
+  signosVitales!: any[];
+  itemselected: Number | undefined;
   news2Service = inject(News2Service);
 
   visibleSearch: boolean = false;
 
 
-  async verServicio(){
+  async verServicio() {
     const ubicacion = {
-      ubicod : this.itemselected
+      ubicod: this.itemselected
     }
-    const sigpac : any[] = [];
+    const sigpac: any[] = [];
 
-    try{
-    this.visibleSearch = true;
-    this.pacientes = await this.news2Service.getPacientesServicio(ubicacion);
-    for (let paciente = 0; paciente < this.pacientes.length; paciente++) {
-      const pacienteact = this.pacientes[paciente];
-      const signos = await this.news2Service.getSignosPaciente(pacienteact.epiactepi);
-      if(signos.frecuenciaCardiaca != undefined && signos.SO2 != undefined){
-        const signospaciente = {pacienteact, signos}
-        sigpac.push(signospaciente);
-      } else{
-        const signospaciente = {pacienteact, undefined}
-        sigpac.push(signospaciente);
+    try {
+      this.visibleSearch = true;
+      this.pacientes = await this.news2Service.getPacientesServicio(ubicacion);
+      for (let paciente = 0; paciente < this.pacientes.length; paciente++) {
+        const pacienteact = this.pacientes[paciente];
+        const signos = await this.news2Service.getSignosPaciente(pacienteact.epiactepi);
+        if (signos.frecuenciaCardiaca != undefined && signos.SO2 != undefined) {
+          const signospaciente = { pacienteact, signos }
+          sigpac.push(signospaciente);
+        } else {
+          const signospaciente = { pacienteact, undefined }
+          sigpac.push(signospaciente);
+        }
       }
-    }
-    this.signosVitales = sigpac;
-    console.log(this.signosVitales);
-    this.visibleSearch = false;
+      this.signosVitales = sigpac;
+
+      this.visibleSearch = false;
     } catch {
-      console.log('No fue posible obtener los pacientes');
+
     }
     setTimeout(() => {
       this.verServicio();
     }, 240000);
   }
 
- async ngOnInit(){
-  try{
-     this.services = await this.news2Service.getServicios();
+  async ngOnInit() {
+    try {
+      this.services = await this.news2Service.getServicios();
+    }
+    catch {
+
+    }
   }
-  catch{
-    console.log('Error al cargar los servicios');
-  }
- }
 }

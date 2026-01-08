@@ -31,25 +31,25 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    localStorage.setItem('utoken', '');
+    sessionStorage.setItem('utoken', '');
   }
 
   async onSubmit() {
     try {
       const response = await this.userServices.login(this.formulario.value);
       if (!response.error) {
-        localStorage.setItem('utoken', response.token);
-        if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'SYSTEMADMIN') {
+        sessionStorage.setItem('utoken', response.token);
+        if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'SYSTEMADMIN') {
           this.router.navigate(['/adminsistemas']);
-        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'SUPERADMIN') {
+        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'SUPERADMIN') {
           this.router.navigate(['/superadmin']);
-        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'MANTENIMIENTOADMIN') {
+        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'MANTENIMIENTOADMIN') {
           this.router.navigate(['/adminmantenimiento']);
-        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'BIOMEDICAADMIN') {
+        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'BIOMEDICAADMIN') {
           this.router.navigate(['/adminbiomedica']);
-        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'BIOMEDICAUSER') {
+        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'BIOMEDICAUSER') {
           this.router.navigate(['/userbiomedica']);
-        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'BIOMEDICATECNICO') {
+        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'BIOMEDICATECNICO') {
           this.router.navigate(['/userbiomedica']);
         }
       }
@@ -58,6 +58,35 @@ export class LoginComponent implements OnInit {
         icon: 'warning',
         title: 'Usuario o contraseña incorecto',
         text: 'Verifique los campos.'
+      })
+    }
+  }
+
+  async loginInvitado() {
+    try {
+      const response = await this.userServices.loginInvitado();
+
+      if (response && response.token) {
+        sessionStorage.setItem('utoken', response.token);
+        sessionStorage.setItem('idUser', response.idUser);
+        sessionStorage.setItem('rol', response.rol);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Acceso Correcto',
+          text: 'Bienvenido Invitado',
+        })
+
+        this.router.navigate(['/biomedica/home-invitado']);
+      } else {
+        console.error('Invalid response:', response);
+      }
+    } catch (err) {
+      console.error('Guest Login Error:', err); // Debug
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo acceder como invitado.',
       })
     }
   }

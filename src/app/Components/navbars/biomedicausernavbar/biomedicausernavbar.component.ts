@@ -1,118 +1,152 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { MenubarModule } from 'primeng/menubar';
 import { BadgeModule } from 'primeng/badge';
 import { CommonModule } from '@angular/common';
 import { AvatarModule } from 'primeng/avatar';
-import { Sidebar } from 'primeng/sidebar';
 import { ButtonModule } from 'primeng/button';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { MenuItem } from 'primeng/api';
 
 @Component({
-  selector: 'app-biomedicausernavbar',
-  standalone: true,
-  imports: [MenubarModule, BadgeModule, CommonModule, AvatarModule, Sidebar, ButtonModule, PanelMenuModule],
-  templateUrl: './biomedicausernavbar.component.html',
-  styleUrl: './biomedicausernavbar.component.css'
+    selector: 'app-biomedicausernavbar',
+    standalone: true,
+    imports: [MenubarModule, BadgeModule, CommonModule, AvatarModule, ButtonModule, PanelMenuModule, RouterModule],
+    templateUrl: './biomedicausernavbar.component.html',
+    styleUrl: './biomedicausernavbar.component.css'
 })
 export class BiomedicausernavbarComponent implements OnInit {
 
-   items!: MenuItem[];
+    items!: MenuItem[];
+    userRole: string = '';
 
-  @ViewChild('sidebarRef') sidebarRef!: Sidebar;
+    constructor(private router: Router) { }
 
-    closeCallback(e: any): void {
-        this.sidebarRef.close(e);
+    navigateToAbout() {
+        sessionStorage.setItem('utoken', "");
+        this.router.navigate(['/login'])
     }
 
-    sidebarVisible: boolean = false;
-
-  constructor(private router: Router){}
-
-  navigateToAbout(){
-    localStorage.setItem('utoken', "");
-    this.router.navigate(['/login'])
-  }
-
-  viewUser(){
-    this.router.navigate(['/updateprofil'])
-  }
-
-  getDecodedAccessToken(token: string): any {
-      try {
-        return jwtDecode(token);
-      } catch (Error) {
-        return null;
-      }
+    viewUser() {
+        this.router.navigate(['/updateprofil']);
     }
 
+    getDecodedAccessToken(token: string): any {
+        try {
+            return jwtDecode(token);
+        } catch (Error) {
+            return null;
+        }
+    }
+
+    getHomeLink(): string {
+        const token = sessionStorage.getItem('utoken');
+        if (token) {
+            const decoded: any = this.getDecodedAccessToken(token);
+            if (decoded?.rol === 'INVITADO') {
+                return '/biomedica/home-invitado';
+            }
+        }
+        return '/userbiomedica';
+    }
 
     ngOnInit() {
         this.items = [
             {
-                label: 'Mail',
-                icon: 'pi pi-envelope',
-                badge: '5',
-                items: [
-                    {
-                        label: 'Compose',
-                        icon: 'pi pi-file-edit',
-                        shortcut: '⌘+N'
-                    },
-                    {
-                        label: 'Inbox',
-                        icon: 'pi pi-inbox',
-                        badge: '5'
-                    },
-                    {
-                        label: 'Sent',
-                        icon: 'pi pi-send',
-                        shortcut: '⌘+S'
-                    },
-                    {
-                        label: 'Trash',
-                        icon: 'pi pi-trash',
-                        shortcut: '⌘+T'
-                    }
-                ]
-            },
-            {
-                label: 'Reports',
-                icon: 'pi pi-chart-bar',
-                shortcut: '⌘+R',
-                items: [
-                    {
-                        label: 'Sales',
-                        icon: 'pi pi-chart-line',
-                        badge: '3'
-                    },
-                    {
-                        label: 'Products',
-                        icon: 'pi pi-list',
-                        badge: '6'
-                    }
-                ]
-            },
-            {
-                label: 'Profile',
-                icon: 'pi pi-user',
-                shortcut: '⌘+W',
-                items: [
-                    {
-                        label: 'Settings',
-                        icon: 'pi pi-cog',
-                        shortcut: '⌘+O'
-                    },
-                    {
-                        label: 'Privacy',
-                        icon: 'pi pi-shield',
-                        shortcut: '⌘+P'
-                    }
-                ]
+                label: 'Inicio',
+                icon: 'pi pi-home',
+                routerLink: this.getHomeLink()
             }
         ];
+
+        const token = sessionStorage.getItem('utoken');
+        if (token) {
+            const decoded: any = this.getDecodedAccessToken(token);
+            this.userRole = decoded?.rol;
+            const userRole = this.userRole;
+
+            // Menu for BIOMEDICAUSER and others (excluding INVITADO)
+            if (userRole !== 'INVITADO') {
+                if (userRole === 'BIOMEDICATECNICO') {
+                    // Technical Role Menu
+                    this.items.push(
+                        {
+                            label: 'Gestion Operativa',
+                            icon: 'pi pi-briefcase',
+                            items: [
+                                {
+                                    label: 'Inventario',
+                                    icon: 'pi pi-list',
+                                    routerLink: '/biomedica/tecnico/equipos'
+                                },
+                                {
+                                    label: 'Mantenimiento Técnico',
+                                    icon: 'pi pi-wrench',
+                                    routerLink: '/biomedica/tecnico/mantenimiento'
+                                },
+                                {
+                                    label: 'Indicadores',
+                                    icon: 'pi pi-chart-bar',
+                                    routerLink: '/biomedica/indicadores'
+                                },
+                                {
+                                    label: 'Metrologia',
+                                    icon: 'pi pi-verified',
+                                    routerLink: '/biomedica/actividadesmetrologicas'
+                                }
+                            ]
+                        }
+                    );
+                } else {
+                    // Standard User / Admin Menu
+                    this.items.push(
+                        {
+                            label: 'Gestion Operativa',
+                            icon: 'pi pi-briefcase',
+                            items: [
+                                {
+                                    label: 'Inventario',
+                                    icon: 'pi pi-list',
+                                    routerLink: '/biomedica/inventario'
+                                },
+                                {
+                                    label: 'Mantenimiento',
+                                    icon: 'pi pi-cog',
+                                    routerLink: '/biomedica/mantenimiento'
+                                },
+                                {
+                                    label: 'Mantenimiento Técnico',
+                                    icon: 'pi pi-wrench',
+                                    routerLink: '/biomedica/mantenimientotecnico',
+                                    visible: userRole === 'SUPERADMIN' || userRole === 'BIOMEDICAADMIN'
+                                },
+                                {
+                                    label: 'Semaforización',
+                                    icon: 'pi pi-exclamation-circle',
+                                    routerLink: '/biomedica/semaforizacion'
+                                },
+                                {
+                                    label: 'Indicadores',
+                                    icon: 'pi pi-chart-bar',
+                                    routerLink: '/biomedica/indicadores'
+                                },
+                                {
+                                    label: 'Calendario',
+                                    icon: 'pi pi-calendar',
+                                    routerLink: '/biomedica/calendario'
+                                },
+                                {
+                                    label: 'Metrologia',
+                                    icon: 'pi pi-verified',
+                                    routerLink: '/biomedica/actividadesmetrologicas'
+                                }
+                            ]
+                        }
+                    );
+                }
+            }
+        }
     }
 
     toggleAll() {

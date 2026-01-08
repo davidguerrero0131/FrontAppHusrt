@@ -1,11 +1,33 @@
-.container {
-  max-width: 1000px;
+.profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    /* Aligns to top with margin, better for forms than pure center if tall */
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+    min-height: 80vh;
+    width: 100%;
 }
 
-.card {
-  border-radius: 12px;
+/* Responsive centering wrapper */
+.card-wrapper {
+    width: 100%;
+    max-width: 800px;
+    /* Limit width on large screens */
+    margin: 0 auto;
 }
 
-button {
-  min-width: 120px;
+/* Ensure PrimeNG card takes full width of the wrapper */
+:host ::ng-deep .p-card {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 1rem;
+    }
+
+    .card-wrapper {
+        max-width: 100%;
+    }
 }

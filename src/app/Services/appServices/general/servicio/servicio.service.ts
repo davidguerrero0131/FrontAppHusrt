@@ -27,6 +27,12 @@ export class ServicioService {
     )
   }
 
+  getServiciosBySede(idSede: any) {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/servicios/sede/${idSede}`, this.createHeaders())
+    )
+  }
+
   getCantidadEquipos(idServicio: any) {
     return firstValueFrom(
       this.httpClient.get<any>(`${this.baseUrl}/cantidadequiposserv/${idServicio}`, this.createHeaders())
@@ -51,8 +57,20 @@ export class ServicioService {
     )
   }
 
+  actualizarServicio(idServicio: any, data: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/servicios/${idServicio}`, data, this.createHeaders())
+    )
+  }
+
+  createServicio(data: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/servicios`, data, this.createHeaders())
+    )
+  }
+
   getToken() {
-    return localStorage.getItem('utoken');
+    return sessionStorage.getItem('utoken');
   }
 
   validateToken(token: string): boolean {
@@ -63,7 +81,7 @@ export class ServicioService {
         text: 'Ha llegado al límite de tiempo de sesión activa.'
       })
       this.router.navigate(['/login']);
-      localStorage.setItem('utoken', '');
+      sessionStorage.setItem('utoken', '');
       return true;
     } else {
       return false;
@@ -83,7 +101,7 @@ export class ServicioService {
   createHeaders() {
     return {
       headers: new HttpHeaders({
-        'authorization': localStorage.getItem('utoken')!
+        'authorization': sessionStorage.getItem('utoken')!
       })
     }
   }

@@ -1,68 +1,98 @@
-<div class="container mt-4">
-  <div class="card shadow">
-    <div class="card-header bg-primary text-white" style="color: black;">
-      <h4 class="text-center mb-0">Actualizar Perfil</h4>
-    </div>
-    <div class="card-body">
-      <form (ngSubmit)="guardarCambios()" #userForm="ngForm">
-        <div class="row">
-          <div class="col-md-6">
-            <label for="nombres">Nombres</label>
-            <input type="text" id="nombres" class="form-control" name="nombres" required />
+<div class="profile-container">
+  <div class="card-wrapper">
+    <p-card header="Actualizar Perfil" subheader="Edite su información personal" styleClass="shadow-5 border-round-2xl">
+      <ng-template pTemplate="header">
+        <div class="bg-primary border-round-top-2xl" style="height: 8px;"></div>
+      </ng-template>
+
+      <form (ngSubmit)="guardarCambios()" *ngIf="usuario" class="p-fluid mt-3">
+
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <label for="nombres" class="font-medium text-900">Nombres</label>
+            <p-iconfield position="left">
+              <p-inputicon styleClass="pi pi-user" />
+              <input pInputText id="nombres" [(ngModel)]="usuario.nombres" name="nombres" required class="w-full"
+                placeholder="Nombres" />
+            </p-iconfield>
           </div>
-          <div class="col-md-6">
-            <label for="apellidos">Apellidos</label>
-            <input type="text" id="apellidos" class="form-control" name="apellidos" required />
+          <div class="field col-12 md:col-6">
+            <label for="apellidos" class="font-medium text-900">Apellidos</label>
+            <p-iconfield position="left">
+              <p-inputicon styleClass="pi pi-user" />
+              <input pInputText id="apellidos" [(ngModel)]="usuario.apellidos" name="apellidos" required class="w-full"
+                placeholder="Apellidos" />
+            </p-iconfield>
           </div>
         </div>
 
-        <div class="row">
-          <div class="col-md-6">
-            <label for="contraseña">Contraseña</label>
-            <input type="text" id="contraseña" class="form-control" name="contraseña" required disabled/>
+        <p-divider align="center" styleClass="my-4">
+          <span class="p-tag border-round-xl px-3">Seguridad</span>
+        </p-divider>
+
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <label for="contraseña" class="font-medium text-900">Nueva Contraseña</label>
+            <p-password id="contraseña" [(ngModel)]="nuevaContrasena" name="contraseña" [toggleMask]="true"
+              placeholder="Nueva contraseña" [feedback]="true" promptLabel="Ingrese contraseña" weakLabel="Débil"
+              mediumLabel="Media" strongLabel="Fuerte" styleClass="w-full" inputStyleClass="w-full">
+              <ng-template pTemplate="footer">
+                <p class="mt-2 text-sm text-600">Requisitos:</p>
+                <ul class="pl-3 ml-2 mt-0 text-sm text-600" style="line-height: 1.5;">
+                  <li>Mínimo 8 caracteres</li>
+                  <li>Incluye mayúscula y minúscula</li>
+                  <li>Incluye número y símbolo</li>
+                </ul>
+              </ng-template>
+            </p-password>
           </div>
-          <div class="col-md-6">
-            <label for="contraseñav">Verificar Contraseña</label>
-            <input type="text" id="contraseñav" class="form-control" name="contraseñav" required disabled/>
+          <div class="field col-12 md:col-6">
+            <label for="contraseñav" class="font-medium text-900">Confirmar Contraseña</label>
+            <p-password id="contraseñav" [(ngModel)]="confirmarContrasena" name="contraseñav" [toggleMask]="true"
+              placeholder="Confirmar contraseña" [feedback]="false" styleClass="w-full"
+              inputStyleClass="w-full"></p-password>
           </div>
         </div>
 
-        <div class="row mt-3">
-          <div class="col-md-6">
-            <label for="nombreUsuario">Nombre de Usuario</label>
-            <input type="text" id="nombreUsuario" class="form-control" [(ngModel)]="usuario.nombreUsuario" name="nombreUsuario" required />
+        <p-divider styleClass="my-4"></p-divider>
+
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <label for="nombreUsuario" class="font-medium text-900">Usuario</label>
+            <p-iconfield position="left">
+              <p-inputicon styleClass="pi pi-id-card" />
+              <input pInputText id="nombreUsuario" [(ngModel)]="usuario.nombreUsuario" name="nombreUsuario" required
+                class="w-full" [disabled]="true" />
+            </p-iconfield>
           </div>
-          <div class="col-md-6">
-            <label for="email">Email</label>
-            <input type="email" id="email" class="form-control" [(ngModel)]="usuario.email" name="email" required />
+          <div class="field col-12 md:col-6">
+            <label for="email" class="font-medium text-900">Email</label>
+            <p-iconfield position="left">
+              <p-inputicon styleClass="pi pi-envelope" />
+              <input pInputText id="email" [(ngModel)]="usuario.email" name="email" required class="w-full" />
+            </p-iconfield>
+          </div>
+          <div class="field col-12 md:col-6">
+            <label for="telefono" class="font-medium text-900">Teléfono</label>
+            <p-iconfield position="left">
+              <p-inputicon styleClass="pi pi-phone" />
+              <input pInputText id="telefono" [(ngModel)]="usuario.telefono" name="telefono" required class="w-full" />
+            </p-iconfield>
+          </div>
+          <div class="field col-12 md:col-6">
+            <label for="estado" class="font-medium text-900">Estado</label>
+            <p-dropdown [options]="estadoOptions" [(ngModel)]="usuario.estado" name="estado" optionLabel="label"
+              optionValue="value" styleClass="w-full" [disabled]="true"></p-dropdown>
           </div>
         </div>
 
-        <div class="row mt-3">
-          <div class="col-md-6">
-            <label for="telefono">Teléfono</label>
-            <input type="text" id="telefono" class="form-control" [(ngModel)]="usuario.telefono" name="telefono" required />
-          </div>
-          <div class="col-md-6">
-            <label for="estado">Estado</label>
-            <select id="estado" class="form-control" [(ngModel)]="usuario.estado" name="estado">
-              <option [value]="true">Activo</option>
-              <option [value]="false">Inactivo</option>
-            </select>
-          </div>
+        <div class="flex justify-content-end gap-2 mt-5">
+          <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-text p-button-secondary"
+            (onClick)="cancelarEdicion()"></p-button>
+          <p-button label="Guardar" icon="pi pi-check" type="submit"></p-button>
         </div>
 
-        <div class="row mt-3">
-          <div class="col-12 text-center">
-            <button type="submit" class="btn btn-success" [disabled]="userForm.invalid">
-              Guardar Cambios
-            </button>
-            <button type="button" class="btn btn-secondary ms-2" (click)="cancelarEdicion()">
-              Cancelar
-            </button>
-          </div>
-        </div>
       </form>
-    </div>
+    </p-card>
   </div>
 </div>

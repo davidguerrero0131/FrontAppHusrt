@@ -16,47 +16,60 @@ export function obtenerNombreMes(numeroMes: number): string {
   return meses[numeroMes - 1];
 }
 
-  export function validateToken(token: string): boolean {
-    const router  = inject(Router);
-    if (isTokenExpired()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Sesion Expirada',
-        text: 'Ha llegado al límite de tiempo de sesión activa.'
-      })
-      router.navigate(['/login']);
-      localStorage.setItem('utoken', '');
-      return true;
-    } else {
-      return false;
-    }
+// Funcion para verificar si el usuario tiene un token valido
+export function validateToken(token: string): boolean {
+  const router = inject(Router);
+  if (isTokenExpired()) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Sesion Expirada',
+      text: 'Ha llegado al límite de tiempo de sesión activa.'
+    })
+    router.navigate(['/login']);
+    sessionStorage.setItem('utoken', '');
+    return true;
+  } else {
+    return false;
   }
+}
 
-  export function isTokenExpired(): boolean {
-    const token = localStorage?.getItem('utoken')!;
-    if (!token) {
-      return true; // Si no hay token, se considera expirado
-    }
-    const decodedToken = getDecodedAccessToken();
-    const currentTime = Math.floor(Date.now() / 1000);
-
-    return decodedToken.exp < currentTime;
+export function isTokenExpired(): boolean {
+  if (typeof sessionStorage === 'undefined') {
+    return true;
   }
-
-  export function createHeaders() {
-    return {
-      headers: new HttpHeaders({
-        'authorization': localStorage.getItem('utoken')!
-      })
-    }
+  const token = sessionStorage.getItem('utoken');
+  if (!token) {
+    return true; // Si no hay token, se considera expirado
   }
+  const decodedToken = getDecodedAccessToken();
+  const currentTime = Math.floor(Date.now() / 1000);
 
-  export function getDecodedAccessToken(): any {
-    const token = localStorage.getItem('utoken')!;
-    try {
-      return jwtDecode(token);
-    } catch (Error) {
-      return null;
-    }
+  return decodedToken.exp < currentTime;
+}
+
+export function createHeaders() {
+  if (typeof sessionStorage === 'undefined') {
+    return { headers: new HttpHeaders() };
   }
+  return {
+    headers: new HttpHeaders({
+      'authorization': sessionStorage.getItem('utoken') || ''
+    })
+  }
+}
+
+export function getDecodedAccessToken(): any {
+  if (typeof sessionStorage === 'undefined') {
+    return null;
+  }
+  const token = sessionStorage.getItem('utoken');
+  if (!token) {
+    return null;
+  }
+  try {
+    return jwtDecode(token);
+  } catch (Error) {
+    return null;
+  }
+}
 

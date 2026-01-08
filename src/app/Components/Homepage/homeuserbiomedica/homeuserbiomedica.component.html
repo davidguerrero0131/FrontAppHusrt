@@ -1,78 +1,87 @@
-<app-biomedicausernavbar></app-biomedicausernavbar>
-<div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
-</div>
+<div class="dashboard-container">
 
-
-<div class="grid-container">
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">INVENTARIO</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-inboxes-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-dark" (click)=showViewInventarioBio()>INGRESAR</button>
-      </div>
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>Bienvenido a Biomédica</h1>
+      <p>Gestión integral de equipos, mantenimientos y reportes.</p>
     </div>
   </div>
 
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">MANTENIMIENTO</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-gear-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-dark" (click)=showViewMantenimientoBio()>INGRESAR</button>
-      </div>
-    </div>
-  </div>
+  <!-- Cards Grid -->
+  <div class="cards-grid">
 
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">SEMAFORIZACIÓN</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-stoplights" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-dark" (click)=showViewSemaforizacionBio()>INGRESAR</button>
+    <!-- Inventario -->
+    <div class="dashboard-card" (click)="showViewInventarioBio()">
+      <div class="card-icon-container gradient-blue">
+        <i class="pi pi-box"></i>
+      </div>
+      <div class="card-content">
+        <h3>Inventario</h3>
+        <p>Gestión de equipos y activos.</p>
+        <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
       </div>
     </div>
-  </div>
 
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">INDICADORES</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-bar-chart-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-dark" (click)=showViewIndicadoresBio()>INGRESAR</button>
+    <!-- Mantenimiento -->
+    <div class="dashboard-card" (click)="showViewMantenimientoBio()">
+      <div class="card-icon-container gradient-indigo">
+        <i class="pi pi-wrench"></i>
+      </div>
+      <div class="card-content">
+        <h3>Mantenimiento</h3>
+        <p>Programación y ejecución técnica.</p>
+        <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
       </div>
     </div>
-  </div>
 
-  <div class="grid-item boton">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">CALENDARIO</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-calendar-week" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-dark" (click)=showViewCalendarioBio()>INGRESAR</button>
+    <!-- Semaforización -->
+    <div class="dashboard-card" (click)="showViewSemaforizacionBio()">
+      <div class="card-icon-container gradient-orange">
+        <i class="pi pi-circle-fill"></i>
+      </div>
+      <div class="card-content">
+        <h3>Semaforización</h3>
+        <p>Estado visual de prioridad.</p>
+        <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
       </div>
     </div>
-  </div>
 
-    <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">ACTIVIDADES METROLOGICAS</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-stopwatch-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-dark" (click)=showViewActividadesMetrologicasBio()>INGRESAR</button>
+    <!-- Indicadores -->
+    <div class="dashboard-card" (click)="showViewIndicadoresBio()">
+      <div class="card-icon-container gradient-green">
+        <i class="pi pi-chart-bar"></i>
+      </div>
+      <div class="card-content">
+        <h3>Indicadores</h3>
+        <p>Métricas de desempeño y gestión.</p>
+        <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
       </div>
     </div>
+
+    <!-- Calendario -->
+    <div class="dashboard-card" (click)="showViewCalendarioBio()">
+      <div class="card-icon-container gradient-cyan">
+        <i class="pi pi-calendar"></i>
+      </div>
+      <div class="card-content">
+        <h3>Calendario</h3>
+        <p>Agenda de actividades y cronograma.</p>
+        <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+    <!-- Actividades Metrológicas -->
+    <div class="dashboard-card" (click)="showViewActividadesMetrologicasBio()">
+      <div class="card-icon-container gradient-teal">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div class="card-content">
+        <h3>Act. Metrológicas</h3>
+        <p>Control y seguimiento de metrología.</p>
+        <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
   </div>
 </div>
