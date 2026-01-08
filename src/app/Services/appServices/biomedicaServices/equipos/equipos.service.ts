@@ -94,4 +94,10 @@ export class EquiposService {
     )
   }
 
+  getHistorialUnificado(idEquipo: any) {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/historial/equipo/${idEquipo}`, createHeaders())
+    )
+  }
+
 }

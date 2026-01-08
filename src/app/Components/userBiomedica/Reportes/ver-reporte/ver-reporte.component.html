@@ -85,8 +85,7 @@
 <div class="card flex justify-center">
 
   <p-dialog header="Reporte N. {{ reportSelected?.id }}" [(visible)]="modalReport" [modal]="true" [responsive]="true"
-    [style]="{ width: '90vw', maxWidth: '95%' }" [baseZIndex]="10000"
-    [breakpoints]="{ '960px': '90vw', '640px': '95vw' }">
+    styleClass="standard-modal modal-xl" [baseZIndex]="10000">
     <div class="p-fluid p-3">
 
       <!-- 1. Línea: Información del Equipo -->

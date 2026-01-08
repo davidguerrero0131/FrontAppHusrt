@@ -5,11 +5,16 @@ import { SedeService } from '../../../Services/appServices/general/sede/sede.ser
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 @Component({
     selector: 'app-clasificacion-servicios-sede',
     standalone: true,
-    imports: [FormsModule, CommonModule],
+    imports: [FormsModule, CommonModule, CardModule, ButtonModule, InputTextModule, IconFieldModule, InputIconModule],
     templateUrl: './clasificacion-servicios-sede.component.html',
     styleUrl: './clasificacion-servicios-sede.component.css'
 })

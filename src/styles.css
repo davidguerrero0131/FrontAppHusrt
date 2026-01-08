@@ -415,3 +415,79 @@ i,
         grid-template-columns: 1fr;
     }
 }
+
+/* --- Standard Modal Styles --- */
+
+/* Base Modal Styling */
+.standard-modal .p-dialog-header {
+    border-bottom: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    color: var(--text-color);
+    padding: 1.5rem;
+    border-top-right-radius: var(--border-radius-lg);
+    border-top-left-radius: var(--border-radius-lg);
+}
+
+.standard-modal .p-dialog-content {
+    padding: 2rem;
+    background-color: #ffffff;
+}
+
+.standard-modal .p-dialog-footer {
+    border-top: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    text-align: right;
+    border-bottom-right-radius: var(--border-radius-lg);
+    border-bottom-left-radius: var(--border-radius-lg);
+}
+
+/* Modal Sizes */
+.modal-sm {
+    width: 400px;
+}
+
+.modal-md {
+    width: 600px;
+}
+
+.modal-lg {
+    width: 900px;
+}
+
+.modal-xl {
+    width: 90vw;
+}
+
+/* Responsive Overrides */
+@media (max-width: 992px) {
+    .modal-md, .modal-lg {
+        width: 90vw;
+    }
+}
+
+@media (max-width: 576px) {
+    .modal-sm, .modal-md, .modal-lg, .modal-xl {
+        width: 95vw;
+    }
+}
+
+/* Form Grid Utility */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.form-grid .field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0; /* Let grid gap handle spacing */
+}
+
+/* Align labels and inputs consistently */
+.form-grid label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}

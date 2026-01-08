@@ -10,6 +10,8 @@ import Swal from 'sweetalert2';
 
 
 
+import { getDecodedAccessToken } from '../../../utilidades';
+
 @Component({
   selector: 'app-clasificacion-inventario',
   standalone: true,
@@ -21,18 +23,31 @@ export class ClasificacionInventarioComponent implements OnInit {
 
   equipos!: any[];
   selectedEquipo: any | undefined;
-  // constructor(private router: Router, @Inject(forwardRef(() => EquiposService)) private equipoServices: EquiposService) {
-  // }
-  constructor(private router: Router) { }
+  showCreateEquipmentButton: boolean = false;
+
+  constructor(private router: Router, @Inject(forwardRef(() => EquiposService)) private equipoServices: EquiposService) {
+  }
 
   async ngOnInit() {
-    // this.equipos = await this.equipoServices.getAllEquiposSeries();
-    this.equipos = []; // Mock data to prevent crash
+    this.equipos = await this.equipoServices.getAllEquiposSeries();
+    this.checkPermissions();
+  }
+
+  checkPermissions() {
+    const token = getDecodedAccessToken();
+    if (token && token.rol) {
+      const allowedRoles = ['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN'];
+      this.showCreateEquipmentButton = allowedRoles.includes(token.rol);
+    }
+  }
+
+  goToCreateEquipment() {
+    this.router.navigate(['/biomedica/nuevoequipo']);
   }
 
   buscarEquipo() {
 
-    console.log(this.selectedEquipo);
+
     if (this.selectedEquipo) {
       this.router.navigate(['/biomedica/reportesequipo/' + this.selectedEquipo.id]);
     } else {

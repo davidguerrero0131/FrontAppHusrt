@@ -5,8 +5,10 @@ import { PanelModule } from 'primeng/panel';
 import { DividerModule } from 'primeng/divider';
 import { ButtonModule } from 'primeng/button';
 import { ImageModule } from 'primeng/image';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { CommonModule, Location } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+
+
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { BiomedicausernavbarComponent } from '../../../navbars/biomedicausernavbar/biomedicausernavbar.component';
 import { HojavidaService } from './../../../../Services/appServices/biomedicaServices/hojavida/hojavida.service';
@@ -79,7 +81,7 @@ export class HojavidaComponent implements OnInit {
   };
   loadingDocumentos: boolean = false;
 
-  constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer) { }
+  constructor(private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer, private location: Location) { }
 
   async ngOnInit() {
     this.id = this.route.snapshot.paramMap.get('id');
@@ -95,10 +97,10 @@ export class HojavidaComponent implements OnInit {
 
       this.planMantenimiento = await this.mantenimientosService.getPlanMantenimientoEquipo(this.id);
       this.planMetrologia = await this.metrologiaServices.getPlanMetrologiaEquipo(this.id);
-      console.log({ ruta: this.hojaVida?.foto });
+
       if (this.hojaVida?.foto) {
         const blob = await this.imagenesServices.getImagen(this.hojaVida.foto);
-        console.log('Tipo MIME recibido:', blob);
+
         const objectUrl = URL.createObjectURL(blob);
         this.imagenUrl = this.sanitizer.bypassSecurityTrustUrl(objectUrl);
       } else {
@@ -109,7 +111,19 @@ export class HojavidaComponent implements OnInit {
       console.error('Error cargando hoja de vida o imagen:', error);
       // Check if it's a 404 error
       if (error?.status === 404 || error?.status === 400 || (error?.error?.error && error.error.error.includes('Hoja de vida no encontrada'))) {
-        this.showCreate = true;
+        if (this.isGuest()) {
+          this.showCreate = false;
+          Swal.fire({
+            icon: 'warning',
+            title: 'Hoja de Vida no disponible',
+            text: 'Este equipo no tiene una hoja de vida registrada.',
+            confirmButtonText: 'Volver'
+          }).then(() => {
+            this.location.back();
+          });
+        } else {
+          this.showCreate = true;
+        }
       }
     }
   }
@@ -136,7 +150,7 @@ export class HojavidaComponent implements OnInit {
 
   onHojaVidaCreated() {
     // Reload data when created
-    console.log("Hoja de vida creada/actualizada, recargando...");
+
     this.cargarHojaVida();
     this.showCreate = false; // Hide form
     this.dataToEdit = null; // Reset edit data
@@ -235,7 +249,7 @@ export class HojavidaComponent implements OnInit {
     const token = sessionStorage.getItem('utoken');
     if (!token) return true; // Assume guest if no token, though authGuard handles this
     const decoded = getDecodedAccessToken();
-    return decoded?.rol === 'INVITADO';
+    return decoded?.rol === 'INVITADO' || decoded?.rol === 'BIOMEDICATECNICO';
   }
 }
 

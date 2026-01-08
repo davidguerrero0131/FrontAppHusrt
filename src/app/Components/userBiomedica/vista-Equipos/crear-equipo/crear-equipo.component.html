@@ -74,13 +74,7 @@
             <input type="text" formControlName="ubicacionEspecifica" class="form-control" appUppercase />
           </div>
 
-          <div class="col-md-6">
-            <label>Sede</label>
-            <select formControlName="sedeIdFk" class="form-control">
-              <option value="">Seleccione...</option>
-              <option *ngFor="let sd of sedes" [value]="sd.id">{{ sd.nombres }}</option>
-            </select>
-          </div>
+
 
           <div class="col-md-6">
             <label>Responsable</label>
@@ -95,16 +89,10 @@
             <input type="number" max="12" formControlName="periodicidadM" class="form-control" />
           </div>
 
-          <div class="col-md-12" style="margin-top: 30px; margin-bottom: 20px;">
-            <div class="form-check form-check-inline">
-              <input type="checkbox" formControlName="actividadMetrologica" class="form-check-input"
-                id="calificacion" />
-              <label for="actividadMetrologica" class="form-check-label">Requiere Actividades Metrologicas</label>
-            </div>
-          </div>
 
-          <div class="col-md-6" *ngIf="equipoForm.get('actividadMetrologica')?.value">
-            <label>Numero de Actividades Metrologicas Anulaes:</label>
+
+          <div class="col-md-6" *ngIf="showMetrologyFrequency">
+            <label>Numero de Actividades Metrologicas Anuales:</label>
             <input type="number" max="12" formControlName="periodicidadAM" class="form-control" />
           </div>
 
@@ -112,7 +100,7 @@
 
         <div class="text-center mt-4">
           <button type="button" (click)="guardar()" class="btn btn-dark px-5" style="margin: 10px;">Guardar</button>
-          <button type="button" class="btn btn-secondary px-5">Regresar</button>
+          <button type="button" class="btn btn-secondary px-5" (click)="cancelar()">Regresar</button>
         </div>
       </form>
     </div>
@@ -132,5 +120,31 @@
   </div>
   <div class="flex justify-end gap-2">
     <p-button label="Guardar" (click)="validarFechasMantenimiento()" />
+  </div>
+</p-dialog>
+
+<p-dialog header="Agregar Fechas de Actividades Metrologicas" [modal]="true" [(visible)]="modalAddFechasCalibracion"
+  [style]="{ width: '25rem' }" [closable]="false">
+  <div *ngFor="let item of fechasCalibracion; let i = index; trackBy: trackByIndex" class="mb-4">
+    <h5 class="mb-2 font-bold">Actividad {{ i + 1 }}</h5>
+
+    <div class="field mb-3">
+      <label class="block mb-1 text-sm font-medium" [for]="'fecha-cal-'+i">Fecha Programada</label>
+      <p-datepicker [(ngModel)]="fechasCalibracion[i].fecha" inputId="{{ 'fecha-cal-' + i }}" view="month"
+        dateFormat="mm/yy" [style]="{ width: '100%' }" appendTo="body">
+      </p-datepicker>
+    </div>
+
+    <div class="field mb-3">
+      <label class="block mb-1 text-sm font-medium" [for]="'tipo-act-'+i">Tipo de Actividad</label>
+      <p-dropdown [options]="tipoActividadOptions" [(ngModel)]="fechasCalibracion[i].tipoActividad" optionLabel="label"
+        optionValue="value" [style]="{ width: '100%' }" placeholder="Seleccione Tipo" appendTo="body">
+      </p-dropdown>
+    </div>
+    <hr *ngIf="i < fechasCalibracion.length - 1" class="my-3 border-gray-300" />
+  </div>
+
+  <div class="flex justify-content-end mt-4">
+    <p-button label="Guardar y Finalizar" (click)="validarFechasCalibracion()" styleClass="p-button-success" />
   </div>
 </p-dialog>

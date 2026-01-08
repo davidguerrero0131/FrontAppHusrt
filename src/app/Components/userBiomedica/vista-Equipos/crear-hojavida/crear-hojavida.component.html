@@ -1,215 +1,278 @@
-<div style="width: 80%; margin-left: 10%; margin-right: 10%; margin-top: 2%;">
+<div class="w-full px-4 pt-4">
     <p-toast></p-toast>
+    <div class="card shadow-2 border-round-xl surface-card p-4">
+        <div class="flex align-items-center justify-content-between mb-4">
+            <h2 class="m-0 font-bold text-900 text-3xl">{{ hojaVidaData ? 'Editar Hoja de Vida' : 'Crear Hoja de Vida'
+                }}</h2>
+            <div class="flex gap-2">
+                <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary"
+                    [routerLink]="['/biomedica/equipos']"></button>
+                <button pButton [label]="hojaVidaData ? 'Actualizar' : 'Guardar'" icon="pi pi-check"
+                    (click)="onSubmit()" [disabled]="!hojaVidaForm.valid"></button>
+            </div>
+        </div>
 
-    <p-card [header]="hojaVidaData ? 'Editar Hoja de Vida' : 'Crear Hoja de Vida del Equipo'" class="w-full">
-        <form [formGroup]="hojaVidaForm" (ngSubmit)="onSubmit()" novalidate class="w-full">
-            <div class="grid p-fluid form-grid">
+        <form [formGroup]="hojaVidaForm" novalidate class="w-full">
+            <p-tabView styleClass="w-full">
 
-                <!-- Código Internacional -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="codigoInternacional">Código Internacional</label>
-                    <input type="text" pInputText id="codigoInternacional" formControlName="codigoInternacional" />
-                </div>
+                <!-- TAB 1: Información General -->
+                <p-tabPanel header="Información General">
+                    <div class="grid p-fluid formgrid mt-2">
 
-                <!-- Año de Ingreso -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="anoIngreso">Año de Ingreso</label>
-                    <p-inputNumber inputId="anoIngreso" formControlName="anoIngreso" mode="decimal"
-                        [useGrouping]="false" [min]="1900" [max]="2100">
-                    </p-inputNumber>
-                </div>
+                        <div class="col-12">
+                            <span
+                                class="text-xl font-medium text-primary block mb-3 border-bottom-1 surface-border pb-2"><i
+                                    class="pi pi-id-card mr-2"></i>Datos Básicos</span>
+                        </div>
 
-                <!-- Contrato -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="contrato">Contrato</label>
-                    <input type="text" pInputText id="contrato" formControlName="contrato" />
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="codigoInternacional" class="font-bold">Código Internacional</label>
+                            <input type="text" pInputText id="codigoInternacional" formControlName="codigoInternacional"
+                                placeholder="Ej: EQ-2024-001" />
+                        </div>
 
-                <!-- Proveedor -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="proveedorIdFk">Proveedor</label>
-                    <p-dropdown inputId="proveedorIdFk" [options]="proveedores" formControlName="proveedorIdFk"
-                        optionLabel="nombre" optionValue="id" placeholder="Seleccione Proveedor" [showClear]="true"
-                        [filter]="true" filterBy="nombre">
-                    </p-dropdown>
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="contrato" class="font-bold">Contrato</label>
+                            <input type="text" pInputText id="contrato" formControlName="contrato"
+                                placeholder="No. Contrato" />
+                        </div>
 
-                <!-- Fabricante -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="fabricanteIdFk">Fabricante</label>
-                    <p-dropdown inputId="fabricanteIdFk" [options]="fabricantes" formControlName="fabricanteIdFk"
-                        optionLabel="nombre" optionValue="id" placeholder="Seleccione Fabricante" [showClear]="true"
-                        [filter]="true" filterBy="nombre">
-                    </p-dropdown>
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="anoIngreso" class="font-bold">Año de Ingreso</label>
+                            <p-inputNumber inputId="anoIngreso" formControlName="anoIngreso" mode="decimal"
+                                [useGrouping]="false" [min]="1900" [max]="2100" placeholder="YYYY"></p-inputNumber>
+                        </div>
 
-                <!-- Tipo de Adquisición -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="tipoAdquisicion">Tipo de Adquisición</label>
-                    <p-dropdown inputId="tipoAdquisicion" [options]="tiposAdquisicion" formControlName="tipoAdquisicion"
-                        placeholder="Seleccione Tipo" [showClear]="true">
-                    </p-dropdown>
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="tipoAdquisicion" class="font-bold">Tipo de Adquisición</label>
+                            <p-dropdown inputId="tipoAdquisicion" [options]="tiposAdquisicion"
+                                formControlName="tipoAdquisicion" placeholder="Seleccione Tipo" [showClear]="true"
+                                styleClass="w-full"></p-dropdown>
+                        </div>
 
-                <!-- Fecha de Compra -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="fechaCompra">Fecha de Compra</label>
-                    <p-calendar inputId="fechaCompra" formControlName="fechaCompra" dateFormat="yy-mm-dd"
-                        [showIcon]="true">
-                    </p-calendar>
-                </div>
+                        <div class="col-12 mt-4">
+                            <span
+                                class="text-xl font-medium text-primary block mb-3 border-bottom-1 surface-border pb-2"><i
+                                    class="pi pi-box mr-2"></i>Origen del Equipo</span>
+                        </div>
 
-                <!-- Fecha de Instalación -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="fechaInstalacion">Fecha de Instalación</label>
-                    <p-calendar inputId="fechaInstalacion" formControlName="fechaInstalacion" dateFormat="yy-mm-dd"
-                        [showIcon]="true">
-                    </p-calendar>
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-6">
+                            <label for="proveedorIdFk" class="font-bold">Proveedor</label>
+                            <p-dropdown inputId="proveedorIdFk" [options]="proveedores" formControlName="proveedorIdFk"
+                                optionLabel="nombres" optionValue="id" placeholder="Seleccione Proveedor"
+                                [showClear]="true" [filter]="true" filterBy="nombres" styleClass="w-full"></p-dropdown>
+                        </div>
 
-                <!-- Fecha de Incorporación -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="fechaIncorporacion">Fecha de Incorporación</label>
-                    <p-calendar inputId="fechaIncorporacion" formControlName="fechaIncorporacion" dateFormat="yy-mm-dd"
-                        [showIcon]="true">
-                    </p-calendar>
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-6">
+                            <label for="fabricanteIdFk" class="font-bold">Fabricante</label>
+                            <p-dropdown inputId="fabricanteIdFk" [options]="fabricantes"
+                                formControlName="fabricanteIdFk" optionLabel="nombres" optionValue="id"
+                                placeholder="Seleccione Fabricante" [showClear]="true" [filter]="true"
+                                filterBy="nombres" styleClass="w-full"></p-dropdown>
+                        </div>
+                    </div>
+                </p-tabPanel>
 
-                <!-- Vencimiento Garantía -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="fechaVencimientoGarantia">Vencimiento Garantía</label>
-                    <p-calendar inputId="fechaVencimientoGarantia" formControlName="fechaVencimientoGarantia"
-                        dateFormat="yy-mm-dd" [showIcon]="true">
-                    </p-calendar>
-                </div>
+                <!-- TAB 2: Clasificación y Económica -->
+                <p-tabPanel header="Clasificación y Económica">
+                    <div class="grid p-fluid formgrid mt-2">
 
-                <!-- Costo de Compra -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="costoCompra">Costo de Compra</label>
-                    <p-inputNumber inputId="costoCompra" formControlName="costoCompra" mode="currency" currency="COP"
-                        locale="es-CO" [min]="0">
-                    </p-inputNumber>
-                </div>
+                        <div class="col-12">
+                            <span
+                                class="text-xl font-medium text-primary block mb-3 border-bottom-1 surface-border pb-2"><i
+                                    class="pi pi-calendar mr-2"></i>Fechas Importantes</span>
+                        </div>
 
-                <!-- Fuente de Alimentación -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="fuente">Fuente de Alimentación</label>
-                    <p-dropdown inputId="fuente" [options]="fuentes" formControlName="fuente"
-                        placeholder="Seleccione Fuente" [showClear]="true">
-                    </p-dropdown>
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-3">
+                            <label for="fechaCompra" class="font-bold">Fecha Compra</label>
+                            <p-calendar inputId="fechaCompra" formControlName="fechaCompra" dateFormat="yy-mm-dd"
+                                [showIcon]="true" styleClass="w-full"></p-calendar>
+                        </div>
 
-                <!-- Tipo de Uso -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="tipoUso">Tipo de Uso</label>
-                    <p-dropdown inputId="tipoUso" [options]="tiposUso" formControlName="tipoUso"
-                        placeholder="Seleccione Uso" [showClear]="true">
-                    </p-dropdown>
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-3">
+                            <label for="fechaInstalacion" class="font-bold">Fecha Instalación</label>
+                            <p-calendar inputId="fechaInstalacion" formControlName="fechaInstalacion"
+                                dateFormat="yy-mm-dd" [showIcon]="true" styleClass="w-full"></p-calendar>
+                        </div>
 
-                <!-- Clase -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="clase">Clase</label>
-                    <p-dropdown inputId="clase" [options]="clases" formControlName="clase"
-                        placeholder="Seleccione Clase" [showClear]="true">
-                    </p-dropdown>
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-3">
+                            <label for="fechaIncorporacion" class="font-bold">Fecha Incorporación</label>
+                            <p-calendar inputId="fechaIncorporacion" formControlName="fechaIncorporacion"
+                                dateFormat="yy-mm-dd" [showIcon]="true" styleClass="w-full"></p-calendar>
+                        </div>
 
-                <!-- Mantenimiento -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="mantenimiento">Mantenimiento</label>
-                    <p-dropdown inputId="mantenimiento" [options]="mantenimientos" formControlName="mantenimiento"
-                        placeholder="Seleccione Mantenimiento" [showClear]="true">
-                    </p-dropdown>
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-3">
+                            <label for="fechaVencimientoGarantia" class="font-bold text-red-500">Vencimiento
+                                Garantía</label>
+                            <p-calendar inputId="fechaVencimientoGarantia" formControlName="fechaVencimientoGarantia"
+                                dateFormat="yy-mm-dd" [showIcon]="true" styleClass="w-full"></p-calendar>
+                        </div>
 
-                <!-- Propiedad -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="propiedad">Propiedad</label>
-                    <p-dropdown inputId="propiedad" [options]="propiedades" formControlName="propiedad"
-                        placeholder="Seleccione Propiedad" [showClear]="true">
-                    </p-dropdown>
-                </div>
+                        <div class="col-12 mt-4">
+                            <span
+                                class="text-xl font-medium text-primary block mb-3 border-bottom-1 surface-border pb-2"><i
+                                    class="pi pi-tags mr-2"></i>Detalles y Clasificación</span>
+                        </div>
 
-                <!-- Equipo Portátil -->
-                <div class="field col-12 md:col-6 lg:col-4">
-                    <label for="equipoPortatil">¿Equipo Portátil?</label>
-                    <p-dropdown inputId="equipoPortatil" [options]="opcionesBinarias" formControlName="equipoPortatil"
-                        placeholder="Seleccione" [showClear]="true">
-                    </p-dropdown>
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="costoCompra" class="font-bold">Costo de Compra</label>
+                            <p-inputNumber inputId="costoCompra" formControlName="costoCompra" mode="currency"
+                                currency="COP" locale="es-CO" [min]="0" placeholder="$ 0.00"
+                                class="w-full"></p-inputNumber>
+                        </div>
 
-                <!-- Observaciones (ocupa toda la fila) -->
-                <div class="field col-12">
-                    <label for="observaciones">Observaciones</label>
-                    <textarea id="observaciones" rows="5" cols="30" pTextarea formControlName="observaciones"
-                        [autoResize]="true">
-        </textarea>
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="fuente" class="font-bold">Fuente de Alimentación</label>
+                            <p-dropdown inputId="fuente" [options]="fuentes" formControlName="fuente"
+                                placeholder="Seleccione" [showClear]="true" styleClass="w-full"></p-dropdown>
+                        </div>
 
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="tipoUso" class="font-bold">Tipo de Uso</label>
+                            <p-dropdown inputId="tipoUso" [options]="tiposUso" formControlName="tipoUso"
+                                placeholder="Seleccione" [showClear]="true" styleClass="w-full"></p-dropdown>
+                        </div>
 
-                <!-- Datos Técnicos -->
-                <div class="col-12">
-                    <h5>Datos Técnicos</h5>
-                    <p-card class="w-full">
-                        <div class="grid p-fluid form-grid">
-                            <div class="field col-12 md:col-6 lg:col-4">
-                                <label for="vMaxOperacion">V Max Operación</label>
-                                <input type="text" pInputText id="vMaxOperacion" formControlName="vMaxOperacion" />
-                            </div>
-                            <div class="field col-12 md:col-6 lg:col-4">
-                                <label for="vMinOperacion">V Min Operación</label>
-                                <input type="text" pInputText id="vMinOperacion" formControlName="vMinOperacion" />
-                            </div>
-                            <div class="field col-12 md:col-6 lg:col-4">
-                                <label for="iMaxOperacion">I Max Operación</label>
-                                <input type="text" pInputText id="iMaxOperacion" formControlName="iMaxOperacion" />
-                            </div>
-                            <div class="field col-12 md:col-6 lg:col-4">
-                                <label for="iMinOperacion">I Min Operación</label>
-                                <input type="text" pInputText id="iMinOperacion" formControlName="iMinOperacion" />
-                            </div>
-                            <div class="field col-12 md:col-6 lg:col-4">
-                                <label for="wConsumida">W Consumida</label>
-                                <input type="text" pInputText id="wConsumida" formControlName="wConsumida" />
-                            </div>
-                            <div class="field col-12 md:col-6 lg:col-4">
-                                <label for="frecuencia">Frecuencia</label>
-                                <input type="text" pInputText id="frecuencia" formControlName="frecuencia" />
-                            </div>
-                            <div class="field col-12 md:col-6 lg:col-4">
-                                <label for="presion">Presión</label>
-                                <input type="text" pInputText id="presion" formControlName="presion" />
-                            </div>
-                            <div class="field col-12 md:col-6 lg:col-4">
-                                <label for="velocidad">Velocidad</label>
-                                <input type="text" pInputText id="velocidad" formControlName="velocidad" />
-                            </div>
-                            <div class="field col-12 md:col-6 lg:col-4">
-                                <label for="temperatura">Temperatura</label>
-                                <input type="text" pInputText id="temperatura" formControlName="temperatura" />
-                            </div>
-                            <div class="field col-12 md:col-6 lg:col-4">
-                                <label for="peso">Peso</label>
-                                <input type="text" pInputText id="peso" formControlName="peso" />
-                            </div>
-                            <div class="field col-12 md:col-6 lg:col-4">
-                                <label for="capacidad">Capacidad</label>
-                                <input type="text" pInputText id="capacidad" formControlName="capacidad" />
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="clase" class="font-bold">Clase</label>
+                            <p-dropdown inputId="clase" [options]="clases" formControlName="clase"
+                                placeholder="Seleccione" [showClear]="true" styleClass="w-full"></p-dropdown>
+                        </div>
+
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="mantenimiento" class="font-bold">Mantenimiento</label>
+                            <p-dropdown inputId="mantenimiento" [options]="mantenimientos"
+                                formControlName="mantenimiento" placeholder="Seleccione" [showClear]="true"
+                                styleClass="w-full"></p-dropdown>
+                        </div>
+
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="propiedad" class="font-bold">Propiedad</label>
+                            <p-dropdown inputId="propiedad" [options]="propiedades" formControlName="propiedad"
+                                placeholder="Seleccione" [showClear]="true" styleClass="w-full"></p-dropdown>
+                        </div>
+
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="equipoPortatil" class="font-bold">¿Equipo Portátil?</label>
+                            <p-dropdown inputId="equipoPortatil" [options]="opcionesBinarias"
+                                formControlName="equipoPortatil" placeholder="Seleccione" [showClear]="true"
+                                styleClass="w-full"></p-dropdown>
+                        </div>
+                    </div>
+                </p-tabPanel>
+
+                <!-- TAB 3: Especificaciones Técnicas -->
+                <p-tabPanel header="Datos Técnicos">
+                    <div class="grid p-fluid formgrid mt-2">
+                        <div class="col-12">
+                            <span
+                                class="text-xl font-medium text-primary block mb-3 border-bottom-1 surface-border pb-2"><i
+                                    class="pi pi-bolt mr-2"></i>Eléctricos y Operativos</span>
+                        </div>
+
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="vMaxOperacion" class="font-bold">V Max Operación</label>
+                            <div class="p-inputgroup">
+                                <input type="text" pInputText id="vMaxOperacion" formControlName="vMaxOperacion"
+                                    placeholder="0" />
+                                <span class="p-inputgroup-addon">V</span>
                             </div>
                         </div>
-                    </p-card>
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="vMinOperacion" class="font-bold">V Min Operación</label>
+                            <div class="p-inputgroup">
+                                <input type="text" pInputText id="vMinOperacion" formControlName="vMinOperacion"
+                                    placeholder="0" />
+                                <span class="p-inputgroup-addon">V</span>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="wConsumida" class="font-bold">Potencia Consumida</label>
+                            <div class="p-inputgroup">
+                                <input type="text" pInputText id="wConsumida" formControlName="wConsumida"
+                                    placeholder="0" />
+                                <span class="p-inputgroup-addon">W</span>
+                            </div>
+                        </div>
 
-                <!-- Botón -->
-                <div class="field col-12 text-right">
-                    <p-button [label]="hojaVidaData ? 'Actualizar Hoja de Vida' : 'Guardar Hoja de Vida'" type="submit"
-                        icon="pi pi-check" [disabled]="!hojaVidaForm.valid">
-                    </p-button>
-                </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="iMaxOperacion" class="font-bold">I Max Operación</label>
+                            <div class="p-inputgroup">
+                                <input type="text" pInputText id="iMaxOperacion" formControlName="iMaxOperacion"
+                                    placeholder="0" />
+                                <span class="p-inputgroup-addon">A</span>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="iMinOperacion" class="font-bold">I Min Operación</label>
+                            <div class="p-inputgroup">
+                                <input type="text" pInputText id="iMinOperacion" formControlName="iMinOperacion"
+                                    placeholder="0" />
+                                <span class="p-inputgroup-addon">A</span>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="frecuencia" class="font-bold">Frecuencia</label>
+                            <div class="p-inputgroup">
+                                <input type="text" pInputText id="frecuencia" formControlName="frecuencia"
+                                    placeholder="0" />
+                                <span class="p-inputgroup-addon">Hz</span>
+                            </div>
+                        </div>
 
-            </div>
+                        <div class="col-12 mt-4">
+                            <span
+                                class="text-xl font-medium text-primary block mb-3 border-bottom-1 surface-border pb-2"><i
+                                    class="pi pi-cog mr-2"></i>Físicos y Mecánicos</span>
+                        </div>
+
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="presion" class="font-bold">Presión</label>
+                            <div class="p-inputgroup">
+                                <input type="text" pInputText id="presion" formControlName="presion" placeholder="0" />
+                                <span class="p-inputgroup-addon">PSI</span>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="velocidad" class="font-bold">Velocidad</label>
+                            <div class="p-inputgroup">
+                                <input type="text" pInputText id="velocidad" formControlName="velocidad"
+                                    placeholder="0" />
+                                <span class="p-inputgroup-addon">RPM</span>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="temperatura" class="font-bold">Temperatura</label>
+                            <div class="p-inputgroup">
+                                <input type="text" pInputText id="temperatura" formControlName="temperatura"
+                                    placeholder="0" />
+                                <span class="p-inputgroup-addon">°C</span>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="peso" class="font-bold">Peso</label>
+                            <div class="p-inputgroup">
+                                <input type="text" pInputText id="peso" formControlName="peso" placeholder="0" />
+                                <span class="p-inputgroup-addon">Kg</span>
+                            </div>
+                        </div>
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="capacidad" class="font-bold">Capacidad</label>
+                            <div class="p-inputgroup">
+                                <input type="text" pInputText id="capacidad" formControlName="capacidad"
+                                    placeholder="0" />
+                                <span class="p-inputgroup-addon">Und</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <label for="observaciones" class="font-bold">Observaciones Generales</label>
+                            <textarea id="observaciones" rows="3" pTextarea formControlName="observaciones"
+                                [autoResize]="true" class="w-full"></textarea>
+                        </div>
+                    </div>
+                </p-tabPanel>
+            </p-tabView>
         </form>
-    </p-card>
-
+    </div>
 </div>

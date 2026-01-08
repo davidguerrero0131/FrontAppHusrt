@@ -37,12 +37,7 @@ export class HomeuserbiomedicaComponent {
   }
 
   showViewInventarioBio() {
-    const rol = this.getRole();
-    if (rol === 'BIOMEDICATECNICO') {
-      this.router.navigate(['/biomedica/tecnico/equipos']);
-    } else {
-      this.router.navigate(['/biomedica/inventario']);
-    }
+    this.router.navigate(['/biomedica/inventario']);
   }
 
   showViewMantenimientoBio() {

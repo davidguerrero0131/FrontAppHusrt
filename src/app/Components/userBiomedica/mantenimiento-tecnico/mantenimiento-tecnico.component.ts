@@ -70,6 +70,8 @@ export class MantenimientoTecnicoComponent implements OnInit {
     constructor() { }
 
     async ngOnInit() {
+        this.datePreventivo = new Date();
+        this.dateCorrectivo = new Date();
         await this.cargarReportes();
     }
 

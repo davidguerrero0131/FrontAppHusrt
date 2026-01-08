@@ -19,6 +19,7 @@ import { MenuItem } from 'primeng/api';
 export class BiomedicausernavbarComponent implements OnInit {
 
     items!: MenuItem[];
+    userRole: string = '';
 
     constructor(private router: Router) { }
 
@@ -62,7 +63,8 @@ export class BiomedicausernavbarComponent implements OnInit {
         const token = sessionStorage.getItem('utoken');
         if (token) {
             const decoded: any = this.getDecodedAccessToken(token);
-            const userRole = decoded?.rol;
+            this.userRole = decoded?.rol;
+            const userRole = this.userRole;
 
             // Menu for BIOMEDICAUSER and others (excluding INVITADO)
             if (userRole !== 'INVITADO') {

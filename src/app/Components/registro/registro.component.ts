@@ -57,7 +57,7 @@ export class RegistroComponent implements OnInit {
   async ngOnInit() {
     try {
       this.roles = await this.userService.getAllRoles();
-      console.log(this.roles);
+
     } catch {
       Swal.fire({
         icon: 'warning',

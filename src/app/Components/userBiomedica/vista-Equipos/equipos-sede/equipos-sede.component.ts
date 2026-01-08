@@ -16,12 +16,17 @@ import { InputTextModule } from 'primeng/inputtext';
 import { getDecodedAccessToken, obtenerNombreMes } from '../../../../utilidades';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { HistorialEquiposComponent } from '../historial-equipos/historial-equipos.component';
+import { DialogModule } from 'primeng/dialog';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
     selector: 'app-equipos-sede',
     standalone: true,
     imports: [FormsModule, CommonModule, TableModule,
-        SplitButtonModule, SpeedDialModule, IconFieldModule, InputIconModule, InputTextModule],
+        SplitButtonModule, SpeedDialModule, IconFieldModule, InputIconModule, InputTextModule, DialogModule, MultiSelectModule, DropdownModule, InputNumberModule, ButtonModule],
     providers: [DialogService],
     templateUrl: './equipos-sede.component.html',
     styleUrl: './equipos-sede.component.css'
@@ -33,6 +38,29 @@ export class EquiposSedeComponent implements OnInit {
     sede!: any;
     loading: boolean = false;
     ref: DynamicDialogRef | undefined;
+
+    // Variables para el modal de edición de plan
+    displayPlanDialog: boolean = false;
+    currentEquipo: any = null;
+    selectedMonths: any[] = [];
+    periodicidad: number = 0;
+    mesInicio: number = 1;
+    calculatedMonthsText: string = '';
+
+    monthOptions: any[] = [
+        { name: 'Enero', value: 1 },
+        { name: 'Febrero', value: 2 },
+        { name: 'Marzo', value: 3 },
+        { name: 'Abril', value: 4 },
+        { name: 'Mayo', value: 5 },
+        { name: 'Junio', value: 6 },
+        { name: 'Julio', value: 7 },
+        { name: 'Agosto', value: 8 },
+        { name: 'Septiembre', value: 9 },
+        { name: 'Octubre', value: 10 },
+        { name: 'Noviembre', value: 11 },
+        { name: 'Diciembre', value: 12 }
+    ];
 
     equipoServices = inject(EquiposService);
     sedeServices = inject(SedeService);
@@ -57,7 +85,13 @@ export class EquiposSedeComponent implements OnInit {
                             label: 'Editar',
                             icon: 'pi pi-pencil',
                             command: () => this.editarEquipo(equipo.id),
-                            visible: getDecodedAccessToken().rol === 'BIOMEDICAADMIN'
+                            visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
+                        },
+                        {
+                            label: 'Editar Plan Mantenimiento',
+                            icon: 'pi pi-calendar',
+                            command: () => this.openPlanDialog(equipo),
+                            visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
                         },
                         {
                             label: 'Ver Hoja de Vida',
@@ -102,7 +136,7 @@ export class EquiposSedeComponent implements OnInit {
     }
 
     editarEquipo(id: number) {
-        // Implement edit logic if needed or reused
+        this.router.navigate(['biomedica/adminequipos/edit/', id]);
     }
 
     nuevoReporte(id: number) {
@@ -148,6 +182,144 @@ export class EquiposSedeComponent implements OnInit {
             case 'IIB': return '#ffff00'; // Amarillo
             case 'III': return '#ffcc80'; // Naranja claro
             default: return 'transparent';
+        }
+    }
+
+    openPlanDialog(equipo: any) {
+        this.currentEquipo = equipo;
+        this.displayPlanDialog = true;
+
+        // Inicializar periodicidad
+        this.periodicidad = equipo.periodicidadM || 0;
+
+        // Determinar mes de inicio basado en el plan existente o defecto
+        if (equipo.planesMantenimiento && equipo.planesMantenimiento.length > 0) {
+            // Ordenar para encontrar el primero
+            const meses = equipo.planesMantenimiento.map((p: any) => (typeof p === 'object' && p.mes ? p.mes : p)).sort((a: any, b: any) => a - b);
+            this.mesInicio = meses[0];
+            this.selectedMonths = meses;
+        } else {
+            this.mesInicio = 1; // Enero por defecto
+            this.selectedMonths = [];
+        }
+
+        // Calcular texto inicial
+        this.calcularFechas(false); // false para no sobrescribir immediately
+        if (this.periodicidad > 0) {
+            this.calcularFechas();
+        } else {
+            this.updateCalculatedText();
+        }
+    }
+
+    calcularFechas(overwrite: boolean = true) {
+        if (!this.periodicidad || this.periodicidad <= 0) {
+            this.calculatedMonthsText = 'Periodicidad no válida';
+            return;
+        }
+
+        if (overwrite) {
+            const nuevosMeses = [];
+            let mesActual = this.mesInicio;
+
+            while (mesActual <= 12) {
+                nuevosMeses.push(mesActual);
+                mesActual += this.periodicidad;
+            }
+            this.selectedMonths = nuevosMeses;
+        }
+
+        this.updateCalculatedText();
+    }
+
+    updateCalculatedText() {
+        if (!this.selectedMonths || this.selectedMonths.length === 0) {
+            this.calculatedMonthsText = 'Sin fechas seleccionadas';
+            return;
+        }
+        const textMeses = this.selectedMonths.sort((a, b) => a - b).map(m => {
+            const op = this.monthOptions.find(o => o.value === m);
+            return op ? op.name : m;
+        }).join(', ');
+        this.calculatedMonthsText = `Fechas programadas: ${textMeses}`;
+    }
+
+    async savePlan() {
+        if (!this.currentEquipo) return;
+
+        try {
+            // Reconstruimos el array de planes basados en selectedMonths
+            const nuevosPlanes = this.selectedMonths.map(mes => ({
+                mes: mes
+            }));
+
+            const equipoUpdate = {
+                ...this.currentEquipo,
+                periodicidadM: this.periodicidad, // Guardar tambien la periodicidad
+                planesMantenimiento: nuevosPlanes
+            };
+
+            await this.equipoServices.updateEquipo(this.currentEquipo.id, equipoUpdate);
+
+            const Swal = require('sweetalert2');
+            Swal.fire(
+                'Actualizado!',
+                'El plan de mantenimiento ha sido actualizado.',
+                'success'
+            );
+
+            this.displayPlanDialog = false;
+            // Recargar equipos para mostrar cambios
+            const idSede = sessionStorage.getItem('idSede');
+            if (idSede) {
+                const equiposData = await this.equipoServices.getAllEquiposSede(idSede);
+                this.equipos = equiposData.map((equipo: any) => ({
+                    ...equipo,
+                    opcionesHV: [
+                        {
+                            label: 'Editar',
+                            icon: 'pi pi-pencil',
+                            command: () => this.editarEquipo(equipo.id),
+                            visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
+                        },
+                        {
+                            label: 'Editar Plan Mantenimiento',
+                            icon: 'pi pi-calendar',
+                            command: () => this.openPlanDialog(equipo),
+                            visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
+                        },
+                        {
+                            label: 'Ver Hoja de Vida',
+                            icon: 'pi pi-eye',
+                            command: () => this.verHojaVida(equipo.id)
+                        },
+                        {
+                            label: 'Reportes',
+                            icon: 'pi pi-external-link',
+                            command: () => this.verReportes(equipo.id)
+                        },
+                        {
+                            label: 'Nuevo reporte',
+                            icon: 'pi pi-upload',
+                            command: () => this.nuevoReporte(equipo.id),
+                            visible: getDecodedAccessToken().rol !== 'INVITADO'
+                        },
+                        {
+                            label: 'Historial',
+                            icon: 'pi pi-history',
+                            command: () => this.verHistorial(equipo.id)
+                        }
+                    ]
+                }));
+            }
+        } catch (error) {
+            console.error(error);
+            const Swal = require('sweetalert2');
+            Swal.fire(
+                'Error!',
+                'Hubo un problema al actualizar el plan.',
+                'error'
+            );
         }
     }
 }

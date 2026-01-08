@@ -72,3 +72,35 @@
         </ng-template>
     </p-table>
 </div>
+
+<p-dialog header="Editar Plan de Mantenimiento" [(visible)]="displayPlanDialog" [modal]="true"
+    styleClass="standard-modal modal-md" [draggable]="false" [resizable]="false">
+    <div class="p-fluid">
+        <div class="field">
+            <label for="periodicidad">Periodicidad (Meses)</label>
+            <p-inputNumber [(ngModel)]="periodicidad" inputId="periodicidad" [min]="0" [max]="12"
+                (onInput)="calcularFechas()" placeholder="Ej: 3, 6, 12"></p-inputNumber>
+            <small class="block">Ingrese cada cuantos meses se debe realizar el mantenimiento.</small>
+        </div>
+        <div class="field">
+            <label for="mesInicio">Mes de Inicio</label>
+            <p-dropdown [options]="monthOptions" [(ngModel)]="mesInicio" optionLabel="name" optionValue="value"
+                (onChange)="calcularFechas()"></p-dropdown>
+            <small class="block">Seleccione el primer mes del mantenimiento.</small>
+        </div>
+        <div class="field">
+            <label for="meses">Meses Calculados</label>
+            <p-multiSelect [options]="monthOptions" [(ngModel)]="selectedMonths" defaultLabel="Seleccione los meses"
+                optionLabel="name" optionValue="value" display="chip" [disabled]="true"></p-multiSelect>
+            <p class="font-bold mt-2"
+                [ngClass]="{'text-green-500': selectedMonths.length > 0, 'text-red-500': selectedMonths.length === 0}">
+                {{calculatedMonthsText}}
+            </p>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <p-button icon="pi pi-times" (click)="displayPlanDialog=false" label="Cancelar"
+            styleClass="p-button-text p-button-secondary"></p-button>
+        <p-button icon="pi pi-check" (click)="savePlan()" label="Guardar"></p-button>
+    </ng-template>
+</p-dialog>

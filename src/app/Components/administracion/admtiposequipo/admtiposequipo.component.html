@@ -24,10 +24,10 @@
           <button pButton label="Limpiar" class="p-button-outlined" icon="pi pi-filter-slash"
             (click)="dt2.clear()"></button>
         </div>
-        <span class="p-input-icon-left">
-          <i class="pi pi-search"></i>
+        <p-iconfield position="left">
+          <p-inputicon styleClass="pi pi-search" />
           <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Buscar tipo..." />
-        </span>
+        </p-iconfield>
       </div>
     </ng-template>
 
@@ -159,6 +159,11 @@
     <div class="flex flex-column gap-2">
       <label class="font-bold">Actividad</label>
       <input pInputText formControlName="actividad" />
+    </div>
+
+    <div class="flex align-items-center gap-2 mt-2">
+      <p-inputSwitch formControlName="requiereMetrologia" inputId="reqMetrologia"></p-inputSwitch>
+      <label for="reqMetrologia" class="font-bold">Requiere Actividad Metrológica</label>
     </div>
 
     <div class="flex flex-column gap-2">

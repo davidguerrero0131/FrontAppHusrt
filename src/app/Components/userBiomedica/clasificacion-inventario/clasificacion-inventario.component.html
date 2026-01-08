@@ -27,6 +27,8 @@
       </p-select>
 
       <button pButton label="Buscar" icon="pi pi-search" (click)="buscarEquipo()" class="p-button-primary"></button>
+      <button *ngIf="showCreateEquipmentButton" pButton label="Crear Equipo" icon="pi pi-plus"
+        (click)="goToCreateEquipment()" class="p-button-success"></button>
     </div>
   </div>
 

@@ -99,7 +99,8 @@
                         <td colspan="5" class="text-center p-4">
                             <div class="flex flex-column align-items-center">
                                 <i class="pi pi-check-circle text-green-500 text-6xl mb-3"></i>
-                                <span class="text-xl text-500">¡Todo al día! No hay mantenimientos pendientes.</span>
+                                <span class="text-xl text-500">¡Todo al día! No hay mantenimientos pendientes en el mes
+                                    seleccionado.</span>
                             </div>
                         </td>
                     </tr>
@@ -153,7 +154,8 @@
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="5" class="text-center p-4">No hay mantenimientos preventivos ejecutados.</td>
+                        <td colspan="5" class="text-center p-4">No hay mantenimientos preventivos ejecutados en el mes
+                            seleccionado.</td>
                     </tr>
                 </ng-template>
             </p-table>
@@ -224,7 +226,8 @@
                         <td colspan="5" class="text-center p-4">
                             <div class="flex flex-column align-items-center">
                                 <i class="pi pi-inbox text-500 text-6xl mb-3"></i>
-                                <span class="text-xl text-500">No hay mantenimientos correctivos.</span>
+                                <span class="text-xl text-500">No hay mantenimientos correctivos en el mes
+                                    seleccionado.</span>
                             </div>
                         </td>
                     </tr>
@@ -235,50 +238,114 @@
 
 </div>
 
-<!-- Modal Detalle Reporte -->
-<p-dialog header="Detalle del Mantenimiento" [(visible)]="modalReport" [style]="{width: '50vw'}" [modal]="true"
-    [draggable]="false" [resizable]="false" [breakpoints]="{'960px': '75vw', '640px': '95vw'}">
-    <div *ngIf="reportSelected">
-        <h5 class="text-primary font-bold mb-3 border-bottom-1 border-200 pb-2">Información General</h5>
+<p-dialog header="Reporte N. {{ reportSelected?.id }}" [(visible)]="modalReport" [modal]="true" [responsive]="true"
+    [style]="{ width: '90vw', maxWidth: '95%' }" [baseZIndex]="10000"
+    [breakpoints]="{ '960px': '90vw', '640px': '95vw' }">
+    <div class="p-fluid p-3">
+
+        <!-- 1. Línea: Información del Equipo -->
         <div class="grid">
-            <div class="col-12 sm:col-6 mb-2"><strong>Equipo:</strong> <span class="text-700 ml-2">{{
-                    reportSelected.equipo?.nombres }}</span></div>
-            <div class="col-12 sm:col-6 mb-2"><strong>Placa:</strong> <span class="text-700 ml-2">{{
-                    reportSelected.equipo?.placa }}</span></div>
-            <div class="col-12 sm:col-6 mb-2"><strong>Realizado por:</strong> <span class="text-700 ml-2">{{
-                    reportSelected.usuario?.nombres }} {{ reportSelected.usuario?.apellidos }}</span></div>
-            <div class="col-12 sm:col-6 mb-2"><strong>Fecha:</strong> <span class="text-700 ml-2">{{
-                    reportSelected.updatedAt | date:'medium' }}</span></div>
-            <div class="col-12 mt-3">
-                <div class="surface-ground p-3 border-round">
-                    <strong>Observaciones:</strong>
-                    <p class="m-0 mt-2 line-height-3">{{ reportSelected.recomendaciones || 'Sin observaciones.' }}</p>
-                </div>
+            <div class="col-12">
+                <p-card header="Información del Equipo">
+                    <div class="p-text-sm grid">
+                        <div class="col-12 md:col-4">
+                            <p><strong>Nombre:</strong> {{ reportSelected?.equipo.nombres }}</p>
+                            <p><strong>Marca:</strong> {{ reportSelected?.equipo.marca }}</p>
+                            <p><strong>Modelo:</strong> {{ reportSelected?.equipo.modelo }}</p>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <p><strong>Serie:</strong> {{ reportSelected?.equipo.serie }}</p>
+                            <p><strong>Placa:</strong> {{ reportSelected?.equipo.placa }}</p>
+                            <p><strong>Activo:</strong> {{ reportSelected?.equipo.activo ? 'Sí' : 'No' }}</p>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <p><strong>Servicio:</strong> {{ reportSelected?.servicio.nombres }}</p>
+                            <p><strong>Ubicación:</strong> {{ reportSelected?.equipo.ubicacion }}</p>
+                            <p><strong>Ubicación Específica:</strong> {{ reportSelected?.equipo.ubicacionEspecifica }}
+                            </p>
+                        </div>
+                    </div>
+                </p-card>
             </div>
         </div>
 
-        <h5 class="mt-4 text-primary font-bold mb-3 border-bottom-1 border-200 pb-2"
-            *ngIf="rutina && rutina.length > 0">Rutina de Mantenimiento</h5>
-        <p-table [value]="rutina" *ngIf="rutina && rutina.length > 0" styleClass="p-datatable-sm p-datatable-gridlines"
-            [scrollable]="true" scrollHeight="300px">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th>Paso</th>
-                    <th style="width: 120px">Estado</th>
-                    <th>Observación</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-paso>
-                <tr>
-                    <td>{{ paso.protocolo?.paso }}</td>
-                    <td class="text-center">
-                        <p-tag [severity]="paso.cumple ? 'success' : 'danger'"
-                            [value]="paso.cumple ? 'Cumple' : 'No Cumple'"
-                            [icon]="paso.cumple ? 'pi pi-check' : 'pi pi-times'"></p-tag>
-                    </td>
-                    <td>{{ paso.observacion || 'N/A' }}</td>
-                </tr>
-            </ng-template>
-        </p-table>
+        <!-- 2. Línea: Detalles del Reporte -->
+        <div class="grid">
+            <div class="col-12">
+                <p-card header="Detalle del Reporte">
+                    <div class="p-text-sm grid">
+                        <div class="col-12 md:col-4">
+                            <p><strong>Mes Programado:</strong> {{ reportSelected?.mesProgramado + 1 }}</p>
+                            <p><strong>Fecha Realizado:</strong> {{ reportSelected?.fechaRealizado }}</p>
+                            <p><strong>Hora Inicio:</strong> {{ reportSelected?.horaInicio }}</p>
+                            <p><strong>Fecha Fin:</strong> {{ reportSelected?.fechaFin }}</p>
+                            <p><strong>Trabajo Realizado:</strong> {{ reportSelected?.trabajoRealizado }}</p>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <p><strong>Hora Terminación:</strong> {{ reportSelected?.horaTerminacion }}</p>
+                            <p><strong>Hora Total:</strong> {{ reportSelected?.horaTotal }}</p>
+                            <p><strong>Tipo Mantenimiento:</strong> {{ reportSelected?.tipoMantenimiento }}</p>
+                            <p><strong>Tipo Falla:</strong> {{ reportSelected?.tipoFalla }}</p>
+                            <p><strong>Observaciones:</strong> {{ reportSelected?.observaciones }}</p>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <p><strong>Motivo:</strong> {{ reportSelected?.motivo }}</p>
+                            <p><strong>Calificación:</strong> {{ reportSelected?.calificacion }}</p>
+                            <p><strong>Mantenimiento Propio:</strong> {{ reportSelected?.mantenimientoPropio ? 'Sí' :
+                                'No' }}</p>
+                            <p><strong>Realizado:</strong> {{ reportSelected?.realizado ? 'Sí' : 'No' }}</p>
+
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+        </div>
+
+        <div>
+            <p-card header="Rutina de Mantenimiento">
+                <div class="p-text-sm grid">
+                    <div class="col-12">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th>Cumplimiento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of rutina">
+                                    <td>{{ item.protocolo.paso }}</td>
+                                    <td>{{ item.cumple ? 'Sí' : 'No' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+
+        <div style="margin-top: 1%;"></div>
+
+        <div class="grid">
+            <div class="col-12">
+                <p-card header="Realizado Por:">
+                    <div class="p-text-sm grid">
+                        <div class="col-12 md:col-4">
+                            <p><strong>Nombre:</strong> {{ reportSelected?.usuario.nombres }} {{
+                                reportSelected?.usuario.apellidos}}
+                            </p>
+                            <p><strong>Email:</strong> {{ reportSelected?.usuario.email }}</p>
+                            <p><strong>Registro Invima:</strong> {{ reportSelected?.usuario.registroInvima }}</p>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
+                                *ngIf="reportSelected?.rutaPdf">Ver Reporte</button>
+                            <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
+                                *ngIf="!reportSelected?.rutaPdf">Generar Formato</button>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+        </div>
     </div>
 </p-dialog>

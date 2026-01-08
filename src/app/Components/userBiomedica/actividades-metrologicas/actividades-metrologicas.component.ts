@@ -73,7 +73,7 @@ export class ActividadesMetrologicasComponent implements OnInit {
         this.actividadesMetrologicas = await this.metrologiaServices.getReportesActividadesMesAño({ mes: this.mes, anio: this.anio })
 
       } catch (error) {
-        console.log(error);
+
         Swal.fire({
           icon: 'error',
           title: 'No es posible cargar la informacion de los reportes de actividades metrológicas',
@@ -204,13 +204,13 @@ export class ActividadesMetrologicasComponent implements OnInit {
     this.errorMaximoIdentificado = null;
     this.observaciones = '';
     this.selectedFile = null;
-    console.log(this.actividadMetrologicaSelected);
+
   }
 
   viewActividadMetrologica(actividad: any) {
     this.modalViewActividadMetrologica = true;
     this.actividadMetrologicaSelected = actividad;
-    console.log(this.actividadMetrologicaSelected);
+
   }
 
   verCertificado() {

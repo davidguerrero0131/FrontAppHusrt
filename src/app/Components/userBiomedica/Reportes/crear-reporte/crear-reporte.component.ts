@@ -65,7 +65,7 @@ export class CrearReporteComponent implements OnInit {
       horaInicio: [null],
       fechaFin: [null],
       horaTerminacion: [null],
-      horaTotal: [null],
+      horaTotal: [{ value: null, disabled: true }],
       tipoMantenimiento: this.tipoMantenimiento,
       tipoFalla: [null],
       motivo: [''],
@@ -77,6 +77,10 @@ export class CrearReporteComponent implements OnInit {
       cumplimientoProtocolo: this.fb.array([])
     });
 
+    this.reporteForm.valueChanges.subscribe(() => {
+      this.calcularHoras();
+    });
+
     if (this.tipoMantenimiento === 'Preventivo') {
       this.reporteForm.get('tipoFalla')?.setValue('Sin Falla');
       this.reporteForm.get('tipoFalla')?.disable();
@@ -85,6 +89,38 @@ export class CrearReporteComponent implements OnInit {
     }
 
     this.reporteForm.get('tipoMantenimiento')?.disable();
+  }
+
+  calcularHoras() {
+    const fechaInicio = this.reporteForm.get('fechaRealizado')?.value;
+    const horaInicio = this.reporteForm.get('horaInicio')?.value;
+    const fechaFin = this.reporteForm.get('fechaFin')?.value;
+    const horaFin = this.reporteForm.get('horaTerminacion')?.value;
+
+    if (fechaInicio && horaInicio && fechaFin && horaFin) {
+      const inicio = new Date(fechaInicio);
+      const [horasInicio, minutosInicio] = horaInicio.split(':');
+      inicio.setHours(Number(horasInicio), Number(minutosInicio));
+
+      const fin = new Date(fechaFin);
+      const [horasFin, minutosFin] = horaFin.split(':');
+      fin.setHours(Number(horasFin), Number(minutosFin));
+
+      const diferenciaMs = fin.getTime() - inicio.getTime();
+
+      if (diferenciaMs < 0) {
+        this.reporteForm.get('horaTotal')?.setValue('00:00:00');
+        return;
+      }
+
+      const hours = Math.floor(diferenciaMs / (1000 * 60 * 60));
+      const minutes = Math.floor((diferenciaMs % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diferenciaMs % (1000 * 60)) / 1000);
+
+      const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+      this.reporteForm.get('horaTotal')?.setValue(formattedTime);
+    }
   }
 
   async ngOnInit() {
@@ -108,7 +144,7 @@ export class CrearReporteComponent implements OnInit {
         horaInicio: this.reporteForm.value.horaInicio,
         fechaFin: this.reporteForm.value.fechaFin,
         horaTerminacion: this.reporteForm.value.horaTerminacion,
-        horaTotal: 0,
+        horaTotal: this.reporteForm.get('horaTotal')?.value || 0,
         tipoMantenimiento: this.tipoMantenimiento,
         tipoFalla: this.tipoMantenimiento == 'Preventivo' ? 'Sin Falla' : this.reporteForm.value.tipoFalla,
         motivo: this.tipoMantenimiento == 'Preventivo' ? 'Programado para mantenimiento preventivo' : this.reporteForm.value.motivo,
@@ -133,7 +169,7 @@ export class CrearReporteComponent implements OnInit {
             timer: 1500
           });
           this.guardarCumplimiento();
-          console.log(this.reporte)
+
           this.router.navigate(['/biomedica/reportesequipo/', this.reporte.equipoIdFk]);
         }).catch(error => {
           console.error('Error al actualizar el reporte:', error);
@@ -194,7 +230,7 @@ export class CrearReporteComponent implements OnInit {
   }
 
   testViewCumplimiento() {
-    console.log('Cumplimiento:', this.reporteForm.value.cumplimientoProtocolo);
+
     this.guardarCumplimiento();
   }
 
@@ -219,7 +255,7 @@ export class CrearReporteComponent implements OnInit {
   }
 
   validarPreventivo(): boolean {
-    console.log(this.reporteForm.value.tipoMantenimiento);
+
     return this.reporteForm.value.tipoMantenimiento === 'Preventivo' ? true : false;
 
   }

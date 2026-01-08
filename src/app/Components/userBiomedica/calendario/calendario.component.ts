@@ -17,7 +17,7 @@ import { MetrologiaService } from '../../../Services/appServices/biomedicaServic
 import { ServicioService } from '../../../Services/appServices/general/servicio/servicio.service';
 import { TipoEquipoService } from '../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
 
-import { obtenerNombreMes } from '../../../utilidades';
+import { obtenerNombreMes, getDecodedAccessToken } from '../../../utilidades';
 
 @Component({
   selector: 'app-calendario',
@@ -29,6 +29,15 @@ import { obtenerNombreMes } from '../../../utilidades';
 })
 
 export class CalendarioComponent implements OnInit {
+
+  // ... (existing properties)
+
+  get canProgram(): boolean {
+    const token = getDecodedAccessToken();
+    return token?.rol !== 'BIOMEDICATECNICO';
+  }
+
+  // ... (rest of the class)
 
   fechaPlan = new Date();
   mesPlan = this.fechaPlan.getMonth() + 1;

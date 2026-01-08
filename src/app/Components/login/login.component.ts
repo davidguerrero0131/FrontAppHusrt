@@ -65,7 +65,7 @@ export class LoginComponent implements OnInit {
   async loginInvitado() {
     try {
       const response = await this.userServices.loginInvitado();
-      console.log('Guest Login Response:', response); // Debug
+
       if (response && response.token) {
         sessionStorage.setItem('utoken', response.token);
         sessionStorage.setItem('idUser', response.idUser);
@@ -76,7 +76,7 @@ export class LoginComponent implements OnInit {
           title: 'Acceso Correcto',
           text: 'Bienvenido Invitado',
         })
-        console.log('Navigating to home...'); // Debug
+
         this.router.navigate(['/biomedica/home-invitado']);
       } else {
         console.error('Invalid response:', response);

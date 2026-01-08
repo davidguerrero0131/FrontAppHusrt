@@ -41,130 +41,182 @@
       <!-- Accordion para secciones adicionales -->
       <p-accordion [multiple]="true">
         <!-- Datos del equipo -->
-        <p-accordionTab header="Detalle de Hoja de Vida" *ngIf="hojaVida.equipo">
-          <div class="grid">
-
-
-            <div class="col-12 sm:col-6" *ngIf="hojaVida.codigoInternacional">
-              <strong>Código Internacional:</strong> {{ hojaVida.codigoInternacional }}
+        <p-accordion-panel value="0" *ngIf="hojaVida.equipo">
+          <p-accordion-header>Detalle de Hoja de Vida</p-accordion-header>
+          <p-accordion-content>
+            <div class="grid">
+              <div class="col-12 sm:col-6" *ngIf="hojaVida.codigoInternacional">
+                <strong>Código Internacional:</strong> {{ hojaVida.codigoInternacional }}
+              </div>
+              <div class="col-12 sm:col-6">
+                <strong>Proveedor:</strong> {{ hojaVida.proveedor?.nombres }}
+              </div>
+              <div class="col-12 sm:col-6">
+                <strong>Fabricante:</strong> {{ hojaVida.fabricante?.nombres }}
+              </div>
+              <div class="col-12 sm:col-6">
+                <strong>Año de Ingreso:</strong> {{ hojaVida.anoIngreso }}
+              </div>
+              <div class="col-12 sm:col-6">
+                <strong>Tipo de Adquisición:</strong> {{ hojaVida.tipoAdquisicion }}
+              </div>
+              <div class="col-12 sm:col-6">
+                <strong>Tipo de Uso:</strong> {{ hojaVida.tipoUso }}
+              </div>
+              <div class="col-12 sm:col-6">
+                <strong>Clase:</strong> {{ hojaVida.clase }}
+              </div>
+              <div class="col-12 sm:col-6">
+                <strong>Mantenimiento:</strong> {{ hojaVida.mantenimiento }}
+              </div>
+              <div class="col-12 sm:col-6">
+                <strong>Propiedad:</strong> {{ hojaVida.propiedad }}
+              </div>
+              <div class="col-12 sm:col-6">
+                <strong>Equipo Portátil:</strong> {{ hojaVida.equipoPortatil ? 'Sí' : 'No' }}
+              </div>
+              <div class="col-12 sm:col-6"><strong>Riesgo:</strong> {{ hojaVida.equipo.riesgo }}</div>
+              <div class="col-12 sm:col-6"><strong>Registro Invima:</strong> {{ hojaVida.equipo.registroInvima }}</div>
             </div>
-            <div class="col-12 sm:col-6">
-              <strong>Proveedor:</strong> {{ hojaVida.proveedor?.nombre }}
-            </div>
-            <div class="col-12 sm:col-6">
-              <strong>Fabricante:</strong> {{ hojaVida.fabricante?.nombre }}
-            </div>
-            <div class="col-12 sm:col-6">
-              <strong>Año de Ingreso:</strong> {{ hojaVida.anoIngreso }}
-            </div>
-            <div class="col-12 sm:col-6">
-              <strong>Tipo de Adquisición:</strong> {{ hojaVida.tipoAdquisicion }}
-            </div>
-            <div class="col-12 sm:col-6">
-              <strong>Tipo de Uso:</strong> {{ hojaVida.tipoUso }}
-            </div>
-            <div class="col-12 sm:col-6">
-              <strong>Clase:</strong> {{ hojaVida.clase }}
-            </div>
-            <div class="col-12 sm:col-6">
-              <strong>Mantenimiento:</strong> {{ hojaVida.mantenimiento }}
-            </div>
-            <div class="col-12 sm:col-6">
-              <strong>Propiedad:</strong> {{ hojaVida.propiedad }}
-            </div>
-            <div class="col-12 sm:col-6">
-              <strong>Equipo Portátil:</strong> {{ hojaVida.equipoPortatil ? 'Sí' : 'No' }}
-            </div>
-            <div class="col-12 sm:col-6"><strong>Riesgo:</strong> {{ hojaVida.equipo.riesgo }}</div>
-            <div class="col-12 sm:col-6"><strong>Registro Invima:</strong> {{ hojaVida.equipo.registroInvima }}</div>
-          </div>
-        </p-accordionTab>
+          </p-accordion-content>
+        </p-accordion-panel>
 
         <!-- Datos del Tipo de Equipo -->
-        <p-accordionTab header="Información del Tipo de Equipo" *ngIf="hojaVida.equipo?.tipoEquipos">
-          <div class="grid">
-            <div class="col-12 sm:col-6"><strong>Nombre:</strong> {{ hojaVida.equipo.tipoEquipos.nombres }}</div>
-            <div class="col-12 sm:col-6"><strong>Actividad:</strong> {{ hojaVida.equipo.tipoEquipos.actividad }}</div>
-            <div class="col-12 sm:col-6"><strong>Material Consumible:</strong> {{
-              hojaVida.equipo.tipoEquipos.materialConsumible }}</div>
-            <div class="col-12 sm:col-6"><strong>Herramienta:</strong> {{ hojaVida.equipo.tipoEquipos.herramienta }}
+        <p-accordion-panel value="1" *ngIf="hojaVida.equipo?.tipoEquipos">
+          <p-accordion-header>Información del Tipo de Equipo</p-accordion-header>
+          <p-accordion-content>
+            <div class="grid">
+              <div class="col-12 sm:col-6"><strong>Nombre:</strong> {{ hojaVida.equipo.tipoEquipos.nombres }}</div>
+              <div class="col-12 sm:col-6"><strong>Actividad:</strong> {{ hojaVida.equipo.tipoEquipos.actividad }}</div>
+              <div class="col-12 sm:col-6"><strong>Material Consumible:</strong> {{
+                hojaVida.equipo.tipoEquipos.materialConsumible }}</div>
+              <div class="col-12 sm:col-6"><strong>Herramienta:</strong> {{ hojaVida.equipo.tipoEquipos.herramienta }}
+              </div>
+              <div class="col-12 sm:col-6"><strong>Tiempo (Minutos):</strong> {{
+                hojaVida.equipo.tipoEquipos.tiempoMinutos
+                }}
+              </div>
+              <div class="col-12 sm:col-6"><strong>Repuestos Mínimos:</strong> {{
+                hojaVida.equipo.tipoEquipos.repuestosMinimos }}</div>
             </div>
-            <div class="col-12 sm:col-6"><strong>Tiempo (Minutos):</strong> {{ hojaVida.equipo.tipoEquipos.tiempoMinutos
-              }}
+          </p-accordion-content>
+        </p-accordion-panel>
+
+        <!-- Datos del Proveedor y Fabricante -->
+        <p-accordion-panel value="2" *ngIf="hojaVida.proveedor || hojaVida.fabricante">
+          <p-accordion-header>Información de Proveedor y Fabricante</p-accordion-header>
+          <p-accordion-content>
+            <div class="grid">
+              <div class="col-12 md:col-6">
+                <p-divider align="center">
+                  <span class="p-tag">Proveedor</span>
+                </p-divider>
+                <div class="grid" *ngIf="hojaVida.proveedor; else noProv">
+                  <div class="col-12"><strong>Nombres:</strong> {{ hojaVida.proveedor.nombres }}</div>
+                  <div class="col-12"><strong>Ciudad:</strong> {{ hojaVida.proveedor.ciudad }}</div>
+                  <div class="col-12"><strong>Teléfono:</strong> {{ hojaVida.proveedor.telefono }}</div>
+                  <div class="col-12"><strong>Correo:</strong> {{ hojaVida.proveedor.correo }}</div>
+                  <div class="col-12"><strong>Representante:</strong> {{ hojaVida.proveedor.representante }}</div>
+                  <div class="col-12"><strong>Tel. Representante:</strong> {{ hojaVida.proveedor.telRepresentante }}
+                  </div>
+                </div>
+                <ng-template #noProv>
+                  <div class="text-center font-italic text-500">Sin información de proveedor asignado.</div>
+                </ng-template>
+              </div>
+
+              <div class="col-12 md:col-6">
+                <p-divider align="center">
+                  <span class="p-tag">Fabricante</span>
+                </p-divider>
+                <div class="grid" *ngIf="hojaVida.fabricante; else noFab">
+                  <div class="col-12"><strong>Nombres:</strong> {{ hojaVida.fabricante.nombres }}</div>
+                  <div class="col-12"><strong>País:</strong> {{ hojaVida.fabricante.pais }}</div>
+                </div>
+                <ng-template #noFab>
+                  <div class="text-center font-italic text-500">Sin información de fabricante asignado.</div>
+                </ng-template>
+              </div>
             </div>
-            <div class="col-12 sm:col-6"><strong>Repuestos Mínimos:</strong> {{
-              hojaVida.equipo.tipoEquipos.repuestosMinimos }}</div>
-          </div>
-        </p-accordionTab>
+          </p-accordion-content>
+        </p-accordion-panel>
 
         <!-- Datos técnicos -->
-        <p-accordionTab header="Datos Técnicos" *ngIf="hojaVida.datosTecnicos">
-          <div class="grid">
-            <div class="col-12 sm:col-6" *ngFor="let key of datosTecnicosKeys()">
-              <strong>{{ key }}:</strong> {{ hojaVida.datosTecnicos[key] }}
-            </div>
-          </div>
-        </p-accordionTab>
-
-        <p-accordionTab header="Datos de Mantenimiento y Actividades Metrologicas"
-          *ngIf="planMantenimiento.length > 0 || planMetrologia.length > 0">
-          <div class="grid">
-            <div class="col-12 sm:col-12">
-              <strong>Mantenimientos Anuales:</strong> {{ hojaVida.equipo.periodicidadM }}
-            </div>
-
-            <div class="col-12 sm:col-3" *ngFor="let plan of planMantenimiento">
-              <strong>Fecha:</strong> {{ getNombreMes(plan.mes) }} del Año {{ plan.ano }}
-            </div>
-            <div class="col-12 sm:col-12" *ngFor="let plan of planMantenimiento">
-
-            </div>
-            <div *ngIf="planMetrologia.length > 0">
-              <div class="col-12 sm:col-12">
-                <strong>Actividades Metrologicas Anuales:</strong>
+        <p-accordion-panel value="3" *ngIf="hojaVida.datosTecnicos">
+          <p-accordion-header>Datos Técnicos</p-accordion-header>
+          <p-accordion-content>
+            <div class="grid">
+              <div class="col-12 sm:col-6" *ngFor="let key of datosTecnicosKeys()">
+                <strong>{{ key }}:</strong> {{ hojaVida.datosTecnicos[key] }}
               </div>
-              <div class="col-12 sm:col-6" *ngFor="let plan of planMetrologia">
+            </div>
+          </p-accordion-content>
+        </p-accordion-panel>
+
+        <p-accordion-panel value="4" *ngIf="planMantenimiento.length > 0 || planMetrologia.length > 0">
+          <p-accordion-header>Datos de Mantenimiento y Actividades Metrologicas</p-accordion-header>
+          <p-accordion-content>
+            <div class="grid">
+              <div class="col-12 sm:col-12">
+                <strong>Mantenimientos Anuales:</strong> {{ hojaVida.equipo.periodicidadM }}
+              </div>
+
+              <div class="col-12 sm:col-3" *ngFor="let plan of planMantenimiento">
                 <strong>Fecha:</strong> {{ getNombreMes(plan.mes) }} del Año {{ plan.ano }}
               </div>
+              <div class="col-12 sm:col-12" *ngFor="let plan of planMantenimiento">
+
+              </div>
+              <div *ngIf="planMetrologia.length > 0">
+                <div class="col-12 sm:col-12">
+                  <strong>Actividades Metrologicas Anuales:</strong>
+                </div>
+                <div class="col-12 sm:col-6" *ngFor="let plan of planMetrologia">
+                  <strong>Fecha:</strong> {{ getNombreMes(plan.mes) }} del Año {{ plan.ano }}
+                </div>
+              </div>
             </div>
-          </div>
-        </p-accordionTab>
+          </p-accordion-content>
+        </p-accordion-panel>
 
         <!-- Documentos Anexos -->
-        <p-accordionTab header="Documentos Anexos">
-          <div class="mb-3">
-            <p-button *ngIf="!isGuest()" label="Agregar Documento" icon="pi pi-plus"
-              (click)="openModalAddDocumento()"></p-button>
-          </div>
+        <p-accordion-panel value="5">
+          <p-accordion-header>Documentos Anexos</p-accordion-header>
+          <p-accordion-content>
+            <div class="mb-3">
+              <p-button *ngIf="!isGuest()" label="Agregar Documento" icon="pi pi-plus"
+                (click)="openModalAddDocumento()"></p-button>
+            </div>
 
-          <p-table [value]="documentos" [loading]="loadingDocumentos" [rows]="5" [paginator]="true"
-            responsiveLayout="scroll">
-            <ng-template pTemplate="header">
-              <tr>
-                <th>Nombre</th>
-                <th>Tipo de Documento</th>
-                <th>Acciones</th>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-doc>
-              <tr>
-                <td>{{doc.nombres}}</td>
-                <td>{{doc.tipoDocumento?.nombres}}</td>
-                <td>
-                  <button pButton icon="pi pi-download" class="p-button-rounded p-button-info mr-2"
-                    (click)="descargarDocumento(doc)" pTooltip="Descargar"></button>
-                  <button *ngIf="!isGuest()" pButton icon="pi pi-trash" class="p-button-rounded p-button-danger"
-                    (click)="eliminarDocumento(doc)" pTooltip="Eliminar"></button>
-                </td>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="emptymessage">
-              <tr>
-                <td colspan="3" class="text-center">No hay documentos anexos.</td>
-              </tr>
-            </ng-template>
-          </p-table>
-        </p-accordionTab>
+            <p-table [value]="documentos" [loading]="loadingDocumentos" [rows]="5" [paginator]="true"
+              responsiveLayout="scroll">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Nombre</th>
+                  <th>Tipo de Documento</th>
+                  <th>Acciones</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-doc>
+                <tr>
+                  <td>{{doc.nombres}}</td>
+                  <td>{{doc.tipoDocumento?.nombres}}</td>
+                  <td>
+                    <button pButton icon="pi pi-download" class="p-button-rounded p-button-info mr-2"
+                      (click)="descargarDocumento(doc)" pTooltip="Descargar"></button>
+                    <button *ngIf="!isGuest()" pButton icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                      (click)="eliminarDocumento(doc)" pTooltip="Eliminar"></button>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="3" class="text-center">No hay documentos anexos.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-accordion-content>
+        </p-accordion-panel>
 
       </p-accordion>
 

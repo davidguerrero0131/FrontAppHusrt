@@ -21,11 +21,7 @@ import { TagModule } from 'primeng/tag';
 @Component({
   selector: 'app-admservicios',
   standalone: true,
-<<<<<<< Updated upstream
-  imports: [SuperadminnavbarComponent, TableModule, CommonModule, InputIconModule, IconFieldModule, InputTextModule, DialogModule, ReactiveFormsModule, ButtonModule, TooltipModule, ToolbarModule, TagModule, DropdownModule],
-=======
   imports: [TableModule, CommonModule, InputIconModule, IconFieldModule, InputTextModule, DialogModule, ReactiveFormsModule, ButtonModule, TooltipModule, ToolbarModule, TagModule, DropdownModule],
->>>>>>> Stashed changes
   templateUrl: './admservicios.component.html',
   styleUrl: './admservicios.component.css'
 })
@@ -53,7 +49,7 @@ export class AdmserviciosComponent implements OnInit {
   async ngOnInit() {
     this.servicios = await this.servicioServices.getAllServicios();
     this.sedes = await this.sedeServices.getAllSedes();
-    console.log(this.servicios);
+
   }
 
   estadoServicio(idServicio: any, accion: String) {

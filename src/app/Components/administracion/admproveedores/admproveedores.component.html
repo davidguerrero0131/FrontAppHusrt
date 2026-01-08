@@ -22,10 +22,10 @@
         <ng-template pTemplate="caption">
             <div class="flex align-items-center justify-content-between">
                 <h5 class="m-0">Listado de Proveedores</h5>
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
+                <p-iconfield position="left">
+                    <p-inputicon styleClass="pi pi-search" />
                     <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Buscar..." />
-                </span>
+                </p-iconfield>
             </div>
         </ng-template>
 
@@ -78,49 +78,48 @@
     </p-table>
 </div>
 
-<p-dialog [(visible)]="viewModal" [style]="{ width: '600px' }"
-    [header]="isEditing ? 'Editar Proveedor' : 'Nuevo Proveedor'" [modal]="true" styleClass="p-fluid">
+<p-dialog [(visible)]="viewModal" styleClass="standard-modal modal-lg p-fluid"
+    [header]="isEditing ? 'Editar Proveedor' : 'Nuevo Proveedor'" [modal]="true">
     <ng-template pTemplate="content">
         <form [formGroup]="formGroup">
-            <div class="field">
-                <label for="nombres">Nombre</label>
-                <input type="text" pInputText id="nombres" formControlName="nombres" required autofocus />
-            </div>
+            <div class="form-grid">
+                <div class="field" style="grid-column: 1 / -1;">
+                    <label for="nombres">Nombre</label>
+                    <input type="text" pInputText id="nombres" formControlName="nombres" required autofocus
+                        class="w-full" />
+                </div>
 
-            <div class="formgrid grid">
-                <div class="field col-12 md:col-6">
+                <div class="field">
                     <label for="telefono">Teléfono</label>
-                    <input type="text" pInputText id="telefono" formControlName="telefono" required />
+                    <input type="text" pInputText id="telefono" formControlName="telefono" required class="w-full" />
                 </div>
-                <div class="field col-12 md:col-6">
+                <div class="field">
                     <label for="ciudad">Ciudad</label>
-                    <input type="text" pInputText id="ciudad" formControlName="ciudad" required />
+                    <input type="text" pInputText id="ciudad" formControlName="ciudad" required class="w-full" />
                 </div>
-            </div>
 
-            <div class="field">
-                <label for="correo">Correo Electrónico</label>
-                <input type="email" pInputText id="correo" formControlName="correo" required />
-            </div>
+                <div class="field" style="grid-column: 1 / -1;">
+                    <label for="correo">Correo Electrónico</label>
+                    <input type="email" pInputText id="correo" formControlName="correo" required class="w-full" />
+                </div>
 
-            <div class="formgrid grid">
-                <div class="field col-12 md:col-6">
+                <div class="field">
                     <label for="representante">Representante</label>
-                    <input type="text" pInputText id="representante" formControlName="representante" required />
+                    <input type="text" pInputText id="representante" formControlName="representante" required
+                        class="w-full" />
                 </div>
-                <div class="field col-12 md:col-6">
+                <div class="field">
                     <label for="telRepresentante">Tel. Representante</label>
-                    <input type="text" pInputText id="telRepresentante" formControlName="telRepresentante" required />
+                    <input type="text" pInputText id="telRepresentante" formControlName="telRepresentante" required
+                        class="w-full" />
                 </div>
             </div>
-
         </form>
     </ng-template>
 
     <ng-template pTemplate="footer">
-        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text"
+        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary"
             (click)="viewModal = false"></button>
-        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-text"
-            (click)="saveProveedor()"></button>
+        <button pButton pRipple label="Guardar" icon="pi pi-check" (click)="saveProveedor()"></button>
     </ng-template>
 </p-dialog>

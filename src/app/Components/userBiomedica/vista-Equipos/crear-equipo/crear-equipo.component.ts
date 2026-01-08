@@ -1,24 +1,24 @@
 import { ResponsableService } from './../../../../Services/appServices/biomedicaServices/responsable/responsable.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common'; // Added Location
 import { Component, inject, model, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { Router, ActivatedRoute } from '@angular/router';
 import { TipoEquipoService } from '../../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
 import { ServicioService } from '../../../../Services/appServices/general/servicio/servicio.service';
-import { SedeService } from '../../../../Services/appServices/general/sede/sede.service';
+
 import { UppercaseDirective } from '../../../../Directives/uppercase.directive';
 import Swal from 'sweetalert2';
-import { platform } from 'os';
-import e from 'express';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { DialogModule } from "primeng/dialog";
 import { ButtonModule } from "primeng/button";
 import { DatePickerModule } from 'primeng/datepicker';
+// Removed unused services
 
+import { DropdownModule } from 'primeng/dropdown';
 @Component({
   selector: 'app-crear-equipo',
   standalone: true,
-  imports: [CommonModule, DialogModule, ButtonModule, FormsModule, DatePickerModule, ReactiveFormsModule],
+  imports: [CommonModule, DialogModule, ButtonModule, FormsModule, DatePickerModule, ReactiveFormsModule, DropdownModule],
   templateUrl: './crear-equipo.component.html',
   styleUrl: './crear-equipo.component.css'
 })
@@ -27,26 +27,40 @@ export class CrearEquipoComponent implements OnInit {
   tiposequipo: any[] | undefined;
   servicios: any[] | undefined;
   responsables: any[] | undefined;
-  sedes: any[] | undefined;
+
+  // Removed proveedores and fabricantes arrays
   fechasMantenimiento: (Date | null)[] = [null, null, null];
 
   modalAddFechasMantenimiento: boolean = false;
   modalAddFechasCalibracion: boolean = false;
+  fechasCalibracion: { fecha: Date | null, tipoActividad: string | null }[] = [];
+
+  tipoActividadOptions = [
+    { label: 'Calibración', value: 'Calibración' },
+    { label: 'Calificación', value: 'Calificación' },
+    { label: 'Validación', value: 'Validación' },
+    { label: 'Confirmación Metrológica', value: 'Confirmación Metrológica' }
+  ];
+
 
   equipo: any;
+  showMetrologyFrequency: boolean = false;
 
   tipoEquipoServices = inject(TipoEquipoService);
   serviciosServices = inject(ServicioService);
   responsablesServices = inject(ResponsableService);
-  sedesServices = inject(SedeService);
+
+  estandarServices = inject(EquiposService); // Alias for EquiposService to match usage if needed, but existing is equipoServices
   equipoServices = inject(EquiposService);
+  // Removed injected services
 
   equipoForm: FormGroup;
 
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private location: Location // Injected Location
   ) {
 
     this.equipoForm = this.formBuilder.group({
@@ -63,24 +77,32 @@ export class CrearEquipoComponent implements OnInit {
       periodicidadM: [0, Validators.required],
       periodicidadAM: [0, Validators.required],
       estadoBaja: [false],
-      actividadMetrologica: [false],
+      // actividadMetrologica removed as per requirement
       tipoEquipoIdFk: [null, Validators.required],
       servicioIdFk: [null, Validators.required],
-      sedeIdFk: [null, Validators.required],
+
       responsableIdFk: [null, Validators.required]
+      // Removed proveedorIdFk and fabricanteIdFk
+    });
+
+    this.equipoForm.get('tipoEquipoIdFk')?.valueChanges.subscribe(val => {
+      this.checkMetrologyRequirement(val);
     });
   }
 
   async ngOnInit() {
+    // Load data independently to prevent one failure from blocking others
     try {
+      await Promise.all([
+        this.tipoEquipoServices.getAllTiposEquipos().then(data => this.tiposequipo = data).catch(err => console.error('Error cargando TiposEquipo:', err)),
+        this.serviciosServices.getAllServicios().then(data => this.servicios = data).catch(err => console.error('Error cargando Servicios:', err)),
+        this.responsablesServices.getAllResponsables().then(data => this.responsables = data).catch(err => console.error('Error cargando Responsables:', err))
+        // Removed loading of Proveedores and Fabricantes
+      ]);
 
-      this.tiposequipo = await this.tipoEquipoServices.getAllTiposEquipos();
-      this.servicios = await this.serviciosServices.getAllServicios();
-      this.responsables = await this.responsablesServices.getAllResponsables();
-      this.sedes = await this.sedesServices.getAllSedes();
       this.checkEditMode();
     } catch (error) {
-
+      console.error('Error general en ngOnInit:', error);
     }
   }
 
@@ -106,10 +128,12 @@ export class CrearEquipoComponent implements OnInit {
             estadoBaja: this.equipo.estadoBaja,
             tipoEquipoIdFk: this.equipo.tipoEquipoIdFk,
             servicioIdFk: this.equipo.servicioIdFk,
-            sedeIdFk: this.equipo.sedeIdFk,
-            responsableIdFk: this.equipo.responsableIdFk,
-            actividadMetrologica: this.equipo.periodicidadC > 0
+
+            responsableIdFk: this.equipo.responsableIdFk
+            // Removed patchValue for proveedorIdFk and fabricanteIdFk
           });
+
+          this.checkMetrologyRequirement(this.equipo.tipoEquipoIdFk);
         } catch (error) {
           console.error("Error loading equipment for edit", error);
         }
@@ -138,8 +162,9 @@ export class CrearEquipoComponent implements OnInit {
         validacion: false,
         tipoEquipoIdFk: this.equipoForm.get('tipoEquipoIdFk')?.value,
         servicioIdFk: this.equipoForm.get('servicioIdFk')?.value,
-        sedeIdFk: this.equipoForm.get('sedeIdFk')?.value,
+
         responsableIdFk: this.equipoForm.get('responsableIdFk')?.value,
+        // Removed provider/fabricante form values
         id: this.equipo ? this.equipo.id : null
       }
       if (this.equipo.id) {
@@ -152,7 +177,8 @@ export class CrearEquipoComponent implements OnInit {
           timer: 1500
         });
       } else {
-        await this.equipoServices.addEquipo(this.equipo);
+        const createdEquipo = await this.equipoServices.addEquipo(this.equipo);
+        this.equipo = createdEquipo;
         this.iniciarFechasMantenimiento();
         Swal.fire({
           title: "Equipo Creado",
@@ -161,8 +187,13 @@ export class CrearEquipoComponent implements OnInit {
           showConfirmButton: false,
           timer: 1500
         });
+        // Remove navigation here, wait for plan modals
+        // this.router.navigate(['/biomedica/lista-equipos']); 
+        // The initiateFechasMantenimiento handles the flow.
+        return;
       }
-      this.router.navigate(['/biomedica/lista-equipos']);
+      this.cancelar();
+      // this.router.navigate(['/biomedica/lista-equipos']);
 
 
     } else {
@@ -177,9 +208,12 @@ export class CrearEquipoComponent implements OnInit {
     }
   }
 
+  cancelar() {
+    this.location.back();
+  }
+
   viewModalFechasMantenimiento() {
     this.modalAddFechasMantenimiento = true;
-    console.log("Modal Mantenimiento: " + this.modalAddFechasMantenimiento);
   }
 
   iniciarFechasMantenimiento() {
@@ -191,18 +225,99 @@ export class CrearEquipoComponent implements OnInit {
       }
       setTimeout(() => {
         this.viewModalFechasMantenimiento();
-        console.log(this.fechasMantenimiento);
       }, 1500);
     }
   }
 
   validarFechasMantenimiento() {
-
-    this.fechasMantenimiento.forEach(fecha => {
-      console.log(fecha);
-    });
-
     this.modalAddFechasMantenimiento = false;
+
+    // Chain to Metrology Modal
+    if (this.showMetrologyFrequency && this.equipo.periodicidadC > 0) {
+      this.iniciarFechasCalibracion();
+    } else {
+      this.finalizarGuardado();
+    }
+  }
+
+  iniciarFechasCalibracion() {
+    const cantidad = this.equipo.periodicidadC;
+    this.fechasCalibracion = [];
+    for (let i = 0; i < cantidad; i++) {
+      this.fechasCalibracion.push({ fecha: null, tipoActividad: null });
+    }
+    this.modalAddFechasCalibracion = true;
+  }
+
+  validarFechasCalibracion() {
+    this.modalAddFechasCalibracion = false;
+    this.finalizarGuardado();
+  }
+
+  async finalizarGuardado() {
+    // Construct payload
+    const planesMantenimiento = this.fechasMantenimiento
+      .map((fecha, index) => {
+        if (fecha) {
+          return { mes: fecha.getMonth() + 1 }; // 1-12
+        }
+        return null;
+      })
+      .filter(p => p !== null);
+
+    const planesActividadMetrologica = this.fechasCalibracion
+      .map(item => {
+        if (item.fecha && item.tipoActividad) {
+          return { mes: item.fecha.getMonth() + 1, tipoActividad: item.tipoActividad };
+        }
+        return null;
+      })
+      .filter(p => p !== null);
+
+    const finalPayload = {
+      ...this.equipo,
+      planesMantenimiento: planesMantenimiento.length > 0 ? planesMantenimiento : undefined,
+      planesActividadMetrologica: planesActividadMetrologica.length > 0 ? planesActividadMetrologica : undefined
+    };
+
+    if (finalPayload.planesMantenimiento || finalPayload.planesActividadMetrologica) {
+      try {
+        await this.equipoServices.updateEquipo(this.equipo.id, finalPayload);
+        Swal.fire({
+          title: "Equipo Creado Exitosamente",
+          text: "Se han guardado el Equipo y sus Planes de Mantenimiento y Metrología.",
+          icon: "success",
+          showConfirmButton: true
+        }).then(() => {
+          this.cancelar();
+        });
+      } catch (e) {
+        console.error(e);
+        Swal.fire({
+          title: "Error al guardar planes",
+          text: "El equipo se creó pero hubo un error guardando los planes.",
+          icon: "error"
+        });
+        this.cancelar();
+      }
+    } else {
+      this.cancelar();
+    }
+  }
+
+  checkMetrologyRequirement(tipoId: any) {
+    if (!this.tiposequipo) return;
+    // tipoId might be string or number
+    const type = this.tiposequipo.find(t => t.id == tipoId);
+    if (type && type.requiereMetrologia) {
+      this.showMetrologyFrequency = true;
+      this.equipoForm.get('periodicidadAM')?.setValidators([Validators.required]);
+    } else {
+      this.showMetrologyFrequency = false;
+      this.equipoForm.get('periodicidadAM')?.clearValidators();
+      this.equipoForm.get('periodicidadAM')?.setValue(0);
+    }
+    this.equipoForm.get('periodicidadAM')?.updateValueAndValidity();
   }
 
   trackByIndex(index: number, item: any): number {

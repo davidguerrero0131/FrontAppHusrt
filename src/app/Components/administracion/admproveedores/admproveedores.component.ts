@@ -12,12 +12,16 @@ import { ProveedorService } from './../../../Services/appServices/biomedicaServi
 import Swal from 'sweetalert2';
 import { getDecodedAccessToken } from '../../../utilidades';
 
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+
 @Component({
     selector: 'app-admproveedores',
     standalone: true,
     imports: [
         CommonModule, ReactiveFormsModule, FormsModule,
-        TableModule, InputTextModule, ButtonModule, DialogModule, ToolbarModule, TooltipModule, TagModule
+        TableModule, InputTextModule, ButtonModule, DialogModule, ToolbarModule, TooltipModule, TagModule,
+        IconFieldModule, InputIconModule
     ],
     templateUrl: './admproveedores.component.html',
     styleUrl: './admproveedores.component.css'

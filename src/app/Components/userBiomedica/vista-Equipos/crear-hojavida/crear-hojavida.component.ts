@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -10,6 +11,9 @@ import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { TextareaModule } from 'primeng/textarea';
+import { DividerModule } from 'primeng/divider';
+import { FieldsetModule } from 'primeng/fieldset';
+import { TabViewModule } from 'primeng/tabview';
 import { HojavidaService } from './../../../../Services/appServices/biomedicaServices/hojavida/hojavida.service';
 import { ProveedorService } from './../../../../Services/appServices/biomedicaServices/proveedor/proveedor.service';
 import { FabricanteService } from './../../../../Services/appServices/biomedicaServices/fabricante/fabricante.service';
@@ -30,7 +34,11 @@ import Swal from 'sweetalert2';
     CalendarModule,
     CardModule,
     ToastModule,
-    TextareaModule
+    TextareaModule,
+    DividerModule,
+    FieldsetModule,
+    RouterModule,
+    TabViewModule
   ],
   providers: [MessageService],
   templateUrl: './crear-hojavida.component.html',
@@ -254,7 +262,7 @@ export class CrearHojavidaComponent implements OnInit {
             equipoIdFk: this.equipoId,
             datosTecnicosIdFk: datosTecnicosId
           };
-          console.log("Enviando hoja de vida:", payload);
+
           await this.hojaVidaService.addHojaVida(payload);
 
           Swal.fire({

@@ -35,8 +35,7 @@ export class BiomedicaadminnavbarComponent implements OnInit {
                     { label: 'Semaforización', icon: 'pi pi-chart-pie', routerLink: '/biomedica/semaforizacion' },
                     { label: 'Mantenimiento', icon: 'pi pi-cog', routerLink: '/biomedica/mantenimiento' },
                     { label: 'Calendario', icon: 'pi pi-calendar', routerLink: '/biomedica/calendario' },
-                    { label: 'Metrología', icon: 'pi pi-compass', routerLink: '/biomedica/actividadesmetrologicas' },
-                    { label: 'Validar QR', icon: 'pi pi-qrcode', routerLink: '/biomedica/validarqr' }
+                    { label: 'Metrología', icon: 'pi pi-compass', routerLink: '/biomedica/actividadesmetrologicas' }
                 ]
             },
             {

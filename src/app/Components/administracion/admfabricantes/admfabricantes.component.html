@@ -21,10 +21,10 @@
         <ng-template pTemplate="caption">
             <div class="flex align-items-center justify-content-between">
                 <h5 class="m-0">Listado de Fabricantes</h5>
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
+                <p-iconfield position="left">
+                    <p-inputicon styleClass="pi pi-search" />
                     <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Buscar..." />
-                </span>
+                </p-iconfield>
             </div>
         </ng-template>
 
@@ -70,21 +70,22 @@
     </p-table>
 </div>
 
-<p-dialog [(visible)]="viewModal" [style]="{ width: '450px' }"
-    [header]="isEditing ? 'Editar Fabricante' : 'Nuevo Fabricante'" [modal]="true" styleClass="p-fluid">
+<p-dialog [(visible)]="viewModal" styleClass="standard-modal modal-sm p-fluid"
+    [header]="isEditing ? 'Editar Fabricante' : 'Nuevo Fabricante'" [modal]="true">
     <ng-template pTemplate="content">
         <form [formGroup]="formGroup">
-            <div class="formgrid grid">
-                <div class="field col">
+            <div class="form-grid">
+                <div class="field">
                     <label for="nombres">Nombre</label>
-                    <input type="text" pInputText id="nombres" formControlName="nombres" required autofocus />
+                    <input type="text" pInputText id="nombres" formControlName="nombres" required autofocus
+                        class="w-full" />
                     <small class="p-error"
                         *ngIf="formGroup.controls['nombres'].invalid && formGroup.controls['nombres'].touched">Nombre es
                         requerido.</small>
                 </div>
-                <div class="field col">
+                <div class="field">
                     <label for="pais">País</label>
-                    <input type="text" pInputText id="pais" formControlName="pais" required />
+                    <input type="text" pInputText id="pais" formControlName="pais" required class="w-full" />
                     <small class="p-error"
                         *ngIf="formGroup.controls['pais'].invalid && formGroup.controls['pais'].touched">País es
                         requerido.</small>
@@ -94,9 +95,8 @@
     </ng-template>
 
     <ng-template pTemplate="footer">
-        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text"
+        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary"
             (click)="viewModal = false"></button>
-        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-text"
-            (click)="saveFabricante()"></button>
+        <button pButton pRipple label="Guardar" icon="pi pi-check" (click)="saveFabricante()"></button>
     </ng-template>
 </p-dialog>

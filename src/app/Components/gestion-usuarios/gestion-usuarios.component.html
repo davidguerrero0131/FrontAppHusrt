@@ -25,11 +25,11 @@
           <button pButton label="Limpiar" class="p-button-outlined" icon="pi pi-filter-slash"
             (click)="dt2.clear()"></button>
         </div>
-        <span class="p-input-icon-left">
-          <i class="pi pi-search"></i>
+        <p-iconfield position="left">
+          <p-inputicon styleClass="pi pi-search" />
           <input pInputText type="text" (input)="dt2.filterGlobal($any($event.target).value, 'contains')"
             placeholder="Buscar palabra clave..." />
-        </span>
+        </p-iconfield>
       </div>
     </ng-template>
 

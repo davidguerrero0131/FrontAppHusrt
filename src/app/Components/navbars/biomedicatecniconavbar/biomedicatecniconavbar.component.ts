@@ -26,13 +26,7 @@ export class BiomedicatecniconavbarComponent implements OnInit {
             {
                 label: 'Inicio',
                 icon: 'pi pi-home',
-                routerLink: '/biomedica/home-invitado' // Or a specific tech home? Usually home-invitado is fine or unified list. User said "Inventario" is classified.
-                // Let's point Home to Inventario for Tech as they are operational?
-                // Or keep consistent with others. Let's use getHomeLink() logic if needed, or simple static.
-                // User said "Inicio" for User is homeuserbiomedica. For Tech?
-                // I'll stick to '/biomedica/inventario' or the list? 
-                // User said "Inventory classified". 
-                // Let's set Home to '/biomedica/inventario' for now as it's their main workspace.
+                routerLink: '/userbiomedica'
             },
             {
                 label: 'Gestión Operativa',

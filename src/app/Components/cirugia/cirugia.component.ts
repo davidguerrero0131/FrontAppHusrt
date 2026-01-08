@@ -31,7 +31,7 @@ export class CirugiaComponent implements OnInit {
         datosCirugia: datosCirugia[0]
       });
     }
-    console.log(this.pacientes);
+
     this.vistaPacientes = true;
     setTimeout(() => {
       this.pacientes = [];

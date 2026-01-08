@@ -14,6 +14,7 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TagModule } from 'primeng/tag';
+import { InputSwitchModule } from 'primeng/inputswitch';
 import Swal from 'sweetalert2';
 
 import { getDecodedAccessToken } from '../../../utilidades';
@@ -21,7 +22,7 @@ import { getDecodedAccessToken } from '../../../utilidades';
 @Component({
   selector: 'app-admtiposequipo',
   standalone: true,
-  imports: [TableModule, TextareaModule, CommonModule, InputIconModule, IconFieldModule, InputTextModule, DialogModule, ReactiveFormsModule, ButtonModule, FormsModule, TooltipModule, ToolbarModule, TagModule],
+  imports: [TableModule, TextareaModule, CommonModule, InputIconModule, IconFieldModule, InputTextModule, DialogModule, ReactiveFormsModule, ButtonModule, FormsModule, TooltipModule, ToolbarModule, TagModule, InputSwitchModule],
   templateUrl: './admtiposequipo.component.html',
   styleUrl: './admtiposequipo.component.css'
 })
@@ -53,7 +54,8 @@ export class AdmtiposequipoComponent implements OnInit {
       tiempoMinutos: ['', [Validators.required]],
       repuestosMinimos: ['', [Validators.required]],
       actividad: ['', [Validators.required]],
-      tipoR: ['', [Validators.required]]
+      tipoR: ['', [Validators.required]],
+      requiereMetrologia: [false]
     });
   }
 
@@ -113,7 +115,8 @@ export class AdmtiposequipoComponent implements OnInit {
       tiempoMinutos: tipoEquipo.tiempoMinutos,
       repuestosMinimos: tipoEquipo.repuestosMinimos || 'No aplica',
       actividad: tipoEquipo.actividad || 'Mantenimiento Preventivo',
-      tipoR: tipoEquipo.tipoR
+      tipoR: tipoEquipo.tipoR,
+      requiereMetrologia: tipoEquipo.requiereMetrologia || false
     });
     this.viewAddTipoEquipo = true;
   }

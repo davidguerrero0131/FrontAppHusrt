@@ -21,17 +21,16 @@
         <ng-template pTemplate="caption">
             <div class="flex align-items-center justify-content-between">
                 <h5 class="m-0">Listado de Responsables</h5>
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
+                <p-iconfield position="left">
+                    <p-inputicon styleClass="pi pi-search" />
                     <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Buscar..." />
-                </span>
+                </p-iconfield>
             </div>
         </ng-template>
 
         <ng-template pTemplate="header">
             <tr>
                 <th pSortableColumn="nombres">Nombres <p-sortIcon field="nombres"></p-sortIcon></th>
-                <th pSortableColumn="apellidos">Apellidos <p-sortIcon field="apellidos"></p-sortIcon></th>
                 <th pSortableColumn="garantia">Garantía <p-sortIcon field="garantia"></p-sortIcon></th>
                 <th pSortableColumn="externo">Externo <p-sortIcon field="externo"></p-sortIcon></th>
                 <th pSortableColumn="comodato">Comodato <p-sortIcon field="comodato"></p-sortIcon></th>
@@ -44,7 +43,6 @@
         <ng-template pTemplate="body" let-responsable>
             <tr>
                 <td>{{ responsable.nombres }}</td>
-                <td>{{ responsable.apellidos }}</td>
                 <td>
                     <p-tag [value]="responsable.garantia ? 'Sí' : 'No'"
                         [severity]="responsable.garantia ? 'success' : 'info'"></p-tag>
@@ -79,29 +77,26 @@
 
         <ng-template pTemplate="emptymessage">
             <tr>
-                <td colspan="7" class="text-center p-4">No se encontraron responsables.</td>
+                <td colspan="6" class="text-center p-4">No se encontraron responsables.</td>
             </tr>
         </ng-template>
 
     </p-table>
 </div>
 
-<p-dialog [(visible)]="viewModal" [style]="{ width: '600px' }"
-    [header]="isEditing ? 'Editar Responsable' : 'Nuevo Responsable'" [modal]="true" styleClass="p-fluid">
+<p-dialog [(visible)]="viewModal" styleClass="standard-modal modal-md p-fluid"
+    [header]="isEditing ? 'Editar Responsable' : 'Nuevo Responsable'" [modal]="true">
     <ng-template pTemplate="content">
         <form [formGroup]="formGroup">
-            <div class="formgrid grid">
-                <div class="field col-12 md:col-6">
-                    <label for="nombres">Nombre</label>
-                    <input type="text" pInputText id="nombres" formControlName="nombres" required autofocus />
-                </div>
-                <div class="field col-12 md:col-6">
-                    <label for="apellidos">Apellidos</label>
-                    <input type="text" pInputText id="apellidos" formControlName="apellidos" />
+            <div class="form-grid">
+                <div class="field" style="grid-column: 1 / -1;">
+                    <label for="nombres">Nombre (Empresa/Responsable)</label>
+                    <input type="text" pInputText id="nombres" formControlName="nombres" required autofocus
+                        class="w-full" />
                 </div>
             </div>
 
-            <div class="field">
+            <div class="field mt-3">
                 <label for="calificacion">Calificación</label>
                 <p-inputNumber formControlName="calificacion" [min]="0" [showButtons]="true"
                     styleClass="w-full"></p-inputNumber>
@@ -125,9 +120,8 @@
     </ng-template>
 
     <ng-template pTemplate="footer">
-        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text"
+        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary"
             (click)="viewModal = false"></button>
-        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-text"
-            (click)="saveResponsable()"></button>
+        <button pButton pRipple label="Guardar" icon="pi pi-check" (click)="saveResponsable()"></button>
     </ng-template>
 </p-dialog>

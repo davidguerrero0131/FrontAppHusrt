@@ -3,11 +3,8 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-<<<<<<< Updated upstream
-=======
 import { getDecodedAccessToken } from '../../../utilidades';
 
->>>>>>> Stashed changes
 @Component({
     selector: 'app-parametrizacion-biomedica',
     standalone: true,
@@ -17,11 +14,8 @@ import { getDecodedAccessToken } from '../../../utilidades';
 })
 export class ParametrizacionBiomedicaComponent {
     router = inject(Router);
-<<<<<<< Updated upstream
-
-    constructor() { }
-=======
     isSuperAdmin: boolean = false;
+    isBiomedicaAdmin: boolean = false;
 
     constructor() {
         this.checkRole();
@@ -31,12 +25,16 @@ export class ParametrizacionBiomedicaComponent {
         const token = sessionStorage.getItem('utoken');
         if (token) {
             const decoded = getDecodedAccessToken();
+            console.log('Decoded Token in Parametrizacion:', decoded);
             if (decoded?.rol === 'SUPERADMIN') {
                 this.isSuperAdmin = true;
             }
+            if (decoded?.rol === 'BIOMEDICAADMIN') {
+                this.isBiomedicaAdmin = true;
+            }
+            console.log('Flags:', { isSuperAdmin: this.isSuperAdmin, isBiomedicaAdmin: this.isBiomedicaAdmin });
         }
     }
->>>>>>> Stashed changes
 
     showViewUsuarios() { this.router.navigate(['/admusuarios']); }
     showViewServicios() { this.router.navigate(['/admin/servicios']); }
@@ -45,4 +43,5 @@ export class ParametrizacionBiomedicaComponent {
     showViewProveedores() { this.router.navigate(['/admin/proveedores']); }
     showViewResponsables() { this.router.navigate(['/admin/responsables']); }
     showViewTiposDocumento() { this.router.navigate(['/admin/tiposdocumento']); }
+    showViewEquipos() { this.router.navigate(['/biomedica/adminequipos']); }
 }

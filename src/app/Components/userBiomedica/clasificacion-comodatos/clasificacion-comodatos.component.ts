@@ -24,7 +24,7 @@ export class ClasificacionComodatosComponent {
   async ngOnInit() {
     try {
       this.responsables = await this.responsableServices.getAllResponsablesComodatos();
-      console.log(this.responsables);
+
 
       for (let responsable of this.responsables) {
         this.obtenerCantidadEquipos(responsable.id);

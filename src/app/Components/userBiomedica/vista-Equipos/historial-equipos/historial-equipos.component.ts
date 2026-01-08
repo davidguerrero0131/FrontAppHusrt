@@ -40,19 +40,25 @@ export class HistorialEquiposComponent implements OnInit {
 
     async loadHistorial() {
         try {
-            const rawEvents = await this.equiposService.getTrazabilidadByEquipo(this.idEquipo);
+            const rawEvents = await this.equiposService.getHistorialUnificado(this.idEquipo);
             this.events = rawEvents.map((event: any) => {
                 let parsedDetalles = event.detalles;
                 try {
-                    parsedDetalles = JSON.parse(event.detalles);
+                    // Try parsing if it looks like JSON/object
+                    if (typeof event.detalles === 'string' && (event.detalles.startsWith('{') || event.detalles.startsWith('['))) {
+                        parsedDetalles = JSON.parse(event.detalles);
+                    }
                 } catch (e) {
                     // Keep as string if parsing fails
                 }
 
+                // Map 'tipo' from backend to 'accion' for consistency
+                const accion = event.tipo || event.accion;
+
                 let icon = 'pi pi-info-circle';
                 let color = '#9E9E9E'; // Grey default
 
-                switch (event.accion) {
+                switch (accion) {
                     case 'EDICIÓN':
                     case 'EDICIÓN DE PROGRAMACIÓN DE MANTENIMIENTO PREVENTIVO':
                     case 'ACTUALIZACIÓN HOJA DE VIDA':
@@ -66,12 +72,17 @@ export class HistorialEquiposComponent implements OnInit {
                         icon = 'pi pi-plus';
                         color = '#4CAF50'; // Green
                         break;
+                    case 'TRASLADO':
+                        icon = 'pi pi-arrow-right-arrow-left';
+                        color = '#2196F3'; // Blue
+                        break;
                     default:
                         break;
                 }
 
                 return {
                     ...event,
+                    accion: accion, // Ensure accion property exists
                     detalles: parsedDetalles,
                     icon,
                     color

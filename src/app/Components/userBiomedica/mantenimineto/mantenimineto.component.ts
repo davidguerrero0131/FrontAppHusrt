@@ -11,9 +11,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule, Table } from 'primeng/table';
 import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from "primeng/card";
-import { DatePicker } from 'primeng/datepicker'
 import { Router } from '@angular/router';
-import { Dialog } from "primeng/dialog";
+import { DialogModule } from "primeng/dialog";
 import { ProtocolosService } from '../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
 import { UserService } from './../../../Services/appServices/userServices/user.service';
 import { ReportesService } from './../../../Services/appServices/biomedicaServices/reportes/reportes.service';
@@ -24,8 +23,8 @@ import { ButtonModule } from 'primeng/button';
 @Component({
   selector: 'app-mantenimineto',
   standalone: true,
-  imports: [CommonModule, TabsModule, DatePicker, FormsModule, ReactiveFormsModule,
-    TableModule, IconFieldModule, InputIconModule, InputTextModule, CalendarModule, CardModule, Dialog, DropdownModule, ButtonModule],
+  imports: [CommonModule, TabsModule, FormsModule, ReactiveFormsModule,
+    TableModule, IconFieldModule, InputIconModule, InputTextModule, CalendarModule, CardModule, DropdownModule, ButtonModule, DialogModule],
   templateUrl: './mantenimineto.component.html',
   styleUrl: './mantenimineto.component.css'
 })
@@ -41,8 +40,9 @@ export class ManteniminetoComponent implements OnInit {
   protocolosServices = inject(ProtocolosService);
   loading: boolean = false;
   fechaActual = new Date();
-  mes = this.fechaActual.getMonth() + 1;
-  anio = this.fechaActual.getFullYear();
+  mesInicio: number = this.fechaActual.getMonth() + 1;
+  mesFin: number = this.fechaActual.getMonth() + 1;
+  anio: number = this.fechaActual.getFullYear();
 
   preventivos: any[] = [];
   correctivos: any[] = [];
@@ -72,7 +72,6 @@ export class ManteniminetoComponent implements OnInit {
     { label: 'Octubre', value: 10 }, { label: 'Noviembre', value: 11 }, { label: 'Diciembre', value: 12 }
   ];
 
-
   constructor(private location: Location) {
     this.adminForm = this.formBuilder.group({
       usuarioIdFk: ['', Validators.required],
@@ -82,22 +81,14 @@ export class ManteniminetoComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.date = new Date(); // Initialize date to current date to avoid error in setDate()
+    this.date = new Date();
     this.checkRole();
     if (this.isAdmin) {
       this.loadUsers();
     }
 
-    try {
-      this.preventivos = await this.reportesService.getReportesPreventivosMesAño({ mes: this.mes, anio: this.anio });
-      this.correctivos = await this.reportesService.getReportesCorrectivosMesAño({ mes: this.mes, anio: this.anio });
-    } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'No es posible cargar la informacion de los reportes',
-        text: 'Error al cargar los reportes, intente más tarde.'
-      })
-    }
+    // Initial Load
+    this.setDate();
   }
 
   checkRole() {
@@ -143,27 +134,41 @@ export class ManteniminetoComponent implements OnInit {
   }
 
   async setDate() {
-    if (this.date) {
-      this.mes = this.date.getMonth() + 1;
-      this.anio = this.date.getFullYear();
+    if (this.anio && this.mesInicio && this.mesFin) {
+      this.loading = true;
       try {
-        this.preventivos = await this.reportesService.getReportesPreventivosMesAño({ mes: this.mes, anio: this.anio });
-        this.correctivos = await this.reportesService.getReportesCorrectivosMesAño({ mes: this.mes, anio: this.anio });
+        if (this.mesInicio === this.mesFin) {
+          // Single month search (legacy behavior)
+          this.preventivos = await this.reportesService.getReportesPreventivosMesAño({ mes: this.mesInicio, anio: this.anio });
+          this.correctivos = await this.reportesService.getReportesCorrectivosMesAño({ mes: this.mesInicio, anio: this.anio });
+        } else {
+          // Range search
+          this.preventivos = await this.reportesService.getReportesPreventivosRango({
+            mesInicio: this.mesInicio,
+            mesFin: this.mesFin,
+            anio: this.anio
+          });
+          this.correctivos = await this.reportesService.getReportesCorrectivosRango({
+            mesInicio: this.mesInicio,
+            mesFin: this.mesFin,
+            anio: this.anio
+          });
+        }
       } catch (error) {
-        console.log(error);
         Swal.fire({
           icon: 'error',
-          title: 'No es posible cargar la informacion de los reportes',
-          text: 'Error al cargar los reportes, intente más tarde.'
-        })
+          title: 'Error cargando reportes',
+          text: 'No se pudo cargar la información.'
+        });
+      } finally {
+        this.loading = false;
       }
-
     } else {
       Swal.fire({
-        icon: 'error',
-        title: 'Debe seleccionar un mes para continuar',
-        text: 'Datos no encontrados.'
-      })
+        icon: 'warning',
+        title: 'Faltan datos',
+        text: 'Seleccione año, mes inicio y mes fin.'
+      });
     }
   }
 
@@ -223,7 +228,7 @@ export class ManteniminetoComponent implements OnInit {
   }
 
   verReportesEquipo(id: number) {
-    console.log("Ver Reportes Equipo: " + id);
+
     this.router.navigate(['/biomedica/reportesequipo/', id]);
   }
 
@@ -240,10 +245,18 @@ export class ManteniminetoComponent implements OnInit {
   }
 
   async viewModalReport(reporte: any) {
-    this.modalReport = true;
-    this.reportSelected = await this.reportesService.getReporteById(reporte);
-    this.rutina = await this.protocolosServices.getCumplimientoProtocoloReporte(this.reportSelected.id);
-    console.log(this.reportSelected);
+    this.loading = true;
+    try {
+      const id = (reporte && typeof reporte === 'object') ? reporte.id : reporte;
+      this.reportSelected = await this.reportesService.getReporteById(id);
+      this.rutina = await this.protocolosServices.getCumplimientoProtocoloReporte(id);
+      this.modalReport = true;
+    } catch (error) {
+      console.error(error);
+      Swal.fire('Error', 'No se pudo cargar la información del reporte.', 'error');
+    } finally {
+      this.loading = false;
+    }
   }
 
   async viewPdf(ruta: string) {

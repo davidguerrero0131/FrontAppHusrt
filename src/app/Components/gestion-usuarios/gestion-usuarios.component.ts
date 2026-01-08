@@ -16,10 +16,15 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TagModule } from 'primeng/tag';
 
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+
 @Component({
   selector: 'app-gestion-usuarios',
   standalone: true,
-  imports: [TableModule, CommonModule, DialogModule, ReactiveFormsModule, InputTextModule, DropdownModule, ButtonModule, TooltipModule, ToolbarModule, TagModule],
+  imports: [TableModule, CommonModule, DialogModule, ReactiveFormsModule, InputTextModule, DropdownModule, ButtonModule, TooltipModule, ToolbarModule, TagModule,
+    IconFieldModule, InputIconModule
+  ],
   providers: [MessageService],
   templateUrl: './gestion-usuarios.component.html',
   styleUrl: './gestion-usuarios.component.css'

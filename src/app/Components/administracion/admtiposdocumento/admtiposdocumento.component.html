@@ -1,51 +1,5 @@
 <p-toast></p-toast>
 
-<<<<<<< Updated upstream
-<div class="card">
-    <p-toolbar styleClass="mb-4 gap-2">
-        <ng-template pTemplate="left">
-            <button pButton pRipple label="Nuevo" icon="pi pi-plus" class="p-button-success mr-2"
-                (click)="openNew()"></button>
-        </ng-template>
-    </p-toolbar>
-
-    <p-table #dt [value]="tiposDocumento" [rows]="10" [paginator]="true" [globalFilterFields]="['nombres']"
-        [rowHover]="true" dataKey="id" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} entradas"
-        [showCurrentPageReport]="true">
-        <ng-template pTemplate="caption">
-            <div class="flex align-items-center justify-content-between">
-                <h5 class="m-0">Administrar Tipos de Documento</h5>
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-                        placeholder="Buscar..." />
-                </span>
-            </div>
-        </ng-template>
-        <ng-template pTemplate="header">
-            <tr>
-                <th pSortableColumn="nombres" style="width: 80%">Nombre <p-sortIcon field="nombres"></p-sortIcon></th>
-                <th style="width: 20%">Acciones</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-tipo>
-            <tr>
-                <td>{{tipo.nombres}}</td>
-                <td>
-                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
-                        (click)="editTipoDocumento(tipo)"></button>
-                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
-                        (click)="deleteTipoDocumento(tipo)"></button>
-                </td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="summary">
-            <div class="flex align-items-center justify-content-between">
-                En total hay {{tiposDocumento ? tiposDocumento.length : 0 }} tipos de documento.
-            </div>
-        </ng-template>
-    </p-table>
-=======
 <div class="flex justify-content-center">
     <div class="card md:w-8 w-full px-4 py-4 m-4 shadow-2 border-round-xl surface-card">
         <p-toolbar styleClass="mb-4 gap-2 border-none surface-ground">
@@ -101,7 +55,6 @@
             </ng-template>
         </p-table>
     </div>
->>>>>>> Stashed changes
 </div>
 
 <p-dialog [(visible)]="tipoDocumentoDialog" [style]="{width: '450px'}" header="Detalles Tipo Documento" [modal]="true"

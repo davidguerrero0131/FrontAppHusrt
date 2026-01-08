@@ -50,7 +50,8 @@
     <h6>Plan de mantenimiento del mes: {{nombreMes()}} </h6>
   </div>
   <div style="text-align: right; margin-right: 5%;">
-    <button type="button" class="btn btn-success" style="width: 250px;" (click)="programarMantenimiento()">Programar
+    <button *ngIf="canProgram" type="button" class="btn btn-success" style="width: 250px;"
+      (click)="programarMantenimiento()">Programar
       Mantenimientos</button>
     <h1> </h1>
   </div>
@@ -140,7 +141,7 @@
     <h6>Plan de actividades metrologicas del mes: {{nombreMes()}} </h6>
   </div>
   <div style="text-align: right; margin-right: 5%;">
-    <button type="button" class="btn btn-success" style="width: 250px;"
+    <button *ngIf="canProgram" type="button" class="btn btn-success" style="width: 250px;"
       (click)="programarActividadesMetrologicas   ()">Programar A. Metrologicas</button>
     <h1> </h1>
   </div>

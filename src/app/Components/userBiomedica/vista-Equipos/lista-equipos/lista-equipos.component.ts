@@ -143,7 +143,7 @@ export class ListaEquiposComponent implements OnInit {
     }
 
     editarEquipo(id: number) {
-        this.router.navigate(['biomedica/adminequipos/edit/', id]);
+        this.router.navigate(['biomedica/equipos/edit/', id]);
     }
 
     async desactivarEquipo(equipo: any) {

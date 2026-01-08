@@ -3,18 +3,13 @@
     <div class="hero-section" style="background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);">
         <div class="hero-content">
             <h1>Parametrización</h1>
-            <p>Configura los tipos de equipo, fabricantes, proveedores y responsables del sistema.</p>
         </div>
     </div>
 
     <div class="cards-grid">
 
         <!-- Usuarios -->
-<<<<<<< Updated upstream
-        <div class="dashboard-card" (click)="showViewUsuarios()">
-=======
         <div class="dashboard-card" *ngIf="isSuperAdmin" (click)="showViewUsuarios()">
->>>>>>> Stashed changes
             <div class="card-icon-container gradient-blue">
                 <i class="pi pi-users"></i>
             </div>
@@ -26,11 +21,7 @@
         </div>
 
         <!-- Servicios -->
-<<<<<<< Updated upstream
-        <div class="dashboard-card" (click)="showViewServicios()">
-=======
         <div class="dashboard-card" *ngIf="isSuperAdmin" (click)="showViewServicios()">
->>>>>>> Stashed changes
             <div class="card-icon-container gradient-teal">
                 <i class="pi pi-list"></i>
             </div>
@@ -98,6 +89,18 @@
                 <h3>Tipos Documento</h3>
                 <p>Define los tipos de documentos permitidos.</p>
                 <span class="card-action">Configurar <i class="pi pi-cog"></i></span>
+            </div>
+        </div>
+
+        <!-- Gestión de Equipos -->
+        <div class="dashboard-card" *ngIf="isSuperAdmin || isBiomedicaAdmin" (click)="showViewEquipos()">
+            <div class="card-icon-container gradient-cyan">
+                <i class="pi pi-briefcase"></i>
+            </div>
+            <div class="card-content">
+                <h3>Gestión de Equipos</h3>
+                <p>Administración general de equipos biomédicos.</p>
+                <span class="card-action">Gestionar <i class="pi pi-cog"></i></span>
             </div>
         </div>
     </div>

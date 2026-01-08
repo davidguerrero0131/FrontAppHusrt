@@ -5,11 +5,24 @@
   <h1 style="text-align: center;">MANTENIMIENTOS DE EQUIPOS BIOMEDICOS</h1>
 </div>
 
-<div class="filtromes flex flex-column md:flex-row align-items-center gap-3" style="margin-bottom: 2%;">
-  <h6 class="m-0">Seleccione un mes para visualizar:</h6>
+<div class="filtromes flex flex-wrap align-items-center justify-content-center gap-3" style="margin-bottom: 2%;">
 
-  <p-datepicker [(ngModel)]="date" view="month" dateFormat="mm/yy" [readonlyInput]="true"
-    inputStyleClass="w-full md:w-10rem"></p-datepicker>
+  <div class="flex align-items-center gap-2">
+    <label class="font-bold">Año:</label>
+    <input pInputText type="number" [(ngModel)]="anio" placeholder="YYYY" class="w-8rem" />
+  </div>
+
+  <div class="flex align-items-center gap-2">
+    <label class="font-bold">Inicio:</label>
+    <p-dropdown [options]="meses" [(ngModel)]="mesInicio" optionLabel="label" optionValue="value"
+      placeholder="Mes Inicio" [style]="{'width':'10rem'}"></p-dropdown>
+  </div>
+
+  <div class="flex align-items-center gap-2">
+    <label class="font-bold">Fin:</label>
+    <p-dropdown [options]="meses" [(ngModel)]="mesFin" optionLabel="label" optionValue="value" placeholder="Mes Fin"
+      [style]="{'width':'10rem'}"></p-dropdown>
+  </div>
 
   <button type="button" class="btn btn-dark" (click)="setDate()">
     Buscar
@@ -17,19 +30,26 @@
 </div>
 
 <div>
-  <h6 style="text-align: center;"> Mantenimientos del mes de {{obtenerNombreMes(mes)}} del año {{anio}}</h6>
+  <h6 style="text-align: center;" *ngIf="mesInicio === mesFin">
+    Mantenimientos del mes de {{obtenerNombreMes(mesInicio)}} del año {{anio}}
+  </h6>
+  <h6 style="text-align: center;" *ngIf="mesInicio !== mesFin">
+    Mantenimientos de {{obtenerNombreMes(mesInicio)}} a {{obtenerNombreMes(mesFin)}} del año {{anio}}
+  </h6>
 </div>
 
 <div class="btn-group botonesMenu" role="group" aria-label="Basic example">
-  <button type="button" class="btn" [ngClass]="panelPreventivos ? 'btn-light' : 'btn-dark'" (click)="viewPreventivos()">
+  <button type="button" class="btn" [ngClass]="panelPreventivos ? 'btn-warning' : 'btn-dark'"
+    (click)="viewPreventivos()">
     Preventivos
   </button>
 
-  <button type="button" class="btn" [ngClass]="panelMetas ? 'btn-light' : 'btn-dark'" (click)="viewMetas()">
+  <button type="button" class="btn" [ngClass]="panelMetas ? 'btn-warning' : 'btn-dark'" (click)="viewMetas()">
     Metas
   </button>
 
-  <button type="button" class="btn" [ngClass]="panelCorrectivos ? 'btn-light' : 'btn-dark'" (click)="viewCorrectivos()">
+  <button type="button" class="btn" [ngClass]="panelCorrectivos ? 'btn-warning' : 'btn-dark'"
+    (click)="viewCorrectivos()">
     Correctivos
   </button>
 </div>
@@ -64,6 +84,7 @@
             <th style="width:15%; align-items: center; text-align: center">Sede</th>
             <th style="width:15%; align-items: center; text-align: center">Ubicacion Especidica</th>
             <th style="width:15%; align-items: center; text-align: center">Asignado</th>
+            <th style="width:10%; align-items: center; text-align: center">Mes</th>
             <th style="width:10%; align-items: center; text-align: center">Estado</th>
             <th style="width:10%; align-items: center; text-align: center">Opciones</th>
           </tr>
@@ -117,6 +138,11 @@
               </span>
             </td>
             <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ obtenerNombreMes(reporte.mesProgramado) }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
               <button type="button" class="btn btn-secondary" *ngIf="reporte.realizado && reporte.rutaPdf == null"
                 (click)="viewModalReport(reporte.id)">REALIZADO</button>
               <button type="button" class="btn btn-success" *ngIf="reporte.realizado && reporte.rutaPdf != null"
@@ -148,10 +174,14 @@
     <div class="contenedor">
       <div class="izquierda">
 
-        <button type="button" class="btn btn-dark btn-sm" style="width: 100%; margin-bottom: 2%;"
-          (click)="panelRealizadosView()"> Realzados </button>
-        <button type="button" class="btn btn-dark btn-sm" style="width: 100%;" (click)="panelPendientesView()">
-          Pendientes </button>
+        <button type="button" class="btn btn-sm" [ngClass]="panelRealizados ? 'btn-warning' : 'btn-dark'"
+          style="width: 100%; margin-bottom: 2%;" (click)="panelRealizadosView()">
+          Realizados
+        </button>
+        <button type="button" class="btn btn-sm" [ngClass]="panelPendientes ? 'btn-warning' : 'btn-dark'"
+          style="width: 100%;" (click)="panelPendientesView()">
+          Pendientes
+        </button>
 
       </div>
       <div class="derecha" *ngIf="panelRealizados">
@@ -183,6 +213,7 @@
                 <th style="width:15%; align-items: center; text-align: center">Servicio</th>
                 <th style="width:15%; align-items: center; text-align: center">Ubicacion Especidica</th>
                 <th style="width:15%; align-items: center; text-align: center">Asignado</th>
+                <th style="width:10%; align-items: center; text-align: center">Mes</th>
                 <th style="width:10%; align-items: center; text-align: center">Estado</th>
               </tr>
             </ng-template>
@@ -227,6 +258,11 @@
                 <td style="text-align: center; align-items: center; text-align: center">
                   <span class="ml-1 vertical-align-middle">
                     -{{ reporte.usuario?.nombres}} {{reporte.usuario?.apellidos}}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ obtenerNombreMes(reporte.mesProgramado) }}
                   </span>
                 </td>
                 <td style="text-align: center; align-items: center; text-align: center">
@@ -276,6 +312,7 @@
                 <th style="width:15%; align-items: center; text-align: center">Servicio</th>
                 <th style="width:15%; align-items: center; text-align: center">Ubicacion Especidica</th>
                 <th style="width:15%; align-items: center; text-align: center">Asignado</th>
+                <th style="width:10%; align-items: center; text-align: center">Mes</th>
                 <th style="width:10%; align-items: center; text-align: center">Realizado</th>
               </tr>
             </ng-template>
@@ -320,6 +357,11 @@
                 <td style="text-align: center; align-items: center; text-align: center">
                   <span class="ml-1 vertical-align-middle">
                     -{{ reporte.usuario?.nombres}} {{reporte.usuario?.apellidos}}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{ obtenerNombreMes(reporte.mesProgramado) }}
                   </span>
                 </td>
                 <td style="text-align: center; align-items: center; text-align: center">
@@ -375,6 +417,7 @@
             <th style="width:15%; align-items: center; text-align: center">Sede</th>
             <th style="width:15%; align-items: center; text-align: center">Ubicacion Especidica</th>
             <th style="width:15%; align-items: center; text-align: center">Asignado</th>
+            <th style="width:10%; align-items: center; text-align: center">Fecha</th>
             <th style="width:10%; align-items: center; text-align: center">Realizado</th>
           </tr>
         </ng-template>
@@ -421,6 +464,11 @@
                 -{{ reporte.usuario?.nombres}} {{reporte.usuario?.apellidos}}
               </span>
               <span class="ml-1 vertical-align-middle" *ngIf="!reporte.usuario">x
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ reporte.fechaRealizado }}
               </span>
             </td>
             <td style="text-align: center; align-items: center; text-align: center">

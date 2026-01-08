@@ -14,13 +14,16 @@ import { ResponsableService } from './../../../Services/appServices/biomedicaSer
 import Swal from 'sweetalert2';
 import { getDecodedAccessToken } from '../../../utilidades';
 
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+
 @Component({
     selector: 'app-admresponsables',
     standalone: true,
     imports: [
         CommonModule, ReactiveFormsModule, FormsModule,
         TableModule, InputTextModule, ButtonModule, DialogModule, ToolbarModule, TooltipModule, TagModule,
-        InputSwitchModule, InputNumberModule
+        InputSwitchModule, InputNumberModule, IconFieldModule, InputIconModule
     ],
     templateUrl: './admresponsables.component.html',
     styleUrl: './admresponsables.component.css'
@@ -44,7 +47,7 @@ export class AdmResponsablesComponent implements OnInit {
     constructor() {
         this.formGroup = this.formBuilder.group({
             nombres: ['', Validators.required],
-            apellidos: [''],
+
             garantia: [false, Validators.required],
             externo: [false, Validators.required],
             comodato: [false, Validators.required],
@@ -85,7 +88,7 @@ export class AdmResponsablesComponent implements OnInit {
     openNew() {
         this.formGroup.reset({
             nombres: '',
-            apellidos: '',
+
             garantia: false,
             externo: false,
             comodato: false,
@@ -100,7 +103,7 @@ export class AdmResponsablesComponent implements OnInit {
         this.isEditing = true;
         this.formGroup.patchValue({
             nombres: responsable.nombres,
-            apellidos: responsable.apellidos,
+
             garantia: responsable.garantia,
             externo: responsable.externo,
             comodato: responsable.comodato,
