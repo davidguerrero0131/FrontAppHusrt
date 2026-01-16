@@ -5,7 +5,7 @@ import { MessageService } from 'primeng/api';
 import Swal from 'sweetalert2';
 import { jwtDecode } from 'jwt-decode';
 
-import { IndustrialesNavbarComponent  } from '../../navbars/IndustrialesNavbar/industrialesnavbar.component';
+import { IndustrialesNavbarComponent } from '../../navbars/IndustrialesNavbar/industrialesnavbar.component';
 import { EquiposIndustrialesService } from '../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
 import { Router } from '@angular/router';
 
@@ -13,8 +13,8 @@ import { Router } from '@angular/router';
   selector: 'app-gestion-equipos-industriales',
   standalone: true,
   imports: [
-    IndustrialesNavbarComponent , 
-    TableModule, 
+    IndustrialesNavbarComponent,
+    TableModule,
     CommonModule
   ],
   providers: [MessageService],
@@ -22,7 +22,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./gestion-equipos-industriales.component.css']
 })
 export class GestionEquiposIndustrialesComponent implements OnInit {
-  
+
   equipos!: any[];
   loading: boolean = true;
   activityValues: number[] = [0, 100];
@@ -31,7 +31,7 @@ export class GestionEquiposIndustrialesComponent implements OnInit {
     private router: Router,
     private equiposService: EquiposIndustrialesService,
     private messageService: MessageService
-  ) {}
+  ) { }
 
   async ngOnInit() {
     try {
@@ -85,7 +85,7 @@ export class GestionEquiposIndustrialesComponent implements OnInit {
             await this.equiposService.reactivarEquipo(idEquipo);
           }
           this.equipos = await this.equiposService.getAllEquipos();
-          
+
           Swal.fire(mensajeExito, '', 'success');
         } catch (error) {
           Swal.fire({
@@ -98,6 +98,18 @@ export class GestionEquiposIndustrialesComponent implements OnInit {
         Swal.fire(`Se descartó la operación`, '', 'info');
       }
     });
+  }
+
+  crearHojaDeVida(idEquipo: any) {
+    this.router.navigate(['/industriales/hoja-de-vida', idEquipo]);
+  }
+
+  editarHojaDeVida(idEquipo: any) {
+    this.router.navigate(['/industriales/hoja-de-vida', idEquipo]);
+  }
+
+  verHojaDeVida(idEquipo: any) {
+    this.router.navigate(['/industriales/ver-hoja-de-vida', idEquipo]);
   }
 
   getDecodedAccessToken(token: string): any {

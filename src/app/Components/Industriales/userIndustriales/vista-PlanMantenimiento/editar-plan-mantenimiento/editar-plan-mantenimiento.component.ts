@@ -5,11 +5,12 @@ import { Router, ActivatedRoute } from '@angular/router';
 import Swal from 'sweetalert2';
 import { PlanMantenimientoIndustrialesService } from '../../../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
 import { EquiposIndustrialesService } from '../../../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
+import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
 
 @Component({
   selector: 'app-editar-plan-mantenimiento',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IndustrialesNavbarComponent],
   templateUrl: './editar-plan-mantenimiento.component.html',
   styleUrls: ['./editar-plan-mantenimiento.component.css']
 })
@@ -18,7 +19,7 @@ export class EditarPlanMantenimientoComponent implements OnInit {
   equipos: any[] = [];
   planId: number | null = null;
   loading: boolean = true;
-  
+
   meses = [
     { valor: 1, nombre: 'Enero' },
     { valor: 2, nombre: 'Febrero' },
@@ -111,7 +112,7 @@ export class EditarPlanMantenimientoComponent implements OnInit {
 
       try {
         await this.planMantenimientoService.updatePlan(this.planId, plan);
-        
+
         Swal.fire({
           title: "Plan Actualizado",
           text: "El plan de mantenimiento ha sido actualizado exitosamente",

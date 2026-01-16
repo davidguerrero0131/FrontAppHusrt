@@ -5,11 +5,12 @@ import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { PlanMantenimientoIndustrialesService } from '../../../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
 import { EquiposIndustrialesService } from '../../../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
+import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
 
 @Component({
   selector: 'app-crear-plan-mantenimiento',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, IndustrialesNavbarComponent],
   templateUrl: './crear-plan-mantenimiento.component.html',
   styleUrls: ['./crear-plan-mantenimiento.component.css']
 })
@@ -63,58 +64,58 @@ export class CrearPlanMantenimientoComponent implements OnInit {
   }
 
   async guardar() {
-  if (this.planForm.valid) {
-    const rangoInicio = this.planForm.get('rangoDeInicio')?.value;
-    const rangoFin = this.planForm.get('rangoDeFin')?.value;
+    if (this.planForm.valid) {
+      const rangoInicio = this.planForm.get('rangoDeInicio')?.value;
+      const rangoFin = this.planForm.get('rangoDeFin')?.value;
 
-    if (rangoInicio > rangoFin) {
+      if (rangoInicio > rangoFin) {
+        Swal.fire({
+          title: "Rango inválido",
+          text: "El día de inicio no puede ser mayor al día de fin",
+          icon: "warning"
+        });
+        return;
+      }
+
+      const plan = {
+        idEquipo: parseInt(this.planForm.get('idEquipo')?.value), // ✅ Convertir a número
+        mes: parseInt(this.planForm.get('mes')?.value),           // ✅ Convertir a número
+        ano: parseInt(this.planForm.get('ano')?.value),           // ✅ Convertir a número
+        rangoDeInicio: parseInt(rangoInicio),                     // ✅ Convertir a número
+        rangoDeFin: parseInt(rangoFin),                           // ✅ Convertir a número
+        estado: this.planForm.get('estado')?.value
+      };
+
+      console.log('Plan a enviar:', plan); // Para debug
+
+      try {
+        await this.planMantenimientoService.addPlan(plan);
+
+        Swal.fire({
+          title: "Plan Creado",
+          text: "El plan de mantenimiento ha sido creado exitosamente",
+          icon: "success",
+          showConfirmButton: false,
+          timer: 1500
+        }).then(() => {
+          this.regresar();
+        });
+      } catch (error) {
+        console.error('Error al guardar:', error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo crear el plan de mantenimiento",
+          icon: "error"
+        });
+      }
+    } else {
       Swal.fire({
-        title: "Rango inválido",
-        text: "El día de inicio no puede ser mayor al día de fin",
+        title: "Campos incompletos",
+        text: "Debe completar todos los campos obligatorios",
         icon: "warning"
       });
-      return;
+      this.planForm.markAllAsTouched();
     }
-
-    const plan = {
-      idEquipo: parseInt(this.planForm.get('idEquipo')?.value), // ✅ Convertir a número
-      mes: parseInt(this.planForm.get('mes')?.value),           // ✅ Convertir a número
-      ano: parseInt(this.planForm.get('ano')?.value),           // ✅ Convertir a número
-      rangoDeInicio: parseInt(rangoInicio),                     // ✅ Convertir a número
-      rangoDeFin: parseInt(rangoFin),                           // ✅ Convertir a número
-      estado: this.planForm.get('estado')?.value
-    };
-
-    console.log('Plan a enviar:', plan); // Para debug
-
-    try {
-      await this.planMantenimientoService.addPlan(plan);
-      
-      Swal.fire({
-        title: "Plan Creado",
-        text: "El plan de mantenimiento ha sido creado exitosamente",
-        icon: "success",
-        showConfirmButton: false,
-        timer: 1500
-      }).then(() => {
-        this.regresar();
-      });
-    } catch (error) {
-      console.error('Error al guardar:', error);
-      Swal.fire({
-        title: "Error",
-        text: "No se pudo crear el plan de mantenimiento",
-        icon: "error"
-      });
-    }
-  } else {
-    Swal.fire({
-      title: "Campos incompletos",
-      text: "Debe completar todos los campos obligatorios",
-      icon: "warning"
-    });
-    this.planForm.markAllAsTouched();
-  }
   }
 
   regresar() {

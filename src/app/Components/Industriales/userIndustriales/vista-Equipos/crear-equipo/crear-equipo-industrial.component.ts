@@ -11,12 +11,13 @@ import Swal from 'sweetalert2';
 import { EquiposIndustrialesService } from '../../../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
 import { DialogModule } from "primeng/dialog";
 import { ButtonModule } from "primeng/button";
-import { DatePickerModule } from 'primeng/datepicker';
+import { DatePicker } from 'primeng/datepicker';
+import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
 
 @Component({
   selector: 'app-crear-equipo-industrial',
   standalone: true,
-  imports: [CommonModule, UppercaseDirective, DialogModule, ButtonModule, FormsModule, DatePickerModule, ReactiveFormsModule],
+  imports: [CommonModule, UppercaseDirective, DialogModule, ButtonModule, FormsModule, DatePicker, ReactiveFormsModule, IndustrialesNavbarComponent],
   templateUrl: './crear-equipo-industrial.component.html',
   styleUrls: ['./crear-equipo-industrial.component.css']
 })
@@ -74,13 +75,13 @@ export class CrearEquipoIndustrialComponent implements OnInit {
     try {
       this.tiposequipo = await this.tipoEquipoServices.getAllTiposEquipos();
       console.log('Tipos de equipo:', this.tiposequipo);
-      
+
       this.servicios = await this.serviciosServices.getAllServicios();
       console.log('Servicios:', this.servicios);
-      
+
       this.responsables = await this.responsablesServices.getAllResponsables();
       console.log('Responsables:', this.responsables);
-      
+
       this.sedes = await this.sedesServices.getAllSedes();
       console.log('Sedes:', this.sedes);
     } catch (error) {
@@ -130,7 +131,7 @@ export class CrearEquipoIndustrialComponent implements OnInit {
           await this.guardarEquipoConFechas();
         }
       }
-        
+
     } else {
       Swal.fire({
         title: "Campos vacíos",
@@ -155,7 +156,7 @@ export class CrearEquipoIndustrialComponent implements OnInit {
 
       // Guardar en el backend
       const resultado = await this.EquiposService.addEquipo(equipoConFechas);
-      
+
       console.log('Respuesta del backend:', resultado);
 
       Swal.fire({
@@ -167,7 +168,7 @@ export class CrearEquipoIndustrialComponent implements OnInit {
       }).then(() => {
         this.regresar();
       });
-      
+
     } catch (error) {
       console.error('Error al guardar el equipo:', error);
       Swal.fire({
@@ -223,7 +224,7 @@ export class CrearEquipoIndustrialComponent implements OnInit {
 
   validarFechasMantenimiento() {
     const fechasCompletas = this.fechasMantenimiento.every(fecha => fecha !== null);
-    
+
     if (!fechasCompletas) {
       Swal.fire({
         title: "Fechas incompletas",
@@ -234,16 +235,16 @@ export class CrearEquipoIndustrialComponent implements OnInit {
     }
 
     console.log('Fechas de mantenimiento guardadas:', this.fechasMantenimiento);
-    
+
     this.modalAddFechasMantenimiento = false;
-    
+
     // Continuar con las fechas de calibración
     this.iniciarFechasCalibracion();
   }
 
   validarFechasCalibracion() {
     const fechasCompletas = this.fechasCalibracion.every(fecha => fecha !== null);
-    
+
     if (!fechasCompletas) {
       Swal.fire({
         title: "Fechas incompletas",
@@ -254,9 +255,9 @@ export class CrearEquipoIndustrialComponent implements OnInit {
     }
 
     console.log('Fechas de calibración guardadas:', this.fechasCalibracion);
-    
+
     this.modalAddFechasCalibracion = false;
-    
+
     // Ahora sí, guardar el equipo con todas las fechas
     this.guardarEquipoConFechas();
   }

@@ -10,30 +10,18 @@
     </div>
 
     <div class="card-body">
-      <p-table 
-        #dt
-        [value]="equipos" 
-        [loading]="loading"
-        [paginator]="true" 
-        [rows]="10"
-        [rowsPerPageOptions]="[5, 10, 20, 50]"
-        [showCurrentPageReport]="true"
+      <p-table #dt [value]="equipos" [loading]="loading" [paginator]="true" [rows]="10"
+        [rowsPerPageOptions]="[5, 10, 20, 50]" [showCurrentPageReport]="true"
         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} equipos"
-        [globalFilterFields]="['nombre', 'marca', 'modelo', 'serie', 'ubicacion']"
-        styleClass="p-datatable-striped"
+        [globalFilterFields]="['nombre', 'marca', 'modelo', 'serie', 'ubicacion']" styleClass="p-datatable-striped"
         [tableStyle]="{'min-width': '60rem'}">
-        
+
         <ng-template pTemplate="caption">
           <div class="d-flex justify-content-between align-items-center">
             <span class="p-input-icon-left w-50">
               <i class="pi pi-search"></i>
-              <input 
-                pInputText 
-                type="text" 
-                #searchInput
-                (input)="dt.filterGlobal(searchInput.value, 'contains')" 
-                placeholder="Buscar equipos..." 
-                class="form-control" />
+              <input pInputText type="text" #searchInput (input)="dt.filterGlobal(searchInput.value, 'contains')"
+                placeholder="Buscar equipos..." class="form-control" />
             </span>
           </div>
         </ng-template>
@@ -70,39 +58,55 @@
             <td>{{ equipo.serie || 'N/A' }}</td>
             <td>{{ equipo.ubicacion || 'N/A' }}</td>
             <td>
-              <span 
-                [class]="equipo.activo ? 'badge bg-success' : 'badge bg-danger'">
+              <span [class]="equipo.activo ? 'badge bg-success' : 'badge bg-danger'">
                 {{ equipo.activo ? 'Activo' : 'Inactivo' }}
               </span>
             </td>
             <td>
-              <div class="btn-group" role="group">
-                <button 
-                  class="btn btn-sm btn-info" 
-                  (click)="verDetalle(equipo.id)"
-                  title="Ver detalle">
-                  <i class="bi bi-eye"></i>
+              <div class="dropdown">
+                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-gear-fill"></i>
                 </button>
-                <button 
-                  class="btn btn-sm btn-warning" 
-                  (click)="editarEquipo(equipo.id)"
-                  title="Editar">
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button 
-                  *ngIf="equipo.activo"
-                  class="btn btn-sm btn-danger" 
-                  (click)="cambiarEstadoActivo(equipo.id, true)"
-                  title="Dar de baja">
-                  <i class="bi bi-x-circle"></i>
-                </button>
-                <button 
-                  *ngIf="!equipo.activo"
-                  class="btn btn-sm btn-success" 
-                  (click)="cambiarEstadoActivo(equipo.id, false)"
-                  title="Reactivar">
-                  <i class="bi bi-check-circle"></i>
-                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" role="button" (click)="verDetalle(equipo.id)">
+                      <i class="bi bi-eye me-2 text-info"></i> Ver detalle
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" role="button" (click)="editarEquipo(equipo.id)">
+                      <i class="bi bi-pencil me-2 text-warning"></i> Editar
+                    </a>
+                  </li>
+                  <li *ngIf="!equipo.hojaDeVida">
+                    <a class="dropdown-item" role="button" (click)="crearHojaDeVida(equipo.id)">
+                      <i class="bi bi-file-earmark-plus me-2 text-primary"></i> Crear Hoja de Vida
+                    </a>
+                  </li>
+                  <li *ngIf="equipo.hojaDeVida">
+                    <a class="dropdown-item" role="button" (click)="editarHojaDeVida(equipo.id)">
+                      <i class="bi bi-file-earmark-text me-2 text-warning"></i> Editar Hoja de Vida
+                    </a>
+                  </li>
+                  <li *ngIf="equipo.hojaDeVida">
+                    <a class="dropdown-item" role="button" (click)="verHojaDeVida(equipo.id)">
+                      <i class="bi bi-eye me-2 text-info"></i> Ver Hoja de Vida
+                    </a>
+                  </li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  <li *ngIf="equipo.activo">
+                    <a class="dropdown-item" role="button" (click)="cambiarEstadoActivo(equipo.id, true)">
+                      <i class="bi bi-x-circle me-2 text-danger"></i> Dar de baja
+                    </a>
+                  </li>
+                  <li *ngIf="!equipo.activo">
+                    <a class="dropdown-item" role="button" (click)="cambiarEstadoActivo(equipo.id, false)">
+                      <i class="bi bi-check-circle me-2 text-success"></i> Reactivar
+                    </a>
+                  </li>
+                </ul>
               </div>
             </td>
           </tr>

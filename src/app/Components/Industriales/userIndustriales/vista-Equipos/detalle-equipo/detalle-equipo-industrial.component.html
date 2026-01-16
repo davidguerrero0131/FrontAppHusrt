@@ -1,3 +1,4 @@
+<app-industriales-navbar></app-industriales-navbar>
 <div class="container-fluid p-4">
   <!-- Loading Spinner -->
   <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
@@ -24,7 +25,7 @@
     </div>
 
     <div class="card-body">
-      
+
       <!-- Información Básica -->
       <div class="row mb-4">
         <div class="col-12">
@@ -115,21 +116,21 @@
         <div class="col-md-6">
           <div class="detail-item">
             <label class="detail-label">Tipo de Equipo:</label>
-            <p class="detail-value">{{ equipo.tipoEquipoInd?.nombre || 'N/A' }}</p>
+            <p class="detail-value">{{ equipo.tipoEquipoInd?.nombres || 'N/A' }}</p>
           </div>
         </div>
 
         <div class="col-md-6">
           <div class="detail-item">
             <label class="detail-label">Servicio:</label>
-            <p class="detail-value">{{ equipo.servicioInd?.nombre || 'N/A' }}</p>
+            <p class="detail-value">{{ equipo.servicioInd?.nombres || 'N/A' }}</p>
           </div>
         </div>
 
         <div class="col-md-6">
           <div class="detail-item">
             <label class="detail-label">Sede:</label>
-            <p class="detail-value">{{ equipo.sedeInd?.nombre || 'N/A' }}</p>
+            <p class="detail-value">{{ equipo.sedeInd?.nombres || 'N/A' }}</p>
           </div>
         </div>
 

@@ -3,11 +3,12 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import Swal from 'sweetalert2';
 import { PlanMantenimientoIndustrialesService } from '../../../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
+import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
 
 @Component({
   selector: 'app-detalle-plan-mantenimiento',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IndustrialesNavbarComponent],
   templateUrl: './detalle-plan-mantenimiento.component.html',
   styleUrls: ['./detalle-plan-mantenimiento.component.css']
 })
@@ -27,7 +28,7 @@ export class DetallePlanMantenimientoComponent implements OnInit {
       this.planId = parseInt(id);
 
       this.plan = await this.planMantenimientoService.getPlanById(this.planId);
-      
+
       if (!this.plan) {
         throw new Error('Plan no encontrado');
       }

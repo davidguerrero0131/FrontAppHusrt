@@ -1,3 +1,4 @@
+<app-industriales-navbar></app-industriales-navbar>
 <div class="container-fluid p-4">
   <!-- Loading Spinner -->
   <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
@@ -24,7 +25,7 @@
     </div>
 
     <div class="card-body">
-      
+
       <!-- Información del Equipo -->
       <div class="row mb-4">
         <div class="col-12">
@@ -122,7 +123,7 @@
           <div class="detail-item">
             <label class="detail-label">Rango de Días:</label>
             <p class="detail-value">
-              Del día {{ plan.rangoDeInicio }} al día {{ plan.rangoDeFin }} 
+              Del día {{ plan.rangoDeInicio }} al día {{ plan.rangoDeFin }}
               ({{ plan.rangoDeFin - plan.rangoDeInicio + 1 }} días)
             </p>
           </div>

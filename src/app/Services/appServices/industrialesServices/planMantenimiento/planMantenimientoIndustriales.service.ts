@@ -80,6 +80,20 @@ export class PlanMantenimientoIndustrialesService {
     );
   }
 
+  // Programar mantenimientos masivamente (activar planes para el mes)
+  async programarPlanes(ano: number, mes: number): Promise<any> {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/programar/${ano}/${mes}`, {}, createHeaders())
+    );
+  }
+
+  // Obtener planes programados (activos) por mes y año
+  async getPlanesProgramados(ano: number, mes: number): Promise<any[]> {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/programados/${ano}/${mes}`, createHeaders())
+    );
+  }
+
   // Obtener resumen de planes por equipo
   async getResumenByEquipo(idEquipo: number): Promise<any[]> {
     return firstValueFrom(

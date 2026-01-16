@@ -7,8 +7,8 @@ import { ReportspediatricsComponent } from './Components/Servinte/Reports/report
 import { UsuariosServicioComponent } from './Components/News2/usuarios-servicio/usuarios-servicio.component';
 import { AerolineaComponent } from './Components/Aerolinea/aerolinea/aerolinea.component';
 import { LoginComponent } from './Components/login/login.component'
-import { HomesuperadminComponent} from './Components/Homepage/homesuperadmin/homesuperadmin.component'
-import { HomeadminsistemasComponent} from './Components/Homepage/homeadminsistemas/homeadminsistemas.component'
+import { HomesuperadminComponent } from './Components/Homepage/homesuperadmin/homesuperadmin.component'
+import { HomeadminsistemasComponent } from './Components/Homepage/homeadminsistemas/homeadminsistemas.component'
 import { HomeadminbiomedicaComponent } from './Components/Homepage/homeadminbiomedica/homeadminbiomedica.component';
 import { HomeadminmantenimientoComponent } from './Components/Homepage/homeadminmantenimiento/homeadminmantenimiento.component';
 import { RegistroComponent } from './Components/registro/registro.component';
@@ -42,81 +42,99 @@ import { AdmtiposequipoComponent } from './Components/administracion/admtiposequ
 import { AdmserviciosComponent } from './Components/administracion/admservicios/admservicios.component';
 
 //industriales
-import { homeadminindustrialescomponent} from './Components/Homepage/homeadminindustriales/homesadminindustriales.component'
-import {CrearEquipoIndustrialComponent} from './Components/Industriales/userIndustriales/vista-Equipos/crear-equipo/crear-equipo-industrial.component'
+import { homeadminindustrialescomponent } from './Components/Homepage/homeadminindustriales/homesadminindustriales.component'
+import { CrearEquipoIndustrialComponent } from './Components/Industriales/userIndustriales/vista-Equipos/crear-equipo/crear-equipo-industrial.component'
 import { GestionEquiposIndustrialesComponent } from './Components/Industriales/gestion-equipos-industriales/gestion-equipos-industriales.component';
 import { EditarEquipoIndustrialComponent } from './Components/Industriales/userIndustriales/vista-Equipos/editar-equipo/editar-equipo-industrial.component';
 import { DetalleEquipoIndustrialComponent } from './Components/Industriales/userIndustriales/vista-Equipos/detalle-equipo/detalle-equipo-industrial.component';
+import { HojaDeVidaEquipoComponent } from './Components/Industriales/userIndustriales/vista-Equipos/crear-Hoja-De-Vida-Equipo/hoja-de-vida-equipo.component';
+import { EditarHojaDeVidaEquipoComponent } from './Components/Industriales/userIndustriales/vista-Equipos/editar-Hoja-De-Vida-Equipo/editar-hoja-de-vida-equipo.component';
+import { VerHojaDeVidaEquipoComponent } from './Components/Industriales/userIndustriales/vista-Equipos/ver-Hoja-De-Vida-Equipo/ver-hoja-de-vida-equipo.component';
 
+import { ProgramarMantenimientoComponent } from './Components/Industriales/userIndustriales/vista-PlanMantenimiento/programar-mantenimiento/programar-mantenimiento.component';
+import { VerProgramacionComponent } from './Components/Industriales/userIndustriales/vista-PlanMantenimiento/ver-programacion/ver-programacion.component';
+
+// Imports de Plan Mantenimiento (Missing)
 import { GestionPlanMantenimientoComponent } from './Components/Industriales/userIndustriales/vista-PlanMantenimiento/gestion-plan-mantenimiento/gestion-plan-mantenimiento.component';
 import { CrearPlanMantenimientoComponent } from './Components/Industriales/userIndustriales/vista-PlanMantenimiento/crear-plan-mantenimiento/crear-plan-mantenimiento.component';
 import { EditarPlanMantenimientoComponent } from './Components/Industriales/userIndustriales/vista-PlanMantenimiento/editar-plan-mantenimiento/editar-plan-mantenimiento.component';
 import { DetallePlanMantenimientoComponent } from './Components/Industriales/userIndustriales/vista-PlanMantenimiento/detalle-plan-mantenimiento/detalle-plan-mantenimiento.component';
 
 export const routes: Routes = [
+  { path: 'industriales/gestion-plan-mantenimiento', component: GestionPlanMantenimientoComponent, canActivate: [authGuard] },
+  { path: 'industriales/crear-plan-mantenimiento', component: CrearPlanMantenimientoComponent, canActivate: [authGuard] },
+  { path: 'industriales/editar-plan-mantenimiento/:id', component: EditarPlanMantenimientoComponent, canActivate: [authGuard] },
+  { path: 'industriales/detalle-plan-mantenimiento/:id', component: DetallePlanMantenimientoComponent, canActivate: [authGuard] },
+
+  // Programación de Mantenimientos
+  { path: 'industriales/programar-mantenimiento', component: ProgramarMantenimientoComponent, canActivate: [authGuard] },
+  { path: 'industriales/ver-programacion', component: VerProgramacionComponent, canActivate: [authGuard] },
+
+  // Hoja de Vida Industrial
 
   {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'
   },
-  {path: 'login', component: LoginComponent},
-  {path: 'updateprofil', component: EditarUsuarioComponent, canActivate: [authGuard]},
-  {path: 'superadmin', component: HomesuperadminComponent, canActivate: [authGuard]},
-  {path: 'registro', component: RegistroComponent, canActivate: [authGuard]},
-  {path: 'adminsistemas', component: HomeadminsistemasComponent, canActivate: [authGuard]},
-  {path: 'adminbiomedica', component: HomeadminbiomedicaComponent, canActivate: [authGuard]},
-  {path: 'adminmantenimineto', component: HomeadminmantenimientoComponent, canActivate: [authGuard]},
-  {path: 'adminmesaservicios', component: HomeadminmesaserviciosComponent, canActivate: [authGuard]},
-  {path: 'usermantenimiento', component: HomeusermantenimientoComponent, canActivate: [authGuard]},
-  {path: 'usersistemas', component: HomeusersistemasComponent, canActivate: [authGuard]},
-  {path: 'userbiomedica', component: HomeuserbiomedicaComponent, canActivate: [authGuard]},
-  {path: 'imagenologia/citasCE', component: ReportceComponent},
-  {path: 'servinte/reportepediatria', component: ReportspediatricsComponent},
-  {path: 'servinte/news2', component: UsuariosServicioComponent},
-  {path: 'servinte/cirugia', component: CirugiaComponent},
-  {path: 'acreditacion/aerolinea', component: AerolineaComponent},
-  {path: 'admusuarios', component: GestionUsuariosComponent, canActivate: [authGuard]},
+  { path: 'login', component: LoginComponent },
+  { path: 'updateprofil', component: EditarUsuarioComponent, canActivate: [authGuard] },
+  { path: 'superadmin', component: HomesuperadminComponent, canActivate: [authGuard] },
+  { path: 'registro', component: RegistroComponent, canActivate: [authGuard] },
+  { path: 'adminsistemas', component: HomeadminsistemasComponent, canActivate: [authGuard] },
+  { path: 'adminbiomedica', component: HomeadminbiomedicaComponent, canActivate: [authGuard] },
+  { path: 'adminmantenimineto', component: HomeadminmantenimientoComponent, canActivate: [authGuard] },
+  { path: 'adminmesaservicios', component: HomeadminmesaserviciosComponent, canActivate: [authGuard] },
+  { path: 'usermantenimiento', component: HomeusermantenimientoComponent, canActivate: [authGuard] },
+  { path: 'usersistemas', component: HomeusersistemasComponent, canActivate: [authGuard] },
+  { path: 'userbiomedica', component: HomeuserbiomedicaComponent, canActivate: [authGuard] },
+  { path: 'imagenologia/citasCE', component: ReportceComponent },
+  { path: 'servinte/reportepediatria', component: ReportspediatricsComponent },
+  { path: 'servinte/news2', component: UsuariosServicioComponent },
+  { path: 'servinte/cirugia', component: CirugiaComponent },
+  { path: 'acreditacion/aerolinea', component: AerolineaComponent },
+  { path: 'admusuarios', component: GestionUsuariosComponent, canActivate: [authGuard] },
 
-  {path: 'olvidocontraseña', component: OlvidoContrasenaComponent},
-  {path: 'recuperarcontraseña', component: CambiarContrasenaComponent},
+  { path: 'olvidocontraseña', component: OlvidoContrasenaComponent },
+  { path: 'recuperarcontraseña', component: CambiarContrasenaComponent },
 
   // UsuarioBiomedica
 
-  {path: 'biomedica/nuevoequipo', component: CrearEquipoComponent, canActivate: [authGuard]},
-  {path: 'biomedica/inventario', component: ClasificacionInventarioComponent, canActivate: [authGuard]},
-  {path: 'biomedica/mantenimiento', component: ManteniminetoComponent, canActivate: [authGuard]},
-  {path: 'biomedica/semaforizacion', component: SemaforizacionComponent, canActivate: [authGuard]},
-  {path: 'biomedica/indicadores', component: IndicadoresComponent, canActivate: [authGuard]},
-  {path: 'biomedica/calendario', component: CalendarioComponent, canActivate: [authGuard]},
-  {path: 'biomedica/actividadesmetrologicas', component: ActividadesMetrologicasComponent, canActivate: [authGuard]},
-  {path: 'biomedica/tiposequipo', component: ClasificacionTipoEquipoComponent, canActivate: [authGuard]},
-  {path: 'biomedica/servicios', component: ClasificacionServicioComponent, canActivate: [authGuard]},
-  {path: 'biomedica/empComodatos', component: ClasificacionComodatosComponent, canActivate: [authGuard]},
-  {path: 'biomedica/equiposservicio', component: EquiposServicioComponent, canActivate: [authGuard]},
-  {path: 'biomedica/equipostipo', component: EquiposTipoComponent, canActivate: [authGuard]},
-  {path: 'biomedica/equiposcomodatos', component: EquiposComodatosComponent, canActivate: [authGuard]},
-  {path: 'biomedica/nuevoreporte/:id', component: CrearReporteComponent, canActivate: [authGuard]},
-  {path: 'biomedica/reportesequipo/:id', component: VerReporteComponent, canActivate: [authGuard]},
-  {path: 'biomedica/hojavidaequipo/:id', component: HojavidaComponent, canActivate: [authGuard]},
-  {path: 'biomedica/validarqr', component: ValidadorQRComponent, canActivate: [authGuard]},
-  {path: 'admin/tiposequipo', component: AdmtiposequipoComponent, canActivate: [authGuard]},
-  {path: 'admin/servicios', component: AdmserviciosComponent, canActivate: [authGuard]},
+  { path: 'biomedica/nuevoequipo', component: CrearEquipoComponent, canActivate: [authGuard] },
+  { path: 'biomedica/inventario', component: ClasificacionInventarioComponent, canActivate: [authGuard] },
+  { path: 'biomedica/mantenimiento', component: ManteniminetoComponent, canActivate: [authGuard] },
+  { path: 'biomedica/semaforizacion', component: SemaforizacionComponent, canActivate: [authGuard] },
+  { path: 'biomedica/indicadores', component: IndicadoresComponent, canActivate: [authGuard] },
+  { path: 'biomedica/calendario', component: CalendarioComponent, canActivate: [authGuard] },
+  { path: 'biomedica/actividadesmetrologicas', component: ActividadesMetrologicasComponent, canActivate: [authGuard] },
+  { path: 'biomedica/tiposequipo', component: ClasificacionTipoEquipoComponent, canActivate: [authGuard] },
+  { path: 'biomedica/servicios', component: ClasificacionServicioComponent, canActivate: [authGuard] },
+  { path: 'biomedica/empComodatos', component: ClasificacionComodatosComponent, canActivate: [authGuard] },
+  { path: 'biomedica/equiposservicio', component: EquiposServicioComponent, canActivate: [authGuard] },
+  { path: 'biomedica/equipostipo', component: EquiposTipoComponent, canActivate: [authGuard] },
+  { path: 'biomedica/equiposcomodatos', component: EquiposComodatosComponent, canActivate: [authGuard] },
+  { path: 'biomedica/nuevoreporte/:id', component: CrearReporteComponent, canActivate: [authGuard] },
+  { path: 'biomedica/reportesequipo/:id', component: VerReporteComponent, canActivate: [authGuard] },
+  { path: 'biomedica/hojavidaequipo/:id', component: HojavidaComponent, canActivate: [authGuard] },
+  { path: 'biomedica/validarqr', component: ValidadorQRComponent, canActivate: [authGuard] },
+  { path: 'admin/tiposequipo', component: AdmtiposequipoComponent, canActivate: [authGuard] },
+  { path: 'admin/servicios', component: AdmserviciosComponent, canActivate: [authGuard] },
 
-  {path: 'intranet', component: IntranetComponent},
+  { path: 'intranet', component: IntranetComponent },
 
   //industriales
-  {path: 'adminindustriales', component: homeadminindustrialescomponent, canActivate: [authGuard]},
+  { path: 'adminindustriales', component: homeadminindustrialescomponent, canActivate: [authGuard] },
 
-  {path: 'Industriales/nuevoequipoindustrial', component: CrearEquipoIndustrialComponent, canActivate: [authGuard]},
-  {path: 'adminequipos', component: GestionEquiposIndustrialesComponent, canActivate: [authGuard]},
-  {path: 'editar-equipo-industrial/:id', component: EditarEquipoIndustrialComponent, canActivate: [authGuard]},
-  {path: 'detalle-equipo-industrial/:id', component: DetalleEquipoIndustrialComponent, canActivate: [authGuard]},
+  { path: 'Industriales/nuevoequipoindustrial', component: CrearEquipoIndustrialComponent, canActivate: [authGuard] },
+  { path: 'adminequipos', component: GestionEquiposIndustrialesComponent, canActivate: [authGuard] },
+  { path: 'editar-equipo-industrial/:id', component: EditarEquipoIndustrialComponent, canActivate: [authGuard] },
+  { path: 'detalle-equipo-industrial/:id', component: DetalleEquipoIndustrialComponent, canActivate: [authGuard] },
 
-  {path: 'industriales/gestion-plan-mantenimiento', component: GestionPlanMantenimientoComponent, canActivate: [authGuard]},
-  {path: 'industriales/crear-plan-mantenimiento', component: CrearPlanMantenimientoComponent, canActivate: [authGuard]},
-  {path: 'industriales/editar-plan-mantenimiento/:id', component: EditarPlanMantenimientoComponent, canActivate: [authGuard]},
-  {path: 'industriales/detalle-plan-mantenimiento/:id', component: DetallePlanMantenimientoComponent, canActivate: [authGuard]}
+
+  // Hoja de Vida Industrial
+  { path: 'industriales/hoja-de-vida/:id', component: HojaDeVidaEquipoComponent, canActivate: [authGuard] },
+  { path: 'industriales/editar-hoja-de-vida/:id', component: EditarHojaDeVidaEquipoComponent, canActivate: [authGuard] },
+  { path: 'industriales/ver-hoja-de-vida/:id', component: VerHojaDeVidaEquipoComponent, canActivate: [authGuard] }
 
 ];
 

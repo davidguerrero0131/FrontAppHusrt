@@ -1,0 +1,60 @@
+<app-industriales-navbar></app-industriales-navbar>
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Programar Mantenimientos</h3>
+            <button pButton icon="pi pi-arrow-left" label="Volver" class="p-button-text text-white"
+                (click)="goBack()"></button>
+        </div>
+        <div class="card-body p-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <p class="text-muted text-center mb-4">
+                        Seleccione el periodo (Año y Mes) para el cual desea activar masivamente los planes de
+                        mantenimiento.
+                    </p>
+
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex flex-column">
+                            <label class="fw-bold mb-1">Año</label>
+                            <p-dropdown [options]="anios" [(ngModel)]="selectedAnio" optionLabel="label"
+                                optionValue="value" [style]="{'width':'100%'}"></p-dropdown>
+                        </div>
+
+                        <div class="d-flex flex-column">
+                            <label class="fw-bold mb-1">Mes</label>
+
+                            <!-- Botón Trigger -->
+                            <button pButton type="button"
+                                label="{{ selectedMes ? selectedMes.name : 'Seleccione un mes' }}" icon="pi pi-calendar"
+                                class="p-button-outlined w-100 text-start justify-content-between"
+                                (click)="opProgramar.toggle($event)">
+                            </button>
+
+                            <!-- Overlay Grid -->
+                            <p-overlayPanel #opProgramar [style]="{width: '300px'}" [showCloseIcon]="true">
+                                <ng-template pTemplate>
+                                    <div class="row g-2">
+                                        <div class="col-4" *ngFor="let mes of meses">
+                                            <button type="button" class="btn w-100 btn-sm"
+                                                [ngClass]="{'btn-primary': selectedMes?.code === mes.code, 'btn-outline-secondary': selectedMes?.code !== mes.code}"
+                                                (click)="selectedMes = mes; opProgramar.hide()">
+                                                {{ mes.name.substring(0, 3) | uppercase }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </p-overlayPanel>
+                        </div>
+
+                        <button pButton icon="pi pi-check" label="Programar Mantenimientos"
+                            class="p-button-primary w-100 mt-3 p-button-lg" (click)="programarMantenimientos()"
+                            [loading]="loading">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

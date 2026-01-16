@@ -9,6 +9,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DatePicker } from 'primeng/datepicker';
 import Swal from 'sweetalert2';
 import { PlanMantenimientoIndustrialesService } from '../../../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
+import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
 
 @Component({
   selector: 'app-gestion-plan-mantenimiento',
@@ -20,7 +21,8 @@ import { PlanMantenimientoIndustrialesService } from '../../../../../Services/ap
     IconFieldModule,
     InputIconModule,
     InputTextModule,
-    DatePicker
+    DatePicker,
+    IndustrialesNavbarComponent
   ],
   templateUrl: './gestion-plan-mantenimiento.component.html',
   styleUrls: ['./gestion-plan-mantenimiento.component.css']
@@ -40,22 +42,22 @@ export class GestionPlanMantenimientoComponent implements OnInit {
   private router = inject(Router);
 
   async ngOnInit() {
-  try {
-    console.log('Cargando planes...');
-    // Temporalmente carga TODOS los planes para verificar
-    this.planes = await this.planMantenimientoService.getAllPlanes();
-    console.log('Planes recibidos:', this.planes);
-    this.loading = false;
-  } catch (error) {
-    console.error('Error al cargar planes:', error);
-    this.loading = false;
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'No fue posible cargar los planes de mantenimiento'
-    });
+    try {
+      console.log('Cargando planes...');
+      // Temporalmente carga TODOS los planes para verificar
+      this.planes = await this.planMantenimientoService.getAllPlanes();
+      console.log('Planes recibidos:', this.planes);
+      this.loading = false;
+    } catch (error) {
+      console.error('Error al cargar planes:', error);
+      this.loading = false;
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No fue posible cargar los planes de mantenimiento'
+      });
+    }
   }
-}
 
   async cargarPlanes() {
     try {
@@ -113,9 +115,9 @@ export class GestionPlanMantenimientoComponent implements OnInit {
           } else {
             await this.planMantenimientoService.habilitarPlan(idPlan);
           }
-          
+
           await this.cargarPlanes();
-          
+
           Swal.fire({
             icon: 'success',
             title: 'Éxito',

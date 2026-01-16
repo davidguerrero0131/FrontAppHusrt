@@ -1,0 +1,92 @@
+<app-industriales-navbar></app-industriales-navbar>
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Mantenimientos Programados</h3>
+            <button pButton icon="pi pi-arrow-left" label="Volver" class="p-button-text text-white"
+                (click)="goBack()"></button>
+        </div>
+        <div class="card-body p-4">
+
+            <!-- Filtros -->
+            <div class="row mb-4 align-items-end">
+                <div class="col-md-3">
+                    <label class="fw-bold mb-1">Año</label>
+                    <p-dropdown [options]="anios" [(ngModel)]="selectedAnio" optionLabel="label" optionValue="value"
+                        [style]="{'width':'100%'}"></p-dropdown>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="fw-bold mb-1">Mes</label>
+                    <button pButton type="button" label="{{ selectedMes ? selectedMes.name : 'Seleccione un mes' }}"
+                        icon="pi pi-calendar" class="p-button-outlined w-100 text-start justify-content-between"
+                        (click)="opVer.toggle($event)">
+                    </button>
+
+                    <p-overlayPanel #opVer [style]="{width: '300px'}" [showCloseIcon]="true">
+                        <ng-template pTemplate>
+                            <div class="row g-2">
+                                <div class="col-4" *ngFor="let mes of meses">
+                                    <button type="button" class="btn w-100 btn-sm"
+                                        [ngClass]="{'btn-primary': selectedMes?.code === mes.code, 'btn-outline-secondary': selectedMes?.code !== mes.code}"
+                                        (click)="selectedMes = mes; cargarPlanesProgramados(); opVer.hide()">
+                                        {{ mes.name.substring(0, 3) | uppercase }}
+                                    </button>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-overlayPanel>
+                </div>
+
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" (click)="cargarPlanesProgramados()" [disabled]="!selectedMes">
+                        <i class="bi bi-arrow-clockwise me-2"></i>Refrescar
+                    </button>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- TABLA DE RESULTADOS -->
+            <p-table [value]="planesProgramados" [scrollable]="true" scrollHeight="600px"
+                styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped" [loading]="loading"
+                *ngIf="selectedMes">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Equipo</th>
+                        <th>Modelo</th>
+                        <th>Placa/Serie</th>
+                        <th>Rango Inicio</th>
+                        <th>Rango Fin</th>
+                        <th>Estado</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-plan>
+                    <tr>
+                        <td>{{ plan.equipo?.nombres || 'N/A' }}</td>
+                        <td>{{ plan.equipo?.modelo || 'N/A' }}</td>
+                        <td>{{ plan.equipo?.placa || plan.equipo?.serie }}</td>
+                        <td>{{ plan.rangoDeInicio | date:'shortDate' }}</td>
+                        <td>{{ plan.rangoDeFin | date:'shortDate' }}</td>
+                        <td>
+                            <span class="badge bg-success">Activo</span>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center p-4">
+                            No hay planes programados (activos) para este periodo.
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <div *ngIf="!selectedMes" class="alert alert-warning text-center mt-3">
+                Seleccione un año y un mes para consultar la programación.
+            </div>
+
+        </div>
+    </div>
+</div>

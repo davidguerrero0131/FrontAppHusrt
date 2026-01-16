@@ -9,11 +9,12 @@ import { SedeService } from '../../../../../Services/appServices/general/sede/se
 import { UppercaseDirective } from '../../../../../Directives/uppercase.directive';
 import Swal from 'sweetalert2';
 import { EquiposIndustrialesService } from '../../../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
+import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
 
 @Component({
   selector: 'app-editar-equipo-industrial',
   standalone: true,
-  imports: [CommonModule, UppercaseDirective, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, UppercaseDirective, FormsModule, ReactiveFormsModule, IndustrialesNavbarComponent],
   templateUrl: './editar-equipo-industrial.component.html',
   styleUrls: ['./editar-equipo-industrial.component.css']
 })
@@ -76,7 +77,7 @@ export class EditarEquipoIndustrialComponent implements OnInit {
 
       // Cargar datos del equipo
       const equipo = await this.equiposService.getEquipoById(this.equipoId);
-      
+
       if (equipo) {
         // Llenar el formulario con los datos del equipo
         this.equipoForm.patchValue({
@@ -144,7 +145,7 @@ export class EditarEquipoIndustrialComponent implements OnInit {
 
       try {
         await this.equiposService.updateEquipo(this.equipoId, equipoActualizado);
-        
+
         Swal.fire({
           title: "Equipo Actualizado",
           text: "El equipo industrial ha sido actualizado exitosamente",

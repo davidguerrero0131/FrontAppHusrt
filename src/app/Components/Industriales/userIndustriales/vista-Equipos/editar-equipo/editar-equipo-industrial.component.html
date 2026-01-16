@@ -1,3 +1,4 @@
+<app-industriales-navbar></app-industriales-navbar>
 <div class="container-fluid p-4">
   <!-- Loading Spinner -->
   <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
@@ -16,7 +17,7 @@
 
     <div class="card-body">
       <form [formGroup]="equipoForm" (ngSubmit)="actualizar()">
-        
+
         <!-- Información Básica -->
         <div class="row mb-4">
           <div class="col-12">
@@ -29,11 +30,7 @@
         <div class="row g-3 mb-4">
           <div class="col-md-6">
             <label class="form-label">Nombre del Equipo <span class="text-danger">*</span></label>
-            <input 
-              type="text" 
-              class="form-control" 
-              formControlName="nombres"
-              appUppercase
+            <input type="text" class="form-control" formControlName="nombres" appUppercase
               [class.is-invalid]="equipoForm.get('nombres')?.invalid && equipoForm.get('nombres')?.touched">
             <div class="invalid-feedback">
               Este campo es obligatorio
@@ -42,11 +39,7 @@
 
           <div class="col-md-6">
             <label class="form-label">Marca <span class="text-danger">*</span></label>
-            <input 
-              type="text" 
-              class="form-control" 
-              formControlName="marca"
-              appUppercase
+            <input type="text" class="form-control" formControlName="marca" appUppercase
               [class.is-invalid]="equipoForm.get('marca')?.invalid && equipoForm.get('marca')?.touched">
             <div class="invalid-feedback">
               Este campo es obligatorio
@@ -55,11 +48,7 @@
 
           <div class="col-md-6">
             <label class="form-label">Modelo <span class="text-danger">*</span></label>
-            <input 
-              type="text" 
-              class="form-control" 
-              formControlName="modelo"
-              appUppercase
+            <input type="text" class="form-control" formControlName="modelo" appUppercase
               [class.is-invalid]="equipoForm.get('modelo')?.invalid && equipoForm.get('modelo')?.touched">
             <div class="invalid-feedback">
               Este campo es obligatorio
@@ -68,11 +57,7 @@
 
           <div class="col-md-6">
             <label class="form-label">Serie <span class="text-danger">*</span></label>
-            <input 
-              type="text" 
-              class="form-control" 
-              formControlName="serie"
-              appUppercase
+            <input type="text" class="form-control" formControlName="serie" appUppercase
               [class.is-invalid]="equipoForm.get('serie')?.invalid && equipoForm.get('serie')?.touched">
             <div class="invalid-feedback">
               Este campo es obligatorio
@@ -81,11 +66,7 @@
 
           <div class="col-md-6">
             <label class="form-label">Placa <span class="text-danger">*</span></label>
-            <input 
-              type="text" 
-              class="form-control" 
-              formControlName="placa"
-              appUppercase
+            <input type="text" class="form-control" formControlName="placa" appUppercase
               [class.is-invalid]="equipoForm.get('placa')?.invalid && equipoForm.get('placa')?.touched">
             <div class="invalid-feedback">
               Este campo es obligatorio
@@ -94,11 +75,7 @@
 
           <div class="col-md-6">
             <label class="form-label">Registro INVIMA</label>
-            <input 
-              type="text" 
-              class="form-control" 
-              formControlName="registroInvima"
-              appUppercase>
+            <input type="text" class="form-control" formControlName="registroInvima" appUppercase>
           </div>
 
           <div class="col-md-6">
@@ -135,9 +112,7 @@
         <div class="row g-3 mb-4">
           <div class="col-md-6">
             <label class="form-label">Tipo de Equipo <span class="text-danger">*</span></label>
-            <select 
-              class="form-select" 
-              formControlName="tipoEquipoIdFk"
+            <select class="form-select" formControlName="tipoEquipoIdFk"
               [class.is-invalid]="equipoForm.get('tipoEquipoIdFk')?.invalid && equipoForm.get('tipoEquipoIdFk')?.touched">
               <option [value]="null">Seleccione un tipo</option>
               <option *ngFor="let tipo of tiposequipo" [value]="tipo.id">
@@ -151,9 +126,7 @@
 
           <div class="col-md-6">
             <label class="form-label">Servicio <span class="text-danger">*</span></label>
-            <select 
-              class="form-select" 
-              formControlName="servicioIdFk"
+            <select class="form-select" formControlName="servicioIdFk"
               [class.is-invalid]="equipoForm.get('servicioIdFk')?.invalid && equipoForm.get('servicioIdFk')?.touched">
               <option [value]="null">Seleccione un servicio</option>
               <option *ngFor="let servicio of servicios" [value]="servicio.id">
@@ -167,9 +140,7 @@
 
           <div class="col-md-6">
             <label class="form-label">Sede <span class="text-danger">*</span></label>
-            <select 
-              class="form-select" 
-              formControlName="sedeIdFk"
+            <select class="form-select" formControlName="sedeIdFk"
               [class.is-invalid]="equipoForm.get('sedeIdFk')?.invalid && equipoForm.get('sedeIdFk')?.touched">
               <option [value]="null">Seleccione una sede</option>
               <option *ngFor="let sede of sedes" [value]="sede.id">
@@ -183,9 +154,7 @@
 
           <div class="col-md-6">
             <label class="form-label">Responsable <span class="text-danger">*</span></label>
-            <select 
-              class="form-select" 
-              formControlName="responsableIdFk"
+            <select class="form-select" formControlName="responsableIdFk"
               [class.is-invalid]="equipoForm.get('responsableIdFk')?.invalid && equipoForm.get('responsableIdFk')?.touched">
               <option [value]="null">Seleccione un responsable</option>
               <option *ngFor="let responsable of responsables" [value]="responsable.id">
@@ -199,11 +168,7 @@
 
           <div class="col-md-12">
             <label class="form-label">Ubicación Específica <span class="text-danger">*</span></label>
-            <input 
-              type="text" 
-              class="form-control" 
-              formControlName="ubicacionEspecifica"
-              appUppercase
+            <input type="text" class="form-control" formControlName="ubicacionEspecifica" appUppercase
               placeholder="Ej: Piso 2, Sala 201"
               [class.is-invalid]="equipoForm.get('ubicacionEspecifica')?.invalid && equipoForm.get('ubicacionEspecifica')?.touched">
             <div class="invalid-feedback">
@@ -224,11 +189,7 @@
         <div class="row g-3 mb-4">
           <div class="col-md-6">
             <label class="form-label">Periodicidad Mantenimiento (meses) <span class="text-danger">*</span></label>
-            <input 
-              type="number" 
-              class="form-control" 
-              formControlName="periodicidadM"
-              min="0"
+            <input type="number" class="form-control" formControlName="periodicidadM" min="0"
               [class.is-invalid]="equipoForm.get('periodicidadM')?.invalid && equipoForm.get('periodicidadM')?.touched">
             <div class="invalid-feedback">
               Este campo es obligatorio
@@ -237,11 +198,7 @@
 
           <div class="col-md-6">
             <label class="form-label">Periodicidad Calibración (meses) <span class="text-danger">*</span></label>
-            <input 
-              type="number" 
-              class="form-control" 
-              formControlName="periodicidadC"
-              min="0"
+            <input type="number" class="form-control" formControlName="periodicidadC" min="0"
               [class.is-invalid]="equipoForm.get('periodicidadC')?.invalid && equipoForm.get('periodicidadC')?.touched">
             <div class="invalid-feedback">
               Este campo es obligatorio
@@ -261,11 +218,7 @@
         <div class="row g-3 mb-4">
           <div class="col-md-3">
             <div class="form-check form-switch">
-              <input 
-                class="form-check-input" 
-                type="checkbox" 
-                id="activo"
-                formControlName="activo">
+              <input class="form-check-input" type="checkbox" id="activo" formControlName="activo">
               <label class="form-check-label" for="activo">
                 Activo
               </label>
@@ -274,11 +227,7 @@
 
           <div class="col-md-3">
             <div class="form-check form-switch">
-              <input 
-                class="form-check-input" 
-                type="checkbox" 
-                id="calibracion"
-                formControlName="calibracion">
+              <input class="form-check-input" type="checkbox" id="calibracion" formControlName="calibracion">
               <label class="form-check-label" for="calibracion">
                 Requiere Calibración
               </label>
@@ -287,11 +236,7 @@
 
           <div class="col-md-3">
             <div class="form-check form-switch">
-              <input 
-                class="form-check-input" 
-                type="checkbox" 
-                id="calificacion"
-                formControlName="calificacion">
+              <input class="form-check-input" type="checkbox" id="calificacion" formControlName="calificacion">
               <label class="form-check-label" for="calificacion">
                 Requiere Calificación
               </label>
@@ -300,11 +245,7 @@
 
           <div class="col-md-3">
             <div class="form-check form-switch">
-              <input 
-                class="form-check-input" 
-                type="checkbox" 
-                id="validacion"
-                formControlName="validacion">
+              <input class="form-check-input" type="checkbox" id="validacion" formControlName="validacion">
               <label class="form-check-label" for="validacion">
                 Requiere Validación
               </label>
@@ -317,16 +258,10 @@
           <div class="col-12">
             <hr>
             <div class="d-flex justify-content-end gap-2">
-              <button 
-                type="button" 
-                class="btn btn-secondary" 
-                (click)="regresar()">
+              <button type="button" class="btn btn-secondary" (click)="regresar()">
                 <i class="bi bi-x-circle me-2"></i>Cancelar
               </button>
-              <button 
-                type="submit" 
-                class="btn btn-primary"
-                [disabled]="equipoForm.invalid">
+              <button type="submit" class="btn btn-primary" [disabled]="equipoForm.invalid">
                 <i class="bi bi-save me-2"></i>Actualizar Equipo
               </button>
             </div>

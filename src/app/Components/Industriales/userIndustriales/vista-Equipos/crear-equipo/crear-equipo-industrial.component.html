@@ -1,3 +1,4 @@
+<app-industriales-navbar></app-industriales-navbar>
 <div style="width: 90%; margin-left: 5%;">
   <h1 style="text-align: center; margin-top: 40px;">Registro de Equipos Industriales</h1>
   <div class="card" style="margin-top: 5%;">
@@ -16,8 +17,8 @@
 
           <div class="col-md-6">
             <label>Nombre del equipo</label>
-            <input type="text" formControlName="nombres" class="form-control"
-              placeholder="Ej: Caldera Industrial" appUppercase />
+            <input type="text" formControlName="nombres" class="form-control" placeholder="Ej: Caldera Industrial"
+              appUppercase />
           </div>
 
           <div class="col-md-6">
@@ -90,8 +91,8 @@
             <select formControlName="estado" class="form-control">
               <option value="Bueno">Bueno</option>
               <option value="Regular">Regular</option>
-               <option value="Malo">Malo</option>
-               <option value="Ruina">Ruina</option>
+              <option value="Malo">Malo</option>
+              <option value="Ruina">Ruina</option>
             </select>
           </div>
 
@@ -156,7 +157,7 @@
   [style]="{ width: '25rem' }" [closable]="false">
   <div *ngFor="let item of fechasMantenimiento; let i = index; trackBy: trackByIndex" class="mb-3">
     <label class="block mb-2" [for]="'fecha-mant-'+i">Mantenimiento {{ i + 1 }}</label>
-    <p-datepicker [(ngModel)]="fechasMantenimiento[i]" inputId="{{ 'fecha-mant-' + i }}" view="month" dateFormat="mm/yy" [style]="{ width: '100%' }">
+    <p-datepicker [(ngModel)]="fechasMantenimiento[i]" view="month" dateFormat="mm/yy" [style]="{ width: '100%' }">
     </p-datepicker>
   </div>
   <div style="height: 240px;"></div>
@@ -169,7 +170,7 @@
   [style]="{ width: '25rem' }" [closable]="false">
   <div *ngFor="let item of fechasCalibracion; let i = index; trackBy: trackByIndex" class="mb-3">
     <label class="block mb-2" [for]="'fecha-cal-'+i">Calibración {{ i + 1 }}</label>
-    <p-datepicker [(ngModel)]="fechasCalibracion[i]" inputId="{{ 'fecha-cal-' + i }}" view="month" dateFormat="mm/yy" [style]="{ width: '100%' }">
+    <p-datepicker [(ngModel)]="fechasCalibracion[i]" view="month" dateFormat="mm/yy" [style]="{ width: '100%' }">
     </p-datepicker>
   </div>
   <div style="height: 240px;"></div>

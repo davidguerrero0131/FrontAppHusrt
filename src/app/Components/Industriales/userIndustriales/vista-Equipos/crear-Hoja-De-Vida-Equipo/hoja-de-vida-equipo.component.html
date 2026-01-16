@@ -1,0 +1,377 @@
+<app-industriales-navbar></app-industriales-navbar>
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Crear Hoja de Vida Industrial</h2>
+        <div *ngIf="equipoInfo">
+            <span class="badge bg-primary fs-6 me-2">{{ equipoInfo.nombres }}</span>
+            <span class="badge bg-secondary fs-6">{{ equipoInfo.modelo }}</span>
+        </div>
+    </div>
+
+    <form (ngSubmit)="guardar()">
+
+        <!-- 1. HOJA DE VIDA -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">1. Datos de Adquisición y Garantía</h5>
+            </div>
+            <div class="card-body" [formGroup]="hojaVidaForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Forma de Adquisición *</label>
+                        <select class="form-select" formControlName="adquisicion">
+                            <option value="">Seleccione...</option>
+                            <option value="compra">Compra</option>
+                            <option value="convenio">Convenio</option>
+                            <option value="donado">Donado</option>
+                            <option value="asignado por ministerio">Asignado por Ministerio</option>
+                            <option value="asignado por gobernación">Asignado por Gobernación</option>
+                            <option value="comodato">Comodato</option>
+                            <option value="donación en pago">Donación en Pago</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha Compra</label>
+                        <input type="date" class="form-control" formControlName="fechaCompra">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha Instalación</label>
+                        <input type="date" class="form-control" formControlName="fechaInstalacion">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha Inicio Operación</label>
+                        <input type="date" class="form-control" formControlName="fechaInicioOperacion">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Vencimiento Garantía</label>
+                        <input type="date" class="form-control" formControlName="vencimientoGarantia">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Referencia</label>
+                        <input type="text" class="form-control" formControlName="referencia" appUppercase>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Fabricación</label>
+                        <input type="text" class="form-control" formControlName="fabricacion" appUppercase>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. DATOS TÉCNICOS -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">2. Datos Técnicos</h5>
+            </div>
+            <div class="card-body" [formGroup]="datosTecnicosForm">
+                <div class="row g-3">
+                    <!-- Variables de Operación -->
+                    <div class="col-md-3">
+                        <label class="form-label">Voltaje Máx</label>
+                        <input type="text" class="form-control" formControlName="volMaxOperacion">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Voltaje Mín</label>
+                        <input type="text" class="form-control" formControlName="volMinOperacion">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Corriente Máx</label>
+                        <input type="text" class="form-control" formControlName="corrienteMaxOperacion">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Corriente Mín</label>
+                        <input type="text" class="form-control" formControlName="corrienteMinOperacion">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Potencia</label>
+                        <input type="text" class="form-control" formControlName="potenciaConsumida">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Frecuencia</label>
+                        <input type="text" class="form-control" formControlName="frecuencia">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Presión</label>
+                        <input type="text" class="form-control" formControlName="presion">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Velocidad</label>
+                        <input type="text" class="form-control" formControlName="velocidad">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Temperatura</label>
+                        <input type="text" class="form-control" formControlName="temperatura">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Peso</label>
+                        <input type="text" class="form-control" formControlName="peso">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Capacidad</label>
+                        <input type="text" class="form-control" formControlName="capacidad">
+                    </div>
+
+                    <!-- Fuentes de Alimentación (Checkboxes) -->
+                    <div class="col-md-12 mt-3">
+                        <h6>Fuentes de Alimentación</h6>
+                        <div class="d-flex flex-wrap gap-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" formControlName="agua" id="chkAgua">
+                                <label class="form-check-label" for="chkAgua">Agua</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" formControlName="aire" id="chkAire">
+                                <label class="form-check-label" for="chkAire">Aire</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" formControlName="vapor" id="chkVapor">
+                                <label class="form-check-label" for="chkVapor">Vapor</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" formControlName="derivadoPetroleo"
+                                    id="chkPetroleo">
+                                <label class="form-check-label" for="chkPetroleo">Derivado Petróleo</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" formControlName="electricidad"
+                                    id="chkElectricidad">
+                                <label class="form-check-label" for="chkElectricidad">Electricidad</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" formControlName="energiaSolar"
+                                    id="chkSolar">
+                                <label class="form-check-label" for="chkSolar">Energía Solar</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Otros</label>
+                        <input type="text" class="form-control" formControlName="otros" appUppercase>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Accesorios</label>
+                        <textarea class="form-control" rows="2" formControlName="accesorios" appUppercase></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Marca Accesorio</label>
+                        <input type="text" class="form-control" formControlName="marcaAccesorio" appUppercase>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Modelo/Serie Accesorio</label>
+                        <input type="text" class="form-control" formControlName="modeloSerieAccesorio" appUppercase>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. PROVEEDOR -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">3. Información del Proveedor</h5>
+                <select class="form-select form-select-sm w-auto text-dark" (change)="seleccionarProveedor($event)">
+                    <option value="">Cargar desde existente...</option>
+                    <option *ngFor="let p of listaProveedores" [value]="p.id">
+                        {{ p.fabricante }} - {{ p.distribuidor || 'Sin Distribuidor' }}
+                    </option>
+                </select>
+            </div>
+            <div class="card-body" [formGroup]="proveedorForm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Código Equipo</label>
+                        <input type="text" class="form-control" formControlName="codigoEquipo" appUppercase>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Código Internacional</label>
+                        <input type="text" class="form-control" formControlName="codigoInternacional" appUppercase>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Fabricante (Nombre)</label>
+                        <input type="text" class="form-control" formControlName="fabricante" appUppercase>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Ciudad Fabricante</label>
+                        <input type="text" class="form-control" formControlName="ciudadFabricante" appUppercase>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Representante</label>
+                        <input type="text" class="form-control" formControlName="representante" appUppercase>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Teléfono Representante</label>
+                        <input type="text" class="form-control" formControlName="telefonoRepresentante">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Distribuidor</label>
+                        <input type="text" class="form-control" formControlName="distribuidor" appUppercase>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Ciudad Distribuidor</label>
+                        <input type="text" class="form-control" formControlName="ciudadDistribuidor" appUppercase>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Teléfono Distribuidor</label>
+                        <input type="text" class="form-control" formControlName="telefonoDistribuidor">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. REGISTRO DE APOYO -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">4. Registro de Apoyo</h5>
+            </div>
+            <div class="card-body" [formGroup]="registroApoyoForm">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <div class="d-flex gap-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" formControlName="manualUsuario"
+                                    id="chkManUser">
+                                <label class="form-check-label" for="chkManUser">Manual Usuario</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" formControlName="manualTecnico"
+                                    id="chkManTec">
+                                <label class="form-check-label" for="chkManTec">Manual Técnico</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" formControlName="equipoFijo"
+                                    id="chkFijo">
+                                <label class="form-check-label" for="chkFijo">Equipo Fijo</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Uso *</label>
+                        <select class="form-select" formControlName="uso">
+                            <option value="">Seleccione...</option>
+                            <option value="medico">Médico</option>
+                            <option value="básico">Básico</option>
+                            <option value="apoyo">Apoyo</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Riesgo *</label>
+                        <select class="form-select" formControlName="riesgo">
+                            <option value="">Seleccione...</option>
+                            <option value="alto">Alto</option>
+                            <option value="medio">Medio</option>
+                            <option value="bajo">Bajo</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Tecnología Predominante *</label>
+                        <select class="form-select" formControlName="tecnologiaPredominante">
+                            <option value="">Seleccione...</option>
+                            <option value="eléctrico">Eléctrico</option>
+                            <option value="electrónico">Electrónico</option>
+                            <option value="mecanico">Mecánico</option>
+                            <option value="electromecanico">Electromecánico</option>
+                            <option value="hidrauico">Hidráulico</option>
+                            <option value="neumatico">Neumático</option>
+                            <option value="vapor">Vapor</option>
+                            <option value="solar">Solar</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Clasificación *</label>
+                        <select class="form-select" formControlName="clasificacion">
+                            <option value="">Seleccione...</option>
+                            <option value="planta eléctrica">Planta Eléctrica</option>
+                            <option value="lavanderia y cocina">Lavandería y Cocina</option>
+                            <option value="bomba de agua">Bomba de Agua</option>
+                            <option value="caldera">Caldera</option>
+                            <option value="autoclave">Autoclave</option>
+                            <option value="esterilización">Esterilización</option>
+                            <option value="unidad de refrigeración">Unidad de Refrigeración</option>
+                            <option value="apoyo">Apoyo</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Estado *</label>
+                        <select class="form-select" formControlName="estado">
+                            <option value="excelente">Excelente</option>
+                            <option value="bueno">Bueno</option>
+                            <option value="regular">Regular</option>
+                            <option value="malo">Malo</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Mantenimiento *</label>
+                        <select class="form-select" formControlName="mantenimiento">
+                            <option value="">Seleccione...</option>
+                            <option value="contratado">Contratado</option>
+                            <option value="propio">Propio</option>
+                            <option value="garantía">Garantía</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Propiedad *</label>
+                        <select class="form-select" formControlName="propiedad">
+                            <option value="">Seleccione...</option>
+                            <option value="hospital">Hospital</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. FABRICANTE -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">5. Fabricante (Registro de Catálogo)</h5>
+                <select class="form-select form-select-sm w-auto" (change)="seleccionarFabricante($event)">
+                    <option value="nuevo"> Crear Nuevo...</option>
+                    <option *ngFor="let f of listaFabricantes" [value]="f.id">
+                        {{ f.nombres }} ({{ f.pais }})
+                    </option>
+                </select>
+            </div>
+            <div class="card-body" [formGroup]="fabricanteForm">
+                <div class="alert alert-info py-2">
+                    <small><i class="bi bi-info-circle me-1"></i> Este registro añade un nuevo fabricante al catálogo
+                        del sistema.</small>
+                </div>
+                <div class="row g-3" *ngIf="!fabricanteSeleccionado">
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre Fabricante *</label>
+                        <input type="text" class="form-control" formControlName="nombres" appUppercase>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">País</label>
+                        <input type="text" class="form-control" formControlName="pais" appUppercase>
+                    </div>
+                </div>
+                <div *ngIf="fabricanteSeleccionado" class="alert alert-success mt-2">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Fabricante seleccionado: <strong>{{ fabricanteSeleccionado.nombres }}</strong> ({{
+                    fabricanteSeleccionado.pais }})
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTONES -->
+        <div class="d-flex justify-content-center gap-3 mb-5">
+            <button type="button" class="btn btn-secondary px-4" (click)="regresar()">Cancelar/Regresar</button>
+            <button type="submit" class="btn btn-primary px-5" [disabled]="loading">
+                <i class="bi bi-save me-2"></i>
+                {{ loading ? 'Guardando...' : 'Guardar Hoja de Vida' }}
+            </button>
+        </div>
+
+    </form>
+</div>
