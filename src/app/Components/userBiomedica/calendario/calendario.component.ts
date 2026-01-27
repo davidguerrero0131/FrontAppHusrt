@@ -11,6 +11,7 @@ import { TableModule } from 'primeng/table';
 import { Table } from 'primeng/table';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
+import { DialogModule } from 'primeng/dialog';
 
 import { MantenimientosService } from '../../../Services/appServices/biomedicaServices/mantenimientos/mantenimientos.service';
 import { MetrologiaService } from '../../../Services/appServices/biomedicaServices/metrologia/metrologia.service';
@@ -23,7 +24,7 @@ import { obtenerNombreMes, getDecodedAccessToken } from '../../../utilidades';
   selector: 'app-calendario',
   standalone: true,
   imports: [CommonModule, FormsModule, CalendarModule,
-    DatePicker, Select, TableModule, IconFieldModule, InputIconModule, InputTextModule],
+    DatePicker, Select, TableModule, IconFieldModule, InputIconModule, InputTextModule, DialogModule],
   templateUrl: './calendario.component.html',
   styleUrl: './calendario.component.css'
 })
@@ -82,6 +83,34 @@ export class CalendarioComponent implements OnInit {
   serviciosServices = inject(ServicioService);
   tiposEquipoServices = inject(TipoEquipoService);
 
+  // Scheduled Months Variables
+  scheduledPreventiveMonths: any[] = [];
+  scheduledMetrologyMonths: any[] = [];
+  showScheduledPreventiveModal: boolean = false;
+  showScheduledMetrologyModal: boolean = false;
+
+  async viewScheduledPreventiveMonths() {
+    try {
+      const data = await this.mantenimientoServices.getScheduledMonths();
+      this.scheduledPreventiveMonths = data;
+      this.showScheduledPreventiveModal = true;
+    } catch (err: any) {
+      console.error(err);
+      Swal.fire('Error', 'No se pudieron cargar los meses programados de preventivos', 'error');
+    }
+  }
+
+  async viewScheduledMetrologyMonths() {
+    try {
+      const data = await this.metrologiaService.getScheduledMetrologyMonths();
+      this.scheduledMetrologyMonths = data;
+      this.showScheduledMetrologyModal = true;
+    } catch (err: any) {
+      console.error(err);
+      Swal.fire('Error', 'No se pudieron cargar los meses programados de metrología', 'error');
+    }
+  }
+
   async ngOnInit() {
     this.equiposPlanPreventivoMes = await this.mantenimientoServices.getPlanMantenimientoMes({ mes: this.mesPlan + 1, ano: this.anioPlan });
     this.equiposPlanMetrologiaMes = await this.metrologiaService.getPlanActividadesMesAño({ mes: this.mesPlan + 1, ano: this.anioPlan });
@@ -113,8 +142,11 @@ export class CalendarioComponent implements OnInit {
 
   async setTipoEquipo() {
     if (this.selectedTipoEquipo) {
-      this.equiposPlanMantenimientoTipoEquipo = await this.mantenimientoServices.getPlanMantenimientoTipoEquipo(this.selectedTipoEquipo.id);
-      this.equiposPlanAMetrologicasTipoEquipo = await this.metrologiaService.getPlanAMetrologicasTipoEquipo(this.selectedTipoEquipo.id);
+      const mantenimientoData = await this.mantenimientoServices.getPlanMantenimientoTipoEquipo(this.selectedTipoEquipo.id);
+      this.equiposPlanMantenimientoTipoEquipo = this.agruparPorEquipo(mantenimientoData);
+
+      const metrologiaData = await this.metrologiaService.getPlanAMetrologicasTipoEquipo(this.selectedTipoEquipo.id);
+      this.equiposPlanAMetrologicasTipoEquipo = this.agruparPorEquipo(metrologiaData);
     } else {
       Swal.fire({
         icon: 'error',
@@ -127,8 +159,11 @@ export class CalendarioComponent implements OnInit {
 
   async setServicio() {
     if (this.selectedServicio) {
-      this.equiposPlanMantenimientoServicio = await this.mantenimientoServices.getPlanMantenimientoServicio(this.selectedServicio.id);
-      this.equiposPlanAMetrologicasServicio = await this.metrologiaService.getPlanAMetrologicasServicio(this.selectedServicio.id);
+      const mantenimientoData = await this.mantenimientoServices.getPlanMantenimientoServicio(this.selectedServicio.id);
+      this.equiposPlanMantenimientoServicio = this.agruparPorEquipo(mantenimientoData);
+
+      const metrologiaData = await this.metrologiaService.getPlanAMetrologicasServicio(this.selectedServicio.id);
+      this.equiposPlanAMetrologicasServicio = this.agruparPorEquipo(metrologiaData);
     } else {
       Swal.fire({
         icon: 'error',
@@ -137,6 +172,54 @@ export class CalendarioComponent implements OnInit {
       })
       return;
     }
+  }
+
+  agruparPorEquipo(data: any[]): any[] {
+    const grupos = new Map<number, any>();
+
+    data.forEach(item => {
+      const id = item.equipo.id;
+      // For Metrologia, check if tipoActividad is unique per equipment or if we should group by id AND activity?
+      // User request: "agrupar cada equipo... y en la columna de mes poner los meses...".
+      // Assuming same activity type for metrology or just listing months.
+      // If metrology has different activities for same equipment in different months, we might want to group by (id + activity).
+      // However, usually "Mantenimiento Preventivo" is consistent. "Metrologia" might vary?
+      // Let's assume grouping by equipment ID is what is requested for now.
+      // But wait, keying by ID only might merge different activities.
+      // If one entry is "Calibración" in Jan, and "Cualificación" in Feb for same equipment.
+      // Merging them would hide the activity distinction if we just pick the first one.
+      // Let's check the HTML for metrology table. It displays `registro.tipoActividad`.
+      // If we merge, we show one activity.
+      // I'll group by Equipment ID AND Activity Type for Metrology?
+      // The user specially mentioned "agrupar cada equipo".
+      // Let's stick to Equipment ID. If multiple activities exist, maybe just list them or assume they are usually the same.
+      // To be safe for Metrology, maybe group by ID + TipoActividad if present.
+      // But for Maintenance is just ID.
+
+      let key = id;
+      if (item.tipoActividad) {
+        // Group by ID and Activity for Metrology to preserve activity info
+        key = `${id}-${item.tipoActividad}`;
+      }
+
+      if (!grupos.has(key)) {
+        grupos.set(key, { ...item, meses: [item.mes] });
+      } else {
+        const existente = grupos.get(key);
+        if (!existente.meses.includes(item.mes)) {
+          existente.meses.push(item.mes);
+        }
+      }
+    });
+
+    const resultado = Array.from(grupos.values());
+
+    resultado.forEach(item => {
+      item.meses.sort((a: number, b: number) => a - b);
+      item.mesesStr = item.meses.map((m: number) => this.getNombreMes(m)).join(', ');
+    });
+
+    return resultado;
   }
 
   fechaSeleccionada() {

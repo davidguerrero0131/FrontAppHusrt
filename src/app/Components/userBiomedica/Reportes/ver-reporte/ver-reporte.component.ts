@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ReportesService } from '../../../../Services/appServices/biomedicaServices/reportes/reportes.service';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { ProtocolosService } from '../../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
+import { MetrologiaService } from '../../../../Services/appServices/biomedicaServices/metrologia/metrologia.service';
 import { Table } from 'primeng/table';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -16,10 +17,15 @@ import { CardModule } from "primeng/card";
 import { ArchivosService } from '../../../../Services/appServices/general/archivos/archivos.service'
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
+import { PanelModule } from 'primeng/panel';
+import { TabViewModule } from 'primeng/tabview';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
+
 @Component({
   selector: 'app-ver-reporte',
   standalone: true,
-  imports: [TableModule, IconFieldModule, InputIconModule, InputTextModule, SplitButtonModule, ButtonModule, CommonModule, Dialog, CardModule],
+  imports: [TableModule, IconFieldModule, InputIconModule, InputTextModule, SplitButtonModule, ButtonModule, CommonModule, Dialog, CardModule, PanelModule, TabViewModule, TagModule, TooltipModule],
   templateUrl: './ver-reporte.component.html',
   styleUrl: './ver-reporte.component.css'
 })
@@ -29,6 +35,9 @@ export class VerReporteComponent implements OnInit {
   reportes!: any[];
   rutina!: any[];
   equipo!: any;
+  metrologiaService = inject(MetrologiaService);
+  metrologiaReportes: any[] = [];
+
   reporteServices = inject(ReportesService);
   equipoService = inject(EquiposService);
   archivosServices = inject(ArchivosService);
@@ -61,14 +70,27 @@ export class VerReporteComponent implements OnInit {
     try {
       this.equipo = await this.equipoService.getEquipoById(this.idEquipo);
       this.reportes = await this.reporteServices.getReportesEquipo(this.idEquipo);
+      // Fetch Metrology Reports
+      this.metrologiaReportes = await this.metrologiaService.getReportesMetrologiaEquipo(this.idEquipo);
     } catch (error) {
-
+      console.error(error);
     }
   }
 
+  verHojaVida() {
+    this.router.navigate(['biomedica/hojavidaequipo/', this.idEquipo]);
+  }
+
+  // ... existing code ...
+
   async viewModalReport(reporte: any) {
     this.modalReport = true;
-    this.reportSelected = reporte;
+    try {
+      this.reportSelected = await this.reporteServices.getReporteById(reporte.id);
+    } catch (error) {
+      console.error('Error fetching report details:', error);
+      this.reportSelected = reporte; // Fallback
+    }
     this.rutina = await this.protocolosServices.getCumplimientoProtocoloReporte(this.reportSelected.id);
   }
 

@@ -70,6 +70,31 @@ export class TipoEquipoService {
     )
   }
 
+  // Mediciones específicas
+  getMediciones(idTipoEquipo: any) {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipo/${idTipoEquipo}/mediciones`, this.createHeaders())
+    )
+  }
+
+  createMedicion(data: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/tiposequipo/mediciones`, data, this.createHeaders())
+    )
+  }
+
+  updateMedicion(idMedicion: any, data: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/mediciones/${idMedicion}`, data, this.createHeaders())
+    )
+  }
+
+  deleteMedicion(idMedicion: any) {
+    return firstValueFrom(
+      this.httpClient.delete<any>(`${this.baseUrl}/tiposequipo/mediciones/${idMedicion}`, this.createHeaders())
+    )
+  }
+
   getToken() {
     return sessionStorage.getItem('utoken');
   }

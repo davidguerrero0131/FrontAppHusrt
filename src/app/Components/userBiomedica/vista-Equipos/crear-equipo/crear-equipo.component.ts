@@ -14,11 +14,15 @@ import { ButtonModule } from "primeng/button";
 import { DatePickerModule } from 'primeng/datepicker';
 // Removed unused services
 
+import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectModule } from 'primeng/select';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { DropdownModule } from 'primeng/dropdown';
+
 @Component({
   selector: 'app-crear-equipo',
   standalone: true,
-  imports: [CommonModule, DialogModule, ButtonModule, FormsModule, DatePickerModule, ReactiveFormsModule, DropdownModule],
+  imports: [CommonModule, DialogModule, ButtonModule, FormsModule, DatePickerModule, ReactiveFormsModule, DropdownModule, MultiSelectModule, SelectModule, InputNumberModule],
   templateUrl: './crear-equipo.component.html',
   styleUrl: './crear-equipo.component.css'
 })
@@ -34,6 +38,32 @@ export class CrearEquipoComponent implements OnInit {
   modalAddFechasMantenimiento: boolean = false;
   modalAddFechasCalibracion: boolean = false;
   fechasCalibracion: { fecha: Date | null, tipoActividad: string | null }[] = [];
+
+  // Variables para el modal de plan de mantenimiento (Tipo 'EquiposTipo')
+  mesInicio: number = 1;
+  selectedMonths: any[] = [];
+  calculatedMonthsText: string = '';
+
+  // Variables para el modal de plan de metrologia
+  mesInicioMetrologia: number = 1;
+  selectedMonthsMetrologia: any[] = [];
+  calculatedMonthsMetrologiaText: string = '';
+  selectedTipoActividad: string = 'Calibración';
+
+  monthOptions: any[] = [
+    { name: 'Enero', value: 1 },
+    { name: 'Febrero', value: 2 },
+    { name: 'Marzo', value: 3 },
+    { name: 'Abril', value: 4 },
+    { name: 'Mayo', value: 5 },
+    { name: 'Junio', value: 6 },
+    { name: 'Julio', value: 7 },
+    { name: 'Agosto', value: 8 },
+    { name: 'Septiembre', value: 9 },
+    { name: 'Octubre', value: 10 },
+    { name: 'Noviembre', value: 11 },
+    { name: 'Diciembre', value: 12 }
+  ];
 
   tipoActividadOptions = [
     { label: 'Calibración', value: 'Calibración' },
@@ -177,16 +207,34 @@ export class CrearEquipoComponent implements OnInit {
           timer: 1500
         });
       } else {
-        const createdEquipo = await this.equipoServices.addEquipo(this.equipo);
-        this.equipo = createdEquipo;
-        this.iniciarFechasMantenimiento();
-        Swal.fire({
-          title: "Equipo Creado",
-          icon: "success",
-          draggable: true,
-          showConfirmButton: false,
-          timer: 1500
-        });
+        try {
+          const createdEquipo = await this.equipoServices.addEquipo(this.equipo);
+          this.equipo = createdEquipo;
+          this.iniciarFechasMantenimiento();
+          Swal.fire({
+            title: "Equipo Creado",
+            icon: "success",
+            draggable: true,
+            showConfirmButton: false,
+            timer: 1500
+          });
+        } catch (error: any) {
+          if (error.status === 409) {
+            Swal.fire({
+              title: "Equipo Duplicado",
+              text: error.error?.detalle || "La serie o placa ya existen.",
+              icon: "warning"
+            });
+            return; // Stop execution on duplicate
+          }
+          console.error(error);
+          Swal.fire({
+            title: "Error",
+            text: "No se pudo crear el equipo",
+            icon: "error"
+          });
+          return;
+        }
         // Remove navigation here, wait for plan modals
         // this.router.navigate(['/biomedica/lista-equipos']); 
         // The initiateFechasMantenimiento handles the flow.
@@ -217,16 +265,52 @@ export class CrearEquipoComponent implements OnInit {
   }
 
   iniciarFechasMantenimiento() {
-    if (this.equipo.periodicidadM > 0) {
-      const cantidad = this.equipo.periodicidadM;
-      this.fechasMantenimiento = [];
-      for (let i = 0; i < cantidad; i++) {
-        this.fechasMantenimiento.push(null);
-      }
-      setTimeout(() => {
-        this.viewModalFechasMantenimiento();
-      }, 1500);
+    const period = this.equipoForm.get('periodicidadM')?.value;
+    if (period && period > 0) {
+      this.mesInicio = 1; // Default to January
+      this.calcularFechas();
+      this.viewModalFechasMantenimiento();
+    } else {
+      // If no periodicity, skip or just show modal empty? 
+      // Logic says if periodicidadM is 0, arguably we shouldn't have plans, but let's allow opening.
+      this.mesInicio = 1;
+      this.selectedMonths = [];
+      this.updateCalculatedText();
+      this.viewModalFechasMantenimiento();
     }
+  }
+
+  calcularFechas() {
+    const period = this.equipoForm.get('periodicidadM')?.value;
+
+    if (!period || period <= 0) {
+      this.calculatedMonthsText = 'Periodicidad no válida';
+      this.selectedMonths = [];
+      return;
+    }
+
+    const interval = Math.floor(12 / period);
+    const nuevosMeses = [];
+    let mesActual = this.mesInicio;
+
+    while (mesActual <= 12) {
+      nuevosMeses.push(mesActual);
+      mesActual += interval;
+    }
+    this.selectedMonths = nuevosMeses;
+    this.updateCalculatedText();
+  }
+
+  updateCalculatedText() {
+    if (!this.selectedMonths || this.selectedMonths.length === 0) {
+      this.calculatedMonthsText = 'Sin fechas seleccionadas';
+      return;
+    }
+    const textMeses = this.selectedMonths.sort((a, b) => a - b).map(m => {
+      const op = this.monthOptions.find(o => o.value === m);
+      return op ? op.name : m;
+    }).join(', ');
+    this.calculatedMonthsText = `Fechas programadas: ${textMeses}`;
   }
 
   validarFechasMantenimiento() {
@@ -241,12 +325,66 @@ export class CrearEquipoComponent implements OnInit {
   }
 
   iniciarFechasCalibracion() {
-    const cantidad = this.equipo.periodicidadC;
-    this.fechasCalibracion = [];
-    for (let i = 0; i < cantidad; i++) {
-      this.fechasCalibracion.push({ fecha: null, tipoActividad: null });
+    const period = this.equipoForm.get('periodicidadAM')?.value;
+    if (period && period > 0) {
+      this.mesInicioMetrologia = 1;
+      this.selectedTipoActividad = 'Calibración';
+      this.calcularFechasMetrologia();
+      this.modalAddFechasCalibracion = true;
+    } else {
+      // If 0, skip or show empty? Assuming skip if 0 based on logic, but let's allow open like maintenance
+      this.mesInicioMetrologia = 1;
+      this.selectedMonthsMetrologia = [];
+      this.updateCalculatedMetrologiaText();
+      this.modalAddFechasCalibracion = true;
     }
-    this.modalAddFechasCalibracion = true;
+  }
+
+  calcularFechasMetrologia() {
+    const period = this.equipoForm.get('periodicidadAM')?.value;
+    if (!period || period <= 0) {
+      this.calculatedMonthsMetrologiaText = 'Periodicidad no válida';
+      this.selectedMonthsMetrologia = [];
+      this.fechasCalibracion = [];
+      return;
+    }
+
+    const interval = Math.floor(12 / period);
+    const nuevosMeses = [];
+    this.fechasCalibracion = []; // Reset editable fields
+
+    let mesActual = this.mesInicioMetrologia;
+    const currentYear = new Date().getFullYear();
+
+    while (mesActual <= 12) {
+      nuevosMeses.push(mesActual);
+      // Create pre-filled object for the editable form
+      // Note: Month in Date constructor is 0-indexed (Jan=0), so mesActual-1
+      const fechaCalculada = new Date(currentYear, mesActual - 1, 1);
+
+      this.fechasCalibracion.push({
+        fecha: fechaCalculada,
+        tipoActividad: 'Calibración'
+      });
+
+      mesActual += interval;
+    }
+    this.selectedMonthsMetrologia = nuevosMeses;
+    // We don't necessarily update 'calculatedMonthsMetrologiaText' for display in the new loop modal, 
+    // but keeping it doesn't hurt if we want to debug.
+    this.updateCalculatedMetrologiaText();
+  }
+
+  updateCalculatedMetrologiaText() {
+    if (!this.selectedMonthsMetrologia || this.selectedMonthsMetrologia.length === 0) {
+      this.calculatedMonthsMetrologiaText = 'Sin fechas seleccionadas';
+      return;
+    }
+    const textMeses = this.selectedMonthsMetrologia.sort((a, b) => a - b).map(m => {
+      const op = this.monthOptions.find(o => o.value === m);
+      return op ? op.name : m;
+    }).join(', ');
+    this.calculatedMonthsMetrologiaText = `Fechas programadas: ${textMeses}`;
   }
 
   validarFechasCalibracion() {
@@ -256,23 +394,22 @@ export class CrearEquipoComponent implements OnInit {
 
   async finalizarGuardado() {
     // Construct payload
-    const planesMantenimiento = this.fechasMantenimiento
-      .map((fecha, index) => {
-        if (fecha) {
-          return { mes: fecha.getMonth() + 1 }; // 1-12
-        }
-        return null;
-      })
-      .filter(p => p !== null);
+    const planesMantenimiento = this.selectedMonths.map(mes => ({ mes: mes }));
 
+    // For Metrology, we now use the editable 'fechasCalibracion' array
+    // We need to convert the Date object back to a Month number (1-12) for the backend 'mes' field
     const planesActividadMetrologica = this.fechasCalibracion
       .map(item => {
-        if (item.fecha && item.tipoActividad) {
-          return { mes: item.fecha.getMonth() + 1, tipoActividad: item.tipoActividad };
+        let mes = 0;
+        if (item.fecha) {
+          mes = item.fecha.getMonth() + 1; // getMonth() is 0-11
         }
-        return null;
+        return {
+          mes: mes,
+          tipoActividad: item.tipoActividad
+        };
       })
-      .filter(p => p !== null);
+      .filter(p => p.mes > 0); // Filter out any invalid dates
 
     const finalPayload = {
       ...this.equipo,
@@ -289,7 +426,12 @@ export class CrearEquipoComponent implements OnInit {
           icon: "success",
           showConfirmButton: true
         }).then(() => {
-          this.cancelar();
+          // Redirect to Hoja de Vida
+          if (this.equipo.id) {
+            this.router.navigate(['/biomedica/hojavidaequipo', this.equipo.id]);
+          } else {
+            this.cancelar();
+          }
         });
       } catch (e) {
         console.error(e);
@@ -301,9 +443,16 @@ export class CrearEquipoComponent implements OnInit {
         this.cancelar();
       }
     } else {
-      this.cancelar();
+      // If no plans were needed, still redirect to HV? or just back?
+      // Usually if successful creation, go to HV.
+      if (this.equipo.id) {
+        this.router.navigate(['/biomedica/hojavidaequipo', this.equipo.id]);
+      } else {
+        this.cancelar();
+      }
     }
   }
+
 
   checkMetrologyRequirement(tipoId: any) {
     if (!this.tiposequipo) return;

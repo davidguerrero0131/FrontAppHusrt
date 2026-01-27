@@ -58,6 +58,8 @@ export class ManteniminetoComponent implements OnInit {
   rutina!: any[];
   modalReport: boolean = false;
 
+
+
   // Admin Variables
   isAdmin: boolean = false;
   showAdminModal: boolean = false;
@@ -272,5 +274,24 @@ export class ManteniminetoComponent implements OnInit {
     } catch (error) {
       console.error('Error al obtener el PDF:', error);
     }
+  }
+
+  editarReporte() {
+    if (!this.reportSelected) return;
+
+    // Determinar tipo de mantenimiento basado en el reporte seleccionado
+    // Asumimos 'Preventivo' si tiene 'Preventivo' en tipoMantenimiento, 'Correctivo' si no.
+    // O mejor, usar la propiedad tipoMantenimiento si coincide con lo esperado ('Preventivo', 'Correctivo')
+    let tipo = 'C';
+    if (this.reportSelected.tipoMantenimiento === 'Preventivo') {
+      tipo = 'P';
+    }
+    // Si hay otros tipos, ajustar lógica. Por ahora P o C.
+
+    sessionStorage.setItem('TipoMantenimiento', tipo);
+    sessionStorage.setItem('idReporte', this.reportSelected.id.toString());
+
+    this.modalReport = false; // Cerrar modal
+    this.router.navigate(['biomedica/nuevoreporte/', this.reportSelected.equipo.id]);
   }
 }

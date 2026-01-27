@@ -100,4 +100,11 @@ export class EquiposService {
     )
   }
 
+  exportarInventario(): Promise<Blob> {
+    const headers = createHeaders().headers;
+    return firstValueFrom(
+      this.httpClient.get(`${this.baseUrl}/exportarInventario`, { headers, responseType: 'blob' })
+    );
+  }
+
 }

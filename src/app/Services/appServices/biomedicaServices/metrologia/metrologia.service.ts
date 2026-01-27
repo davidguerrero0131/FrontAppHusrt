@@ -78,4 +78,18 @@ export class MetrologiaService {
       this.httpClient.put<any>(`${API_URL}/actactividad/${id}`, formData, { headers })
     )
   }
+
+  registrarActividadConArchivo(formData: FormData) {
+    const token = sessionStorage.getItem('utoken');
+    const headers = { 'Authorization': token || '' };
+    return firstValueFrom(
+      this.httpClient.post<any>(`${API_URL}/addactividadWithFile`, formData, { headers })
+    )
+  }
+
+  getScheduledMetrologyMonths() {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/programacion-metrologia-meses`, createHeaders())
+    )
+  }
 }

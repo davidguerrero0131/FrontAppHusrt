@@ -58,7 +58,7 @@
         <div class="card border-0 shadow-sm border-round-xl surface-card p-4" *ngIf="panelPendientes">
             <p-table #dtPendientes [value]="preventivosPendientes" dataKey="id" [paginator]="true" [rows]="10"
                 [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
-                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica', 'mesProgramado']"
+                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica', 'mesProgramado', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'servicio.nombres']"
                 styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true" [scrollable]="true"
                 scrollHeight="500px">
 
@@ -74,17 +74,33 @@
 
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="min-width:200px">Equipo</th>
-                        <th style="min-width:120px">Placa</th>
-                        <th style="min-width:200px">Ubicación</th>
-                        <th style="min-width:150px">Fecha Programada</th>
+                        <th style="min-width:200px" pSortableColumn="equipo.nombres">Equipo <p-sortIcon
+                                field="equipo.nombres"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.marca">Marca <p-sortIcon
+                                field="equipo.marca"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.modelo">Modelo <p-sortIcon
+                                field="equipo.modelo"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.serie">Serie <p-sortIcon
+                                field="equipo.serie"></p-sortIcon></th>
+                        <th style="min-width:120px" pSortableColumn="equipo.placa">Placa <p-sortIcon
+                                field="equipo.placa"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="servicio.nombres">Servicio <p-sortIcon
+                                field="servicio.nombres"></p-sortIcon></th>
+                        <th style="min-width:200px" pSortableColumn="equipo.ubicacionEspecifica">Ubicación <p-sortIcon
+                                field="equipo.ubicacionEspecifica"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="mesProgramado">Fecha Programada <p-sortIcon
+                                field="mesProgramado"></p-sortIcon></th>
                         <th style="min-width:100px" class="text-center">Acción</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-report>
                     <tr>
                         <td><span class="font-bold">{{ report.equipo?.nombres || 'N/A' }}</span></td>
+                        <td>{{ report.equipo?.marca || 'N/A' }}</td>
+                        <td>{{ report.equipo?.modelo || 'N/A' }}</td>
+                        <td>{{ report.equipo?.serie || 'N/A' }}</td>
                         <td><p-tag [value]="report.equipo?.placa || 'N/A'" severity="secondary"></p-tag></td>
+                        <td>{{ report.servicio?.nombres || 'N/A' }}</td>
                         <td>{{ report.equipo?.ubicacionEspecifica || 'N/A' }}</td>
                         <td>{{ report.mesProgramado }}/{{ report['añoProgramado'] }}</td>
                         <td class="text-center">
@@ -96,7 +112,7 @@
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="5" class="text-center p-4">
+                        <td colspan="9" class="text-center p-4">
                             <div class="flex flex-column align-items-center">
                                 <i class="pi pi-check-circle text-green-500 text-6xl mb-3"></i>
                                 <span class="text-xl text-500">¡Todo al día! No hay mantenimientos pendientes en el mes
@@ -112,7 +128,7 @@
         <div class="card border-0 shadow-sm border-round-xl surface-card p-4" *ngIf="panelEjecutados">
             <p-table #dtEjecutados [value]="preventivosEjecutados" dataKey="id" [paginator]="true" [rows]="10"
                 [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
-                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica', 'mesProgramado']"
+                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica', 'mesProgramado', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'servicio.nombres']"
                 styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true" [scrollable]="true"
                 scrollHeight="500px">
 
@@ -128,17 +144,33 @@
 
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="min-width:200px">Equipo</th>
-                        <th style="min-width:120px">Placa</th>
-                        <th style="min-width:200px">Ubicación</th>
-                        <th style="min-width:150px">Fecha Programada</th>
+                        <th style="min-width:200px" pSortableColumn="equipo.nombres">Equipo <p-sortIcon
+                                field="equipo.nombres"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.marca">Marca <p-sortIcon
+                                field="equipo.marca"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.modelo">Modelo <p-sortIcon
+                                field="equipo.modelo"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.serie">Serie <p-sortIcon
+                                field="equipo.serie"></p-sortIcon></th>
+                        <th style="min-width:120px" pSortableColumn="equipo.placa">Placa <p-sortIcon
+                                field="equipo.placa"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="servicio.nombres">Servicio <p-sortIcon
+                                field="servicio.nombres"></p-sortIcon></th>
+                        <th style="min-width:200px" pSortableColumn="equipo.ubicacionEspecifica">Ubicación <p-sortIcon
+                                field="equipo.ubicacionEspecifica"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="mesProgramado">Fecha Programada <p-sortIcon
+                                field="mesProgramado"></p-sortIcon></th>
                         <th style="min-width:120px" class="text-center">Opciones</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-report>
                     <tr>
                         <td><span class="font-bold">{{ report.equipo?.nombres || 'N/A' }}</span></td>
+                        <td>{{ report.equipo?.marca || 'N/A' }}</td>
+                        <td>{{ report.equipo?.modelo || 'N/A' }}</td>
+                        <td>{{ report.equipo?.serie || 'N/A' }}</td>
                         <td><p-tag [value]="report.equipo?.placa || 'N/A'" severity="secondary"></p-tag></td>
+                        <td>{{ report.servicio?.nombres || 'N/A' }}</td>
                         <td>{{ report.equipo?.ubicacionEspecifica || 'N/A' }}</td>
                         <td>{{ report.mesProgramado }}/{{ report['añoProgramado'] }}</td>
                         <td class="text-center">
@@ -154,7 +186,7 @@
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="5" class="text-center p-4">No hay mantenimientos preventivos ejecutados en el mes
+                        <td colspan="9" class="text-center p-4">No hay mantenimientos preventivos ejecutados en el mes
                             seleccionado.</td>
                     </tr>
                 </ng-template>
@@ -182,7 +214,7 @@
         <div class="card border-0 shadow-sm border-round-xl surface-card p-4">
             <p-table #dtCorrectivos [value]="correctivos" dataKey="id" [paginator]="true" [rows]="10"
                 [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
-                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica']"
+                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'servicio.nombres']"
                 styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true" [scrollable]="true"
                 scrollHeight="500px">
 
@@ -198,10 +230,23 @@
 
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="min-width:100px">ID</th>
-                        <th style="min-width:200px">Equipo</th>
-                        <th style="min-width:120px">Placa</th>
-                        <th style="min-width:150px">Fecha Realización</th>
+                        <th style="min-width:100px" pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                        <th style="min-width:200px" pSortableColumn="equipo.nombres">Equipo <p-sortIcon
+                                field="equipo.nombres"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.marca">Marca <p-sortIcon
+                                field="equipo.marca"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.modelo">Modelo <p-sortIcon
+                                field="equipo.modelo"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.serie">Serie <p-sortIcon
+                                field="equipo.serie"></p-sortIcon></th>
+                        <th style="min-width:120px" pSortableColumn="equipo.placa">Placa <p-sortIcon
+                                field="equipo.placa"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="servicio.nombres">Servicio <p-sortIcon
+                                field="servicio.nombres"></p-sortIcon></th>
+                        <th style="min-width:200px" pSortableColumn="equipo.ubicacionEspecifica">Ubicación <p-sortIcon
+                                field="equipo.ubicacionEspecifica"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="fechaRealizado">Fecha Realización <p-sortIcon
+                                field="fechaRealizado"></p-sortIcon></th>
                         <th style="min-width:120px" class="text-center">Opciones</th>
                     </tr>
                 </ng-template>
@@ -209,7 +254,12 @@
                     <tr>
                         <td><span class="font-bold">#{{ report.id }}</span></td>
                         <td>{{ report.equipo?.nombres }}</td>
+                        <td>{{ report.equipo?.marca || 'N/A' }}</td>
+                        <td>{{ report.equipo?.modelo || 'N/A' }}</td>
+                        <td>{{ report.equipo?.serie || 'N/A' }}</td>
                         <td><p-tag [value]="report.equipo?.placa" severity="secondary"></p-tag></td>
+                        <td>{{ report.servicio?.nombres || 'N/A' }}</td>
+                        <td>{{ report.equipo?.ubicacionEspecifica || 'N/A' }}</td>
                         <td>{{ report.fechaRealizado }}</td>
                         <td class="text-center">
                             <button pButton icon="pi pi-eye"
@@ -223,7 +273,7 @@
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="5" class="text-center p-4">
+                        <td colspan="10" class="text-center p-4">
                             <div class="flex flex-column align-items-center">
                                 <i class="pi pi-inbox text-500 text-6xl mb-3"></i>
                                 <span class="text-xl text-500">No hay mantenimientos correctivos en el mes

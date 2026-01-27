@@ -14,10 +14,12 @@ import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
 import { FieldsetModule } from 'primeng/fieldset';
 import { TabViewModule } from 'primeng/tabview';
+import { PanelModule } from 'primeng/panel';
 import { HojavidaService } from './../../../../Services/appServices/biomedicaServices/hojavida/hojavida.service';
 import { ProveedorService } from './../../../../Services/appServices/biomedicaServices/proveedor/proveedor.service';
 import { FabricanteService } from './../../../../Services/appServices/biomedicaServices/fabricante/fabricante.service';
 import { DatosTecnicosService } from '../../../../Services/appServices/biomedicaServices/datosTecnicos/datos-tecnicos.service';
+import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -38,7 +40,8 @@ import Swal from 'sweetalert2';
     DividerModule,
     FieldsetModule,
     RouterModule,
-    TabViewModule
+    TabViewModule,
+    PanelModule
   ],
   providers: [MessageService],
   templateUrl: './crear-hojavida.component.html',
@@ -55,7 +58,11 @@ export class CrearHojavidaComponent implements OnInit {
   proveedorService = inject(ProveedorService);
   fabricanteService = inject(FabricanteService);
   datosTecnicosService = inject(DatosTecnicosService);
+  equipoServices = inject(EquiposService);
   messageService = inject(MessageService);
+
+  equipo: any;
+  selectedFile: File | null = null;
 
   proveedores: any[] = [];
   fabricantes: any[] = [];
@@ -156,15 +163,35 @@ export class CrearHojavidaComponent implements OnInit {
     });
   }
 
+  onFileSelect(event: any) {
+    if (event.target.files.length > 0) {
+      this.selectedFile = event.target.files[0];
+    }
+  }
+
   ngOnInit(): void {
     if (!this.equipoId && !this.hojaVidaData) {
       console.error("Equipo ID no proporcionado a CrearHojavidaComponent");
+    }
+
+    if (this.equipoId) {
+      this.cargarEquipo();
     }
 
     this.cargarListas();
 
     if (this.hojaVidaData) {
       this.cargarDatosEdicion();
+    }
+  }
+
+  async cargarEquipo() {
+    try {
+      if (this.equipoId) {
+        this.equipo = await this.equipoServices.getEquipoById(this.equipoId);
+      }
+    } catch (error) {
+      console.error("Error al cargar datos del equipo", error);
     }
   }
 
@@ -249,7 +276,18 @@ export class CrearHojavidaComponent implements OnInit {
             datosTecnicosIdFk: datosTecnicosId
           };
 
-          await this.hojaVidaService.updateHojaVida(this.hojaVidaData.id, payload);
+          const formData = new FormData();
+          for (const key of Object.keys(payload)) {
+            const value = payload[key];
+            if (value !== null && value !== undefined) {
+              formData.append(key, value);
+            }
+          }
+          if (this.selectedFile) {
+            formData.append('foto', this.selectedFile);
+          }
+
+          await this.hojaVidaService.updateHojaVida(this.hojaVidaData.id, formData);
           Swal.fire({
             icon: 'success',
             title: 'Hoja de Vida Actualizada',
@@ -263,7 +301,18 @@ export class CrearHojavidaComponent implements OnInit {
             datosTecnicosIdFk: datosTecnicosId
           };
 
-          await this.hojaVidaService.addHojaVida(payload);
+          const formData = new FormData();
+          for (const key of Object.keys(payload)) {
+            const value = payload[key];
+            if (value !== null && value !== undefined) {
+              formData.append(key, value);
+            }
+          }
+          if (this.selectedFile) {
+            formData.append('foto', this.selectedFile);
+          }
+
+          await this.hojaVidaService.addHojaVida(formData);
 
           Swal.fire({
             icon: 'success',

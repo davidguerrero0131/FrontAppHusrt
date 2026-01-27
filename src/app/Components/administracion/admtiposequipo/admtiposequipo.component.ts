@@ -245,4 +245,79 @@ export class AdmtiposequipoComponent implements OnInit {
       Swal.fire("Error", "No se pudo agregar el protocolo", "error");
     }
   }
+  // ... (existing methods)
+
+  // Mediciones Específicas Logic
+  viewMedicionesModal: boolean = false;
+  medicionesTipoEquipo: any[] = [];
+  newMedicionNombre: string = '';
+  newMedicionUnidad: string = '';
+  newMedicionValorEstandar: string = '';
+  newMedicionCriterioAceptacion: string = '';
+
+  async viewMediciones(tipoEquipo: any) {
+    this.tipoEquipoSelected = tipoEquipo;
+    this.medicionesTipoEquipo = await this.tipoequipoService.getMediciones(this.tipoEquipoSelected.id);
+    this.viewMedicionesModal = true;
+  }
+
+  async addMedicion() {
+    if (!this.newMedicionNombre.trim() || !this.newMedicionUnidad.trim()) {
+      Swal.fire("Atención", "Nombre y Unidad son requeridos", "warning");
+      return;
+    }
+
+    const newMed = {
+      nombre: this.newMedicionNombre,
+      unidad: this.newMedicionUnidad,
+      valorEstandar: this.newMedicionValorEstandar,
+      criterioAceptacion: this.newMedicionCriterioAceptacion,
+      tipoEquipoIdFk: this.tipoEquipoSelected.id
+    };
+
+    try {
+      await this.tipoequipoService.createMedicion(newMed);
+      this.newMedicionNombre = '';
+      this.newMedicionUnidad = '';
+      this.newMedicionValorEstandar = '';
+      this.newMedicionCriterioAceptacion = '';
+      this.medicionesTipoEquipo = await this.tipoequipoService.getMediciones(this.tipoEquipoSelected.id);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Medición agregada',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "No se pudo agregar la medición", "error");
+    }
+  }
+
+  async deleteMedicion(idMedicion: any) {
+    this.viewMedicionesModal = false; // Hide modal temporarily
+    Swal.fire({
+      title: "¿Eliminar medición?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar"
+    }).then(async (result) => {
+      this.viewMedicionesModal = true; // Re-open modal
+      if (result.isConfirmed) {
+        try {
+          await this.tipoequipoService.deleteMedicion(idMedicion);
+          this.medicionesTipoEquipo = await this.tipoequipoService.getMediciones(this.tipoEquipoSelected.id);
+          Swal.fire("Eliminado", "", "success");
+        } catch (error) {
+          Swal.fire("Error", "No se pudo eliminar", "error");
+        }
+      }
+    });
+  }
+
 }

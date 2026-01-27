@@ -14,19 +14,22 @@
   <button type="button" class="btn btn-dark" (click)="setDate()">
     Buscar
   </button>
+
 </div>
+
+
 
 <div>
   <h6 style="text-align: center;"> Actividades Metrologicas del mes de {{obtenerNombreMes(mes)}} del año {{anio}}</h6>
 </div>
 
 <div class="btn-group botonesMenu" role="group" aria-label="Basic example">
-  <button type="button" class="btn" [ngClass]="panelActividadesMetrologicas ? 'btn-light' : 'btn-dark'"
+  <button type="button" class="btn" [ngClass]="panelActividadesMetrologicas ? 'btn-primary' : 'btn-light'"
     (click)="viewActividadesMetrologicas()">
     Actividades Metrologicas
   </button>
 
-  <button type="button" class="btn" [ngClass]="panelMetas ? 'btn-light' : 'btn-dark'" (click)="viewMetas()">
+  <button type="button" class="btn" [ngClass]="panelMetas ? 'btn-primary' : 'btn-light'" (click)="viewMetas()">
     Metas
   </button>
 </div>
@@ -133,9 +136,10 @@
     <div class="contenedor">
       <div class="izquierda">
 
-        <button type="button" class="btn btn-dark btn-sm" style="width: 100%; margin-bottom: 2%;"
-          (click)="panelRealizadosView()"> Realzados </button>
-        <button type="button" class="btn btn-dark btn-sm" style="width: 100%;" (click)="panelPendientesView()">
+        <button type="button" class="btn btn-sm" style="width: 100%; margin-bottom: 2%;"
+          [ngClass]="panelRealizados ? 'btn-primary' : 'btn-light'" (click)="panelRealizadosView()"> Realzados </button>
+        <button type="button" class="btn btn-sm" style="width: 100%;"
+          [ngClass]="panelPendientes ? 'btn-primary' : 'btn-light'" (click)="panelPendientesView()">
           Pendientes </button>
 
       </div>
@@ -386,10 +390,7 @@
 
     <div class="field">
       <label>Tipo de Actividad</label>
-      <select class="form-select" [(ngModel)]="tipoActividad">
-        <option value="" disabled selected>Seleccione</option>
-        <option *ngFor="let option of opcionesTipoActividad" [value]="option.value">{{ option.label }}</option>
-      </select>
+      <input pInputText type="text" [(ngModel)]="tipoActividad" disabled />
     </div>
 
     <div class="field">
@@ -520,6 +521,8 @@
 
   <ng-template pTemplate="footer">
     <button pButton pRipple label="Ver Certificado" icon="pi pi-file-pdf" class="p-button-outlined"
+      (click)="verCertificado()"></button>
+    <button pButton pRipple label="Visualizar Archivo" icon="pi pi-eye" class="p-button-outlined"
       (click)="verCertificado()"></button>
     <button pButton pRipple label="Cerrar" icon="pi pi-times" class="p-button-text p-button-secondary"
       (click)="modalViewActividadMetrologica = false"></button>

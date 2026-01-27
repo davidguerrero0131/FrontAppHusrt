@@ -31,21 +31,6 @@ export class SuperadminnavbarComponent implements OnInit {
         label: 'Usuarios',
         icon: 'pi pi-users',
         routerLink: '/admusuarios'
-      },
-      {
-        label: 'Equipos',
-        icon: 'pi pi-server',
-        routerLink: '/biomedica/adminequipos'
-      },
-      {
-        label: 'Servicios',
-        icon: 'pi pi-list',
-        routerLink: '/admservicios'
-      },
-      {
-        label: 'Tipos Equipo',
-        icon: 'pi pi-tags',
-        routerLink: '/admtiposequipo'
       }
     ];
   }

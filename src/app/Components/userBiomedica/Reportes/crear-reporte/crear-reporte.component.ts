@@ -1,8 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, FormsModule, FormArray, FormControl } from '@angular/forms';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, FormsModule, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { InputMaskModule } from 'primeng/inputmask';
 import { DropdownModule } from 'primeng/dropdown';
@@ -13,18 +12,19 @@ import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
+import { TableModule } from 'primeng/table';
 import Swal from 'sweetalert2';
 import { getDecodedAccessToken } from '../../../../utilidades';
 import { ProtocolosService } from '../../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { UserService } from '../../../../Services/appServices/userServices/user.service';
-import { Router } from '@angular/router';
 import { ReportesService } from '../../../../Services/appServices/biomedicaServices/reportes/reportes.service';
+import { TipoEquipoService } from '../../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
 
 @Component({
   selector: 'app-crear-reporte',
   standalone: true,
-  imports: [DatePickerModule, SelectModule, TextareaModule, InputTextModule, ButtonModule, CardModule, CalendarModule, InputMaskModule, CommonModule, DropdownModule, CheckboxModule, ReactiveFormsModule, FormsModule],
+  imports: [DatePickerModule, SelectModule, TextareaModule, InputTextModule, ButtonModule, CardModule, CalendarModule, InputMaskModule, CommonModule, DropdownModule, CheckboxModule, ReactiveFormsModule, FormsModule, TableModule],
   templateUrl: './crear-reporte.component.html',
   styleUrl: './crear-reporte.component.css'
 })
@@ -41,14 +41,16 @@ export class CrearReporteComponent implements OnInit {
   protocoloservices = inject(ProtocolosService);
   userServices = inject(UserService);
   reprteServices = inject(ReportesService);
+  tipoEquipoService = inject(TipoEquipoService);
   router = inject(Router);
   tipoMantenimiento = '';
+
+  // Specific Measurements
+  medicionesPreventivo: any[] = [];
 
   tiposMantenimiento = [
     { label: 'Correctivo', value: 'Correctivo' },
     { label: 'Preventivo', value: 'Preventivo' },
-    { label: 'Predictivo', value: 'Predictivo' },
-    { label: 'Otro', value: 'Otro' },
   ];
 
   tiposFalla = [
@@ -58,23 +60,31 @@ export class CrearReporteComponent implements OnInit {
 
   id!: number;
 
+  opcionesCumplimiento = [
+    { label: 'Cumple', value: 'CUMPLE' },
+    { label: 'No Cumple', value: 'NO_CUMPLE' },
+    { label: 'No Aplica', value: 'NO_APLICA' }
+  ];
+
   constructor(private route: ActivatedRoute, private fb: FormBuilder, private location: Location) {
     this.validarTipoMantenimiento();
     this.reporteForm = this.fb.group({
-      fechaRealizado: [null],
-      horaInicio: [null],
-      fechaFin: [null],
-      horaTerminacion: [null],
+      fechaRealizado: [null, Validators.required],
+      horaInicio: [null, Validators.required],
+      fechaFin: [null, Validators.required],
+      horaTerminacion: [null, Validators.required],
       horaTotal: [{ value: null, disabled: true }],
-      tipoMantenimiento: this.tipoMantenimiento,
-      tipoFalla: [null],
-      motivo: [''],
-      trabajoRealizado: [''],
-      calificacion: [null],
-      nombreRecibio: [''],
-      cedulaRecibio: [''],
-      observaciones: [''],
-      cumplimientoProtocolo: this.fb.array([])
+      tipoMantenimiento: [this.tipoMantenimiento, Validators.required],
+      tipoFalla: [null, Validators.required],
+      motivo: ['', Validators.required],
+      trabajoRealizado: ['', Validators.required],
+      calificacion: [null, [Validators.required, Validators.min(1), Validators.max(5)]],
+      nombreRecibio: ['', Validators.required],
+      cedulaRecibio: ['', Validators.required],
+      observaciones: ['', Validators.required],
+      cumplimientoProtocolo: this.fb.array([]),
+      valoresMediciones: this.fb.array([]), // New FormArray for measurements
+      repuestos: this.fb.array([]) // New FormArray for accessories
     });
 
     this.reporteForm.valueChanges.subscribe(() => {
@@ -89,6 +99,14 @@ export class CrearReporteComponent implements OnInit {
     }
 
     this.reporteForm.get('tipoMantenimiento')?.disable();
+
+    // Enable tipoMantenimiento for Admins (Moved to constructor)
+    const token = getDecodedAccessToken();
+    console.log('Token Role:', token?.rol);
+    if (token && (token.rol === 'SUPERADMIN' || token.rol === 'BIOMEDICAADMIN')) {
+      console.log('Enabling tipoMantenimiento for Admin');
+      this.reporteForm.get('tipoMantenimiento')?.enable();
+    }
   }
 
   calcularHoras() {
@@ -126,15 +144,105 @@ export class CrearReporteComponent implements OnInit {
   async ngOnInit() {
     this.id = Number(this.route.snapshot.paramMap.get('id'));
     this.reporte = await this.reprteServices.getPreventivoProgramado(Number(sessionStorage.getItem('idReporte'))) || {};
+    // Ensure we have compliance data
+    if (this.reporte.id) {
+      this.reporte.cumplimientoProtocolo = await this.protocoloservices.getCumplimientoProtocoloReporte(this.reporte.id);
+
+      // Fetch full report details to get specific measurements
+      try {
+        const reportDetails = await this.reprteServices.getReporteById(this.reporte.id);
+        if (reportDetails && reportDetails.valoresMediciones) {
+          this.reporte.valoresMediciones = reportDetails.valoresMediciones;
+        }
+        if (reportDetails && reportDetails.repuestos) {
+          this.reporte.repuestos = reportDetails.repuestos;
+        }
+      } catch (error) {
+        console.error('Error fetching report details for measurements:', error);
+      }
+    }
     this.equipo = await this.equiposervices.getEquipoById(this.id);
     this.protocolos = await this.protocoloservices.getProtocoloTipoEquipo(this.equipo.tipoEquipoIdFk);
+
     this.nombreUsuario = await this.userServices.getNameUSer(getDecodedAccessToken().id);
     this.selectProtocolos = [this.protocolos[1]];
+
+    // Fetch specific measurements
+    if (this.equipo && this.equipo.tipoEquipoIdFk) {
+      try {
+        this.medicionesPreventivo = await this.tipoEquipoService.getMediciones(this.equipo.tipoEquipoIdFk);
+        this.iniValoresMediciones();
+      } catch (error) {
+        console.error('Error fetching measurements:', error);
+      }
+    }
+
     await this.iniCumplimientoProtocolo();
+    this.iniRepuestos();
+
+    if (this.reporte.id && this.reporte.realizado) {
+      this.reporteForm.patchValue({
+        fechaRealizado: this.reporte.fechaRealizado ? new Date(this.reporte.fechaRealizado) : null,
+        horaInicio: this.reporte.horaInicio,
+        fechaFin: this.reporte.fechaFin ? new Date(this.reporte.fechaFin) : null,
+        horaTerminacion: this.reporte.horaTerminacion,
+        horaTotal: this.reporte.horaTotal,
+        tipoMantenimiento: this.reporte.tipoMantenimiento,
+        tipoFalla: this.reporte.tipoFalla,
+        motivo: this.reporte.motivo,
+        trabajoRealizado: this.reporte.trabajoRealizado,
+        calificacion: this.reporte.calificacion,
+        nombreRecibio: this.reporte.nombreRecibio,
+        cedulaRecibio: this.reporte.cedulaRecibio,
+        observaciones: this.reporte.observaciones
+      });
+
+      // Special handling if specific fields need it (e.g. Dates might need conversion depending on PrimeNG config)
+      // PrimeNG Calendar expects Date object.
+      // If fetched dates are strings YYYY-MM-DD, new Date() works.
+    }
+
+  }
+
+  iniValoresMediciones() {
+    const array = this.reporteForm.get('valoresMediciones') as FormArray;
+    array.clear();
+    if (this.medicionesPreventivo) {
+      this.medicionesPreventivo.forEach(m => {
+        // Find existing value in report if editing
+        const existingVal = this.reporte.valoresMediciones?.find((v: any) => v.medicion?.id === m.id || v.medicionIdFk === m.id);
+
+        array.push(this.fb.group({
+          id: [m.id],
+          nombre: [m.nombre],
+          unidad: [m.unidad],
+          valorEstandar: [m.valorEstandar],
+          valor: [existingVal ? existingVal.valor : ''],
+          unidadRegistrada: [existingVal ? existingVal.unidadRegistrada : m.unidad],
+          criterioAceptacion: [m.criterioAceptacion],
+          conforme: [existingVal ? existingVal.conforme : false]
+        }));
+      });
+    }
+  }
+
+  get valoresMedicionesFormArray(): FormArray {
+    return this.reporteForm.get('valoresMediciones') as FormArray;
   }
 
   async onSubmit() {
     if (this.reporteForm.valid) {
+      // Prepare payload
+      let medicionesPayload = [];
+      if (this.reporteForm.value.valoresMediciones) {
+        medicionesPayload = this.reporteForm.value.valoresMediciones.map((m: any) => ({
+          id: m.id,
+          valor: m.valor,
+          unidadRegistrada: m.unidadRegistrada,
+          conforme: m.conforme
+        }));
+      }
+
       this.reporte =
       {
         id: this.reporte.id || null,
@@ -159,6 +267,8 @@ export class CrearReporteComponent implements OnInit {
         servicioIdFk: this.equipo.servicioIdFk,
         equipoIdFk: this.equipo.id,
         usuarioIdFk: getDecodedAccessToken().id,
+        mediciones: medicionesPayload, // Add measurements to payload
+        repuestos: this.reporteForm.value.repuestos // Add accessories to payload
       }
       if (this.tipoMantenimiento === 'Preventivo') {
         await this.reprteServices.ActualizarPreventivoProgramado(this.reporte.id, this.reporte).then(() => {
@@ -198,6 +308,13 @@ export class CrearReporteComponent implements OnInit {
           });
         });
       }
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario Incompleto',
+        text: 'Por favor, diligencie todos los campos requeridos antes de guardar.',
+        confirmButtonText: 'Aceptar'
+      });
     }
   }
 
@@ -205,11 +322,24 @@ export class CrearReporteComponent implements OnInit {
     const array = this.reporteForm.get('cumplimientoProtocolo') as FormArray;
     array.clear();
     this.protocolos.forEach(p => {
+      // Find existing compliance in report if editing
+      // Note: check property name in report object. Assuming 'cumplimientoProtocolo' matches the relationship alias or list.
+      // If the backend returns it as 'CumpliminetoProtocoloPreventivos' or similar, we might need to adjust.
+      // Based on ver-reporte, it seems it might be fetched separately?
+      // Wait, 'ver-reporte' uses 'rutina' which is 'metrologiaReportes'? No.
+      // Let's assume 'cumplimientoProtocolo' exists on 'this.reporte' or we need to fetch it?
+      // In ngOnInit, 'this.reporte' is fetched.
+      // If 'this.reporte' includes the association, we can use it.
+      // Let's safe navigation check.
+
+      const existingComp = this.reporte.cumplimientoProtocolo?.find((c: any) => c.protocoloPreventivoIdFk === p.id || c.protocolo?.id === p.id);
+
       array.push(this.fb.group({
         protocoloPreventivoIdFk: [p.id],
-        cumple: [false],
+        cumple: [existingComp ? existingComp.cumple : 'CUMPLE'],
         reporteIdFk: [this.reporte.id],
-        paso: [p.paso]
+        paso: [p.paso],
+        observaciones: [existingComp ? existingComp.observaciones : '']
       }));
     });
   }
@@ -219,7 +349,8 @@ export class CrearReporteComponent implements OnInit {
       const cp = {
         protocoloPreventivoIdFk: this.reporteForm.value.cumplimientoProtocolo[i].protocoloPreventivoIdFk,
         cumple: this.reporteForm.value.cumplimientoProtocolo[i].cumple,
-        reporteIdFk: this.reporteForm.value.cumplimientoProtocolo[i].reporteIdFk
+        reporteIdFk: this.reporteForm.value.cumplimientoProtocolo[i].reporteIdFk,
+        observaciones: this.reporteForm.value.cumplimientoProtocolo[i].observaciones
       };
       const response = await this.protocoloservices.addCumplimientoProtocolo(cp);
     }
@@ -232,6 +363,43 @@ export class CrearReporteComponent implements OnInit {
   testViewCumplimiento() {
 
     this.guardarCumplimiento();
+  }
+
+  // Accessor for repuestos FormArray
+  get repuestosFormArray(): FormArray {
+    return this.reporteForm.get('repuestos') as FormArray;
+  }
+
+  // Add new accessory
+  agregarRepuesto() {
+    const repuestoGroup = this.fb.group({
+      id: [null], // For editing
+      nombreInsumo: [''],
+      cantidad: [''],
+      comprobanteEgreso: ['']
+    });
+    this.repuestosFormArray.push(repuestoGroup);
+  }
+
+  // Remove accessory
+  eliminarRepuesto(index: number) {
+    this.repuestosFormArray.removeAt(index);
+  }
+
+  // Initialize repuestos from report data
+  iniRepuestos() {
+    const array = this.reporteForm.get('repuestos') as FormArray;
+    array.clear();
+    if (this.reporte.repuestos && this.reporte.repuestos.length > 0) {
+      this.reporte.repuestos.forEach((r: any) => {
+        array.push(this.fb.group({
+          id: [r.id],
+          nombreInsumo: [r.nombreInsumo],
+          cantidad: [r.cantidad],
+          comprobanteEgreso: [r.comprobanteEgreso]
+        }));
+      });
+    }
   }
 
 

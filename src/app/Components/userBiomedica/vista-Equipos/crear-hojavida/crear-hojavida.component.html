@@ -12,6 +12,21 @@
             </div>
         </div>
 
+        <!-- Equipment Info Panel -->
+        <p-panel *ngIf="equipo" header="Información del Equipo" [toggleable]="true" styleClass="mb-4">
+            <div class="grid">
+                <div class="col-12 md:col-6 lg:col-4"><strong>Tipo de Equipo:</strong> {{ equipo.tipoEquipos?.nombres }}
+                </div>
+                <div class="col-12 md:col-6 lg:col-4"><strong>Equipo:</strong> {{ equipo.nombres }}</div>
+                <div class="col-12 md:col-6 lg:col-4"><strong>Marca:</strong> {{ equipo.marca }}</div>
+                <div class="col-12 md:col-6 lg:col-4"><strong>Modelo:</strong> {{ equipo.modelo }}</div>
+                <div class="col-12 md:col-6 lg:col-4"><strong>Serie:</strong> {{ equipo.serie }}</div>
+                <div class="col-12 md:col-6 lg:col-4"><strong>Placa:</strong> {{ equipo.placa }}</div>
+                <div class="col-12 md:col-6 lg:col-4"><strong>Ubicación:</strong> {{ equipo.ubicacion }} - {{
+                    equipo.ubicacionEspecifica }}</div>
+            </div>
+        </p-panel>
+
         <form [formGroup]="hojaVidaForm" novalidate class="w-full">
             <p-tabView styleClass="w-full">
 
@@ -48,6 +63,11 @@
                             <p-dropdown inputId="tipoAdquisicion" [options]="tiposAdquisicion"
                                 formControlName="tipoAdquisicion" placeholder="Seleccione Tipo" [showClear]="true"
                                 styleClass="w-full"></p-dropdown>
+                        </div>
+
+                        <div class="field col-12 md:col-6 lg:col-4">
+                            <label for="foto" class="font-bold">Foto del Equipo</label>
+                            <input type="file" pInputText id="foto" (change)="onFileSelect($event)" accept="image/*" />
                         </div>
 
                         <div class="col-12 mt-4">

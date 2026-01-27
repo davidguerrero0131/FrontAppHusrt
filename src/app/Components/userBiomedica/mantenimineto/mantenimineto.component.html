@@ -29,6 +29,8 @@
   </button>
 </div>
 
+
+
 <div>
   <h6 style="text-align: center;" *ngIf="mesInicio === mesFin">
     Mantenimientos del mes de {{obtenerNombreMes(mesInicio)}} del año {{anio}}
@@ -366,7 +368,8 @@
                 </td>
                 <td style="text-align: center; align-items: center; text-align: center">
                   <button type="button" class="btn btn-success" *ngIf="reporte.realizado">REALIZADO</button>
-                  <button type="button" class="btn btn-danger" *ngIf="!reporte.realizado">PENDIENTE</button>
+                  <button type="button" class="btn btn-danger" *ngIf="!reporte.realizado"
+                    (click)="nuevoReporte(reporte.equipo.id, reporte.id)">PENDIENTE</button>
                 </td>
               </tr>
             </ng-template>
@@ -551,6 +554,39 @@
       </div>
     </div>
 
+    <div class="grid" *ngIf="reportSelected?.valoresMediciones?.length > 0">
+      <div class="col-12">
+        <p-card header="Mediciones Específicas">
+          <div class="p-text-sm grid">
+            <div class="col-12">
+              <table class="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <th>Medición</th>
+                    <th>Estándar</th>
+                    <th>Valor</th>
+                    <th>Unidad Reg.</th>
+                    <th>Criterio Aceptación</th>
+                    <th>Conforme</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let val of reportSelected.valoresMediciones">
+                    <td>{{ val.medicion?.nombre }} ({{ val.medicion?.unidad }})</td>
+                    <td>{{ val.medicion?.valorEstandar || 'N/A' }}</td>
+                    <td>{{ val.valor }}</td>
+                    <td>{{ val.unidadRegistrada || val.medicion?.unidad }}</td>
+                    <td>{{ val.medicion?.criterioAceptacion || 'N/A' }}</td>
+                    <td>{{ val.conforme ? 'Sí' : 'No' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </p-card>
+      </div>
+    </div>
+
     <div>
       <p-card header="Rutina de Mantenimiento">
         <div class="p-text-sm grid">
@@ -560,12 +596,36 @@
                 <tr>
                   <th>Descripción</th>
                   <th>Cumplimiento</th>
+                  <th>Observaciones</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let item of rutina">
-                  <td>{{ item.protocolo.paso }}</td>
-                  <td>{{ item.cumple ? 'Sí' : 'No' }}</td>
+                  <td>{{ item.protocolo?.paso }}</td>
+                  <td>{{ item.cumple === 'CUMPLE' ? 'Cumple' : (item.cumple === 'NO_CUMPLE' ? 'No Cumple' : (item.cumple
+                    === 'NO_APLICA' ? 'No Aplica' : 'No')) }}</td>
+                  <td>{{ item.observaciones }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="col-12" *ngIf="reportSelected?.repuestos?.length > 0">
+            <hr>
+            <h6 class="font-bold">Insumos / Repuestos Utilizados</h6>
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Nombre Insumo</th>
+                  <th>Cantidad</th>
+                  <th>Comprobante</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let rep of reportSelected.repuestos">
+                  <td>{{ rep.nombreInsumo }}</td>
+                  <td>{{ rep.cantidad }}</td>
+                  <td>{{ rep.comprobanteEgreso || 'N/A' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -573,28 +633,34 @@
         </div>
       </p-card>
     </div>
+  </div>
 
-    <div style="margin-top: 1%;"></div>
+  <div style="margin-top: 1%;"></div>
 
-    <div class="grid">
-      <div class="col-12">
-        <p-card header="Realizado Por:">
-          <div class="p-text-sm grid">
-            <div class="col-12 md:col-4">
-              <p><strong>Nombre:</strong> {{ reportSelected?.usuario.nombres }} {{ reportSelected?.usuario.apellidos}}
-              </p>
-              <p><strong>Email:</strong> {{ reportSelected?.usuario.email }}</p>
-              <p><strong>Registro Invima:</strong> {{ reportSelected?.usuario.registroInvima }}</p>
-            </div>
-            <div class="col-12 md:col-4">
-              <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
-                *ngIf="reportSelected?.rutaPdf">Ver Reporte</button>
-              <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
-                *ngIf="!reportSelected?.rutaPdf">Generar Formato</button>
-            </div>
+  <div class="grid">
+    <div class="col-12">
+      <p-card header="Realizado Por:">
+        <div class="p-text-sm grid">
+          <div class="col-12 md:col-4">
+            <p><strong>Nombre:</strong> {{ reportSelected?.usuario.nombres }} {{
+              reportSelected?.usuario.apellidos}}
+            </p>
+            <p><strong>Email:</strong> {{ reportSelected?.usuario.email }}</p>
+            <p><strong>Registro Invima:</strong> {{ reportSelected?.usuario.registroInvima }}</p>
           </div>
-        </p-card>
-      </div>
+          <div class="col-12 md:col-4">
+            <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
+              *ngIf="reportSelected?.rutaPdf">Ver Reporte</button>
+            <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
+              *ngIf="!reportSelected?.rutaPdf">Generar Formato</button>
+
+            <button type="button" class="btn btn-warning ml-2" (click)="editarReporte()"
+              *ngIf="!reportSelected?.rutaPdf">
+              <i class="pi pi-pencil"></i> Editar Reporte
+            </button>
+          </div>
+        </div>
+      </p-card>
     </div>
   </div>
 </p-dialog>

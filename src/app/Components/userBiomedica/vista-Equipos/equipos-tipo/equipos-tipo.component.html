@@ -63,7 +63,7 @@
           </td>
           <td>
             <p-splitbutton label="HV" icon="pi pi-check" dropdownIcon="pi pi-cog" [model]="equipo.opcionesHV"
-              severity="secondary" (onClick)="equipo.opcionesHV[1].command(equipo)">
+              severity="secondary" (onClick)="verHojaVida(equipo.id)">
             </p-splitbutton>
           </td>
         </tr>
@@ -108,6 +108,31 @@
     <p-button icon="pi pi-times" (click)="displayPlanDialog=false" label="Cancelar"
       styleClass="p-button-text p-button-secondary"></p-button>
     <p-button icon="pi pi-check" (click)="savePlan()" label="Guardar"></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog header="Editar Plan de Actividades Metrológicas" [(visible)]="displayPlanMetrologiaDialog" [modal]="true"
+  [style]="{ width: '25rem' }">
+  <div *ngFor="let item of fechasCalibracion; let i = index; trackBy: trackByIndex" class="mb-4">
+    <h5 class="mb-2 font-bold">Actividad {{ i + 1 }}</h5>
+    <div class="field mb-3">
+      <label class="block mb-1 text-sm font-medium" [for]="'fecha-cal-'+i">Fecha Programada</label>
+      <p-datepicker [(ngModel)]="fechasCalibracion[i].fecha" inputId="{{ 'fecha-cal-' + i }}" view="month"
+        dateFormat="mm/yy" [style]="{ width: '100%' }" appendTo="body">
+      </p-datepicker>
+    </div>
+    <div class="field mb-3">
+      <label class="block mb-1 text-sm font-medium" [for]="'tipo-act-'+i">Tipo de Actividad</label>
+      <p-dropdown [options]="tipoActividadOptions" [(ngModel)]="fechasCalibracion[i].tipoActividad" optionLabel="label"
+        optionValue="value" [style]="{ width: '100%' }" placeholder="Seleccione Tipo" appendTo="body">
+      </p-dropdown>
+    </div>
+    <hr *ngIf="i < fechasCalibracion.length - 1" class="my-3 border-gray-300" />
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button icon="pi pi-times" (click)="displayPlanMetrologiaDialog=false" label="Cancelar"
+      styleClass="p-button-text p-button-secondary"></p-button>
+    <p-button icon="pi pi-check" (click)="savePlanMetrologia()" label="Guardar"></p-button>
   </ng-template>
 </p-dialog>
 
@@ -205,4 +230,66 @@
       </tr>
     </ng-template>
   </p-table>
+
+</p-dialog>
+
+<!-- Modal Registrar Actividad Metrológica -->
+<p-dialog header="Registrar Actividad Metrológica" [modal]="true" [(visible)]="modalAddActividadMetrologica"
+  styleClass="standard-modal modal-lg" [maximizable]="false" [style]="{width: '50vw'}">
+
+  <div class="form-grid" style="width: 100%;" *ngIf="currentEquipo">
+    <div class="field mb-3">
+      <label class="font-bold block mb-2">Equipo</label>
+      <input pInputText type="text" [value]="currentEquipo.nombres" disabled class="w-full" />
+    </div>
+
+    <div class="grid">
+      <div class="col-12 md:col-6 mb-3">
+        <label class="font-bold block mb-2">Tipo de Actividad</label>
+        <p-dropdown [options]="opcionesTipoActividad" [(ngModel)]="tipoActividad" optionLabel="label"
+          optionValue="value" placeholder="Seleccione Tipo" appendTo="body" styleClass="w-full"></p-dropdown>
+      </div>
+      <div class="col-12 md:col-6 mb-3">
+        <label class="font-bold block mb-2">Empresa</label>
+        <input pInputText type="text" [(ngModel)]="empresa" placeholder="Empresa encargada" class="w-full" />
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="col-12 md:col-6 mb-3">
+        <label class="font-bold block mb-2">Fecha Realizado</label>
+        <p-datepicker [(ngModel)]="fechaRealizadoActividad" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body"
+          styleClass="w-full"></p-datepicker>
+      </div>
+      <div class="col-12 md:col-6 mb-3">
+        <label class="font-bold block mb-2">Resultado</label>
+        <p-dropdown [options]="opcionesResultado" [(ngModel)]="resultado" optionLabel="label" optionValue="value"
+          placeholder="Seleccione Resultado" appendTo="body" styleClass="w-full"></p-dropdown>
+      </div>
+    </div>
+
+    <div class="field mb-3">
+      <label class="font-bold block mb-2">Error Máximo Identificado</label>
+      <input pInputText type="number" [(ngModel)]="errorMaximoIdentificado" placeholder="Valor numérico"
+        class="w-full" />
+    </div>
+
+    <div class="field mb-3">
+      <label class="font-bold block mb-2">Cargar Reporte (PDF)</label>
+      <input type="file" (change)="onFileSelected($event)" accept="application/pdf" class="form-control w-full" />
+    </div>
+
+    <div class="field mb-3">
+      <label class="font-bold block mb-2">Observaciones</label>
+      <textarea pInputTextarea [(ngModel)]="observaciones" rows="3" class="w-full"></textarea>
+    </div>
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary"
+      (click)="modalAddActividadMetrologica = false"></button>
+    <button pButton pRipple label="Guardar" icon="pi pi-check" (click)="registrarMetrologia()"></button>
+  </ng-template>
+
 </p-dialog>

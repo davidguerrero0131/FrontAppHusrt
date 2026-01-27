@@ -7,22 +7,22 @@
 
 
 <div class="btn-group botonesMenu" role="group" aria-label="Basic example">
-  <button type="button" class="btn" [ngClass]="panelActivo === 'seguimiento' ? 'btn-dark' : 'btn-light'"
+  <button type="button" class="btn" [ngClass]="panelActivo === 'seguimiento' ? 'btn-primary' : 'btn-light'"
     (click)="setPanel('seguimiento')">
     Seguimiento Actividades
   </button>
 
-  <button type="button" class="btn" [ngClass]="panelActivo === 'mantenimientos' ? 'btn-dark' : 'btn-light'"
+  <button type="button" class="btn" [ngClass]="panelActivo === 'mantenimientos' ? 'btn-primary' : 'btn-light'"
     (click)="setPanel('mantenimientos')">
     Programación Mantenimientos
   </button>
 
-  <button type="button" class="btn" [ngClass]="panelActivo === 'metrologia' ? 'btn-dark' : 'btn-light'"
+  <button type="button" class="btn" [ngClass]="panelActivo === 'metrologia' ? 'btn-primary' : 'btn-light'"
     (click)="setPanel('metrologia')">
     Programación Metrología
   </button>
 
-  <button type="button" class="btn" [ngClass]="panelActivo === 'mensuales' ? 'btn-dark' : 'btn-light'"
+  <button type="button" class="btn" [ngClass]="panelActivo === 'mensuales' ? 'btn-primary' : 'btn-light'"
     (click)="setPanel('mensuales')">
     Plan de Actividades
   </button>
@@ -31,6 +31,42 @@
 <div style="margin-top: 1%;">
 
 </div>
+
+<p-dialog header="Meses Programados (Preventivos)" [(visible)]="showScheduledPreventiveModal" [modal]="true"
+  [style]="{width: '30vw'}">
+  <p-table [value]="scheduledPreventiveMonths" [tableStyle]="{ 'min-width': '20rem' }">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Año</th>
+        <th>Mes</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.anio }}</td>
+        <td>{{ getNombreMes(item.mes) }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
+
+<p-dialog header="Meses Programados (Metrología)" [(visible)]="showScheduledMetrologyModal" [modal]="true"
+  [style]="{width: '30vw'}">
+  <p-table [value]="scheduledMetrologyMonths" [tableStyle]="{ 'min-width': '20rem' }">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Año</th>
+        <th>Mes</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.anio }}</td>
+        <td>{{ getNombreMes(item.mes) }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
 
 <div class="panelMantenimientos" *ngIf="panelActivo === 'seguimiento'">Contenido del panel Seguimiento</div>
 <div class="panelMantenimientos" *ngIf="panelActivo === 'mantenimientos'">
@@ -62,6 +98,9 @@
       [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'equipo.servicios.nombres', 'equipo.ubicacionEspecifica']">
       <ng-template #caption>
         <div class="flex">
+          <button type="button" class="btn btn-info mr-3" (click)="viewScheduledPreventiveMonths()">
+            Ver Meses Programados
+          </button>
           <p-iconfield iconPosition="left" class="ml-auto">
             <p-inputicon>
               <i class="pi pi-search"></i>
@@ -151,6 +190,9 @@
       [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'registro.tipoActividad', 'equipo.servicios.nombres', 'equipo.ubicacionEspecifica']">
       <ng-template #caption>
         <div class="flex">
+          <button type="button" class="btn btn-info mr-3" (click)="viewScheduledMetrologyMonths()">
+            Ver Meses Programados
+          </button>
           <p-iconfield iconPosition="left" class="ml-auto">
             <p-inputicon>
               <i class="pi pi-search"></i>
@@ -228,11 +270,11 @@
   <div class="contenedor" style="width: 98%; margin-left: 1%; ">
     <div class="izquierda" style="background-color: white; align-items: center;">
       <button type="button" class="btn" style="width: 60%; margin-top: 1%;" (click)="viewPanelMes()"
-        [ngClass]="viewPlanMes === true ? 'btn-dark' : 'btn-light'">Plan Mensual</button>
+        [ngClass]="viewPlanMes === true ? 'btn-primary' : 'btn-light'">Plan Mensual</button>
       <button type="button" class="btn" style="width: 60%; margin-top: 1%;" (click)="viewPanelTipoEquipo()"
-        [ngClass]="viewPlanTipoEquipo === true ? 'btn-dark' : 'btn-light'">Plan Tipo Equipo</button>
+        [ngClass]="viewPlanTipoEquipo === true ? 'btn-primary' : 'btn-light'">Plan Tipo Equipo</button>
       <button type="button" class="btn" style="width: 60%; margin-top: 1%;" (click)="viewPanelServicio()"
-        [ngClass]="viewPlanServicio === true ? 'btn-dark' : 'btn-light'">Plan Servicio</button>
+        [ngClass]="viewPlanServicio === true ? 'btn-primary' : 'btn-light'">Plan Servicio</button>
     </div>
     <div class="derecha" style="background-color: white;">
       <div *ngIf="viewPlanMes">
@@ -245,11 +287,11 @@
           </button>
         </div>
         <div class="btn-group botonesMenu" role="group" aria-label="Basic example">
-          <button type="button" class="btn" [ngClass]="viewPlanMesMantenimiento === true ? 'btn-dark' : 'btn-light'"
+          <button type="button" class="btn" [ngClass]="viewPlanMesMantenimiento === true ? 'btn-primary' : 'btn-light'"
             (click)="viewPanelMesMantenimiento()">
             Mantenimiento
           </button>
-          <button type="button" class="btn" [ngClass]="viewPlanMesMetrologia === true ? 'btn-dark' : 'btn-light'"
+          <button type="button" class="btn" [ngClass]="viewPlanMesMetrologia === true ? 'btn-primary' : 'btn-light'"
             (click)="viewPanelMesMetrologia()">
             Metrologia
           </button>
@@ -260,7 +302,7 @@
             <p-table #dt2 [value]="equiposPlanPreventivoMes" dataKey="id" [rows]="10"
               [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
               [tableStyle]="{ 'min-width': '10rem' }"
-              [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'equipo.servicios.nombres', 'equipo.ubicacionEspecifica']">
+              [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'mesesStr', 'servicio.nombres', 'equipo.ubicacionEspecifica']">
               <ng-template #caption>
                 <div class="flex">
                   <p-iconfield iconPosition="left" class="ml-auto">
@@ -433,11 +475,12 @@
         </div>
         <div class="btn-group botonesMenu" role="group" aria-label="Basic example">
           <button type="button" class="btn"
-            [ngClass]="viewPlanTipoEquipoMantenimiento === true ? 'btn-dark' : 'btn-light'"
+            [ngClass]="viewPlanTipoEquipoMantenimiento === true ? 'btn-primary' : 'btn-light'"
             (click)="viewPanelTipoEquipoMantenimiento()">
             Mantenimiento
           </button>
-          <button type="button" class="btn" [ngClass]="viewPlanTipoEquipoMetrologia === true ? 'btn-dark' : 'btn-light'"
+          <button type="button" class="btn"
+            [ngClass]="viewPlanTipoEquipoMetrologia === true ? 'btn-primary' : 'btn-light'"
             (click)="viewPanelTipoEquipoMetrologia()">
             Metrologia
           </button>
@@ -450,7 +493,7 @@
             <p-table #dt2 [value]="equiposPlanMantenimientoTipoEquipo" dataKey="id" [rows]="10"
               [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
               [tableStyle]="{ 'min-width': '10rem' }"
-              [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'mes', 'equipo.placa', 'equipo.servicio.nombres', 'equipo.ubicacionEspecifica']">
+              [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'mesesStr', 'equipo.placa', 'equipo.servicio.nombres', 'equipo.ubicacionEspecifica']">
               <ng-template #caption>
                 <div class="flex">
                   <p-iconfield iconPosition="left" class="ml-auto">
@@ -502,7 +545,7 @@
                   </td>
                   <td style="text-align: center; align-items: center; text-align: center">
                     <span class="ml-1 vertical-align-middle">
-                      {{ getNombreMes(registro.mes) }}
+                      {{ registro.mesesStr }}
                     </span>
                   </td>
                   <td style="text-align: center; align-items: center; text-align: center">
@@ -586,7 +629,7 @@
                   </td>
                   <td style="text-align: center; align-items: center; text-align: center">
                     <span class="ml-1 vertical-align-middle">
-                      {{ getNombreMes(registro.mes) }}
+                      {{ registro.mesesStr }}
                     </span>
                   </td>
                   <td style="text-align: center; align-items: center; text-align: center">
@@ -637,11 +680,12 @@
         </div>
         <div class="btn-group botonesMenu" role="group" aria-label="Basic example">
           <button type="button" class="btn"
-            [ngClass]="viewPlanServicioMantenimiento === true ? 'btn-dark' : 'btn-light'"
+            [ngClass]="viewPlanServicioMantenimiento === true ? 'btn-primary' : 'btn-light'"
             (click)="viewPanelServicioMantenimiento()">
             Mantenimiento
           </button>
-          <button type="button" class="btn" [ngClass]="viewPlanServicioMetrologia === true ? 'btn-dark' : 'btn-light'"
+          <button type="button" class="btn"
+            [ngClass]="viewPlanServicioMetrologia === true ? 'btn-primary' : 'btn-light'"
             (click)="viewPanelServicioMetrologia()">
             Metrologia
           </button>
@@ -654,7 +698,7 @@
             <p-table #dt2 [value]="equiposPlanMantenimientoServicio" dataKey="id" [rows]="10"
               [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
               [tableStyle]="{ 'min-width': '10rem' }"
-              [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'servicio.nombres', 'equipo.ubicacionEspecifica']">
+              [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'mesesStr', 'servicio.nombres', 'equipo.ubicacionEspecifica']">
               <ng-template #caption>
                 <div class="flex">
                   <p-iconfield iconPosition="left" class="ml-auto">
@@ -705,7 +749,7 @@
                   </td>
                   <td style="text-align: center; align-items: center; text-align: center">
                     <span class="ml-1 vertical-align-middle">
-                      {{ getNombreMes(registro.mes) }}
+                      {{ registro.mesesStr }}
                     </span>
                   </td>
                   <td style="text-align: center; align-items: center; text-align: center">
@@ -789,7 +833,7 @@
                   </td>
                   <td style="text-align: center; align-items: center; text-align: center">
                     <span class="ml-1 vertical-align-middle">
-                      {{ getNombreMes(registro.mes) }}
+                      {{ registro.mesesStr }}
                     </span>
                   </td>
                   <td style="text-align: center; align-items: center; text-align: center">

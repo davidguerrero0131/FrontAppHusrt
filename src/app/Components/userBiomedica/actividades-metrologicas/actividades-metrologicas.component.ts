@@ -1,5 +1,6 @@
 import { MetrologiaService } from './../../../Services/appServices/biomedicaServices/metrologia/metrologia.service';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
 import { TabsModule } from 'primeng/tabs';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
@@ -22,7 +23,7 @@ import { API_URL } from '../../../constantes';
   selector: 'app-actividades-metrologicas',
   standalone: true,
   imports: [CommonModule, TabsModule, DatePicker, FormsModule,
-    TableModule, IconFieldModule, InputIconModule, InputTextModule, CalendarModule, Dialog],
+    TableModule, IconFieldModule, InputIconModule, InputTextModule, CalendarModule, Dialog, ButtonModule],
   templateUrl: './actividades-metrologicas.component.html',
   styleUrl: './actividades-metrologicas.component.css'
 })
@@ -43,6 +44,8 @@ export class ActividadesMetrologicasComponent implements OnInit {
   modalViewActividadMetrologica: boolean = false;
 
   actividadesMetrologicas: any[] = [];
+
+
 
   panelActividadesMetrologicas: boolean = true;
   panelMetas: boolean = false;
@@ -197,7 +200,7 @@ export class ActividadesMetrologicasComponent implements OnInit {
     this.modalAddActividadMetrologica = true;
     this.actividadMetrologicaSelected = actividad;
     // Reset form
-    this.tipoActividad = '';
+    this.tipoActividad = actividad.tipoActividad;
     this.empresa = '';
     this.fechaRealizadoActividad = undefined;
     this.resultado = '';

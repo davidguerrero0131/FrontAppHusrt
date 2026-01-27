@@ -1,4 +1,6 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { MetrologiaService } from '../../../../Services/appServices/biomedicaServices/metrologia/metrologia.service';
+
 import { ButtonModule } from 'primeng/button';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { ServicioService } from '../../../../Services/appServices/general/servicio/servicio.service';
@@ -22,12 +24,14 @@ import { FormsModule } from '@angular/forms';
 import { TrasladosService } from '../../../../Services/appServices/biomedicaServices/traslados/traslados.service';
 import Swal from 'sweetalert2';
 import { TagModule } from 'primeng/tag';
+import { DropdownModule } from 'primeng/dropdown';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
   selector: 'app-equipos-servicio',
   standalone: true,
   imports: [TableModule, CommonModule, IconFieldModule,
-    InputIconModule, InputTextModule, SplitButtonModule, DialogModule, MultiSelectModule, SelectModule, InputNumberModule, FormsModule, ButtonModule, TagModule],
+    InputIconModule, InputTextModule, SplitButtonModule, DialogModule, MultiSelectModule, SelectModule, InputNumberModule, FormsModule, ButtonModule, TagModule, DropdownModule, DatePickerModule],
   providers: [DialogService],
   templateUrl: './equipos-servicio.component.html',
   styleUrl: './equipos-servicio.component.css'
@@ -112,6 +116,18 @@ export class EquiposServicioComponent implements OnInit {
           icon: 'pi pi-calendar',
           command: () => this.openPlanDialog(equipo),
           visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
+        },
+        {
+          label: 'Editar Plan Metrología',
+          icon: 'pi pi-cog',
+          command: () => this.openPlanMetrologiaDialog(equipo),
+          visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol) && equipo.tipoEquipos?.requiereMetrologia
+        },
+        {
+          label: 'Registrar Actividad Metrológica',
+          icon: 'pi pi-file-excel',
+          command: () => this.viewModalMetrologia(equipo),
+          visible: ['BIOMEDICAADMIN', 'SUPERADMIN', 'BIOMEDICAUSER'].includes(getDecodedAccessToken().rol)
         },
         {
           label: 'Registrar Traslado',
@@ -319,4 +335,197 @@ export class EquiposServicioComponent implements OnInit {
     }
   }
 
+  // --- VARIABLES PARA METROLOGIA ---
+  displayPlanMetrologiaDialog: boolean = false;
+  fechasCalibracion: any[] = [];
+  mesInicioMetrologia: number = 1;
+  selectedMonthsMetrologia: number[] = [];
+  calculatedMonthsMetrologiaText: string = '';
+  selectedTipoActividad: string = 'Calibración'; // Default
+
+  tipoActividadOptions: any[] = [
+    { label: 'Calibración', value: 'Calibración' },
+    { label: 'Calificación', value: 'Calificación' },
+    { label: 'Mantenimiento Correctivo', value: 'Mantenimiento Correctivo' },
+    { label: 'Inspección', value: 'Inspección' }
+  ];
+
+  openPlanMetrologiaDialog(equipo: any) {
+    this.currentEquipo = equipo;
+    this.displayPlanMetrologiaDialog = true;
+    this.fechasCalibracion = []; // Reset
+
+    // Check existing plans
+    if (equipo.planesActividadMetrologica && equipo.planesActividadMetrologica.length > 0) {
+      // Map existing plans to editable format
+      const currentYear = new Date().getFullYear();
+      this.fechasCalibracion = equipo.planesActividadMetrologica.map((p: any) => ({
+        fecha: new Date(currentYear, p.mes - 1, 1),
+        tipoActividad: p.tipoActividad || 'Calibración'
+      }));
+
+      this.selectedMonthsMetrologia = equipo.planesActividadMetrologica.map((p: any) => p.mes);
+    } else {
+      // Initialize based on frequency if available
+      this.mesInicioMetrologia = 1;
+      this.selectedMonthsMetrologia = [];
+      // Calculate initial Suggestions
+      this.calcularFechasMetrologia(true); // Auto-calc new
+    }
+  }
+
+  calcularFechasMetrologia(forceNew: boolean = false) {
+    if (!this.currentEquipo) return;
+
+    const period = this.currentEquipo.periodicidadAM || this.currentEquipo.periodicidadC || 0;
+
+    if (!period || period <= 0) {
+      if (forceNew) this.fechasCalibracion = [];
+      return;
+    }
+
+    // Only overwrite if forcing new or empty
+    if (forceNew || this.fechasCalibracion.length === 0) {
+      const interval = Math.floor(12 / period);
+      const nuevosMeses = [];
+      this.fechasCalibracion = [];
+
+      let mesActual = this.mesInicioMetrologia;
+      const currentYear = new Date().getFullYear();
+
+      while (mesActual <= 12) {
+        nuevosMeses.push(mesActual);
+        const fechaCalculada = new Date(currentYear, mesActual - 1, 1);
+        this.fechasCalibracion.push({
+          fecha: fechaCalculada,
+          tipoActividad: 'Calibración'
+        });
+        mesActual += interval;
+      }
+      this.selectedMonthsMetrologia = nuevosMeses;
+    }
+  }
+
+  async savePlanMetrologia() {
+    if (!this.currentEquipo) return;
+
+    try {
+      const planesActividadMetrologica = this.fechasCalibracion
+        .map(item => {
+          let mes = 0;
+          if (item.fecha) {
+            mes = item.fecha.getMonth() + 1;
+          }
+          return {
+            mes: mes,
+            tipoActividad: item.tipoActividad
+          };
+        })
+        .filter(p => p.mes > 0);
+
+      const equipoUpdate = {
+        ...this.currentEquipo,
+        planesActividadMetrologica: planesActividadMetrologica
+      };
+
+      await this.equipoServices.updateEquipo(this.currentEquipo.id, equipoUpdate);
+
+      const Swal = require('sweetalert2');
+      Swal.fire(
+        'Actualizado!',
+        'El plan metrológico ha sido actualizado.',
+        'success'
+      );
+
+      this.displayPlanMetrologiaDialog = false;
+      this.ngOnInit(); // Reload
+    } catch (error) {
+      console.error(error);
+      const Swal = require('sweetalert2');
+      Swal.fire(
+        'Error!',
+        'Hubo un problema al actualizar el plan metrológico.',
+        'error'
+      );
+    }
+  }
+
+
+  metrologiaService = inject(MetrologiaService);
+  modalAddActividadMetrologica: boolean = false;
+
+  // Form Properties
+  tipoActividad: string = '';
+  empresa: string = '';
+  fechaRealizadoActividad: Date | undefined;
+  resultado: string = '';
+  errorMaximoIdentificado: number | null = null;
+  observaciones: string = '';
+  selectedFile: File | null = null;
+
+  opcionesResultado: any[] = [
+    { label: 'Cumple', value: 'Cumple' },
+    { label: 'No Cumple', value: 'No Cumple' },
+    { label: 'No Aplica', value: 'No Aplica' }
+  ];
+
+  opcionesTipoActividad: any[] = [
+    { label: 'Calibración', value: 'Calibración' },
+    { label: 'Calificación', value: 'Calificación' },
+    { label: 'Validación', value: 'Validación' },
+    { label: 'Confirmación Metrológica', value: 'Confirmación Metrológica' }
+  ];
+
+  viewModalMetrologia(equipo: any) {
+    this.currentEquipo = equipo;
+    this.modalAddActividadMetrologica = true;
+
+    // Reset Form
+    this.tipoActividad = '';
+    this.empresa = '';
+    this.fechaRealizadoActividad = undefined;
+    this.resultado = '';
+    this.errorMaximoIdentificado = null;
+    this.observaciones = '';
+    this.selectedFile = null;
+  }
+
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+  }
+
+  async registrarMetrologia() {
+    if (!this.currentEquipo) return;
+
+    if (!this.tipoActividad || !this.empresa || !this.fechaRealizadoActividad || !this.resultado || this.errorMaximoIdentificado === null || !this.selectedFile) {
+      Swal.fire('Error', 'Todos los campos son obligatorios, incluyendo el archivo.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('equipoIdFk', this.currentEquipo.id.toString());
+    formData.append('tipoActividad', this.tipoActividad);
+    formData.append('empresa', this.empresa);
+    formData.append('fechaRealizado', this.fechaRealizadoActividad.toISOString());
+    formData.append('mesProgramado', (this.fechaRealizadoActividad.getMonth() + 1).toString());
+    formData.append('añoProgramado', this.fechaRealizadoActividad.getFullYear().toString());
+    formData.append('resultado', this.resultado);
+    formData.append('errorMaximoIdentificado', this.errorMaximoIdentificado.toString());
+    formData.append('observaciones', this.observaciones);
+    formData.append('usuarioIdFk', getDecodedAccessToken().id);
+    formData.append('rutaReporte', this.selectedFile);
+
+    try {
+      await this.metrologiaService.registrarActividadConArchivo(formData);
+      Swal.fire('Éxito', 'Actividad metrológica registrada correctamente.', 'success');
+      this.modalAddActividadMetrologica = false;
+    } catch (error: any) {
+      console.error(error);
+      Swal.fire('Error', 'No se pudo registrar la actividad.', 'error');
+    }
+  }
+
+  trackByIndex(index: number, item: any): number {
+    return index;
+  }
 }

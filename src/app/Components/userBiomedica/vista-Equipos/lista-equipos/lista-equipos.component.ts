@@ -284,4 +284,22 @@ export class ListaEquiposComponent implements OnInit {
             );
         }
     }
+
+    async descargarInventario() {
+        this.loading = true;
+        try {
+            const blob = await this.equipoServices.exportarInventario();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Inventario_Equipos.xlsx';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error descargando inventario:', error);
+            Swal.fire('Error', 'No se pudo descargar el inventario.', 'error');
+        } finally {
+            this.loading = false;
+        }
+    }
 }

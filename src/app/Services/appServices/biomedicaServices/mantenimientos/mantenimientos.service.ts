@@ -44,4 +44,10 @@ export class MantenimientosService {
       this.httpClient.post<any>(`${API_URL}/programacionpreventivosresponsable`, date, createHeaders())
     )
   }
+
+  getScheduledMonths() {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/programacion-preventiva-meses`, createHeaders())
+    )
+  }
 }

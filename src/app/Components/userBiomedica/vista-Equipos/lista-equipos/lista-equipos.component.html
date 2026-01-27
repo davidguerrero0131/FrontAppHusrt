@@ -13,8 +13,12 @@
 
             <ng-template pTemplate="caption">
                 <div class="flex flex-column sm:flex-row justify-content-between align-items-center gap-3">
-                    <button pButton label="Limpiar Filtros" class="p-button-outlined p-button-secondary p-button-sm"
-                        icon="pi pi-filter-slash" (click)="dt2.clear()"></button>
+                    <div class="flex gap-2">
+                        <button pButton label="Limpiar Filtros" class="p-button-outlined p-button-secondary p-button-sm"
+                            icon="pi pi-filter-slash" (click)="dt2.clear()"></button>
+                        <button pButton label="Descargar Inventario" class="p-button-success p-button-sm"
+                            icon="pi pi-file-excel" (click)="descargarInventario()"></button>
+                    </div>
 
                     <p-iconfield position="left" class="w-full sm:w-auto">
                         <p-inputicon styleClass="pi pi-search" />

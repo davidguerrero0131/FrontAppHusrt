@@ -62,6 +62,8 @@
           <div class="flex gap-2">
             <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="warn"
               (onClick)="openEditModal(equipo)" pTooltip="Editar"></p-button>
+            <p-button icon="pi pi-list" [rounded]="true" [text]="true" severity="info"
+              (onClick)="viewMediciones(equipo)" pTooltip="Mediciones Específicas"></p-button>
             <p-button *ngIf="equipo.activo" icon="pi pi-ban" [rounded]="true" [text]="true" severity="danger"
               (onClick)="estadoTipoEquipo(equipo.id, 'D')" pTooltip="Desactivar"></p-button>
             <p-button *ngIf="!equipo.activo" icon="pi pi-check-circle" [rounded]="true" [text]="true" severity="success"
@@ -183,4 +185,75 @@
     </div>
 
   </form>
+</p-dialog>
+
+<!-- Specific Measurements Modal -->
+<p-dialog [header]="'Mediciones Específicas: ' + tipoEquipoSelected?.nombres" [(visible)]="viewMedicionesModal"
+  [modal]="true" [style]="{ width: '40rem' }" [breakpoints]="{ '960px': '75vw', '640px': '90vw' }" styleClass="p-fluid">
+
+  <div class="surface-card p-4 shadow-1 border-round mb-4">
+    <h5 class="m-0 mb-3 text-700">Agregar Nueva Medición</h5>
+    <div class="flex flex-column sm:flex-row gap-3">
+      <div class="flex-grow-1">
+        <span class="p-float-label">
+          <input id="nombreMed" type="text" pInputText [(ngModel)]="newMedicionNombre" class="w-full" />
+          <label for="nombreMed">Nombre (Ej: Voltaje)</label>
+        </span>
+      </div>
+      <div class="flex-none w-full sm:w-8rem">
+        <span class="p-float-label">
+          <input id="unidadMed" type="text" pInputText [(ngModel)]="newMedicionUnidad" class="w-full" />
+          <label for="unidadMed">Unidad (Ej: V)</label>
+        </span>
+      </div>
+      <div class="flex-none w-full sm:w-8rem">
+        <span class="p-float-label">
+          <input id="estandarMed" type="text" pInputText [(ngModel)]="newMedicionValorEstandar" class="w-full" />
+          <label for="estandarMed">Estándar</label>
+        </span>
+      </div>
+      <div class="flex-grow-1">
+        <span class="p-float-label">
+          <input id="critAcep" type="text" pInputText [(ngModel)]="newMedicionCriterioAceptacion" class="w-full" />
+          <label for="critAcep">Criterio Aceptación</label>
+        </span>
+      </div>
+    </div>
+    <div class="flex justify-content-end mt-3">
+      <button pButton type="button" icon="pi pi-plus" label="Agregar" (click)="addMedicion()" pTooltip="Agregar"
+        class="w-full sm:w-auto"></button>
+    </div>
+  </div>
+
+  <div class="border-top-1 surface-border pt-4">
+    <p-table [value]="medicionesTipoEquipo" [rows]="5" [paginator]="true" styleClass="p-datatable-sm"
+      responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Medición</th>
+          <th style="width: 20%">Unidad</th>
+          <th style="width: 20%">Estándar</th>
+          <th style="width: 25%">Criterio Aceptación</th>
+          <th style="width: 15%" class="text-center">Acción</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-medicion>
+        <tr>
+          <td class="font-medium">{{ medicion.nombre }}</td>
+          <td><p-tag [value]="medicion.unidad" severity="info"></p-tag></td>
+          <td>{{ medicion.valorEstandar || 'N/A' }}</td>
+          <td>{{ medicion.criterioAceptacion || 'N/A' }}</td>
+          <td class="text-center">
+            <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text"
+              (click)="deleteMedicion(medicion.id)" pTooltip="Eliminar"></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="3" class="text-center p-4 text-500 font-italic">No hay mediciones registradas.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
 </p-dialog>

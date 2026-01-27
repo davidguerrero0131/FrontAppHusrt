@@ -89,14 +89,11 @@
           <p-select [options]="tiposFalla" formControlName="tipoFalla" placeholder="Seleccione"></p-select>
         </div>
 
-        <div class="form-item">
-          <label>Trabajo Realizado</label>
-          <input pInputText formControlName="trabajoRealizado" />
-        </div>
+
 
         <div class="form-item">
-          <label>Calificación</label>
-          <input pInputText type="number" formControlName="calificacion" />
+          <label>Calificación (1-5)</label>
+          <input pInputText type="number" formControlName="calificacion" min="1" max="5" />
         </div>
 
         <div class="form-item">
@@ -126,10 +123,92 @@
           <label>Motivo</label>
           <textarea pInputTextarea rows="3" formControlName="motivo"></textarea>
         </div>
-
+        <div class="form-item">
+          <label>Trabajo Realizado</label>
+          <textarea pInputTextarea rows="3" formControlName="trabajoRealizado"></textarea>
+        </div>
         <div class="form-item">
           <label>Observaciones</label>
           <textarea pInputTextarea rows="3" formControlName="observaciones"></textarea>
+        </div>
+      </div>
+
+      <!-- Specific Measurements Section -->
+      <div class="title-container"
+        *ngIf="reporteForm.get('tipoMantenimiento')?.value === 'Preventivo' && valoresMedicionesFormArray.controls.length > 0">
+        <h4><strong> MEDICIONES ESPECÍFICAS </strong></h4>
+        <H6>Ingrese los valores medidos para este equipo</H6>
+      </div>
+
+      <div
+        *ngIf="reporteForm.get('tipoMantenimiento')?.value === 'Preventivo' && valoresMedicionesFormArray.controls.length > 0">
+        <div formArrayName="valoresMediciones" class="w-full px-3">
+          <p-table [value]="valoresMedicionesFormArray.controls" responsiveLayout="scroll" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 20%">Medición</th>
+                <th style="width: 15%">Estándar</th>
+                <th style="width: 15%">Valor</th>
+                <th style="width: 15%">Unidad Reg.</th>
+                <th style="width: 25%">Criterio Aceptación</th>
+                <th style="width: 10%" class="text-center">Conforme</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-medicion let-i="rowIndex">
+              <tr [formGroupName]="i">
+                <td>
+                  <span class="font-bold block">{{ medicion.get('nombre')?.value }}</span>
+                  <span class="text-sm text-500">{{ medicion.get('unidad')?.value }}</span>
+                </td>
+                <td>{{ medicion.get('valorEstandar')?.value || 'N/A' }}</td>
+                <td><input pInputText formControlName="valor" class="w-full" /></td>
+                <td><input pInputText formControlName="unidadRegistrada" class="w-full" /></td>
+                <td>{{ medicion.get('criterioAceptacion')?.value }}</td>
+                <td class="text-center">
+                  <p-checkbox formControlName="conforme" [binary]="true"></p-checkbox>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+
+      <div class="title-container" *ngIf="repuestosFormArray">
+        <h4><strong> INSUMOS / REPUESTOS </strong></h4>
+        <H6>Registre los repuestos o insumos utilizados en el mantenimiento</H6>
+      </div>
+      <div>
+        <div formArrayName="repuestos" class="w-full px-3">
+          <p-table [value]="repuestosFormArray.controls" responsiveLayout="scroll" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 30%">Nombre Insumo</th>
+                <th style="width: 20%">Cantidad</th>
+                <th style="width: 30%">Comprobante Egreso</th>
+                <th style="width: 10%">Acción</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-repuesto let-i="rowIndex">
+              <tr [formGroupName]="i">
+                <td><input pInputText formControlName="nombreInsumo" class="w-full" placeholder="Nombre" /></td>
+                <td><input pInputText formControlName="cantidad" class="w-full" placeholder="Cant." /></td>
+                <td><input pInputText formControlName="comprobanteEgreso" class="w-full"
+                    placeholder="Ref. / Comprobante" /></td>
+                <td class="text-center">
+                  <button pButton type="button" icon="pi pi-trash"
+                    class="p-button-danger p-button-rounded p-button-text" (click)="eliminarRepuesto(i)"></button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="footer">
+              <tr>
+                <td colspan="4" class="text-right">
+                  <button pButton label="Agregar Insumo" icon="pi pi-plus" class="p-button-sm p-button-outlined"
+                    (click)="agregarRepuesto()" type="button"></button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
         </div>
       </div>
 
@@ -138,15 +217,32 @@
         <H6>Seleccione los pasos realizados en el mantenimiento</H6>
       </div>
       <div *ngIf="reporteForm.get('tipoMantenimiento')?.value === 'Preventivo'">
-        <div formArrayName="cumplimientoProtocolo">
-          <div *ngFor="let grupo of cumplimientoProtocoloFormArray.controls; let i = index" [formGroupName]="i"
-            class="protocolo-div flex items-center">
-            <p-checkbox binary="true" formControlName="cumple" [inputId]="'chk-' + grupo.get('protocoloIdFk')?.value">
-            </p-checkbox>
-            <label [for]="'chk-' + grupo.get('protocoloIdFk')?.value" class="ml-2">
-              {{ grupo.get('paso')?.value }}
-            </label>
-          </div>
+        <div formArrayName="cumplimientoProtocolo" class="w-full px-3">
+          <p-table [value]="cumplimientoProtocoloFormArray.controls" responsiveLayout="scroll"
+            styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 20%" class="text-center">Cumple</th>
+                <th style="width: 50%">Paso</th>
+                <th style="width: 40%">Observaciones</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-grupo let-i="rowIndex">
+              <tr [formGroupName]="i">
+                <td class="text-center">
+                  <p-dropdown [options]="opcionesCumplimiento" formControlName="cumple" optionLabel="label"
+                    optionValue="value" appendTo="body" [style]="{'width':'150px'}"></p-dropdown>
+                </td>
+                <td>
+                  <label [for]="'chk-' + i" class="cursor-pointer">{{ grupo.get('paso')?.value }}</label>
+                </td>
+                <td>
+                  <input pInputText formControlName="observaciones" class="w-full"
+                    placeholder="Ingrese observación..." />
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
         </div>
       </div>
 
@@ -156,8 +252,6 @@
       <div class="custom-grid">
         <button type="submit" class="btn btn-dark">Guardar</button>
         <button type="button" class="btn btn-secondary" (click)="goBack()">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="validarQR()">ValidarQR</button>
-        <button type="button" class="btn btn-primary" (click)="testViewCumplimiento()">Validar Cumplimiento</button>
         <div></div>
         <div></div>
       </div>
