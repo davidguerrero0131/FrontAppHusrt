@@ -37,6 +37,7 @@ export class ParametrizacionBiomedicaComponent {
     }
 
     showViewUsuarios() { this.router.navigate(['/admusuarios']); }
+    showViewCargos() { this.router.navigate(['/admin/cargos']); }
     showViewServicios() { this.router.navigate(['/admin/servicios']); }
     showViewTiposEquipo() { this.router.navigate(['/admin/tiposequipo']); }
     showViewFabricantes() { this.router.navigate(['/admin/fabricantes']); }

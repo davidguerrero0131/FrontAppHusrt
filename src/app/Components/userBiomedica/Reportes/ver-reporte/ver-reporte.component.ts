@@ -1,5 +1,7 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import Swal from 'sweetalert2'
 import { ActivatedRoute } from '@angular/router';
+import { PdfGeneratorService } from '../../../../Services/appServices/biomedicaServices/pdf-generator/pdf-generator.service';
 import { ReportesService } from '../../../../Services/appServices/biomedicaServices/reportes/reportes.service';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { ProtocolosService } from '../../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
@@ -31,6 +33,7 @@ import { TooltipModule } from 'primeng/tooltip';
 })
 export class VerReporteComponent implements OnInit {
   @ViewChild('dt2') dt2!: Table;
+  pdfGeneratorService = inject(PdfGeneratorService);
   idEquipo: string | null = null;
   reportes!: any[];
   rutina!: any[];
@@ -46,6 +49,7 @@ export class VerReporteComponent implements OnInit {
   loading: boolean = false;
   modalReport: boolean = false;
   reportSelected: any = null;
+  selectedFile: File | null = null;
 
   constructor(private route: ActivatedRoute) { }
 
@@ -118,4 +122,27 @@ export class VerReporteComponent implements OnInit {
     }
   }
 
+  descargarFormato() {
+    if (this.reportSelected) {
+      this.reportSelected.cumplimientoProtocolo = this.rutina;
+      this.pdfGeneratorService.generateReportePreventivo(this.reportSelected);
+    }
+  }
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+  }
+
+  async subirPdf() {
+    if (!this.selectedFile || !this.reportSelected) return;
+
+    try {
+      const res = await this.reporteServices.uploadReportePdf(this.reportSelected.id, this.selectedFile);
+      Swal.fire('Éxito', 'Reporte PDF subido correctamente', 'success');
+      this.reportSelected.rutaPdf = res.rutaPdf;
+      this.selectedFile = null;
+    } catch (error) {
+      console.error('Error al subir PDF:', error);
+      Swal.fire('Error', 'No se pudo subir el archivo PDF', 'error');
+    }
+  }
 }

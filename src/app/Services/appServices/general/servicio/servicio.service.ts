@@ -27,6 +27,12 @@ export class ServicioService {
     )
   }
 
+  getAllServiciosActivos() {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/serviciosactivos`, this.createHeaders())
+    )
+  }
+
   getServiciosBySede(idSede: any) {
     return firstValueFrom(
       this.httpClient.get<any[]>(`${this.baseUrl}/servicios/sede/${idSede}`, this.createHeaders())

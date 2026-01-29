@@ -62,6 +62,7 @@ export class MantenimientoTecnicoComponent implements OnInit {
     reportSelected!: any;
     rutina!: any[];
     modalReport: boolean = false;
+    selectedFile: File | null = null;
 
     // Dates for each panel
     datePreventivo: Date | undefined;
@@ -216,5 +217,23 @@ export class MantenimientoTecnicoComponent implements OnInit {
         sessionStorage.setItem('TipoMantenimiento', 'P'); // Assuming Preventive for assigned tasks? Or could be Corrective
         sessionStorage.setItem('idReporte', idReporte.toString());
         this.router.navigate(['biomedica/nuevoreporte/', idEquipo]);
+    }
+
+    onFileSelected(event: any) {
+        this.selectedFile = event.target.files[0];
+    }
+
+    async subirPdf() {
+        if (!this.selectedFile || !this.reportSelected) return;
+
+        try {
+            const res = await this.reportesService.uploadReportePdf(this.reportSelected.id, this.selectedFile);
+            Swal.fire('Éxito', 'Reporte PDF subido correctamente', 'success');
+            this.reportSelected.rutaPdf = res.rutaPdf;
+            this.selectedFile = null;
+        } catch (error) {
+            console.error('Error al subir PDF:', error);
+            Swal.fire('Error', 'No se pudo subir el archivo PDF', 'error');
+        }
     }
 }

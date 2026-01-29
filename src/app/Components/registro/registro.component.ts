@@ -1,4 +1,5 @@
 import { UserService } from './../../Services/appServices/userServices/user.service';
+import { CargosService } from './../../Services/appServices/general/cargos/cargos.service';
 import { SuperadminnavbarComponent } from '../navbars/superadminnavbar/superadminnavbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
@@ -32,6 +33,8 @@ export class RegistroComponent implements OnInit {
     { label: 'Cédula de Extranjería', value: 'CE' }
   ];
   private userService = inject(UserService);
+  private cargosService = inject(CargosService);
+  cargos: any[] = [];
 
   constructor(
     private router: Router,
@@ -49,7 +52,8 @@ export class RegistroComponent implements OnInit {
       password: new FormControl('', [Validators.required]),
       password2: new FormControl('', [Validators.required]),
       registroInvima: new FormControl('', [Validators.required]),
-      rolId: new FormControl('', [Validators.required])
+      rolId: new FormControl('', [Validators.required]),
+      cargoId: new FormControl('')
     })
 
   }
@@ -57,6 +61,7 @@ export class RegistroComponent implements OnInit {
   async ngOnInit() {
     try {
       this.roles = await this.userService.getAllRoles();
+      this.cargosService.getCargos().subscribe(res => this.cargos = res);
 
     } catch {
       Swal.fire({
@@ -84,7 +89,8 @@ export class RegistroComponent implements OnInit {
           contrasena: this.formGroup.value.password,
           registroInvima: this.formGroup.value.registroInvima,
           estado: true,
-          rolId: this.formGroup.value.rolId
+          rolId: this.formGroup.value.rolId,
+          cargoId: this.formGroup.value.cargoId
         };
         try {
           const ress = await this.userService.registro(obj);

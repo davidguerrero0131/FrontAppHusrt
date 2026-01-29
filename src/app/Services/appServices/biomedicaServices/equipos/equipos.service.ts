@@ -107,4 +107,10 @@ export class EquiposService {
     );
   }
 
+  getEquiposPatron() {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/patron`, createHeaders())
+    )
+  }
+
 }

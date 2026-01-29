@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { UserService } from '../../Services/appServices/userServices/user.service';
 import { FormsModule } from '@angular/forms';
 import { jwtDecode } from 'jwt-decode';
@@ -13,17 +13,25 @@ import { DropdownModule } from 'primeng/dropdown';
 import { DividerModule } from 'primeng/divider';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { DialogModule } from 'primeng/dialog';
+import { SignaturePad, SignaturePadModule } from 'angular2-signaturepad';
+import { FirmaService } from '../../Services/appServices/biomedicaServices/firma/firma.service';
 
 @Component({
   selector: 'app-editar-usuario',
   standalone: true,
-  imports: [FormsModule, CommonModule, CardModule, InputTextModule, PasswordModule, ButtonModule, DropdownModule, DividerModule, IconFieldModule, InputIconModule],
+  imports: [
+    FormsModule, CommonModule, CardModule, InputTextModule, PasswordModule,
+    ButtonModule, DropdownModule, DividerModule, IconFieldModule, InputIconModule,
+    DialogModule, SignaturePadModule
+  ],
   templateUrl: './editar-usuario.component.html',
   styleUrl: './editar-usuario.component.css'
 })
 export class EditarUsuarioComponent implements OnInit {
 
   usuarioServices = inject(UserService);
+  firmaService = inject(FirmaService);
   usuario!: any;
 
   nuevaContrasena: string = '';
@@ -34,14 +42,41 @@ export class EditarUsuarioComponent implements OnInit {
     { label: 'Inactivo', value: false }
   ];
 
+  // Firma Variables
+  mostrarFirmaModal: boolean = false;
+  firmaUrl: any = null;
+  @ViewChild(SignaturePad) signaturePad!: SignaturePad;
+  signaturePadOptions: Object = {
+    'minWidth': 1,
+    'canvasWidth': 500,
+    'canvasHeight': 300,
+  };
+
+  // Password Variables
+  mostrarPasswordModal: boolean = false;
+
   constructor(private location: Location) { }
 
   async ngOnInit() {
     try {
       this.usuario = await this.usuarioServices.getUserProfil(this.getDecodedAccessToken(sessionStorage.getItem('utoken') + "").id);
-
+      this.cargarFirma();
     } catch {
 
+    }
+  }
+
+  async cargarFirma() {
+    if (this.usuario && this.usuario.id) {
+      try {
+        const blob = await this.firmaService.getFirmaImage(this.usuario.id);
+        if (blob) {
+          this.firmaUrl = URL.createObjectURL(blob);
+        }
+      } catch (error) {
+        // No firm signature found or error loading, silent fail or log
+        // console.log('No firma found');
+      }
     }
   }
 
@@ -50,22 +85,38 @@ export class EditarUsuarioComponent implements OnInit {
     return regex.test(contrasena);
   }
 
-  async guardarCambios() {
-    // Validar contraseña si se ingresó algo
-    if (this.nuevaContrasena || this.confirmarContrasena) {
-      if (this.nuevaContrasena !== this.confirmarContrasena) {
-        Swal.fire('Error', 'Las contraseñas no coinciden', 'error');
-        return;
-      }
+  abrirModalPassword() {
+    this.nuevaContrasena = '';
+    this.confirmarContrasena = '';
+    this.mostrarPasswordModal = true;
+  }
 
-      if (!this.validarContrasena(this.nuevaContrasena)) {
-        Swal.fire('Error', 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.', 'error');
-        return;
-      }
+  cerrarModalPassword() {
+    this.mostrarPasswordModal = false;
+  }
 
-      this.usuario.contraseña = this.nuevaContrasena;
+  aplicarPassword() {
+    if (!this.nuevaContrasena || !this.confirmarContrasena) {
+      Swal.fire('Error', 'Debe diligenciar ambos campos', 'error');
+      return;
     }
 
+    if (this.nuevaContrasena !== this.confirmarContrasena) {
+      Swal.fire('Error', 'Las contraseñas no coinciden', 'error');
+      return;
+    }
+
+    if (!this.validarContrasena(this.nuevaContrasena)) {
+      Swal.fire('Error', 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.', 'error');
+      return;
+    }
+
+    this.usuario.contraseña = this.nuevaContrasena;
+    this.cerrarModalPassword();
+    Swal.fire('Éxito', 'Contraseña configurada. Guarde los cambios para aplicar.', 'success');
+  }
+
+  async guardarCambios() {
     Swal.fire({
       title: "Desea guardar los cambio?",
       showDenyButton: true,
@@ -92,10 +143,12 @@ export class EditarUsuarioComponent implements OnInit {
 
   cancelarEdicion() {
     Swal.fire({
-      icon: 'warning',
-      title: 'Usuario o contraseña incorecto',
-      text: 'Verifique los campos.'
-    })
+      icon: 'info',
+      title: 'Operación cancelada',
+      text: 'No se realizaron cambios en el perfil.',
+      timer: 1500,
+      showConfirmButton: false
+    });
     this.location.back();
   }
 
@@ -104,6 +157,50 @@ export class EditarUsuarioComponent implements OnInit {
       return jwtDecode(token);
     } catch (Error) {
       return null;
+    }
+  }
+
+  // Métodos Firma
+  abrirModalFirma() {
+    this.mostrarFirmaModal = true;
+  }
+
+  cerrarModalFirma() {
+    this.mostrarFirmaModal = false;
+  }
+
+  limpiarFirma() {
+    this.signaturePad.clear();
+  }
+
+  // Hook para resizing si fuera necesario
+  ngAfterViewInit() {
+    // this.signaturePad.set('minWidth', 5);
+    // this.signaturePad.clear();
+  }
+
+  async guardarFirma() {
+    if (this.signaturePad.isEmpty()) {
+      Swal.fire('Atención', 'Por favor realice su firma.', 'warning');
+      return;
+    }
+
+    const firmaBase64 = this.signaturePad.toDataURL(); // PNG por defecto
+
+    try {
+      await this.firmaService.guardarFirma(firmaBase64, this.usuario.id);
+      Swal.fire({
+        icon: 'success',
+        title: 'Firma Registrada',
+        text: 'Su firma ha sido guardada exitosamente.',
+        showConfirmButton: false,
+        timer: 1500
+      });
+      this.cerrarModalFirma();
+      this.cargarFirma();
+    } catch (error) {
+      console.error('Error guardando firma:', error);
+      Swal.fire('Error', 'No se pudo guardar la firma.', 'error');
     }
   }
 }

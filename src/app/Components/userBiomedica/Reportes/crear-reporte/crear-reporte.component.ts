@@ -20,6 +20,7 @@ import { EquiposService } from '../../../../Services/appServices/biomedicaServic
 import { UserService } from '../../../../Services/appServices/userServices/user.service';
 import { ReportesService } from '../../../../Services/appServices/biomedicaServices/reportes/reportes.service';
 import { TipoEquipoService } from '../../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
+import { CondicionInicialService } from '../../../../Services/appServices/biomedicaServices/condicionesIniciales/condicion-inicial.service';
 
 @Component({
   selector: 'app-crear-reporte',
@@ -42,6 +43,7 @@ export class CrearReporteComponent implements OnInit {
   userServices = inject(UserService);
   reprteServices = inject(ReportesService);
   tipoEquipoService = inject(TipoEquipoService);
+  condicionInicialService = inject(CondicionInicialService);
   router = inject(Router);
   tipoMantenimiento = '';
 
@@ -58,6 +60,10 @@ export class CrearReporteComponent implements OnInit {
     'Desconocido', 'Sin Falla', 'Otros'
   ].map(v => ({ label: v, value: v }));
 
+  estadosOperativos = [
+    'Operativo sin restricciones', 'Operativo con restricciones', 'Fuera de servicio'
+  ].map(v => ({ label: v, value: v }));
+
   id!: number;
 
   opcionesCumplimiento = [
@@ -65,6 +71,9 @@ export class CrearReporteComponent implements OnInit {
     { label: 'No Cumple', value: 'NO_CUMPLE' },
     { label: 'No Aplica', value: 'NO_APLICA' }
   ];
+
+  equiposPatron: any[] = [];
+  selectedPatron: any = null;
 
   constructor(private route: ActivatedRoute, private fb: FormBuilder, private location: Location) {
     this.validarTipoMantenimiento();
@@ -76,15 +85,18 @@ export class CrearReporteComponent implements OnInit {
       horaTotal: [{ value: null, disabled: true }],
       tipoMantenimiento: [this.tipoMantenimiento, Validators.required],
       tipoFalla: [null, Validators.required],
+      estadoOperativo: [null, Validators.required],
       motivo: ['', Validators.required],
       trabajoRealizado: ['', Validators.required],
       calificacion: [null, [Validators.required, Validators.min(1), Validators.max(5)]],
       nombreRecibio: ['', Validators.required],
       cedulaRecibio: ['', Validators.required],
       observaciones: ['', Validators.required],
+      equipoPatronIdFk: [null], // Renamed field
       cumplimientoProtocolo: this.fb.array([]),
-      valoresMediciones: this.fb.array([]), // New FormArray for measurements
-      repuestos: this.fb.array([]) // New FormArray for accessories
+      valoresMediciones: this.fb.array([]),
+      repuestos: this.fb.array([]),
+      condicionesIniciales: this.fb.array([])
     });
 
     this.reporteForm.valueChanges.subscribe(() => {
@@ -100,7 +112,6 @@ export class CrearReporteComponent implements OnInit {
 
     this.reporteForm.get('tipoMantenimiento')?.disable();
 
-    // Enable tipoMantenimiento for Admins (Moved to constructor)
     const token = getDecodedAccessToken();
     console.log('Token Role:', token?.rol);
     if (token && (token.rol === 'SUPERADMIN' || token.rol === 'BIOMEDICAADMIN')) {
@@ -127,7 +138,7 @@ export class CrearReporteComponent implements OnInit {
       const diferenciaMs = fin.getTime() - inicio.getTime();
 
       if (diferenciaMs < 0) {
-        this.reporteForm.get('horaTotal')?.setValue('00:00:00');
+        this.reporteForm.get('horaTotal')?.setValue('00:00:00', { emitEvent: false });
         return;
       }
 
@@ -137,13 +148,18 @@ export class CrearReporteComponent implements OnInit {
 
       const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-      this.reporteForm.get('horaTotal')?.setValue(formattedTime);
+      this.reporteForm.get('horaTotal')?.setValue(formattedTime, { emitEvent: false });
     }
   }
 
   async ngOnInit() {
     this.id = Number(this.route.snapshot.paramMap.get('id'));
-    this.reporte = await this.reprteServices.getPreventivoProgramado(Number(sessionStorage.getItem('idReporte'))) || {};
+    const idReporte = Number(sessionStorage.getItem('idReporte'));
+    if (idReporte && idReporte > 0) {
+      this.reporte = await this.reprteServices.getPreventivoProgramado(idReporte) || {};
+    } else {
+      this.reporte = {};
+    }
     // Ensure we have compliance data
     if (this.reporte.id) {
       this.reporte.cumplimientoProtocolo = await this.protocoloservices.getCumplimientoProtocoloReporte(this.reporte.id);
@@ -162,7 +178,7 @@ export class CrearReporteComponent implements OnInit {
       }
     }
     this.equipo = await this.equiposervices.getEquipoById(this.id);
-    this.protocolos = await this.protocoloservices.getProtocoloTipoEquipo(this.equipo.tipoEquipoIdFk);
+    this.protocolos = await this.protocoloservices.getProtocoloActivoTipoEquipo(this.equipo.tipoEquipoIdFk);
 
     this.nombreUsuario = await this.userServices.getNameUSer(getDecodedAccessToken().id);
     this.selectProtocolos = [this.protocolos[1]];
@@ -170,7 +186,8 @@ export class CrearReporteComponent implements OnInit {
     // Fetch specific measurements
     if (this.equipo && this.equipo.tipoEquipoIdFk) {
       try {
-        this.medicionesPreventivo = await this.tipoEquipoService.getMediciones(this.equipo.tipoEquipoIdFk);
+        const allMediciones = await this.tipoEquipoService.getMediciones(this.equipo.tipoEquipoIdFk);
+        this.medicionesPreventivo = allMediciones.filter((m: any) => m.estado !== false);
         this.iniValoresMediciones();
       } catch (error) {
         console.error('Error fetching measurements:', error);
@@ -179,6 +196,20 @@ export class CrearReporteComponent implements OnInit {
 
     await this.iniCumplimientoProtocolo();
     this.iniRepuestos();
+
+    // Fetch patron equipments (Type 1316)
+    try {
+      this.equiposPatron = await this.equiposervices.getEquiposPatron();
+    } catch (error) {
+      console.error('Error fetching patron equipments:', error);
+    }
+
+    // Initialize global initial conditions
+    try {
+      await this.iniCondicionesIniciales();
+    } catch (error) {
+      console.error('Error initializing initial conditions:', error);
+    }
 
     if (this.reporte.id && this.reporte.realizado) {
       this.reporteForm.patchValue({
@@ -194,14 +225,27 @@ export class CrearReporteComponent implements OnInit {
         calificacion: this.reporte.calificacion,
         nombreRecibio: this.reporte.nombreRecibio,
         cedulaRecibio: this.reporte.cedulaRecibio,
-        observaciones: this.reporte.observaciones
+        observaciones: this.reporte.observaciones,
+        equipoPatronIdFk: this.reporte.equipoPatronIdFk // Patch patron equipment
       });
 
-      // Special handling if specific fields need it (e.g. Dates might need conversion depending on PrimeNG config)
       // PrimeNG Calendar expects Date object.
       // If fetched dates are strings YYYY-MM-DD, new Date() works.
+
+      if (this.reporte.equipoPatronIdFk) {
+        this.selectedPatron = this.equiposPatron.find(e => e.id === this.reporte.equipoPatronIdFk);
+      }
     }
 
+  }
+
+  onSelectPatron() {
+    const id = this.reporteForm.get('equipoPatronIdFk')?.value;
+    if (id) {
+      this.selectedPatron = this.equiposPatron.find(e => e.id === id);
+    } else {
+      this.selectedPatron = null;
+    }
   }
 
   iniValoresMediciones() {
@@ -268,7 +312,9 @@ export class CrearReporteComponent implements OnInit {
         equipoIdFk: this.equipo.id,
         usuarioIdFk: getDecodedAccessToken().id,
         mediciones: medicionesPayload, // Add measurements to payload
-        repuestos: this.reporteForm.value.repuestos // Add accessories to payload
+        repuestos: this.reporteForm.value.repuestos, // Add accessories to payload
+        equipoPatronIdFk: this.reporteForm.value.equipoPatronIdFk, // Add patron equipment
+        condicionesIniciales: this.reporteForm.value.condicionesIniciales // Add initial conditions
       }
       if (this.tipoMantenimiento === 'Preventivo') {
         await this.reprteServices.ActualizarPreventivoProgramado(this.reporte.id, this.reporte).then(() => {
@@ -323,15 +369,6 @@ export class CrearReporteComponent implements OnInit {
     array.clear();
     this.protocolos.forEach(p => {
       // Find existing compliance in report if editing
-      // Note: check property name in report object. Assuming 'cumplimientoProtocolo' matches the relationship alias or list.
-      // If the backend returns it as 'CumpliminetoProtocoloPreventivos' or similar, we might need to adjust.
-      // Based on ver-reporte, it seems it might be fetched separately?
-      // Wait, 'ver-reporte' uses 'rutina' which is 'metrologiaReportes'? No.
-      // Let's assume 'cumplimientoProtocolo' exists on 'this.reporte' or we need to fetch it?
-      // In ngOnInit, 'this.reporte' is fetched.
-      // If 'this.reporte' includes the association, we can use it.
-      // Let's safe navigation check.
-
       const existingComp = this.reporte.cumplimientoProtocolo?.find((c: any) => c.protocoloPreventivoIdFk === p.id || c.protocolo?.id === p.id);
 
       array.push(this.fb.group({
@@ -340,6 +377,35 @@ export class CrearReporteComponent implements OnInit {
         reporteIdFk: [this.reporte.id],
         paso: [p.paso],
         observaciones: [existingComp ? existingComp.observaciones : '']
+      }));
+    });
+  }
+
+  // Initial Conditions (Global)
+  activeCondicionesIniciales: any[] = [];
+
+  get condicionesInicialesFormArray(): FormArray {
+    return this.reporteForm.get('condicionesIniciales') as FormArray;
+  }
+
+  async iniCondicionesIniciales() {
+    const array = this.condicionesInicialesFormArray;
+    array.clear();
+
+    // Fetch active conditions
+    this.activeCondicionesIniciales = await this.condicionInicialService.getActive().toPromise();
+
+    // Determine existing values if any
+    const existing = this.reporte && this.reporte.cumplimientoCondicionesIniciales ? this.reporte.cumplimientoCondicionesIniciales : [];
+
+    this.activeCondicionesIniciales.forEach(cond => {
+      const match = existing.find((e: any) => e.condicionInicialIdFk === cond.id || e.condicion?.id === cond.id || (e.condicionInicial && e.condicionInicial.id === cond.id));
+
+      array.push(this.fb.group({
+        id: [cond.id], // Definition ID
+        descripcion: [cond.descripcion], // For display
+        cumple: [match ? match.cumple : 'CUMPLE', Validators.required],
+        observacion: [match ? match.observacion : '']
       }));
     });
   }
@@ -361,7 +427,6 @@ export class CrearReporteComponent implements OnInit {
   }
 
   testViewCumplimiento() {
-
     this.guardarCumplimiento();
   }
 
@@ -423,9 +488,7 @@ export class CrearReporteComponent implements OnInit {
   }
 
   validarPreventivo(): boolean {
-
     return this.reporteForm.value.tipoMantenimiento === 'Preventivo' ? true : false;
-
   }
 
   validarQR() {

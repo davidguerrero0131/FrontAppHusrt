@@ -154,13 +154,13 @@ export class EquiposTipoComponent implements OnInit {
           label: 'Nuevo reporte',
           icon: 'pi pi-upload',
           command: () => this.nuevoReporte(equipo.id),
-          visible: getDecodedAccessToken().rol !== 'INVITADO'
-        },
-        {
-          label: 'Historial',
-          icon: 'pi pi-history',
-          command: () => this.verHistorial(equipo.id)
+          visible: ['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
         }
+        // {
+        //   label: 'Historial',
+        //   icon: 'pi pi-history',
+        //   command: () => this.verHistorial(equipo.id)
+        // }
       ]
     }));
 

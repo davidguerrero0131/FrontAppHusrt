@@ -50,6 +50,7 @@ import { PendientesTecnicoComponent } from './Components/userBiomedica/pendiente
 import { AdmFabricantesComponent } from './Components/administracion/admfabricantes/admfabricantes.component';
 import { AdmtiposdocumentoComponent } from './Components/administracion/admtiposdocumento/admtiposdocumento.component';
 import { AdmProveedoresComponent } from './Components/administracion/admproveedores/admproveedores.component';
+import { AdmCargosComponent } from './Components/administracion/admcargos/adm-cargos.component';
 
 
 import { AdmResponsablesComponent } from './Components/administracion/admresponsables/admresponsables.component';
@@ -124,6 +125,7 @@ export const routes: Routes = [
   { path: 'admin/fabricantes', component: AdmFabricantesComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN'] } },
   { path: 'admin/proveedores', component: AdmProveedoresComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN'] } },
   { path: 'admin/responsables', component: AdmResponsablesComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN'] } },
+  { path: 'admin/cargos', component: AdmCargosComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN'] } },
 
   // Equipos List - Unified
   { path: 'biomedica/adminequipos', component: ListaEquiposComponent, canActivate: [authGuard], data: { roles: ['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN', 'BIOMEDICATECNICO'] } },

@@ -27,11 +27,16 @@
               }
             ],
             "styles": [
-                "node_modules/primeicons/primeicons.css",
-                "node_modules/primeflex/primeflex.css",
-                "src/styles.css"
+              "node_modules/primeicons/primeicons.css",
+              "node_modules/primeflex/primeflex.css",
+              "src/styles.css"
             ],
             "scripts": [],
+            "allowedCommonJsDependencies": [
+              "angular2-signaturepad",
+              "jspdf",
+              "jspdf-autotable"
+            ],
             "server": "src/main.server.ts",
             "outputMode": "server",
             "ssr": {
@@ -92,9 +97,9 @@
               }
             ],
             "styles": [
-               "node_modules/primeicons/primeicons.css",
-               "node_modules/primeflex/primeflex.css",
-               "src/styles.css"
+              "node_modules/primeicons/primeicons.css",
+              "node_modules/primeflex/primeflex.css",
+              "src/styles.css"
             ],
             "scripts": []
           }

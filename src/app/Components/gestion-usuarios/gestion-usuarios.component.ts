@@ -1,4 +1,5 @@
 import { UserService } from './../../Services/appServices/userServices/user.service';
+import { CargosService } from './../../Services/appServices/general/cargos/cargos.service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
@@ -33,6 +34,7 @@ export class GestionUsuariosComponent implements OnInit {
 
   usuarios!: any[];
   roles!: any[];
+  cargos: any[] = [];
   loading: boolean = true;
 
   tipoIdOptions = [
@@ -50,7 +52,8 @@ export class GestionUsuariosComponent implements OnInit {
     private router: Router,
     private formBuilder: FormBuilder,
     private messageService: MessageService,
-    private userService: UserService
+    private userService: UserService,
+    private cargosService: CargosService
   ) { }
 
 
@@ -67,7 +70,8 @@ export class GestionUsuariosComponent implements OnInit {
       tipoId: ['', Validators.required],
       numeroId: ['', Validators.required],
       registroInvima: [''],
-      rolId: ['', Validators.required]
+      rolId: ['', Validators.required],
+      cargoId: ['', Validators.required]
     });
 
     this.passwordFormGroup = this.formBuilder.group({
@@ -78,6 +82,9 @@ export class GestionUsuariosComponent implements OnInit {
     try {
       this.usuarios = await this.userService.getAllUsers();
       this.roles = await this.userService.getAllRoles();
+      this.cargosService.getCargos().subscribe(data => {
+        this.cargos = data;
+      });
       this.loading = false;
 
     } catch {
@@ -104,7 +111,8 @@ export class GestionUsuariosComponent implements OnInit {
       tipoId: user.tipoId,
       numeroId: user.numeroId,
       registroInvima: user.registroInvima,
-      rolId: user.rolId
+      rolId: user.rolId,
+      cargoId: user.cargoId
     });
     this.visibleEditModal = true;
   }

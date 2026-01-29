@@ -1,7 +1,8 @@
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ProtocolosService } from './../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
+import { CondicionInicialService } from './../../../Services/appServices/biomedicaServices/condicionesIniciales/condicion-inicial.service';
 import { TipoEquipoService } from './../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { InputIconModule } from 'primeng/inputicon';
@@ -34,6 +35,9 @@ export class AdmtiposequipoComponent implements OnInit {
   @ViewChild('dt2') dt2!: Table;
   tipoequipoService = inject(TipoEquipoService);
   protocolosServices = inject(ProtocolosService);
+  condicionInicialService = inject(CondicionInicialService);
+  cd = inject(ChangeDetectorRef);
+
   tiposEquipos!: any[];
   loading: boolean = false;
   viewModalTipoEquipo: boolean = false;
@@ -64,10 +68,11 @@ export class AdmtiposequipoComponent implements OnInit {
     const all = await this.tipoequipoService.getAllTiposEquipos();
 
     if (this.isAdminBiomedica) {
-      // Filter only Type 1 (Biomedica)
+      // Filter only Type 1 (Biomedica) for admin but show all if SuperAdmin? Logic was:
+      // if (decoded?.rol === 'BIOMEDICAADMIN' || decoded?.rol === 'SUPERADMIN') this.isAdminBiomedica = true;
+      // If logic requires showing only biomedica for BIOMEDICAADMIN, we might need finer grain control.
+      // But assuming both want to see biomedica or all. Original logic was:
       this.tiposEquipos = all.filter(t => t.tipoR === 1);
-      // Pre-set the form control for tipoR and disable logic in HTML if needed, 
-      // though formGroup patchValue handled in modal open
     } else {
       this.tiposEquipos = all;
     }
@@ -77,7 +82,7 @@ export class AdmtiposequipoComponent implements OnInit {
     const token = sessionStorage.getItem('utoken');
     if (token) {
       const decoded = getDecodedAccessToken();
-      if (decoded?.rol === 'BIOMEDICAADMIN') {
+      if (decoded?.rol === 'BIOMEDICAADMIN' || decoded?.rol === 'SUPERADMIN') {
         this.isAdminBiomedica = true;
       }
     }
@@ -245,7 +250,6 @@ export class AdmtiposequipoComponent implements OnInit {
       Swal.fire("Error", "No se pudo agregar el protocolo", "error");
     }
   }
-  // ... (existing methods)
 
   // Mediciones Específicas Logic
   viewMedicionesModal: boolean = false;
@@ -256,9 +260,14 @@ export class AdmtiposequipoComponent implements OnInit {
   newMedicionCriterioAceptacion: string = '';
 
   async viewMediciones(tipoEquipo: any) {
-    this.tipoEquipoSelected = tipoEquipo;
-    this.medicionesTipoEquipo = await this.tipoequipoService.getMediciones(this.tipoEquipoSelected.id);
-    this.viewMedicionesModal = true;
+    try {
+      this.tipoEquipoSelected = tipoEquipo;
+      this.medicionesTipoEquipo = await this.tipoequipoService.getMediciones(this.tipoEquipoSelected.id);
+      this.viewMedicionesModal = true;
+    } catch (error) {
+      console.error('Error opening mediciones modal:', error);
+      Swal.fire("Error", "No se pudieron cargar las mediciones", "error");
+    }
   }
 
   async addMedicion() {
@@ -297,6 +306,28 @@ export class AdmtiposequipoComponent implements OnInit {
     }
   }
 
+  async toggleMedicionEstado(medicion: any) {
+    const newStatus = !medicion.estado;
+    const action = newStatus ? 'activar' : 'desactivar';
+
+    try {
+      await this.tipoequipoService.updateMedicion(medicion.id, { estado: newStatus });
+      this.medicionesTipoEquipo = await this.tipoequipoService.getMediciones(this.tipoEquipoSelected.id);
+
+      Swal.fire({
+        icon: 'success',
+        title: `Medición ${newStatus ? 'activada' : 'desactivada'}`,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", `No se pudo ${action} la medición`, "error");
+    }
+  }
+
   async deleteMedicion(idMedicion: any) {
     this.viewMedicionesModal = false; // Hide modal temporarily
     Swal.fire({
@@ -318,6 +349,94 @@ export class AdmtiposequipoComponent implements OnInit {
         }
       }
     });
+
+  }
+
+  // --- Condiciones Iniciales Logic (Global) ---
+  viewCondicionesInicialesModal: boolean = false;
+  condicionesIniciales: any[] = [];
+  newCondicionDescripcion: string = '';
+
+  async openCondicionesInicialesModal() {
+    try {
+      const allConditions = await this.condicionInicialService.getAll().toPromise();
+      if (Array.isArray(allConditions)) {
+        this.condicionesIniciales = allConditions;
+      } else {
+        console.error('API did not return an array in open:', allConditions);
+        this.condicionesIniciales = [];
+      }
+      this.viewCondicionesInicialesModal = true;
+    } catch (error) {
+      console.error(error);
+      this.condicionesIniciales = [];
+      Swal.fire("Error", "No se pudieron cargar las condiciones iniciales", "error");
+    }
+  }
+
+  async addCondicionInicial() {
+    if (!this.newCondicionDescripcion.trim()) {
+      Swal.fire("Atención", "Escribe la descripción de la condición", "warning");
+      return;
+    }
+    try {
+      console.log('Adding condition:', this.newCondicionDescripcion);
+      const created = await this.condicionInicialService.create({ descripcion: this.newCondicionDescripcion }).toPromise();
+      console.log('Condition created:', created);
+
+      this.newCondicionDescripcion = '';
+
+      const allConditions = await this.condicionInicialService.getAll().toPromise();
+      console.log('All conditions fetched:', allConditions);
+
+      if (Array.isArray(allConditions)) {
+        this.condicionesIniciales = [...allConditions];
+      } else {
+        console.error('API did not return an array:', allConditions);
+        this.condicionesIniciales = [];
+      }
+
+      this.cd.detectChanges(); // Force update
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Condición agregada',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } catch (error) {
+      console.error('Error adding condition:', error);
+      Swal.fire("Error", "No se pudo agregar", "error");
+    }
+  }
+
+  async toggleCondicionInicialEstado(cond: any) {
+    const newStatus = !cond.activo;
+    try {
+      await this.condicionInicialService.update(cond.id, { activo: newStatus }).toPromise();
+      const allConditions = await this.condicionInicialService.getAll().toPromise();
+
+      if (Array.isArray(allConditions)) {
+        this.condicionesIniciales = allConditions;
+      } else {
+        console.error('API did not return an array in toggle:', allConditions);
+        this.condicionesIniciales = [];
+      }
+      this.cd.detectChanges(); // Ensure table updates
+      Swal.fire({
+        icon: 'success',
+        title: `Condición ${newStatus ? 'activada' : 'desactivada'}`,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "No se pudo actualizar el estado", "error");
+    }
   }
 
 }

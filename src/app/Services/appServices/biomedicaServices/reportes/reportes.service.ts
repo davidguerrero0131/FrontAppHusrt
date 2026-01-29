@@ -87,4 +87,12 @@ export class ReportesService {
       this.httpClient.get<any>(`${API_URL}/reportes/usuario/${idUsuario}`, createHeaders())
     )
   }
+
+  uploadReportePdf(id: any, file: File) {
+    const formData = new FormData();
+    formData.append('reportePdf', file);
+    return firstValueFrom(
+      this.httpClient.post<any>(`${API_URL}/uploadreportepdf/${id}`, formData, createHeaders())
+    );
+  }
 }

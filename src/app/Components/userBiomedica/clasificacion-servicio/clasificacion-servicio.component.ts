@@ -23,7 +23,7 @@ export class ClasificacionServicioComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      this.servicios = await this.servicioServices.getAllServicios();
+      this.servicios = await this.servicioServices.getAllServiciosActivos();
 
       for (let servicio of this.servicios) {
         this.obtenerCantidadEquipos(servicio.id);

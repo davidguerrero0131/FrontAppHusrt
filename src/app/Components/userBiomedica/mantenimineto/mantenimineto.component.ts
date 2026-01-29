@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
+import { PdfGeneratorService } from '../../../Services/appServices/biomedicaServices/pdf-generator/pdf-generator.service';
 import { CommonModule, Location } from '@angular/common';
 import { BiomedicausernavbarComponent } from "../../navbars/biomedicausernavbar/biomedicausernavbar.component";
 import { ArchivosService } from '../../../Services/appServices/general/archivos/archivos.service'
@@ -31,6 +32,7 @@ import { ButtonModule } from 'primeng/button';
 export class ManteniminetoComponent implements OnInit {
 
   @ViewChild('dt2') dt2!: Table;
+  pdfGeneratorService = inject(PdfGeneratorService);
   date: Date | undefined;
   reportesService = inject(ReportesService);
   userService = inject(UserService);
@@ -57,6 +59,7 @@ export class ManteniminetoComponent implements OnInit {
   reportSelected!: any;
   rutina!: any[];
   modalReport: boolean = false;
+  selectedFile: File | null = null;
 
 
 
@@ -293,5 +296,29 @@ export class ManteniminetoComponent implements OnInit {
 
     this.modalReport = false; // Cerrar modal
     this.router.navigate(['biomedica/nuevoreporte/', this.reportSelected.equipo.id]);
+  }
+  descargarFormato() {
+    if (this.reportSelected) {
+      this.reportSelected.cumplimientoProtocolo = this.rutina;
+      this.pdfGeneratorService.generateReportePreventivo(this.reportSelected);
+    }
+  }
+
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+  }
+
+  async subirPdf() {
+    if (!this.selectedFile || !this.reportSelected) return;
+
+    try {
+      const res = await this.reportesService.uploadReportePdf(this.reportSelected.id, this.selectedFile);
+      Swal.fire('Éxito', 'Reporte PDF subido correctamente', 'success');
+      this.reportSelected.rutaPdf = res.rutaPdf;
+      this.selectedFile = null;
+    } catch (error) {
+      console.error('Error al subir PDF:', error);
+      Swal.fire('Error', 'No se pudo subir el archivo PDF', 'error');
+    }
   }
 }

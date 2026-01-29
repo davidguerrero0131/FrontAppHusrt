@@ -9,6 +9,8 @@
     </ng-template>
 
     <ng-template pTemplate="right">
+      <p-button label="Condiciones Iniciales" icon="pi pi-list" (onClick)="openCondicionesInicialesModal()"
+        severity="help" [raised]="true" class="mr-2" *ngIf="isAdminBiomedica"></p-button>
       <p-button label="Agregar" icon="pi pi-plus" (onClick)="viewModalAddTipoEquipo()" severity="primary"
         [raised]="true"></p-button>
     </ng-template>
@@ -234,6 +236,7 @@
           <th style="width: 20%">Unidad</th>
           <th style="width: 20%">Estándar</th>
           <th style="width: 25%">Criterio Aceptación</th>
+          <th style="width: 15%">Estado</th>
           <th style="width: 15%" class="text-center">Acción</th>
         </tr>
       </ng-template>
@@ -243,9 +246,18 @@
           <td><p-tag [value]="medicion.unidad" severity="info"></p-tag></td>
           <td>{{ medicion.valorEstandar || 'N/A' }}</td>
           <td>{{ medicion.criterioAceptacion || 'N/A' }}</td>
+          <td>
+            <p-tag [value]="medicion.estado ? 'Activo' : 'Inactivo'"
+              [severity]="medicion.estado ? 'success' : 'danger'"></p-tag>
+          </td>
           <td class="text-center">
-            <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text"
-              (click)="deleteMedicion(medicion.id)" pTooltip="Eliminar"></button>
+            <div class="flex gap-2 justify-content-center">
+              <button pButton [icon]="medicion.estado ? 'pi pi-ban' : 'pi pi-check'"
+                class="p-button-rounded p-button-text"
+                [ngClass]="medicion.estado ? 'p-button-danger' : 'p-button-success'"
+                (click)="toggleMedicionEstado(medicion)"
+                [pTooltip]="medicion.estado ? 'Desactivar' : 'Activar'"></button>
+            </div>
           </td>
         </tr>
       </ng-template>
@@ -256,4 +268,45 @@
       </ng-template>
     </p-table>
   </div>
+</p-dialog>
+
+<!-- Condiciones Iniciales Modal -->
+<p-dialog header="Condiciones Iniciales (Globales)" [(visible)]="viewCondicionesInicialesModal" [modal]="true"
+  [style]="{ width: '50rem' }" [breakpoints]="{ '960px': '75vw', '640px': '90vw' }" styleClass="p-fluid">
+
+  <div class="flex gap-2 mb-3">
+    <input type="text" pInputText [(ngModel)]="newCondicionDescripcion" placeholder="Descripción de la condición"
+      class="flex-grow-1" />
+    <button pButton type="button" icon="pi pi-plus" label="Agregar" (click)="addCondicionInicial()"
+      class="w-auto"></button>
+  </div>
+
+  <p-table [value]="condicionesIniciales" [rows]="10" [paginator]="true" styleClass="p-datatable-sm">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Descripción</th>
+        <th style="width: 15%">Estado</th>
+        <th style="width: 20%">Acción</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-cond>
+      <tr>
+        <td>{{ cond.descripcion }}</td>
+        <td>
+          <p-tag [value]="cond.activo ? 'Activo' : 'Inactivo'" [severity]="cond.activo ? 'success' : 'danger'"></p-tag>
+        </td>
+        <td>
+          <p-button [icon]="cond.activo ? 'pi pi-times' : 'pi pi-check'"
+            [label]="cond.activo ? 'Desactivar' : 'Activar'" [severity]="cond.activo ? 'danger' : 'success'"
+            [text]="true" (onClick)="toggleCondicionInicialEstado(cond)">
+          </p-button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="3" class="text-center p-4">No hay condiciones iniciales registradas.</td>
+      </tr>
+    </ng-template>
+  </p-table>
 </p-dialog>

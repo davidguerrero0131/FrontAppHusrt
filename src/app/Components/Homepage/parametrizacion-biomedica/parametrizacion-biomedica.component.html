@@ -20,6 +20,18 @@
             </div>
         </div>
 
+        <!-- Cargos -->
+        <div class="dashboard-card" *ngIf="isSuperAdmin" (click)="showViewCargos()">
+            <div class="card-icon-container gradient-purple">
+                <i class="pi pi-id-card"></i>
+            </div>
+            <div class="card-content">
+                <h3>Cargos</h3>
+                <p>Gestión de cargos y roles.</p>
+                <span class="card-action">Administrar <i class="pi pi-cog"></i></span>
+            </div>
+        </div>
+
         <!-- Servicios -->
         <div class="dashboard-card" *ngIf="isSuperAdmin" (click)="showViewServicios()">
             <div class="card-icon-container gradient-teal">

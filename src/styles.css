@@ -461,13 +461,19 @@ i,
 
 /* Responsive Overrides */
 @media (max-width: 992px) {
-    .modal-md, .modal-lg {
+
+    .modal-md,
+    .modal-lg {
         width: 90vw;
     }
 }
 
 @media (max-width: 576px) {
-    .modal-sm, .modal-md, .modal-lg, .modal-xl {
+
+    .modal-sm,
+    .modal-md,
+    .modal-lg,
+    .modal-xl {
         width: 95vw;
     }
 }
@@ -482,7 +488,8 @@ i,
 .form-grid .field {
     display: flex;
     flex-direction: column;
-    margin-bottom: 0; /* Let grid gap handle spacing */
+    margin-bottom: 0;
+    /* Let grid gap handle spacing */
 }
 
 /* Align labels and inputs consistently */
@@ -490,4 +497,9 @@ i,
     font-weight: 500;
     margin-bottom: 0.5rem;
     color: var(--text-color);
+}
+
+/* Fix SweetAlert2 z-index to be above PrimeNG Dialogs */
+.swal2-container {
+    z-index: 99999 !important;
 }
