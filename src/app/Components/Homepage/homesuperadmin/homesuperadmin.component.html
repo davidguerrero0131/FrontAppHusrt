@@ -45,6 +45,28 @@
       </p-card>
     </div>
 
+    <!-- Gestión Mesa de Servicios -->
+    <div class="col-12 md:col-6 lg:col-3 cursor-pointer" (click)="viewMesaServicios()">
+      <p-card styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300">
+        <ng-template pTemplate="header">
+          <div class="bg-purple-50 p-3 border-round-top-xl text-center">
+            <i class="pi pi-ticket text-purple-500 text-4xl"></i>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="title">
+          <div class="text-center text-xl font-bold text-900 mt-2">Gestión Mesa de Servicios</div>
+        </ng-template>
+        <ng-template pTemplate="subtitle">
+          <div class="text-center text-500 mb-3">Soporte y Tickets</div>
+        </ng-template>
+        <ng-template pTemplate="content">
+          <div class="text-center text-secondary">
+            Administre las solicitudes y la mesa de ayuda.
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
     <!-- Gestión Sistemas (Placeholder) -->
     <div class="col-12 md:col-6 lg:col-3">
       <p-card

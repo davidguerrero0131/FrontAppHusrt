@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -8,13 +8,13 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'app-mantenimientoadminnavbar',
+  selector: 'app-mesausernavbar',
   standalone: true,
-  imports: [MenubarModule, CommonModule, AvatarModule, ButtonModule, TooltipModule],
-  templateUrl: './mantenimientoadminnavbar.component.html',
-  styleUrl: './mantenimientoadminnavbar.component.css'
+  imports: [MenubarModule, CommonModule, AvatarModule, ButtonModule, TooltipModule, RouterModule],
+  templateUrl: './mesausernavbar.component.html',
+  styleUrl: './mesausernavbar.component.css'
 })
-export class MantenimientoadminnavbarComponent implements OnInit {
+export class MesausernavbarComponent implements OnInit {
 
   items: MenuItem[] | undefined;
 
@@ -25,12 +25,12 @@ export class MantenimientoadminnavbarComponent implements OnInit {
       {
         label: 'Inicio',
         icon: 'pi pi-home',
-        routerLink: '/adminmantenimineto'
+        routerLink: '/mesauser/home'
       },
       {
         label: 'Mesa de Servicios',
         icon: 'pi pi-briefcase',
-        routerLink: '/adminmesaservicios/casos'
+        routerLink: '/adminmesaservicios/casos' // Reusing the unified dashboard
       }
     ];
   }
@@ -40,5 +40,9 @@ export class MantenimientoadminnavbarComponent implements OnInit {
       sessionStorage.setItem('utoken', "");
     }
     this.router.navigate(['/login'])
+  }
+
+  viewUser() {
+    this.router.navigate(['/updateprofil']);
   }
 }

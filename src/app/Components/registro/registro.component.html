@@ -1,6 +1,4 @@
-<app-superadminnavbar></app-superadminnavbar>
-
-<div class="bg-white flex justify-content-center align-items-center min-h-screen px-3">
+<div class="bg-white flex justify-content-center px-3 py-4">
 
   <p-card styleClass="w-full max-w-6xl shadow-6 border-round-xl p-fluid surface-card overflow-hidden">
 
@@ -70,6 +68,18 @@
       </div>
 
       <div class="field col-12 md:col-6 lg:col-4">
+        <label class="font-bold">Servicio</label>
+        <p-dropdown [options]="servicios" formControlName="servicioId" optionLabel="nombres" optionValue="id"
+          placeholder="Seleccionar Servicio" styleClass="w-full" appendTo="body" [filter]="true"></p-dropdown>
+      </div>
+
+      <div class="field col-12 md:col-6 lg:col-4">
+        <label class="font-bold">Rol Mesa de Servicios</label>
+        <p-dropdown [options]="mesaRoles" formControlName="mesaServicioRolId" optionLabel="nombre" optionValue="id"
+          placeholder="Seleccionar Rol Mesa" styleClass="w-full" appendTo="body"></p-dropdown>
+      </div>
+
+      <div class="field col-12 md:col-6 lg:col-4">
         <label for="password" class="font-bold text-900">Contraseña</label>
 
         <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false" styleClass="w-full"
@@ -86,7 +96,8 @@
       </div>
 
       <div class="field col-12 md:col-6 lg:col-4 flex align-items-end">
-        <p-button label="REGISTRAR" icon="pi pi-user-plus" styleClass="w-full font-bold" severity="primary">
+        <p-button label="REGISTRAR" icon="pi pi-user-plus" styleClass="w-full font-bold" severity="primary"
+          type="submit">
         </p-button>
       </div>
 

@@ -28,6 +28,11 @@ export class SuperadminnavbarComponent implements OnInit {
         routerLink: '/superadmin'
       },
       {
+        label: 'Mesa de Servicios',
+        icon: 'pi pi-briefcase',
+        routerLink: '/adminmesaservicios/casos'
+      },
+      {
         label: 'Usuarios',
         icon: 'pi pi-users',
         routerLink: '/admusuarios'

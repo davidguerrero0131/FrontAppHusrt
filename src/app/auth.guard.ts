@@ -14,8 +14,12 @@ export const authGuard: CanActivateFn = (route, state) => {
     if (requiredRoles && requiredRoles.length > 0) {
       const decodedToken = getDecodedAccessToken();
       const userRole = decodedToken ? decodedToken.rol : null;
+      const mesaRole = decodedToken ? decodedToken.mesaRol : null;
 
-      if (!userRole || !requiredRoles.includes(userRole)) {
+      // Check if ANY of the user's roles (General or Mesa) are in the required list
+      const hasPermission = requiredRoles.includes(userRole) || (mesaRole && requiredRoles.includes(mesaRole));
+
+      if (!hasPermission) {
         router.navigate(['/access-denied']);
         return false;
       }

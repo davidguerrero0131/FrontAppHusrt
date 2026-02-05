@@ -28,6 +28,11 @@ export class BiomedicaadminnavbarComponent implements OnInit {
                 routerLink: '/adminbiomedica'
             },
             {
+                label: 'Mesa de Servicios',
+                icon: 'pi pi-briefcase',
+                routerLink: '/adminmesaservicios/casos'
+            },
+            {
                 label: 'Gestión Operativa',
                 icon: 'pi pi-briefcase',
                 items: [

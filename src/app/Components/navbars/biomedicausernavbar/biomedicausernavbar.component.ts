@@ -57,6 +57,11 @@ export class BiomedicausernavbarComponent implements OnInit {
                 label: 'Inicio',
                 icon: 'pi pi-home',
                 routerLink: this.getHomeLink()
+            },
+            {
+                label: 'Mesa de Servicios',
+                icon: 'pi pi-briefcase',
+                routerLink: '/adminmesaservicios/casos'
             }
         ];
 

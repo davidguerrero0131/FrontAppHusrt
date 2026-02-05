@@ -41,6 +41,10 @@
         </th>
         <th style="width:15%">Teléfono</th>
         <th style="width:18%">Email</th>
+        <th style="width:15%">Cargo</th>
+        <th style="width:15%">Servicio</th>
+        <th style="width:15%">Rol Mesa</th>
+        <th style="width:15%">Rol General</th>
         <th pSortableColumn="estado" style="width:8%">Estado <p-sortIcon field="estado"></p-sortIcon></th>
         <th style="width:8%">Acciones</th>
       </tr>
@@ -53,21 +57,21 @@
         <td>{{ usuario.nombreUsuario }}</td>
         <td>{{ usuario.telefono }}</td>
         <td>{{ usuario.email }}</td>
+        <td>{{ usuario.cargo?.nombre || 'Sin Cargo' }}</td>
+        <td>{{ usuario.servicio?.nombres || 'Sin Servicio' }}</td>
+        <td>{{ usuario.mesaServicioRol?.nombre || 'Sin Rol' }}</td>
+        <td>{{ usuario.rol?.nombre || 'Sin Rol' }}</td>
         <td>
           <p-tag [value]="usuario.estado ? 'ACTIVO' : 'INACTIVO'"
             [severity]="usuario.estado ? 'success' : 'danger'"></p-tag>
         </td>
         <td>
           <div class="flex gap-2">
-            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="warn"
-              (onClick)="openEditModal(usuario)" pTooltip="Editar"></p-button>
-            <p-button icon="pi pi-key" [rounded]="true" [text]="true" severity="help"
-              (onClick)="openPasswordModal(usuario)" pTooltip="Contraseña"></p-button>
-
-            <p-button *ngIf="usuario.estado" icon="pi pi-ban" [rounded]="true" [text]="true" severity="danger"
-              (onClick)="estadoUsuario(usuario.id, 'D')" pTooltip="Desactivar"></p-button>
-            <p-button *ngIf="!usuario.estado" icon="pi pi-check-circle" [rounded]="true" [text]="true"
-              severity="success" (onClick)="estadoUsuario(usuario.id, 'A')" pTooltip="Activar"></p-button>
+            <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-info p-button-text"
+              (click)="openEditModal(usuario)" pTooltip="Editar" tooltipPosition="top"></button>
+            <button pButton icon="pi pi-ellipsis-v" class="p-button-rounded p-button-secondary p-button-text"
+              (click)="showActions($event, usuario); menu.toggle($event)" pTooltip="Más Opciones"
+              tooltipPosition="top"></button>
           </div>
         </td>
       </tr>
@@ -79,66 +83,79 @@
       </tr>
     </ng-template>
   </p-table>
+  <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
 </div>
 
 <!-- Edit Modal -->
-<p-dialog header="Editar Usuario" [(visible)]="visibleEditModal" [modal]="true" [style]="{ width: '450px' }"
+<p-dialog header="Editar Usuario" [(visible)]="visibleEditModal" [modal]="true" [style]="{ width: '900px' }"
   styleClass="p-fluid">
-  <form [formGroup]="formGroup" (ngSubmit)="saveUser()" class="flex flex-column gap-3 pt-2">
+  <form [formGroup]="formGroup" (ngSubmit)="saveUser()" class="pt-2">
 
-    <div class="flex flex-column gap-2">
-      <label for="tipoId" class="font-bold">Tipo de Identificación</label>
-      <p-dropdown id="tipoId" [options]="tipoIdOptions" formControlName="tipoId" optionLabel="label" optionValue="value"
-        placeholder="Seleccione"></p-dropdown>
-    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label for="tipoId" class="font-bold">Tipo de Identificación</label>
+        <p-dropdown id="tipoId" [options]="tipoIdOptions" formControlName="tipoId" optionLabel="label"
+          optionValue="value" placeholder="Seleccione"></p-dropdown>
+      </div>
 
-    <div class="flex flex-column gap-2">
-      <label for="numeroId" class="font-bold">Número de Identificación</label>
-      <input id="numeroId" type="text" pInputText formControlName="numeroId" />
-    </div>
+      <div class="field">
+        <label for="numeroId" class="font-bold">Número de Identificación</label>
+        <input id="numeroId" type="text" pInputText formControlName="numeroId" />
+      </div>
 
-    <div class="formgrid grid">
-      <div class="field col-6 flex flex-column gap-2">
+      <div class="field">
         <label for="nombres" class="font-bold">Nombres</label>
         <input id="nombres" type="text" pInputText formControlName="nombres" />
       </div>
-      <div class="field col-6 flex flex-column gap-2">
+
+      <div class="field">
         <label for="apellidos" class="font-bold">Apellidos</label>
         <input id="apellidos" type="text" pInputText formControlName="apellidos" />
       </div>
-    </div>
 
-    <div class="flex flex-column gap-2">
-      <label for="nombreUsuario" class="font-bold">Usuario</label>
-      <input id="nombreUsuario" type="text" pInputText formControlName="nombreUsuario" />
-    </div>
+      <div class="field">
+        <label for="nombreUsuario" class="font-bold">Usuario</label>
+        <input id="nombreUsuario" type="text" pInputText formControlName="nombreUsuario" />
+      </div>
 
-    <div class="formgrid grid">
-      <div class="field col-6 flex flex-column gap-2">
+      <div class="field">
         <label for="telefono" class="font-bold">Teléfono</label>
         <input id="telefono" type="text" pInputText formControlName="telefono" />
       </div>
-      <div class="field col-6 flex flex-column gap-2">
+
+      <div class="field">
         <label for="email" class="font-bold">Email</label>
         <input id="email" type="email" pInputText formControlName="email" />
       </div>
-    </div>
 
-    <div class="flex flex-column gap-2">
-      <label for="rolId" class="font-bold">Rol</label>
-      <p-dropdown id="rolId" [options]="roles" formControlName="rolId" optionLabel="nombre" optionValue="id"
-        placeholder="Seleccione un rol"></p-dropdown>
-    </div>
+      <div class="field">
+        <label for="rolId" class="font-bold">Rol</label>
+        <p-dropdown id="rolId" [options]="roles" formControlName="rolId" optionLabel="nombre" optionValue="id"
+          placeholder="Seleccione un rol"></p-dropdown>
+      </div>
 
-    <div class="flex flex-column gap-2">
-      <label for="cargoId" class="font-bold">Cargo</label>
-      <p-dropdown id="cargoId" [options]="cargos" formControlName="cargoId" optionLabel="nombre" optionValue="id"
-        placeholder="Seleccione un cargo"></p-dropdown>
-    </div>
+      <div class="field">
+        <label for="cargoId" class="font-bold">Cargo</label>
+        <p-dropdown id="cargoId" [options]="cargos" formControlName="cargoId" optionLabel="nombre" optionValue="id"
+          placeholder="Seleccione un cargo"></p-dropdown>
+      </div>
 
-    <div class="flex flex-column gap-2">
-      <label for="registroInvima" class="font-bold">Registro Invima</label>
-      <input id="registroInvima" type="text" pInputText formControlName="registroInvima" />
+      <div class="field">
+        <label for="servicioId" class="font-bold">Servicio</label>
+        <p-dropdown id="servicioId" [options]="servicios" formControlName="servicioId" optionLabel="nombres"
+          optionValue="id" placeholder="Seleccione un servicio" [filter]="true"></p-dropdown>
+      </div>
+
+      <div class="field">
+        <label for="mesaServicioRolId" class="font-bold">Rol Mesa de Servicios</label>
+        <p-dropdown id="mesaServicioRolId" [options]="mesaRoles" formControlName="mesaServicioRolId"
+          optionLabel="nombre" optionValue="id" placeholder="Seleccione un rol de mesa"></p-dropdown>
+      </div>
+
+      <div class="field">
+        <label for="registroInvima" class="font-bold">Registro Invima</label>
+        <input id="registroInvima" type="text" pInputText formControlName="registroInvima" />
+      </div>
     </div>
 
     <div class="flex justify-content-end gap-2 mt-4">

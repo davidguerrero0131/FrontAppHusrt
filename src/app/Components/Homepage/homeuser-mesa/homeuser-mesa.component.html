@@ -1,0 +1,67 @@
+<app-mesausernavbar></app-mesausernavbar>
+
+<div class="surface-ground min-h-screen">
+    <!-- Hero Section -->
+    <div class="bg-primary-900 text-white p-5 md:p-6 lg:p-7 relative overflow-hidden">
+        <div class="relative z-2">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2">Bienvenido, {{userName}}</h1>
+            <p class="text-xl opacity-90 mb-3">Panel de Gestión de Mesa de Servicios</p>
+            <div class="flex align-items-center gap-2 text-white-alpha-80">
+                <i class="pi pi-verified"></i>
+                <span>Rol: {{roleName}}</span>
+            </div>
+        </div>
+        <!-- Abstract Background Circles -->
+        <div class="absolute top-0 right-0 w-30rem h-30rem bg-primary-800 border-circle opacity-20 -mr-6 -mt-6"></div>
+        <div class="absolute bottom-0 left-0 w-20rem h-20rem bg-primary-700 border-circle opacity-10 -ml-5 -mb-5"></div>
+    </div>
+
+    <!-- Quick Actions Grid -->
+    <div class="px-4 py-5 md:px-6 lg:px-8 -mt-6 relative z-3">
+        <div class="grid">
+            <!-- Gestionar Casos -->
+            <div class="col-12 md:col-6 lg:col-6">
+                <div class="surface-card p-4 shadow-4 border-round-xl cursor-pointer hover:shadow-6 transition-all transition-duration-300 transform-hover"
+                    (click)="goToCasos()">
+                    <div class="flex justify-content-between mb-3">
+                        <div>
+                            <span class="block text-500 font-medium mb-3">Mis Casos</span>
+                            <div class="text-900 font-bold text-2xl">Gestionar Casos</div>
+                        </div>
+                        <div
+                            class="flex align-items-center justify-content-center bg-blue-100 border-round w-3rem h-3rem">
+                            <i class="pi pi-list text-blue-500 text-xl"></i>
+                        </div>
+                    </div>
+                    <span class="text-blue-500 font-medium">Ver listado </span>
+                    <span class="text-500">de solicitudes</span>
+                </div>
+            </div>
+
+            <!-- Nuevo Caso -->
+            <div class="col-12 md:col-6 lg:col-6">
+                <div class="surface-card p-4 shadow-4 border-round-xl cursor-pointer hover:shadow-6 transition-all transition-duration-300 transform-hover"
+                    (click)="goToCreate()">
+                    <div class="flex justify-content-between mb-3">
+                        <div>
+                            <span class="block text-500 font-medium mb-3">Nueva Solicitud</span>
+                            <div class="text-900 font-bold text-2xl">Crear Caso</div>
+                        </div>
+                        <div
+                            class="flex align-items-center justify-content-center bg-green-100 border-round w-3rem h-3rem">
+                            <i class="pi pi-plus text-green-500 text-xl"></i>
+                        </div>
+                    </div>
+                    <span class="text-green-500 font-medium">Reportar </span>
+                    <span class="text-500">un nuevo problema</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .transform-hover:hover {
+        transform: translateY(-5px);
+    }
+</style>

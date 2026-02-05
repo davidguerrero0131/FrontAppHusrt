@@ -1,9 +1,11 @@
 import { UserService } from './../../Services/appServices/userServices/user.service';
 import { CargosService } from './../../Services/appServices/general/cargos/cargos.service';
+import { ServicioService } from './../../Services/appServices/general/servicio/servicio.service';
+import { MesaService } from '../../Services/mesa-servicios/mesa.service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { Component, OnInit, inject } from '@angular/core';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { jwtDecode } from 'jwt-decode';
@@ -13,9 +15,11 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
+import { SplitButtonModule } from 'primeng/splitbutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TagModule } from 'primeng/tag';
+import { MenuModule } from 'primeng/menu';
 
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -23,7 +27,7 @@ import { InputIconModule } from 'primeng/inputicon';
 @Component({
   selector: 'app-gestion-usuarios',
   standalone: true,
-  imports: [TableModule, CommonModule, DialogModule, ReactiveFormsModule, InputTextModule, DropdownModule, ButtonModule, TooltipModule, ToolbarModule, TagModule,
+  imports: [TableModule, CommonModule, DialogModule, ReactiveFormsModule, InputTextModule, DropdownModule, ButtonModule, SplitButtonModule, TooltipModule, ToolbarModule, TagModule, MenuModule,
     IconFieldModule, InputIconModule
   ],
   providers: [MessageService],
@@ -35,6 +39,8 @@ export class GestionUsuariosComponent implements OnInit {
   usuarios!: any[];
   roles!: any[];
   cargos: any[] = [];
+  servicios: any[] = [];
+  mesaRoles: any[] = [];
   loading: boolean = true;
 
   tipoIdOptions = [
@@ -48,13 +54,15 @@ export class GestionUsuariosComponent implements OnInit {
   visibleEditModal: boolean = false;
   selectedUser: any;
 
-  constructor(
-    private router: Router,
-    private formBuilder: FormBuilder,
-    private messageService: MessageService,
-    private userService: UserService,
-    private cargosService: CargosService
-  ) { }
+  private router = inject(Router);
+  private formBuilder = inject(FormBuilder);
+  private messageService = inject(MessageService);
+  private userService = inject(UserService);
+  private cargosService = inject(CargosService);
+  private servicioService = inject(ServicioService);
+  private mesaService = inject(MesaService);
+
+  constructor() { }
 
 
   passwordFormGroup!: FormGroup;
@@ -71,7 +79,9 @@ export class GestionUsuariosComponent implements OnInit {
       numeroId: ['', Validators.required],
       registroInvima: [''],
       rolId: ['', Validators.required],
-      cargoId: ['', Validators.required]
+      cargoId: ['', Validators.required],
+      servicioId: ['', Validators.required],
+      mesaServicioRolId: ['', Validators.required]
     });
 
     this.passwordFormGroup = this.formBuilder.group({
@@ -82,16 +92,19 @@ export class GestionUsuariosComponent implements OnInit {
     try {
       this.usuarios = await this.userService.getAllUsers();
       this.roles = await this.userService.getAllRoles();
-      this.cargosService.getCargos().subscribe(data => {
+      this.cargosService.getCargos().subscribe((data: any[]) => {
         this.cargos = data;
       });
+      this.mesaService.getRoles().subscribe((res: any[]) => this.mesaRoles = res);
+      this.servicios = await this.servicioService.getAllServicios();
       this.loading = false;
 
-    } catch {
+    } catch (error: any) {
+      console.error(error);
       Swal.fire({
         icon: 'warning',
         title: 'Inconsistencia en los datos',
-        text: 'No fue posible Cargar la informacion '
+        text: 'No fue posible Cargar la informacion: ' + (error.error?.error || error.message || error)
       })
     }
   }
@@ -112,7 +125,9 @@ export class GestionUsuariosComponent implements OnInit {
       numeroId: user.numeroId,
       registroInvima: user.registroInvima,
       rolId: user.rolId,
-      cargoId: user.cargoId
+      cargoId: user.cargoId,
+      servicioId: user.servicioId,
+      mesaServicioRolId: user.mesaServicioRolId
     });
     this.visibleEditModal = true;
   }
@@ -133,6 +148,7 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   openPasswordModal(user: any) {
+    console.log('openPasswordModal called for:', user.nombreUsuario);
     this.selectedUser = user;
     this.passwordFormGroup.reset();
     this.visiblePasswordModal = true;
@@ -159,6 +175,7 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   async estadoUsuario(idUsuario: any, accion: string) {
+    console.log('EstadoUsuario called:', idUsuario, accion);
     if (accion === 'A') {
       Swal.fire({
         title: "Desea activar el Usuario?",
@@ -201,4 +218,36 @@ export class GestionUsuariosComponent implements OnInit {
     }
   }
 
+  getMenuItems(user: any): MenuItem[] {
+    return [
+      {
+        label: 'Contraseña',
+        icon: 'pi pi-key',
+        command: () => this.openPasswordModal(user)
+      },
+      {
+        label: user.estado ? 'Desactivar' : 'Activar',
+        icon: user.estado ? 'pi pi-ban' : 'pi pi-check-circle',
+        command: () => this.estadoUsuario(user.id, user.estado ? 'D' : 'A')
+      }
+    ];
+  }
+
+  items: MenuItem[] = [];
+
+  showActions(event: any, user: any) {
+    this.selectedUser = user;
+    this.items = [
+      {
+        label: 'Cambiar Contraseña',
+        icon: 'pi pi-key',
+        command: () => this.openPasswordModal(user)
+      },
+      {
+        label: user.estado ? 'Desactivar Usuario' : 'Activar Usuario',
+        icon: user.estado ? 'pi pi-ban' : 'pi pi-check-circle',
+        command: () => this.estadoUsuario(user.id, user.estado ? 'D' : 'A')
+      }
+    ];
+  }
 }

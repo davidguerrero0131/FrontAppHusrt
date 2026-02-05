@@ -29,6 +29,11 @@ export class BiomedicatecniconavbarComponent implements OnInit {
                 routerLink: '/userbiomedica'
             },
             {
+                label: 'Mesa de Servicios',
+                icon: 'pi pi-briefcase',
+                routerLink: '/adminmesaservicios/casos'
+            },
+            {
                 label: 'Gestión Operativa',
                 icon: 'pi pi-briefcase',
                 items: [

@@ -27,6 +27,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { API_URL } from '../../../../constantes';
 import Swal from 'sweetalert2';
+import { PdfGeneratorService } from '../../../../Services/appServices/biomedicaServices/pdf-generator/pdf-generator.service';
 
 @Component({
   selector: 'app-hojavida',
@@ -59,7 +60,14 @@ export class HojavidaComponent implements OnInit {
   planMetrologia: any[] = [];
   dataToEdit: any = null;
 
+  private pdfGeneratorService = inject(PdfGeneratorService);
   showCreate: boolean = false; // State to toggle create form
+
+  generatePdf() {
+    if (this.hojaVida) {
+      this.pdfGeneratorService.generateHojaVida(this.hojaVida, this.documentos, this.planMantenimiento, this.planMetrologia);
+    }
+  }
 
   hojavidaService = inject(HojavidaService);
   imagenesServices = inject(ImagenesService);

@@ -1,1 +1,99 @@
-<p>homeadminmesaservicios works!</p>
+<div class="bg-white px-4 py-5 md:px-6 lg:px-8 min-h-screen">
+    <div class="mb-5">
+        <h1 class="text-3xl font-bold text-900 mb-2">Mesa de Servicios</h1>
+        <span class="text-500 text-lg">Administración y Gestión de Tickets</span>
+    </div>
+
+    <div class="grid">
+
+        <!-- Configuración Categorías -->
+        <div class="col-12 md:col-6 lg:col-3 cursor-pointer" (click)="viewCategorias()">
+            <p-card styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300">
+                <ng-template pTemplate="header">
+                    <div class="bg-blue-50 p-3 border-round-top-xl text-center">
+                        <i class="pi pi-tags text-blue-500 text-4xl"></i>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="title">
+                    <div class="text-center text-xl font-bold text-900 mt-2">Categorías</div>
+                </ng-template>
+                <ng-template pTemplate="subtitle">
+                    <div class="text-center text-500 mb-3">Parametrización</div>
+                </ng-template>
+                <ng-template pTemplate="content">
+                    <div class="text-center text-secondary">
+                        Gestione categorías y subcategorías por servicio.
+                    </div>
+                </ng-template>
+            </p-card>
+        </div>
+
+        <!-- Configuración Roles -->
+        <div class="col-12 md:col-6 lg:col-3 cursor-pointer" (click)="viewRoles()">
+            <p-card styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300">
+                <ng-template pTemplate="header">
+                    <div class="bg-cyan-50 p-3 border-round-top-xl text-center">
+                        <i class="pi pi-users text-cyan-500 text-4xl"></i>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="title">
+                    <div class="text-center text-xl font-bold text-900 mt-2">Roles y Usuarios</div>
+                </ng-template>
+                <ng-template pTemplate="subtitle">
+                    <div class="text-center text-500 mb-3">Permisos</div>
+                </ng-template>
+                <ng-template pTemplate="content">
+                    <div class="text-center text-secondary">
+                        Asigne roles (Admin, Resolutor, Creador) a los usuarios.
+                    </div>
+                </ng-template>
+            </p-card>
+        </div>
+
+        <!-- Gestión de Casos -->
+        <div class="col-12 md:col-6 lg:col-3 cursor-pointer" (click)="viewCasos()">
+            <p-card styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300">
+                <ng-template pTemplate="header">
+                    <div class="bg-purple-50 p-3 border-round-top-xl text-center">
+                        <i class="pi pi-ticket text-purple-500 text-4xl"></i>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="title">
+                    <div class="text-center text-xl font-bold text-900 mt-2">Casos</div>
+                </ng-template>
+                <ng-template pTemplate="subtitle">
+                    <div class="text-center text-500 mb-3">Gestión de Tickets</div>
+                </ng-template>
+                <ng-template pTemplate="content">
+                    <div class="text-center text-secondary">
+                        Cree, asigne y resuelva incidencias y requerimientos.
+                    </div>
+                </ng-template>
+            </p-card>
+        </div>
+
+        <!-- Indicadores -->
+        <div class="col-12 md:col-6 lg:col-3 cursor-pointer" (click)="viewIndicadores()">
+            <p-card
+                styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300 opacity-60">
+                <ng-template pTemplate="header">
+                    <div class="bg-orange-50 p-3 border-round-top-xl text-center">
+                        <i class="pi pi-chart-bar text-orange-500 text-4xl"></i>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="title">
+                    <div class="text-center text-xl font-bold text-900 mt-2">Indicadores</div>
+                </ng-template>
+                <ng-template pTemplate="subtitle">
+                    <div class="text-center text-500 mb-3">Próximamente</div>
+                </ng-template>
+                <ng-template pTemplate="content">
+                    <div class="text-center text-secondary">
+                        Visualice métricas de rendimiento y gestión.
+                    </div>
+                </ng-template>
+            </p-card>
+        </div>
+
+    </div>
+</div>

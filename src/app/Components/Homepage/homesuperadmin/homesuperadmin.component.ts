@@ -28,6 +28,10 @@ export class HomesuperadminComponent {
     this.router.navigate(['/biomedica/gestion-operativa']);
   }
 
+  viewMesaServicios() {
+    this.router.navigate(['/adminmesaservicios']);
+  }
+
   // Futuros metodos para Sistemas y Mantenimiento
   viewGestionSistemas() {
     // Ejemplo: this.router.navigate(['/sistemas/home']);

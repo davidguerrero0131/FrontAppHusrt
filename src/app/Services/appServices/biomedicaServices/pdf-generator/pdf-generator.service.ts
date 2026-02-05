@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { FirmaService } from '../firma/firma.service';
+import { ImagenesService } from '../../general/imagenes/imagenes.service';
 
 @Injectable({
     providedIn: 'root'
@@ -9,6 +10,7 @@ import { FirmaService } from '../firma/firma.service';
 export class PdfGeneratorService {
 
     private firmaService = inject(FirmaService);
+    private imagenesService = inject(ImagenesService);
 
     constructor() { }
 
@@ -405,11 +407,6 @@ export class PdfGeneratorService {
         const xRight = margin + colWidth;
         doc.setFont('helvetica', 'bold');
         doc.text('SERVICIO ASISTENCIAL', xRight + (colWidth / 2), ySignatures, { align: 'center' });
-
-        doc.setFont('helvetica', 'normal');
-        doc.text('Nombre: ' + (reporte.nombreRecibio || ''), xRight + 5, ySignatures + 10);
-        doc.text('Cedula: ' + (reporte.cedulaRecibio || ''), xRight + 5, ySignatures + 16);
-
         doc.line(xRight + 5, ySignatures + 48, xRight + colWidth - 5, ySignatures + 48);
         doc.text('Firma', xRight + (colWidth / 2), ySignatures + 53, { align: 'center' });
 
@@ -420,21 +417,476 @@ export class PdfGeneratorService {
         // Save
         doc.save(`Reporte_Preventivo_${reporte.id}.pdf`);
     }
+
+
+
+    async generateHojaVida(hojaVida: any, documentos: any[], planMantenimiento: any[], planMetrologia: any[]) {
+        const doc = new jsPDF('l', 'mm', 'a4'); // Landscape orientation
+        const pageWidth = doc.internal.pageSize.width;
+        const pageHeight = doc.internal.pageSize.height;
+        const margin = 10;
+        let finalY = margin;
+
+        // Load Logo/Photo
+        let logoImg = null;
+        try {
+            // Find logo in root
+            logoImg = await this.loadImage('/LogoAgora.png');
+            if (!logoImg) {
+                // Fallback
+                logoImg = await this.loadImage('LogoAgora.png');
+            }
+        } catch (e) {
+            console.error('Could not load logo', e);
+        }
+
+        let equipoImg = null;
+        if (hojaVida.foto) {
+            try {
+                const blob = await this.imagenesService.getImagen(hojaVida.foto);
+                const base64 = await this.blobToBase64(blob);
+                equipoImg = base64;
+            } catch (e) {
+                console.error('Could not load equipo photo', e);
+            }
+        }
+
+        // --- ENCABEZADO ---
+        autoTable(doc, {
+            body: [
+                [
+                    { content: 'CÓDIGO: IB-F-13', styles: { halign: 'center', valign: 'middle', fontSize: 8, fontStyle: 'bold' } },
+                    { content: 'E.S.E. HOSPITAL UNIVERSITARIO SAN RAFAEL DE TUNJA', styles: { halign: 'center', valign: 'middle', fontSize: 11, fontStyle: 'bold' } },
+                    { content: '', styles: { halign: 'center', valign: 'middle', minCellHeight: 15 } } // Logo placeholder left empty
+                ],
+                [
+                    { content: 'Versión: 006', styles: { halign: 'center', valign: 'middle', fontSize: 8, fontStyle: 'bold' } },
+                    { content: 'HOJA DE VIDA DE TECNOLOGÍA BIOMÉDICA', styles: { halign: 'center', valign: 'middle', fontSize: 10, fontStyle: 'bold' } },
+                    { content: 'Fecha: 01/02/2026', styles: { halign: 'center', valign: 'middle', fontSize: 8, fontStyle: 'bold' } }
+                ]
+            ],
+            theme: 'grid',
+            styles: {
+                lineColor: [0, 0, 0],
+                lineWidth: 0.1, // Simple/Thin borders
+                textColor: [0, 0, 0],
+                cellPadding: 1
+            },
+            headStyles: { fillColor: [255, 255, 255] },
+            columnStyles: {
+                0: { cellWidth: 30 },
+                1: { cellWidth: 'auto' }, // Remainder
+                2: { cellWidth: 40 }
+            },
+            margin: { left: margin, right: margin },
+            tableWidth: pageWidth - (2 * margin)
+        });
+
+        finalY = (doc as any).lastAutoTable.finalY;
+
+        // --- UBICACIÓN ---
+        autoTable(doc, {
+            body: [
+                [
+                    { content: `SEDE: ${hojaVida.equipo?.servicios?.sede?.nombres || ''}`, styles: { halign: 'center', fontStyle: 'bold' } },
+                    { content: `SERVICIO: ${hojaVida.equipo?.servicios?.nombres || ''}`, styles: { halign: 'center', fontStyle: 'bold' } },
+                    { content: `UBICACIÓN: ${hojaVida.equipo?.ubicacion || ''}`, styles: { halign: 'center', fontStyle: 'bold' } }
+                ]
+            ],
+            theme: 'grid',
+            styles: { lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0], fontSize: 9 },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255] }, // Teal Green
+            margin: { left: margin, right: margin },
+            startY: finalY + 2
+        });
+        finalY = (doc as any).lastAutoTable.finalY + 2;
+
+        // --- SECCIÓN 1: IDENTIFICACIÓN - ADQUISICIÓN - RIESGO - FOTO (SEPARATE TABLES) ---
+        const startY_Sec1 = finalY;
+        let cursorX_Sec1 = margin;
+        const gap_Sec1 = 3;
+
+        // 1a. IDENTIFICACIÓN DEL EQUIPO
+        const widthIdent = 84;
+        const identData = [
+            ['NOMBRE', hojaVida.equipo?.nombres || ''],
+            ['MARCA', hojaVida.equipo?.marca || ''],
+            ['MODELO', hojaVida.equipo?.modelo || ''],
+            ['SERIE', hojaVida.equipo?.serie || ''],
+            ['ACTIVO FIJO', hojaVida.equipo?.placa || ''],
+            ['REG. INVIMA', hojaVida.equipo?.registroInvima || ''],
+            ['FABRICANTE', hojaVida.fabricante?.nombres || '']
+        ];
+
+        autoTable(doc, {
+            head: [[{ content: 'IDENTIFICACIÓN DEL EQUIPO', colSpan: 2, styles: { halign: 'center', fontStyle: 'bold' } }]],
+            body: identData,
+            startY: startY_Sec1,
+            margin: { left: cursorX_Sec1 },
+            tableWidth: widthIdent,
+            theme: 'grid',
+            styles: { fontSize: 6, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0], cellPadding: 1, valign: 'middle' },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255], lineWidth: 0.1, fontSize: 7 },
+            columnStyles: {
+                0: { cellWidth: 25, fontStyle: 'bold' },
+                1: { cellWidth: 59 }
+            }
+        });
+        const finalY_Ident = (doc as any).lastAutoTable.finalY;
+        cursorX_Sec1 += widthIdent + gap_Sec1;
+
+        // 1b. DATOS DE ADQUISICIÓN
+        const widthAdq = 84;
+        const adqData = [
+            ['PROVEEDOR', hojaVida.proveedor?.nombres || ''],
+            ['TELÉFONO', hojaVida.proveedor?.telefono || ''],
+            ['CORREO', hojaVida.proveedor?.email || ''],
+            ['CONTRATO Nº', hojaVida.contrato || ''],
+            ['FECHA ADQ', this.formatDate(hojaVida.fechaCompra)],
+            ['FECHA INST', this.formatDate(hojaVida.fechaInstalacion)],
+            ['VENC GTIA', this.formatDate(hojaVida.fechaVencimientoGarantia)],
+            ['COSTO', hojaVida.costoCompra || '']
+        ];
+
+        autoTable(doc, {
+            head: [[{ content: 'DATOS DE ADQUISICIÓN', colSpan: 2, styles: { halign: 'center', fontStyle: 'bold' } }]],
+            body: adqData,
+            startY: startY_Sec1,
+            margin: { left: cursorX_Sec1 },
+            tableWidth: widthAdq,
+            theme: 'grid',
+            styles: { fontSize: 6, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0], cellPadding: 1, valign: 'middle' },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255], lineWidth: 0.1, fontSize: 7 },
+            columnStyles: {
+                0: { cellWidth: 25, fontStyle: 'bold' },
+                1: { cellWidth: 59 }
+            }
+        });
+        const finalY_Adq = (doc as any).lastAutoTable.finalY;
+        cursorX_Sec1 += widthAdq + gap_Sec1;
+
+        // 1c. CLASIFICACIÓN DE RIESGO
+        // Prepare risk data rows
+        const check = (val: boolean) => val ? 'X' : '';
+        const riesgo = hojaVida.equipo?.riesgo;
+        const widthRiesgo = 30;
+        const riesgoBody = [
+            ['I', check(riesgo === 'I')],
+            ['IIA', check(riesgo === 'IIA')],
+            ['IIB', check(riesgo === 'IIB')],
+            ['III', check(riesgo === 'III')],
+            ['NA', check(riesgo === 'NA')],
+            ['', ''], // Empty rows to match height if needed, keeping simple for now
+            ['', ''],
+            ['', '']
+        ];
+
+        autoTable(doc, {
+            head: [[{ content: 'CLAS. RIESGO', colSpan: 2, styles: { halign: 'center', fontStyle: 'bold' } }]],
+            body: riesgoBody,
+            startY: startY_Sec1,
+            margin: { left: cursorX_Sec1 },
+            tableWidth: widthRiesgo,
+            theme: 'grid',
+            styles: { fontSize: 6, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0], cellPadding: 1, valign: 'middle' },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255], lineWidth: 0.1, fontSize: 7 },
+            columnStyles: {
+                0: { halign: 'center', cellWidth: 10, fontStyle: 'bold' },
+                1: { halign: 'center', cellWidth: 20 }
+            }
+        });
+        const finalY_Riesgo = (doc as any).lastAutoTable.finalY;
+        cursorX_Sec1 += widthRiesgo + gap_Sec1;
+
+        // 1d. FOTOGRAFÍA (Manually placed image)
+        // Draw image in the remaining space
+        if (equipoImg) {
+            // Calculate max height based on the tallest table
+            const availableHeight = Math.max(finalY_Ident, finalY_Adq, finalY_Riesgo) - startY_Sec1;
+            const cellX = cursorX_Sec1 + 2;
+            const availableWidth = pageWidth - margin - cellX;
+
+            // Reduce size by 20% (scale 0.8)
+            const imgWidth = availableWidth * 0.8;
+            const imgHeight = availableHeight * 0.8;
+
+            // Center image in the available space
+            const imgX = cellX + (availableWidth - imgWidth) / 2;
+            const imgY = startY_Sec1 + (availableHeight - imgHeight) / 2;
+
+            doc.addImage(equipoImg, 'JPEG', imgX, imgY, imgWidth, imgHeight);
+        }
+
+        finalY = Math.max(finalY_Ident, finalY_Adq, finalY_Riesgo) + 2;
+
+
+        // --- SECCIÓN 2: GRID FOR REGISTRO TÉCNICO ETC ---
+        const startY_Sec2 = finalY;
+        const dt = hojaVida.datosTecnicos || {};
+        const gap = 3;
+        let cursorX = margin;
+
+        // 2a. REGISTRO TÉCNICO (Use internal columns)
+        const widthRegTec = 96;
+        const regTecBody = [
+            ['TENSIÓN MÁX', `${dt.tensionMaxima || ''} V`, 'PRESIÓN', `${dt.presion || ''} psi`],
+            ['TENSIÓN MÍN', `${dt.tensionMinima || ''} V`, 'VELOCIDAD', `${dt.velocidad || ''} RPM`],
+            ['CORRIENTE MÁX', `${dt.corrienteMaxima || ''} A`, 'TEMP', `${dt.temperatura || ''} °C`],
+            ['CORRIENTE MÍN', `${dt.corrienteMinima || ''} A`, 'PESO', `${dt.peso || ''} kg`],
+            ['POTENCIA', `${dt.potenciaConsumo || ''} W`, 'CAPACIDAD', `${dt.capacidad || ''} L`],
+            ['FRECUENCIA', `${dt.frecuencia || ''} Hz`, 'OTROS', `${dt.otros || ''}`]
+        ];
+
+        autoTable(doc, {
+            head: [[{ content: 'REGISTRO TÉCNICO', colSpan: 4, styles: { halign: 'center', fontStyle: 'bold' } }]],
+            body: regTecBody,
+            startY: startY_Sec2,
+            margin: { left: cursorX },
+            tableWidth: widthRegTec,
+            theme: 'grid',
+            styles: { fontSize: 6, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0], cellPadding: 1 },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255], lineWidth: 0.1, fontSize: 7 },
+            columnStyles: {
+                0: { cellWidth: 20, fontStyle: 'bold' },
+                1: { cellWidth: 28 },
+                2: { cellWidth: 15, fontStyle: 'bold' },
+                3: { cellWidth: 33 }
+            }
+        });
+        const finalY_RegTec = (doc as any).lastAutoTable.finalY;
+        cursorX += widthRegTec + gap;
+
+        // 2b. TIPO DE TECNOLOGÍA
+        const widthTipo = 42;
+        const tipoTec = hojaVida.clase;
+        const tipoTecBody = [
+            ['ELÉCTRICO', check(tipoTec === 'Electrico')],
+            ['ELECTRÓNICO', check(tipoTec === 'Electronico')],
+            ['MECÁNICO', check(tipoTec === 'Mecanico')],
+            ['NEUMÁTICO', check(tipoTec === 'Neumatico')],
+            ['OTRO', check(!['Electrico', 'Electronico', 'Mecanico', 'Neumatico'].includes(tipoTec) && !!tipoTec)]
+        ];
+
+        autoTable(doc, {
+            head: [[{ content: 'TIPO TECNOLOGÍA', colSpan: 2, styles: { halign: 'center', fontStyle: 'bold' } }]],
+            body: tipoTecBody,
+            startY: startY_Sec2,
+            margin: { left: cursorX },
+            tableWidth: widthTipo,
+            theme: 'grid',
+            styles: { fontSize: 6, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0], cellPadding: 1 },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255], lineWidth: 0.1, fontSize: 7 },
+            columnStyles: {
+                0: { fontStyle: 'bold' },
+                1: { halign: 'center', cellWidth: 8, fontStyle: 'bold' }
+            }
+        });
+        const finalY_Tipo = (doc as any).lastAutoTable.finalY;
+        cursorX += widthTipo + gap;
+
+        // 2c. DOCUMENTOS DISPONIBLES
+        const widthDocs = 42;
+        const docsBody = [
+            ['MANUAL USUARIO', '[   ]'],
+            ['MANUAL SERVICIO', '[   ]'],
+            ['FICHA TÉCNICA', '[   ]'],
+            ['GUÍA RÁPIDA', '[   ]']
+        ];
+
+        autoTable(doc, {
+            head: [[{ content: 'DOCUMENTOS', colSpan: 2, styles: { halign: 'center', fontStyle: 'bold' } }]],
+            body: docsBody,
+            startY: startY_Sec2,
+            margin: { left: cursorX },
+            tableWidth: widthDocs,
+            theme: 'grid',
+            styles: { fontSize: 6, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0], cellPadding: 1 },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255], lineWidth: 0.1, fontSize: 7 },
+            columnStyles: {
+                0: { fontStyle: 'bold' },
+                1: { halign: 'center', cellWidth: 8, fontStyle: 'bold' }
+            }
+        });
+        const finalY_Docs = (doc as any).lastAutoTable.finalY;
+        cursorX += widthDocs + gap;
+
+        // 2d. CLASIFICACIÓN SEGÚN USO
+        // Width = Page (297) - 20 (margins) - 96 - 42 - 42 - 9 (gaps) = ~88
+        const widthUso = 88;
+        const uso = hojaVida.tipoUso;
+        const usoBody = [
+            ['DIAGNÓSTICO', check(uso === 'Diagnostico')],
+            ['TERAPÉUTICO', check(uso === 'Terapéutico')],
+            ['SOPORTE VITAL', check(uso === 'Soporte Vital')],
+            ['QUIRÚRGICO', check(uso === 'Quirurgico')],
+            ['LABORATORIO', check(uso === 'Equipo de laboratorio')],
+            ['REHABILITACIÓN', check(uso === 'Rehabilitación')],
+            ['GESTIÓN/SOPORTE', check(uso === 'Gestión y Soporte Hospitalario')]
+        ];
+
+        autoTable(doc, {
+            head: [[{ content: 'CLASIFICACIÓN SEGÚN USO', colSpan: 2, styles: { halign: 'center', fontStyle: 'bold' } }]],
+            body: usoBody,
+            startY: startY_Sec2,
+            margin: { left: cursorX },
+            tableWidth: widthUso,
+            theme: 'grid',
+            styles: { fontSize: 6, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0], cellPadding: 1 },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255], lineWidth: 0.1, fontSize: 7 },
+            columnStyles: {
+                0: { fontStyle: 'bold' },
+                1: { halign: 'center', cellWidth: 10, fontStyle: 'bold' }
+            }
+        });
+        const finalY_Uso = (doc as any).lastAutoTable.finalY;
+
+        finalY = Math.max(finalY_RegTec, finalY_Tipo, finalY_Docs, finalY_Uso) + 2;
+
+        // --- SECCIÓN 3: CONTROL, PERIODICIDAD Y ACCESORIOS (SPLIT TABLES) ---
+        // 3a. RESPONSABLE MMTO
+        const mnt = hojaVida.mantenimiento;
+        const respMntBody = [
+            ['PROPIO', check(mnt === 'Propio')],
+            ['CONTRATADO', check(mnt === 'Contratado')],
+            ['COMODATO', check(mnt === 'Comodato')],
+            ['GARANTÍA', check(mnt === 'Garantia')],
+            ['ALQUILER', check(mnt === 'Alquiler')]
+        ];
+
+        const startY_Sec3 = finalY;
+
+        autoTable(doc, {
+            head: [[{ content: 'RESPONSABLE MMTO', colSpan: 2, styles: { halign: 'center', fontStyle: 'bold' } }]],
+            body: respMntBody,
+            startY: startY_Sec3,
+            margin: { left: margin },
+            tableWidth: 40,
+            theme: 'grid',
+            styles: { fontSize: 6, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0], cellPadding: 1 },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255], fontSize: 7 },
+            columnStyles: { 1: { halign: 'center', fontStyle: 'bold' } }
+        });
+        const finalY_Resp = (doc as any).lastAutoTable.finalY;
+
+        // 3b. PERIODICIDAD MMTO
+        const pMnt = hojaVida.equipo?.periodicidadM;
+        const perMntBody = [
+            ['CUATRIMESTRAL', check(pMnt === 4)],
+            ['SEMESTRAL', check(pMnt === 6)],
+            ['ANUAL', check(pMnt === 12)],
+            ['BIANUAL', check(pMnt === 24)],
+            ['NO APLICA', check(pMnt === 0)]
+        ];
+
+        autoTable(doc, {
+            head: [[{ content: 'PERIODICIDAD MMTO', colSpan: 2, styles: { halign: 'center', fontStyle: 'bold' } }]],
+            body: perMntBody,
+            startY: startY_Sec3,
+            margin: { left: margin + 42 },
+            tableWidth: 40,
+            theme: 'grid',
+            styles: { fontSize: 6, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0], cellPadding: 1 },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255], fontSize: 7 },
+            columnStyles: { 1: { halign: 'center', fontStyle: 'bold' } }
+        });
+        const finalY_PerMnt = (doc as any).lastAutoTable.finalY;
+
+        // 3c. PERIODICIDAD CALIBRACIÓN
+        const pCal = hojaVida.equipo?.periodicidadC;
+        const perCalBody = [
+            ['SEMESTRAL', check(pCal === 6)],
+            ['ANUAL', check(pCal === 12)],
+            ['BIANUAL', check(pCal === 24)],
+            ['NO APLICA', check(pCal === 0)]
+        ];
+
+        autoTable(doc, {
+            head: [[{ content: 'PERIODICIDAD CAL', colSpan: 2, styles: { halign: 'center', fontStyle: 'bold' } }]],
+            body: perCalBody,
+            startY: startY_Sec3,
+            margin: { left: margin + 42 + 42 },
+            tableWidth: 40,
+            theme: 'grid',
+            styles: { fontSize: 6, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0], cellPadding: 1 },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255], fontSize: 7 },
+            columnStyles: { 1: { halign: 'center', fontStyle: 'bold' } }
+        });
+        const finalY_PerCal = (doc as any).lastAutoTable.finalY;
+
+        // 3d. ACCESORIOS
+        const accesoriosContent = dt.accesorios || '\n\n\n\n';
+
+        autoTable(doc, {
+            head: [[{ content: 'ACCESORIOS DEL EQUIPO', styles: { halign: 'center', fontStyle: 'bold' } }]],
+            body: [
+                [{ content: accesoriosContent, styles: { minCellHeight: 20 } }]
+            ],
+            startY: startY_Sec3,
+            margin: { left: margin + 42 + 42 + 42 },
+            tableWidth: 151, // Remainder
+            theme: 'grid',
+            styles: { fontSize: 7, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0] },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255], fontSize: 7 }
+        });
+        const finalY_Acc = (doc as any).lastAutoTable.finalY;
+
+        finalY = Math.max(finalY_Resp, finalY_PerMnt, finalY_PerCal, finalY_Acc);
+
+        // --- OBSERVACIONES ---
+        autoTable(doc, {
+            head: [
+                [{ content: 'OBSERVACIONES', styles: { halign: 'center', fontStyle: 'bold' } }]
+            ],
+            body: [
+                [{ content: hojaVida.observaciones || '\n\n\n' }]
+            ],
+            theme: 'grid',
+            styles: { lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0] },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255] },
+            margin: { left: margin, right: margin },
+            startY: finalY + 5
+        });
+
+        // Footer
+        const footerY = pageHeight - 10;
+        doc.setFontSize(6);
+        doc.text('ND: NO DISPONIBLE   NR: NO REGISTRA   NE: NO ESPECIFICA   NA: NO APLICA', margin, footerY);
+
+        doc.save(`HojaVida_${hojaVida.equipo?.placa || 'Equipo'}.pdf`);
+    }
+
+    private formatDate(dateStr: string): string {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('es-CO');
+    }
+
+    private async blobToBase64(blob: Blob): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    }
+
     private async loadImage(url: string): Promise<string | null> {
-        return null;
-        /*
-         try {
-             const response = await fetch(url);
-             const blob = await response.blob();
-             return new Promise((resolve) => {
-                 const reader = new FileReader();
-                 reader.onloadend = () => resolve(reader.result as string);
-                 reader.readAsDataURL(blob);
-             });
-         } catch (e) {
-             console.error('Error loading image', e);
-             return null;
-         }
-         */
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                console.warn(`Failed to load image from ${url}: ${response.status} ${response.statusText}`);
+                return null;
+            }
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        } catch (e) {
+            console.error('Error loading image', e);
+            return null;
+        }
     }
 }
