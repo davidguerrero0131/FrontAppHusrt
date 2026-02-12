@@ -96,6 +96,7 @@
             <th>Error Máx.</th>
             <th>Observaciones</th>
             <th>Reporte</th>
+            <th>Confirmación</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item>
@@ -111,6 +112,11 @@
             <td>
               <button pButton icon="pi pi-file-pdf" class="p-button-rounded p-button-danger p-button-text"
                 (click)="viewPdf(item.rutaReporte)" *ngIf="item.rutaReporte" pTooltip="Ver Reporte"></button>
+            </td>
+            <td>
+              <button pButton icon="pi pi-file-pdf" class="p-button-rounded p-button-help p-button-text"
+                (click)="viewPdf(item.confirmacionMetrologica)" *ngIf="item.confirmacionMetrologica"
+                pTooltip="Ver Confirmación"></button>
             </td>
           </tr>
         </ng-template>

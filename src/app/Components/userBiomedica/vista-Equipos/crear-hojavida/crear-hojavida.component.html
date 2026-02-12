@@ -6,7 +6,7 @@
                 }}</h2>
             <div class="flex gap-2">
                 <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary"
-                    [routerLink]="['/biomedica/equipos']"></button>
+                    (click)="cancelar()"></button>
                 <button pButton [label]="hojaVidaData ? 'Actualizar' : 'Guardar'" icon="pi pi-check"
                     (click)="onSubmit()" [disabled]="!hojaVidaForm.valid"></button>
             </div>
@@ -289,6 +289,61 @@
                             <label for="observaciones" class="font-bold">Observaciones Generales</label>
                             <textarea id="observaciones" rows="3" pTextarea formControlName="observaciones"
                                 [autoResize]="true" class="w-full"></textarea>
+                        </div>
+                    </div>
+                </p-tabPanel>
+
+                <!-- TAB 4: Accesorios -->
+                <p-tabPanel header="Accesorios">
+                    <div class="grid p-fluid formgrid mt-2">
+                        <div class="col-12">
+                            <span
+                                class="text-xl font-medium text-primary block mb-3 border-bottom-1 surface-border pb-2">
+                                <i class="pi pi-list mr-2"></i>Listado de Accesorios
+                            </span>
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <button pButton label="Agregar Accesorio" icon="pi pi-plus" (click)="addAccesorio()"
+                                type="button" class="p-button-outlined"></button>
+                        </div>
+
+                        <div class="col-12" *ngFor="let acc of accesorios; let i = index">
+                            <div class="card p-3 surface-50 border-round-lg mb-3">
+                                <div class="grid align-items-end">
+                                    <div class="col-12 md:col-4 lg:col-4">
+                                        <label class="font-bold block mb-2">Nombre del Accesorio</label>
+                                        <input pInputText [(ngModel)]="acc.nombre" [ngModelOptions]="{standalone: true}"
+                                            placeholder="Nombre del accesorio" class="w-full" />
+                                    </div>
+                                    <div class="col-12 md:col-3 lg:col-3">
+                                        <label class="font-bold block mb-2">Cantidad</label>
+                                        <p-inputNumber [(ngModel)]="acc.cantidad" [ngModelOptions]="{standalone: true}"
+                                            [min]="1" [showButtons]="true" buttonLayout="horizontal"
+                                            inputId="horizontal" spinnerMode="horizontal" [step]="1"
+                                            decrementButtonClass="p-button-secondary"
+                                            incrementButtonClass="p-button-secondary" incrementButtonIcon="pi pi-plus"
+                                            decrementButtonIcon="pi pi-minus" class="w-full" styleClass="w-full"
+                                            [inputStyle]="{'width':'100%'}"></p-inputNumber>
+                                    </div>
+                                    <div class="col-12 md:col-3 lg:col-3">
+                                        <label class="font-bold block mb-2">Estado</label>
+                                        <p-dropdown [options]="opcionesBinarias" [(ngModel)]="acc.estado"
+                                            [ngModelOptions]="{standalone: true}" optionLabel="label"
+                                            optionValue="value" placeholder="Seleccione Estado"
+                                            styleClass="w-full"></p-dropdown>
+                                    </div>
+                                    <div class="col-12 lg:col-2 text-right">
+                                        <button pButton [icon]="acc.estado ? 'pi pi-check' : 'pi pi-times'"
+                                            [class]="acc.estado ? 'p-button-success p-button-rounded' : 'p-button-danger p-button-rounded'"
+                                            (click)="toggleAccesorioState(i)" type="button"
+                                            [pTooltip]="acc.estado ? 'Desactivar' : 'Activar'"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 text-center text-500" *ngIf="accesorios.length === 0">
+                            No hay accesorios agregados.
                         </div>
                     </div>
                 </p-tabPanel>

@@ -183,6 +183,33 @@
           </p-accordion-content>
         </p-accordion-panel>
 
+        <!-- Accesorios -->
+        <p-accordion-panel value="accesorios" *ngIf="hojaVida.accesorios && hojaVida.accesorios.length > 0">
+          <p-accordion-header>Accesorios</p-accordion-header>
+          <p-accordion-content>
+            <p-table [value]="hojaVida.accesorios" responsiveLayout="scroll" styleClass="p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Nombre</th>
+                  <th>Cantidad</th>
+                  <th>Estado</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-acc>
+                <tr>
+                  <td>{{ acc.nombre }}</td>
+                  <td>{{ acc.cantidad || 1 }}</td>
+                  <td>
+                    <span [class]="acc.estado ? 'text-green-500 font-bold' : 'text-red-500 font-bold'">
+                      {{ acc.estado ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-accordion-content>
+        </p-accordion-panel>
+
         <!-- Documentos Anexos -->
         <p-accordion-panel value="5">
           <p-accordion-header>Documentos Anexos</p-accordion-header>
@@ -261,8 +288,8 @@
   </ng-container>
 
   <ng-template #createForm>
-    <app-crear-hojavida [equipoId]="id" [hojaVidaData]="dataToEdit"
-      (hojaVidaCreated)="onHojaVidaCreated()"></app-crear-hojavida>
+    <app-crear-hojavida [equipoId]="id" [hojaVidaData]="dataToEdit" (hojaVidaCreated)="onHojaVidaCreated()"
+      (onCancel)="onCancelCreate()"></app-crear-hojavida>
   </ng-template>
 
 </div>

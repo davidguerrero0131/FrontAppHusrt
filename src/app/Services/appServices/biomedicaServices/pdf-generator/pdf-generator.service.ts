@@ -814,19 +814,37 @@ export class PdfGeneratorService {
         const finalY_PerCal = (doc as any).lastAutoTable.finalY;
 
         // 3d. ACCESORIOS
-        const accesoriosContent = dt.accesorios || '\n\n\n\n';
+        let accesoriosBody: any[] = [];
+        if (hojaVida.accesorios && hojaVida.accesorios.length > 0) {
+            const activos = hojaVida.accesorios.filter((acc: any) => acc.estado === true);
+            if (activos.length > 0) {
+                accesoriosBody = activos.map((acc: any) => [
+                    `${acc.nombre}`,
+                    `${acc.cantidad || 1}`
+                ]);
+            } else {
+                accesoriosBody = [[dt?.accesorios || '\n\n\n\n', '']];
+            }
+        } else {
+            accesoriosBody = [[dt?.accesorios || '\n\n\n\n', '']];
+        }
 
         autoTable(doc, {
-            head: [[{ content: 'ACCESORIOS DEL EQUIPO', styles: { halign: 'center', fontStyle: 'bold' } }]],
-            body: [
-                [{ content: accesoriosContent, styles: { minCellHeight: 20 } }]
-            ],
+            head: [[
+                { content: 'ACCESORIOS', styles: { halign: 'center', fontStyle: 'bold' } },
+                { content: 'CANTIDAD', styles: { halign: 'center', fontStyle: 'bold', cellWidth: 20 } }
+            ]],
+            body: accesoriosBody,
             startY: startY_Sec3,
             margin: { left: margin + 42 + 42 + 42 },
             tableWidth: 151, // Remainder
             theme: 'grid',
-            styles: { fontSize: 7, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0] },
-            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255], fontSize: 7 }
+            styles: { fontSize: 6, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0], cellPadding: 1, valign: 'middle' },
+            headStyles: { fillColor: [0, 150, 136], textColor: [255, 255, 255], fontSize: 7 },
+            columnStyles: {
+                0: { cellWidth: 'auto' },
+                1: { cellWidth: 20, halign: 'center' }
+            }
         });
         const finalY_Acc = (doc as any).lastAutoTable.finalY;
 

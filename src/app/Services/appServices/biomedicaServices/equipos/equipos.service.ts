@@ -82,6 +82,12 @@ export class EquiposService {
     )
   }
 
+  getAllEquiposRiesgo(riesgo: any) {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/riesgo/${riesgo}`, createHeaders())
+    )
+  }
+
   getTrazabilidadByEquipo(idEquipo: any) {
     return firstValueFrom(
       this.httpClient.get<any[]>(`${this.baseUrl}/trazabilidad/equipo/${idEquipo}`, createHeaders())

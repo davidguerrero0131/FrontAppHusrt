@@ -96,7 +96,7 @@ export class MesaCasoCreateComponent implements OnInit {
 
   loadServicios() {
     this.servicioService.getAllServiciosActivos().then(data => {
-      this.servicios = data;
+      this.servicios = data.filter((s: any) => s.requiereMesaServicios === true);
     });
   }
 

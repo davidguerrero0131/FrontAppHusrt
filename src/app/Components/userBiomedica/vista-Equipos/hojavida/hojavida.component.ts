@@ -169,6 +169,15 @@ export class HojavidaComponent implements OnInit {
     this.showCreate = true;
   }
 
+  onCancelCreate() {
+    if (this.hojaVida) {
+      this.showCreate = false;
+      this.dataToEdit = null;
+    } else {
+      this.location.back();
+    }
+  }
+
   datosTecnicosKeys(): string[] {
     return this.hojaVida?.datosTecnicos
       ? Object.keys(this.hojaVida.datosTecnicos).filter(k => !['id', 'createdAt', 'updatedAt'].includes(k))

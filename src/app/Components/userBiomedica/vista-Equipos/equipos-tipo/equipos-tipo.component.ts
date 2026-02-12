@@ -572,6 +572,7 @@ export class EquiposTipoComponent implements OnInit {
   errorMaximoIdentificado: number | null = null;
   observaciones: string = '';
   selectedFile: File | null = null;
+  selectedFileConfirmacion: File | null = null;
 
   opcionesResultado: any[] = [
     { label: 'Cumple', value: 'Cumple' },
@@ -597,11 +598,17 @@ export class EquiposTipoComponent implements OnInit {
     this.resultado = '';
     this.errorMaximoIdentificado = null;
     this.observaciones = '';
+    this.observaciones = '';
     this.selectedFile = null;
+    this.selectedFileConfirmacion = null;
   }
 
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
+  }
+
+  onFileSelectedConfirmacion(event: any) {
+    this.selectedFileConfirmacion = event.target.files[0];
   }
 
   async registrarMetrologia() {
@@ -622,6 +629,10 @@ export class EquiposTipoComponent implements OnInit {
     formData.append('observaciones', this.observaciones);
     formData.append('usuarioIdFk', getDecodedAccessToken().id);
     formData.append('rutaReporte', this.selectedFile);
+
+    if (this.selectedFileConfirmacion) {
+      formData.append('confirmacionMetrologica', this.selectedFileConfirmacion);
+    }
 
     try {
       await this.metrologiaService.registrarActividadConArchivo(formData);

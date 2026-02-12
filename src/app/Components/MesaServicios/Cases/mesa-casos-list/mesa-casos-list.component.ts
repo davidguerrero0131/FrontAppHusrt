@@ -88,7 +88,9 @@ export class MesaCasosListComponent implements OnInit {
   loadServicios() {
     this.servicioService.getAllServiciosActivos().then(data => {
       if (Array.isArray(data)) {
-        this.servicios = [{ nombres: 'Todos', id: null }, ...data];
+        // Filter for Mesa de Servicios
+        const serviciosMesa = data.filter((s: any) => s.requiereMesaServicios === true);
+        this.servicios = [{ nombres: 'Todos', id: null }, ...serviciosMesa];
       } else {
         this.servicios = [{ nombres: 'Todos', id: null }];
       }

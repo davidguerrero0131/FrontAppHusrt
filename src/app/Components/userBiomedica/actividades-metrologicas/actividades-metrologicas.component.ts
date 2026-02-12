@@ -56,6 +56,7 @@ export class ActividadesMetrologicasComponent implements OnInit {
   constructor(private location: Location) { }
 
   async ngOnInit() {
+    this.date = new Date();
     try {
       this.actividadesMetrologicas = await this.metrologiaServices.getReportesActividadesMesAño({ mes: this.mes, anio: this.anio });
     } catch (error) {
@@ -144,6 +145,7 @@ export class ActividadesMetrologicasComponent implements OnInit {
   errorMaximoIdentificado: number | null = null;
   observaciones: string = '';
   selectedFile: File | null = null;
+  selectedFileConfirmacion: File | null = null;
 
   opcionesResultado: any[] = [
     { label: 'Cumple', value: 'Cumple' },
@@ -160,6 +162,10 @@ export class ActividadesMetrologicasComponent implements OnInit {
 
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
+  }
+
+  onFileSelectedConfirmacion(event: any) {
+    this.selectedFileConfirmacion = event.target.files[0];
   }
 
   async registrarActividad() {
@@ -181,6 +187,10 @@ export class ActividadesMetrologicasComponent implements OnInit {
 
     if (this.selectedFile) {
       formData.append('rutaReporte', this.selectedFile);
+    }
+
+    if (this.selectedFileConfirmacion) {
+      formData.append('confirmacionMetrologica', this.selectedFileConfirmacion);
     }
 
     try {
@@ -207,6 +217,7 @@ export class ActividadesMetrologicasComponent implements OnInit {
     this.errorMaximoIdentificado = null;
     this.observaciones = '';
     this.selectedFile = null;
+    this.selectedFileConfirmacion = null;
 
   }
 

@@ -62,7 +62,7 @@ export class MesaCategoriasComponent implements OnInit {
     this.servicioService.getAllServiciosActivos().then(data => {
       console.log('Servicios Data:', data);
       if (Array.isArray(data)) {
-        this.servicios = data;
+        this.servicios = data.filter((s: any) => s.requiereMesaServicios === true);
       } else {
         console.error('Servicios is not an array:', data);
         this.servicios = [];

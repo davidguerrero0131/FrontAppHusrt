@@ -357,6 +357,14 @@ i,
     background: linear-gradient(135deg, #78909c, #546e7a);
 }
 
+.gradient-mint {
+    background: linear-gradient(135deg, #4db6ac, #009688);
+}
+
+.gradient-yellow {
+    background: linear-gradient(135deg, #fdd835, #fbc02d);
+}
+
 /* Card Content Standard */
 .card-content {
     padding: 1.5rem;
@@ -502,4 +510,41 @@ i,
 /* Fix SweetAlert2 z-index to be above PrimeNG Dialogs */
 .swal2-container {
     z-index: 99999 !important;
+}
+
+/* --- Legacy PrimeNG Input Icon Support (v19 Compatibility) --- */
+.p-input-icon-left,
+.p-input-icon-right {
+    position: relative;
+    display: inline-block;
+    width: auto;
+}
+
+.p-input-icon-left>i,
+.p-input-icon-right>i {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-top: 0;
+    z-index: 1;
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.p-input-icon-left>i {
+    left: 0.75rem;
+}
+
+.p-input-icon-right>i {
+    right: 0.75rem;
+}
+
+.p-input-icon-left>input,
+.p-input-icon-left>.p-inputtext {
+    padding-left: 2.5rem !important;
+}
+
+.p-input-icon-right>input,
+.p-input-icon-right>.p-inputtext {
+    padding-right: 2.5rem !important;
 }

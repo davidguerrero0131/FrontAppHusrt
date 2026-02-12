@@ -15,6 +15,7 @@ import { DividerModule } from 'primeng/divider';
 import { FieldsetModule } from 'primeng/fieldset';
 import { TabViewModule } from 'primeng/tabview';
 import { PanelModule } from 'primeng/panel';
+import { TooltipModule } from 'primeng/tooltip';
 import { HojavidaService } from './../../../../Services/appServices/biomedicaServices/hojavida/hojavida.service';
 import { ProveedorService } from './../../../../Services/appServices/biomedicaServices/proveedor/proveedor.service';
 import { FabricanteService } from './../../../../Services/appServices/biomedicaServices/fabricante/fabricante.service';
@@ -41,7 +42,8 @@ import Swal from 'sweetalert2';
     FieldsetModule,
     RouterModule,
     TabViewModule,
-    PanelModule
+    PanelModule,
+    TooltipModule
   ],
   providers: [MessageService],
   templateUrl: './crear-hojavida.component.html',
@@ -52,6 +54,7 @@ export class CrearHojavidaComponent implements OnInit {
   @Input() equipoId: string | null = null;
   @Input() hojaVidaData: any | null = null;
   @Output() hojaVidaCreated = new EventEmitter<void>();
+  @Output() onCancel = new EventEmitter<void>();
 
   hojaVidaForm: FormGroup;
   hojaVidaService = inject(HojavidaService);
@@ -63,6 +66,9 @@ export class CrearHojavidaComponent implements OnInit {
 
   equipo: any;
   selectedFile: File | null = null;
+  accesorios: any[] = [];
+
+
 
   proveedores: any[] = [];
   fabricantes: any[] = [];
@@ -124,8 +130,8 @@ export class CrearHojavidaComponent implements OnInit {
   ];
 
   opcionesBinarias = [
-    { label: 'Sí', value: true },
-    { label: 'No', value: false }
+    { label: 'Activo', value: true },
+    { label: 'Inactivo', value: false }
   ];
 
   constructor(private fb: FormBuilder) {
@@ -234,7 +240,24 @@ export class CrearHojavidaComponent implements OnInit {
         peso: this.hojaVidaData.datosTecnicos?.peso,
         capacidad: this.hojaVidaData.datosTecnicos?.capacidad
       });
+
+      if (this.hojaVidaData.accesorios) {
+        this.accesorios = this.hojaVidaData.accesorios.map((acc: any) => ({
+          id: acc.id,
+          nombre: acc.nombre,
+          cantidad: acc.cantidad || 1,
+          estado: acc.estado
+        }));
+      }
     }
+  }
+
+  addAccesorio() {
+    this.accesorios.push({ nombre: '', cantidad: 1, estado: true });
+  }
+
+  toggleAccesorioState(index: number) {
+    this.accesorios[index].estado = !this.accesorios[index].estado;
   }
 
   async onSubmit() {
@@ -258,7 +281,7 @@ export class CrearHojavidaComponent implements OnInit {
 
         let datosTecnicosId = this.hojaVidaData?.datosTecnicos?.id;
 
-        // Manejo de Datos TÃ©cnicos
+
         if (this.hojaVidaData && datosTecnicosId) {
           // Actualizar existentes
           await this.datosTecnicosService.updateDatosTecnicos(datosTecnicosId, datosTecnicosPayload);
@@ -268,7 +291,7 @@ export class CrearHojavidaComponent implements OnInit {
           datosTecnicosId = newDatos.id;
         }
 
-        // Si hay hojaVidaData, es una ediciÃ³n
+
         if (this.hojaVidaData) {
           const payload = {
             ...formValue,
@@ -287,14 +310,18 @@ export class CrearHojavidaComponent implements OnInit {
             formData.append('foto', this.selectedFile);
           }
 
+          if (this.accesorios) {
+            formData.append('accesorios', JSON.stringify(this.accesorios));
+          }
+
           await this.hojaVidaService.updateHojaVida(this.hojaVidaData.id, formData);
           Swal.fire({
             icon: 'success',
             title: 'Hoja de Vida Actualizada',
-            text: 'La hoja de vida y sus datos tÃ©cnicos se han actualizado correctamente.'
+            text: 'La hoja de vida y sus datos técnicos se han actualizado correctamente.'
           });
         } else {
-          // CreaciÃ³n nueva
+
           const payload = {
             ...formValue,
             equipoIdFk: this.equipoId,
@@ -311,13 +338,16 @@ export class CrearHojavidaComponent implements OnInit {
           if (this.selectedFile) {
             formData.append('foto', this.selectedFile);
           }
+          if (this.accesorios.length > 0) {
+            formData.append('accesorios', JSON.stringify(this.accesorios));
+          }
 
           await this.hojaVidaService.addHojaVida(formData);
 
           Swal.fire({
             icon: 'success',
             title: 'Hoja de Vida Creada',
-            text: 'La hoja de vida y sus datos tÃ©cnicos se han creado correctamente.'
+            text: 'La hoja de vida y sus datos técnicos se han creado correctamente.'
           });
         }
 
@@ -338,5 +368,9 @@ export class CrearHojavidaComponent implements OnInit {
         text: 'Por favor revise los campos del formulario.'
       });
     }
+  }
+
+  cancelar() {
+    this.onCancel.emit();
   }
 }

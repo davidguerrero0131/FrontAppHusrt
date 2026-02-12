@@ -422,6 +422,11 @@
       <input type="file" (change)="onFileSelected($event)" accept="application/pdf" class="form-control" />
     </div>
 
+    <div class="field">
+      <label>Cargar Confirmación Metrológica (PDF)</label>
+      <input type="file" (change)="onFileSelectedConfirmacion($event)" accept="application/pdf" class="form-control" />
+    </div>
+
     <div class="field" style="grid-column: 1 / -1;">
       <label>Observaciones</label>
       <textarea pInputTextarea [(ngModel)]="observaciones" rows="3" style="width: 100%;"></textarea>

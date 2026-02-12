@@ -62,13 +62,13 @@ export class MesaRolesComponent implements OnInit {
 
       if (user.rol.nombre === 'SUPERADMIN') {
         this.servicioService.getAllServiciosActivos().then(data => {
-          this.servicios = data;
+          this.servicios = data.filter((s: any) => s.requiereMesaServicios === true);
         });
       } else {
         // Fetch assigned services
         this.mesaService.getUserServices(user.id).subscribe((assignments: any[]) => {
           // Map assignments to services and unique them
-          const assignedServices = assignments.map(a => a.servicio).filter(s => s !== null);
+          const assignedServices = assignments.map(a => a.servicio).filter(s => s !== null && s.requiereMesaServicios === true);
 
           // Also include user's primary service if exists
           if (user.servicio && !assignedServices.find(s => s.id === user.servicio.id)) {

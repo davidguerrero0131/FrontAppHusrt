@@ -80,5 +80,9 @@ export class ClasificacionInventarioComponent implements OnInit {
     this.router.navigate(['/biomedica/sedes']);
   }
 
+  showViewRiesgos() {
+    this.router.navigate(['/biomedica/riesgos']);
+  }
+
 }
 

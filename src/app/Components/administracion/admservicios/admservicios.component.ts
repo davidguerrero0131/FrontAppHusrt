@@ -17,11 +17,12 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TagModule } from 'primeng/tag';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-admservicios',
   standalone: true,
-  imports: [TableModule, CommonModule, InputIconModule, IconFieldModule, InputTextModule, DialogModule, ReactiveFormsModule, ButtonModule, TooltipModule, ToolbarModule, TagModule, DropdownModule],
+  imports: [TableModule, CommonModule, InputIconModule, IconFieldModule, InputTextModule, DialogModule, ReactiveFormsModule, ButtonModule, TooltipModule, ToolbarModule, TagModule, DropdownModule, CheckboxModule],
   templateUrl: './admservicios.component.html',
   styleUrl: './admservicios.component.css'
 })
@@ -42,7 +43,8 @@ export class AdmserviciosComponent implements OnInit {
     this.formGroup = this.formBuilder.group({
       nombres: ['', Validators.required],
       ubicacion: ['', Validators.required],
-      sedeIdFk: ['', Validators.required]
+      sedeIdFk: ['', Validators.required],
+      requiereMesaServicios: [false]
     });
   }
 
@@ -104,7 +106,8 @@ export class AdmserviciosComponent implements OnInit {
     this.formGroup.patchValue({
       nombres: servicio.nombres,
       ubicacion: servicio.ubicacion,
-      sedeIdFk: servicio.sedeIdFk || servicio.sede?.id // Handle flat or associated
+      sedeIdFk: servicio.sedeIdFk || servicio.sede?.id, // Handle flat or associated
+      requiereMesaServicios: servicio.requiereMesaServicios
     });
     this.visibleEditModal = true;
   }
