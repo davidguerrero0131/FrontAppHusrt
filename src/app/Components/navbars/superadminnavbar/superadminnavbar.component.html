@@ -1,16 +1,22 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/superadmin">AppHusrt</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/admusuarios">Usuarios</a>
-        </li>
-      </ul>
-      <button type="button" class="btn btn-outline-dark" style="justify-content: right;" (click)="navigateToAbout()">Cerrar Sesión</button>
-    </div>
-  </div>
-</nav>
+<div class="card border-0 shadow-sm rounded-0 mb-4">
+  <p-menubar [model]="items" styleClass="border-none bg-surface-0 border-round-xl">
+    <ng-template pTemplate="start">
+      <div class="flex align-items-center gap-2 mr-4">
+        <img src="assets/LogoAgora.png" height="40" alt="Logo" onerror="this.src='assets/logo.png'" />
+        <div class="flex flex-column">
+          <a class="font-bold text-primary text-lg no-underline" [routerLink]="['/superadmin']">AppHusrt</a>
+          <span class="text-xs text-secondary">Super Admin</span>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="end">
+      <div class="flex align-items-center gap-3">
+        <p-avatar icon="pi pi-user" styleClass="bg-primary-50 text-primary cursor-pointer" shape="circle"
+          (click)="viewUser()" pTooltip="Perfil"></p-avatar>
+        <button pButton icon="pi pi-sign-out" class="p-button-rounded p-button-text p-button-danger" (click)="logout()"
+          pTooltip="Cerrar Sesión"></button>
+      </div>
+    </ng-template>
+  </p-menubar>
+</div>

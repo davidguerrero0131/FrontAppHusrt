@@ -4,20 +4,25 @@ import { providePrimeNG } from 'primeng/config';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import Aura from '@primeng/themes/aura';
 import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideHttpClient } from '@angular/common/http';
+
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { MyPreset } from './mypreset';
 
+import { authInterceptor } from './custom/auth.interceptor';
+
 export const appConfig: ApplicationConfig = {
   providers: [
-    MessageService ,
+    MessageService,
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    providePrimeNG({theme:{preset:MyPreset, options: {
-            darkModeSelector: false || 'none'
-        }}}),
+    providePrimeNG({
+      theme: {
+        preset: MyPreset, options: {
+          darkModeSelector: false || 'none'
+        }
+      }
+    }),
     provideAnimations(),
-    provideHttpClient(),
-    provideClientHydration(withEventReplay())]
+    provideHttpClient(withInterceptors([authInterceptor]))]
 };

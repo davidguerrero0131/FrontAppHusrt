@@ -1,4 +1,6 @@
 import { OlvidoContrasenaComponent } from './Components/gestionarContraseña/olvido-contrasena/olvido-contrasena.component';
+import { InspeccionListComponent } from './Components/areasFisicas/inspeccion/inspeccion-list.component';
+import { ManageInspeccionComponent } from './Components/areasFisicas/inspeccion/manage-inspeccion.component';
 import { NgModule } from '@angular/core';
 import { authGuard } from './auth.guard';
 import { RouterModule, Routes } from '@angular/router';
@@ -7,8 +9,8 @@ import { ReportspediatricsComponent } from './Components/Servinte/Reports/report
 import { UsuariosServicioComponent } from './Components/News2/usuarios-servicio/usuarios-servicio.component';
 import { AerolineaComponent } from './Components/Aerolinea/aerolinea/aerolinea.component';
 import { LoginComponent } from './Components/login/login.component'
-import { HomesuperadminComponent} from './Components/Homepage/homesuperadmin/homesuperadmin.component'
-import { HomeadminsistemasComponent} from './Components/Homepage/homeadminsistemas/homeadminsistemas.component'
+import { HomesuperadminComponent } from './Components/Homepage/homesuperadmin/homesuperadmin.component'
+import { HomeadminsistemasComponent } from './Components/Homepage/homeadminsistemas/homeadminsistemas.component'
 import { HomeadminbiomedicaComponent } from './Components/Homepage/homeadminbiomedica/homeadminbiomedica.component';
 import { HomeadminmantenimientoComponent } from './Components/Homepage/homeadminmantenimiento/homeadminmantenimiento.component';
 import { RegistroComponent } from './Components/registro/registro.component';
@@ -40,6 +42,15 @@ import { CrearEquipoComponent } from './Components/userBiomedica/vista-Equipos/c
 import { CirugiaComponent } from './Components/cirugia/cirugia.component';
 import { AdmtiposequipoComponent } from './Components/administracion/admtiposequipo/admtiposequipo.component';
 import { AdmserviciosComponent } from './Components/administracion/admservicios/admservicios.component';
+import { AreasListComponent } from './Components/areasFisicas/areas-list/areas-list.component';
+import { ManageAreaComponent } from './Components/areasFisicas/manage-area/manage-area.component';
+import { ElementosListComponent } from './Components/areasFisicas/elementos/elementos-list/elementos-list.component';
+import { ManageElementoComponent } from './Components/areasFisicas/elementos/manage-elemento/manage-elemento.component';
+import { ManagePlanMantenimientoComponent } from './Components/areasFisicas/plan-mantenimiento/manage-plan-mantenimiento.component';
+import { PlanMantenimientoListComponent } from './Components/areasFisicas/plan-mantenimiento/plan-mantenimiento-list.component';
+import { ManageAreaElementosComponent } from './Components/areasFisicas/area-elementos/manage-area-elementos.component';
+import { AreaElementosListComponent } from './Components/areasFisicas/area-elementos/area-elementos-list.component';
+import { roleGuard } from './role.guard';
 
 export const routes: Routes = [
 
@@ -48,50 +59,76 @@ export const routes: Routes = [
     redirectTo: 'login',
     pathMatch: 'full'
   },
-  {path: 'login', component: LoginComponent},
-  {path: 'updateprofil', component: EditarUsuarioComponent, canActivate: [authGuard]},
-  {path: 'superadmin', component: HomesuperadminComponent, canActivate: [authGuard]},
-  {path: 'registro', component: RegistroComponent, canActivate: [authGuard]},
-  {path: 'adminsistemas', component: HomeadminsistemasComponent, canActivate: [authGuard]},
-  {path: 'adminbiomedica', component: HomeadminbiomedicaComponent, canActivate: [authGuard]},
-  {path: 'adminmantenimineto', component: HomeadminmantenimientoComponent, canActivate: [authGuard]},
-  {path: 'adminmesaservicios', component: HomeadminmesaserviciosComponent, canActivate: [authGuard]},
-  {path: 'usermantenimiento', component: HomeusermantenimientoComponent, canActivate: [authGuard]},
-  {path: 'usersistemas', component: HomeusersistemasComponent, canActivate: [authGuard]},
-  {path: 'userbiomedica', component: HomeuserbiomedicaComponent, canActivate: [authGuard]},
-  {path: 'imagenologia/citasCE', component: ReportceComponent},
-  {path: 'servinte/reportepediatria', component: ReportspediatricsComponent},
-  {path: 'servinte/news2', component: UsuariosServicioComponent},
-  {path: 'servinte/cirugia', component: CirugiaComponent},
-  {path: 'acreditacion/aerolinea', component: AerolineaComponent},
-  {path: 'admusuarios', component: GestionUsuariosComponent, canActivate: [authGuard]},
+  { path: 'login', component: LoginComponent },
+  { path: 'updateprofil', component: EditarUsuarioComponent, canActivate: [authGuard] },
+  { path: 'superadmin', component: HomesuperadminComponent, canActivate: [authGuard] },
+  { path: 'registro', component: RegistroComponent, canActivate: [authGuard] },
+  { path: 'adminsistemas', component: HomeadminsistemasComponent, canActivate: [authGuard] },
+  { path: 'adminbiomedica', component: HomeadminbiomedicaComponent, canActivate: [authGuard] },
+  {
+    path: 'adminmantenimiento',
+    component: HomeadminmantenimientoComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['MANTENIMIENTOADMIN'] }
+  },
+  { path: 'adminmesaservicios', component: HomeadminmesaserviciosComponent, canActivate: [authGuard] },
+  { path: 'usermantenimiento', component: HomeusermantenimientoComponent, canActivate: [authGuard] },
+  { path: 'usersistemas', component: HomeusersistemasComponent, canActivate: [authGuard] },
+  { path: 'userbiomedica', component: HomeuserbiomedicaComponent, canActivate: [authGuard] },
+  { path: 'imagenologia/citasCE', component: ReportceComponent },
+  { path: 'servinte/reportepediatria', component: ReportspediatricsComponent },
+  { path: 'servinte/news2', component: UsuariosServicioComponent },
+  { path: 'servinte/cirugia', component: CirugiaComponent },
+  { path: 'acreditacion/aerolinea', component: AerolineaComponent },
+  { path: 'admusuarios', component: GestionUsuariosComponent, canActivate: [authGuard] },
 
-  {path: 'olvidocontraseña', component: OlvidoContrasenaComponent},
-  {path: 'recuperarcontraseña', component: CambiarContrasenaComponent},
+  { path: 'olvidocontraseña', component: OlvidoContrasenaComponent },
+  { path: 'recuperarcontraseña', component: CambiarContrasenaComponent },
 
   // UsuarioBiomedica
 
-  {path: 'biomedica/nuevoequipo', component: CrearEquipoComponent, canActivate: [authGuard]},
-  {path: 'biomedica/inventario', component: ClasificacionInventarioComponent, canActivate: [authGuard]},
-  {path: 'biomedica/mantenimiento', component: ManteniminetoComponent, canActivate: [authGuard]},
-  {path: 'biomedica/semaforizacion', component: SemaforizacionComponent, canActivate: [authGuard]},
-  {path: 'biomedica/indicadores', component: IndicadoresComponent, canActivate: [authGuard]},
-  {path: 'biomedica/calendario', component: CalendarioComponent, canActivate: [authGuard]},
-  {path: 'biomedica/actividadesmetrologicas', component: ActividadesMetrologicasComponent, canActivate: [authGuard]},
-  {path: 'biomedica/tiposequipo', component: ClasificacionTipoEquipoComponent, canActivate: [authGuard]},
-  {path: 'biomedica/servicios', component: ClasificacionServicioComponent, canActivate: [authGuard]},
-  {path: 'biomedica/empComodatos', component: ClasificacionComodatosComponent, canActivate: [authGuard]},
-  {path: 'biomedica/equiposservicio', component: EquiposServicioComponent, canActivate: [authGuard]},
-  {path: 'biomedica/equipostipo', component: EquiposTipoComponent, canActivate: [authGuard]},
-  {path: 'biomedica/equiposcomodatos', component: EquiposComodatosComponent, canActivate: [authGuard]},
-  {path: 'biomedica/nuevoreporte/:id', component: CrearReporteComponent, canActivate: [authGuard]},
-  {path: 'biomedica/reportesequipo/:id', component: VerReporteComponent, canActivate: [authGuard]},
-  {path: 'biomedica/hojavidaequipo/:id', component: HojavidaComponent, canActivate: [authGuard]},
-  {path: 'biomedica/validarqr', component: ValidadorQRComponent, canActivate: [authGuard]},
-  {path: 'admin/tiposequipo', component: AdmtiposequipoComponent, canActivate: [authGuard]},
-  {path: 'admin/servicios', component: AdmserviciosComponent, canActivate: [authGuard]},
+  { path: 'biomedica/nuevoequipo', component: CrearEquipoComponent, canActivate: [authGuard] },
+  { path: 'biomedica/inventario', component: ClasificacionInventarioComponent, canActivate: [authGuard] },
+  { path: 'biomedica/mantenimiento', component: ManteniminetoComponent, canActivate: [authGuard] },
+  { path: 'biomedica/semaforizacion', component: SemaforizacionComponent, canActivate: [authGuard] },
+  { path: 'biomedica/indicadores', component: IndicadoresComponent, canActivate: [authGuard] },
+  { path: 'biomedica/calendario', component: CalendarioComponent, canActivate: [authGuard] },
+  { path: 'biomedica/actividadesmetrologicas', component: ActividadesMetrologicasComponent, canActivate: [authGuard] },
+  { path: 'biomedica/tiposequipo', component: ClasificacionTipoEquipoComponent, canActivate: [authGuard] },
+  { path: 'biomedica/servicios', component: ClasificacionServicioComponent, canActivate: [authGuard] },
+  { path: 'biomedica/empComodatos', component: ClasificacionComodatosComponent, canActivate: [authGuard] },
+  { path: 'biomedica/equiposservicio', component: EquiposServicioComponent, canActivate: [authGuard] },
+  { path: 'biomedica/equipostipo', component: EquiposTipoComponent, canActivate: [authGuard] },
+  { path: 'biomedica/equiposcomodatos', component: EquiposComodatosComponent, canActivate: [authGuard] },
+  { path: 'biomedica/nuevoreporte/:id', component: CrearReporteComponent, canActivate: [authGuard] },
+  { path: 'biomedica/reportesequipo/:id', component: VerReporteComponent, canActivate: [authGuard] },
+  { path: 'biomedica/hojavidaequipo/:id', component: HojavidaComponent, canActivate: [authGuard] },
+  { path: 'biomedica/validarqr', component: ValidadorQRComponent, canActivate: [authGuard] },
+  { path: 'admin/tiposequipo', component: AdmtiposequipoComponent, canActivate: [authGuard] },
+  { path: 'admin/servicios', component: AdmserviciosComponent, canActivate: [authGuard] },
 
-  {path: 'intranet', component: IntranetComponent}
+  // Áreas Físicas
+  { path: 'areas/listado', component: AreasListComponent, canActivate: [authGuard] },
+  { path: 'areas/crear', component: ManageAreaComponent, canActivate: [authGuard] },
+  { path: 'areas/editar/:id', component: ManageAreaComponent, canActivate: [authGuard] },
+
+  // Elementos
+  { path: 'elementos/listado', component: ElementosListComponent, canActivate: [authGuard] },
+  { path: 'elementos/crear', component: ManageElementoComponent, canActivate: [authGuard] },
+  { path: 'elementos/editar/:id', component: ManageElementoComponent, canActivate: [authGuard] },
+  { path: 'areas/asignar-elementos', component: AreaElementosListComponent, canActivate: [authGuard, roleGuard], data: { roles: ['MANTENIMIENTOADMIN'] } },
+  { path: 'areas/asignar-elementos/gestionar', component: ManageAreaElementosComponent, canActivate: [authGuard, roleGuard], data: { roles: ['MANTENIMIENTOADMIN'] } },
+  { path: 'areas/asignar-elementos/gestionar/:id', component: ManageAreaElementosComponent, canActivate: [authGuard, roleGuard], data: { roles: ['MANTENIMIENTOADMIN'] } },
+  { path: 'areas/planes/listado', component: PlanMantenimientoListComponent, canActivate: [authGuard, roleGuard], data: { roles: ['MANTENIMIENTOADMIN'] } },
+  { path: 'areas/planes/crear', component: ManagePlanMantenimientoComponent, canActivate: [authGuard, roleGuard], data: { roles: ['MANTENIMIENTOADMIN'] } },
+  { path: 'areas/planes/editar/:id', component: ManagePlanMantenimientoComponent, canActivate: [authGuard, roleGuard], data: { roles: ['MANTENIMIENTOADMIN'] } },
+
+  // Inspecciones
+  { path: 'areas/inspecciones/listado', component: InspeccionListComponent, canActivate: [authGuard, roleGuard], data: { roles: ['MANTENIMIENTOADMIN'] } },
+  { path: 'areas/inspecciones/crear', component: ManageInspeccionComponent, canActivate: [authGuard, roleGuard], data: { roles: ['MANTENIMIENTOADMIN'] } },
+  { path: 'areas/inspecciones/editar/:id', component: ManageInspeccionComponent, canActivate: [authGuard, roleGuard], data: { roles: ['MANTENIMIENTOADMIN'] } },
+
+  { path: 'intranet', component: IntranetComponent }
 ];
 
 

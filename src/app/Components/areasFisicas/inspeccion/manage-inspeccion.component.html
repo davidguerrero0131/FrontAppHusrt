@@ -1,0 +1,75 @@
+<div class="card p-4">
+    <div class="flex flex-column md:flex-row justify-content-between align-items-center mb-4 gap-3">
+        <div class="flex align-items-center gap-2">
+            <p-button icon="pi pi-arrow-left" label="Volver" styleClass="p-button-secondary p-button-text"
+                (click)="cancelar()" pTooltip="Volver a planes" tooltipPosition="bottom"></p-button>
+            <h2 class="m-0 font-bold text-primary uppercase">SERVICIO {{ nombreArea || 'CARGANDO...' }}</h2>
+        </div>
+        <div class="flex align-items-center gap-2">
+            <span class="font-bold text-lg">FECHA:</span>
+            <span class="text-lg">{{ fechaActual | date:'dd/MM/yyyy' }}</span>
+        </div>
+    </div>
+
+    <p-table [value]="inspecciones" responsiveLayout="scroll" styleClass="p-datatable-gridlines p-datatable-sm">
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 200px;">DESCRIPCION</th>
+                <th style="width: 180px;" class="text-center">ESTADO</th>
+                <th>REPORTE (OBSERVACIONES)</th>
+            </tr>
+            <tr>
+                <th></th>
+                <th class="p-0">
+                    <div class="flex w-full">
+                        <div class="flex-1 text-center font-bold p-2 border-right-1 surface-border bg-gray-100 text-sm">
+                            BUENO</div>
+                        <div class="flex-1 text-center font-bold p-2 border-right-1 surface-border bg-gray-100 text-sm">
+                            REGUL.</div>
+                        <div class="flex-1 text-center font-bold p-2 bg-gray-100 text-sm">MALO</div>
+                    </div>
+                </th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+            <tr>
+                <td class="font-bold">{{ item.elementoNombre }}</td>
+                <td class="p-0">
+                    <div class="flex w-full h-full align-items-center">
+                        <div class="flex-1 flex justify-content-center p-2 border-right-1 surface-border">
+                            <p-radioButton name="estado-{{item.areaElementoIdFk}}" [value]="1" [(ngModel)]="item.estado"
+                                inputId="bueno-{{item.areaElementoIdFk}}" [disabled]="isReadonly"></p-radioButton>
+                        </div>
+                        <div class="flex-1 flex justify-content-center p-2 border-right-1 surface-border">
+                            <p-radioButton name="estado-{{item.areaElementoIdFk}}" [value]="2" [(ngModel)]="item.estado"
+                                inputId="regular-{{item.areaElementoIdFk}}" [disabled]="isReadonly"></p-radioButton>
+                        </div>
+                        <div class="flex-1 flex justify-content-center p-2">
+                            <p-radioButton name="estado-{{item.areaElementoIdFk}}" [value]="3" [(ngModel)]="item.estado"
+                                inputId="malo-{{item.areaElementoIdFk}}" [disabled]="isReadonly"></p-radioButton>
+                        </div>
+                    </div>
+                </td>
+                <td class="p-1">
+                    <input type="text" pInputText [(ngModel)]="item.observaciones" class="w-full border-0"
+                        placeholder="..." [disabled]="isReadonly">
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="3" class="text-center p-4">El área no tiene elementos asignados para inspeccionar.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <div class="flex justify-content-end gap-2 mt-4" *ngIf="!isReadonly">
+        <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-secondary" (click)="cancelar()"></p-button>
+        <p-button label="Guardar Inspección" icon="pi pi-check" styleClass="p-button-primary p-button-raised"
+            (click)="guardar()"></p-button>
+    </div>
+    <div class="flex justify-content-end gap-2 mt-4" *ngIf="isReadonly">
+        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-secondary" (click)="cancelar()"></p-button>
+    </div>
+</div>

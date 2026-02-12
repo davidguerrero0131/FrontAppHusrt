@@ -25,8 +25,8 @@ export class LoginComponent implements OnInit {
 
   ) {
     this.formulario = new FormGroup({
-      usuarion: new FormControl(),
-      contraseña: new FormControl()
+      email: new FormControl(),
+      password: new FormControl()
     });
   }
 
@@ -36,30 +36,57 @@ export class LoginComponent implements OnInit {
 
   async onSubmit() {
     try {
-      const response = await this.userServices.login(this.formulario.value);
+      // Map email/password to usuarion/contraseña for backend
+      const loginData = {
+        usuarion: this.formulario.value.email,
+        contraseña: this.formulario.value.password
+      };
+
+      const response = await this.userServices.login(loginData);
       if (!response.error) {
         localStorage.setItem('utoken', response.token);
-        if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'SYSTEMADMIN') {
+        const decoded = this.getDecodedAccessToken(response.token);
+
+        if (decoded?.rol === 'SYSTEMADMIN') {
           this.router.navigate(['/adminsistemas']);
-        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'SUPERADMIN') {
+        } else if (decoded?.rol === 'SUPERADMIN') {
           this.router.navigate(['/superadmin']);
-        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'MANTENIMIENTOADMIN') {
+        } else if (decoded?.rol === 'ADMINMANTENIMIENTO') {
           this.router.navigate(['/adminmantenimiento']);
-        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'BIOMEDICAADMIN') {
+        } else if (decoded?.rol === 'MANTENIMIENTOADMIN') {
+          this.router.navigate(['/adminmantenimiento']);
+        } else if (decoded?.rol === 'BIOMEDICAADMIN') {
           this.router.navigate(['/adminbiomedica']);
-        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'BIOMEDICAUSER') {
+        } else if (decoded?.rol === 'BIOMEDICAUSER') {
           this.router.navigate(['/userbiomedica']);
-        } else if (this.getDecodedAccessToken(localStorage.getItem('utoken')!).rol === 'BIOMEDICATECNICO') {
+        } else if (decoded?.rol === 'BIOMEDICATECNICO') {
           this.router.navigate(['/userbiomedica']);
         }
+      } else {
+        // Handle specific API error if available, or fallback
+        Swal.fire({
+          icon: 'warning',
+          title: 'Usuario o contraseña incorrecto',
+          text: 'Verifique los campos.'
+        })
       }
     } catch {
       Swal.fire({
         icon: 'warning',
-        title: 'Usuario o contraseña incorecto',
+        title: 'Usuario o contraseña incorrecto',
         text: 'Verifique los campos.'
       })
     }
+  }
+
+  loginInvitado() {
+    // Implement guest login logic or redirect
+    this.router.navigate(['/home-invitado']); // Assuming a route for guests exists or created later
+    Swal.fire({
+      icon: 'info',
+      title: 'Acceso Invitado',
+      text: 'Funcionalidad de invitado en desarrollo.'
+    });
   }
 
   getDecodedAccessToken(token: string): any {
