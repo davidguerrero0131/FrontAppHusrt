@@ -241,24 +241,64 @@ export class EquiposServicioComponent implements OnInit {
     this.calculateMonths();
   }
 
-  obtenerMesesTexto(planes: any): string {
-    if (!planes || planes.length === 0) return 'Sin Plan';
-    // Si es un array, tomamos el primero o mapeamos
-    const plan = Array.isArray(planes) ? planes[0] : planes;
-    if (!plan) return 'Sin Plan';
-
-    const meses = [];
-    let current = plan.mesInicio;
-    const periodicity = plan.periodicidad;
-
-    if (!current || !periodicity) return 'N/A';
-
-    while (current <= 12) {
-      const mName = this.monthOptions.find(m => m.value === current)?.name;
-      if (mName) meses.push(mName);
-      current += periodicity;
+  obtenerMesesTexto(planes: any[]): string {
+    if (!planes || planes.length === 0) {
+      return 'Sin programación';
     }
-    return meses.join(', ');
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    // Filter duplicates and sort
+    const uniqueMeses = [...new Set(planes.map(p => p.mes))].sort((a: any, b: any) => a - b);
+
+    return uniqueMeses.map((m: any) => meses[m - 1]).join(', ');
+  }
+
+  obtenerMesesConCumplimiento(equipo: any): any[] {
+    const planes = equipo.planesMantenimiento || [];
+    const reportes = equipo.reporte || [];
+    const currentMonth = new Date().getMonth() + 1;
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
+    if (planes.length === 0) return [];
+
+    const uniqueMesesNum = [...new Set(planes.map((p: any) => p.mes))].sort((a: any, b: any) => a - b);
+
+    return uniqueMesesNum.map((m: any) => {
+      const reporte = reportes.find((r: any) => r.mesProgramado === m);
+      let color = '';
+
+      if (reporte) {
+        if (reporte.realizado) {
+          color = '#2ecc71'; // Verde (Realizado)
+        } else {
+          // Si realizado es false
+          if (currentMonth < m) {
+            color = '#e74c3c'; // Rojo (Fallido en futuro? El usuario dijo rojo si mes es anterior al plan, pero reporte existe)
+            // Re-leyendo: "si el estado es false y el mes es anterior al mes del plan pintalo en rojo si es posterior pintalo en amarillo"
+            // "mes es anterior al mes del plan" -> mes actual < mes del plan?
+          } else {
+            color = '#f1c40f'; // Amarillo
+          }
+        }
+      } else {
+        // No tiene reporte
+        if (currentMonth > m) {
+          color = '#e74c3c'; // Rojo (Pasado sin reporte)
+        } else {
+          color = '#3498db'; // Azul (Futuro sin reporte)
+        }
+      }
+
+      return {
+        mes: meses[m - 1],
+        color: color
+      };
+    });
   }
 
   obtenerColorRiesgo(riesgo: string): string {
@@ -461,6 +501,7 @@ export class EquiposServicioComponent implements OnInit {
   errorMaximoIdentificado: number | null = null;
   observaciones: string = '';
   selectedFile: File | null = null;
+  selectedFileConfirmacion: File | null = null;
 
   opcionesResultado: any[] = [
     { label: 'Cumple', value: 'Cumple' },
@@ -486,11 +527,17 @@ export class EquiposServicioComponent implements OnInit {
     this.resultado = '';
     this.errorMaximoIdentificado = null;
     this.observaciones = '';
+    this.observaciones = '';
     this.selectedFile = null;
+    this.selectedFileConfirmacion = null;
   }
 
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
+  }
+
+  onFileSelectedConfirmacion(event: any) {
+    this.selectedFileConfirmacion = event.target.files[0];
   }
 
   async registrarMetrologia() {
@@ -513,6 +560,10 @@ export class EquiposServicioComponent implements OnInit {
     formData.append('observaciones', this.observaciones);
     formData.append('usuarioIdFk', getDecodedAccessToken().id);
     formData.append('rutaReporte', this.selectedFile);
+
+    if (this.selectedFileConfirmacion) {
+      formData.append('confirmacionMetrologica', this.selectedFileConfirmacion);
+    }
 
     try {
       await this.metrologiaService.registrarActividadConArchivo(formData);

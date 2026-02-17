@@ -525,10 +525,10 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <button pButton pRipple label="Ver Certificado" icon="pi pi-file-pdf" class="p-button-outlined"
-      (click)="verCertificado()"></button>
-    <button pButton pRipple label="Visualizar Archivo" icon="pi pi-eye" class="p-button-outlined"
-      (click)="verCertificado()"></button>
+    <button pButton pRipple label="Ver Certificado" icon="pi pi-file-pdf" class="p-button-outlined p-button-danger"
+      (click)="verCertificado()" [disabled]="!actividadMetrologicaSelected?.rutaReporte"></button>
+    <button pButton pRipple label="Ver Confirmación" icon="pi pi-file-pdf" class="p-button-outlined p-button-help"
+      (click)="verConfirmacion()" [disabled]="!actividadMetrologicaSelected?.confirmacionMetrologica"></button>
     <button pButton pRipple label="Cerrar" icon="pi pi-times" class="p-button-text p-button-secondary"
       (click)="modalViewActividadMetrologica = false"></button>
   </ng-template>

@@ -253,9 +253,14 @@ export class MesaCasoDetailComponent implements OnInit {
     const serviceId = this.caso.servicioId || this.caso.servicio?.id;
     if (this.caso && serviceId) {
       this.mesaService.getUsersByServicio(serviceId).subscribe((data: any[]) => {
+
         // Show all users in the service (User requested to just bring users related to the service)
         // We keep the role display in the dropdown so they can distinguish.
-        this.usersService = data;
+        this.usersService = data.filter(user => {
+          const roleName = user.mesaServicioRol?.nombre;
+          const isActive = user.estado;
+          return (roleName === 'ADMINISTRADOR' || roleName === 'AGENTE') && isActive === true;
+        });
         this.displayAssignDialog = true;
       });
     }
@@ -264,52 +269,59 @@ export class MesaCasoDetailComponent implements OnInit {
   confirmAssign() {
     if (!this.selectedResolutor) return;
 
-    // Handle multiple selection (array) or single (object)
-    let resolutorsToAssign = [];
-    if (Array.isArray(this.selectedResolutor)) {
-      resolutorsToAssign = this.selectedResolutor;
-    } else {
-      resolutorsToAssign = [this.selectedResolutor];
-    }
-
-    if (resolutorsToAssign.length === 0) return;
-
-    // We will assume we assign sequentially or just the first one if the API is strict.
-    // However, for better UX with multiple support, let's iterate.
-    let completed = 0;
-    let errors = 0;
-
-    const finalize = () => {
-      if (completed + errors === resolutorsToAssign.length) {
-        this.displayAssignDialog = false;
-        this.selectedResolutor = null;
-        if (errors === 0) {
-          this.messageService.add({ severity: 'success', summary: 'Asignado', detail: 'Resolutores asignados correctamente' });
+    this.confirmationService.confirm({
+      message: '¿Está seguro de asignar este(os) responsable(s) al caso?',
+      header: 'Confirmar Asignación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        // Handle multiple selection (array) or single (object)
+        let resolutorsToAssign = [];
+        if (Array.isArray(this.selectedResolutor)) {
+          resolutorsToAssign = this.selectedResolutor;
         } else {
-          this.messageService.add({ severity: 'warn', summary: 'Completado con advertencias', detail: `${completed} asignados, ${errors} fallidos` });
+          resolutorsToAssign = [this.selectedResolutor];
         }
-        this.loadCaso();
+
+        if (resolutorsToAssign.length === 0) return;
+
+        // We will assume we assign sequentially or just the first one if the API is strict.
+        // However, for better UX with multiple support, let's iterate.
+        let completed = 0;
+        let errors = 0;
+
+        const finalize = () => {
+          if (completed + errors === resolutorsToAssign.length) {
+            this.displayAssignDialog = false;
+            this.selectedResolutor = null;
+            if (errors === 0) {
+              this.messageService.add({ severity: 'success', summary: 'Asignado', detail: 'Resolutores asignados correctamente' });
+            } else {
+              this.messageService.add({ severity: 'warn', summary: 'Completado con advertencias', detail: `${completed} asignados, ${errors} fallidos` });
+            }
+            this.loadCaso();
+          }
+        };
+
+        resolutorsToAssign.forEach((user: any) => {
+          const payload = {
+            usuarioId: user.id,
+            asignadoPor: this.userId
+          };
+
+          this.mesaService.assignResolutor(this.casoId, payload).subscribe({
+            next: (res) => {
+              completed++;
+              finalize();
+            },
+            error: (err) => {
+              console.error('Assign Error', err);
+              errors++;
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: `No se pudo asignar a ${user.nombres}` });
+              finalize();
+            }
+          });
+        });
       }
-    };
-
-    resolutorsToAssign.forEach((user: any) => {
-      const payload = {
-        usuarioId: user.id,
-        asignadoPor: this.userId
-      };
-
-      this.mesaService.assignResolutor(this.casoId, payload).subscribe({
-        next: (res) => {
-          completed++;
-          finalize();
-        },
-        error: (err) => {
-          console.error('Assign Error', err);
-          errors++;
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: `No se pudo asignar a ${user.nombres}` });
-          finalize();
-        }
-      });
     });
   }
 

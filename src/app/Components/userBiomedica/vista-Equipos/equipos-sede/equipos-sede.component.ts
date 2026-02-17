@@ -172,7 +172,49 @@ export class EquiposSedeComponent implements OnInit {
         // Filter duplicates and sort
         const uniqueMeses = [...new Set(planes.map(p => p.mes))].sort((a: any, b: any) => a - b);
 
-        return uniqueMeses.map((m: any) => meses[m]).join(', ');
+        return uniqueMeses.map((m: any) => meses[m - 1]).join(', ');
+    }
+
+    obtenerMesesConCumplimiento(equipo: any): any[] {
+        const planes = equipo.planesMantenimiento || [];
+        const reportes = equipo.reporte || [];
+        const currentMonth = new Date().getMonth() + 1;
+        const meses = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+
+        if (planes.length === 0) return [];
+
+        const uniqueMesesNum = [...new Set(planes.map((p: any) => p.mes))].sort((a: any, b: any) => a - b);
+
+        return uniqueMesesNum.map((m: any) => {
+            const reporte = reportes.find((r: any) => r.mesProgramado === m);
+            let color = '';
+
+            if (reporte) {
+                if (reporte.realizado) {
+                    color = '#2ecc71'; // Verde (Realizado)
+                } else {
+                    if (currentMonth < m) {
+                        color = '#e74c3c'; // Rojo
+                    } else {
+                        color = '#f1c40f'; // Amarillo
+                    }
+                }
+            } else {
+                if (currentMonth > m) {
+                    color = '#e74c3c'; // Rojo
+                } else {
+                    color = '#3498db'; // Azul
+                }
+            }
+
+            return {
+                mes: meses[m - 1],
+                color: color
+            };
+        });
     }
 
     obtenerColorRiesgo(riesgo: string): string {
@@ -295,6 +337,7 @@ export class EquiposSedeComponent implements OnInit {
                         },
                         {
                             label: 'Reportes',
+                            visible: ['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN'].includes(getDecodedAccessToken().rol),
                             icon: 'pi pi-external-link',
                             command: () => this.verReportes(equipo.id)
                         },
@@ -302,7 +345,7 @@ export class EquiposSedeComponent implements OnInit {
                             label: 'Nuevo reporte',
                             icon: 'pi pi-upload',
                             command: () => this.nuevoReporte(equipo.id),
-                            visible: getDecodedAccessToken().rol !== 'INVITADO'
+                            visible: ['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
                         },
                         {
                             label: 'Historial',

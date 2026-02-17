@@ -63,9 +63,9 @@
                         <span *ngIf="!equipo.periodicidadM" class="text-400">-</span>
                     </td>
                     <td class="text-center">
-                        <p-splitButton label="Opciones" icon="pi pi-cog" [model]="equipo.opciones"
-                            styleClass="p-button-sm p-button-help p-button-outlined"
-                            (onClick)="equipo.opciones[0].command()" appendTo="body">
+                        <p-splitButton label="HV" icon="pi pi-eye" [model]="equipo.opciones"
+                            styleClass="p-button-sm p-button-help p-button-outlined" (onClick)="verHojaVida(equipo.id)"
+                            appendTo="body">
                         </p-splitButton>
                     </td>
                 </tr>

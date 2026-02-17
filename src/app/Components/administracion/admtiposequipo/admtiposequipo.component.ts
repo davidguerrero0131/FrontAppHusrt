@@ -380,14 +380,14 @@ export class AdmtiposequipoComponent implements OnInit {
       return;
     }
     try {
-      console.log('Adding condition:', this.newCondicionDescripcion);
+
       const created = await this.condicionInicialService.create({ descripcion: this.newCondicionDescripcion }).toPromise();
-      console.log('Condition created:', created);
+
 
       this.newCondicionDescripcion = '';
 
       const allConditions = await this.condicionInicialService.getAll().toPromise();
-      console.log('All conditions fetched:', allConditions);
+
 
       if (Array.isArray(allConditions)) {
         this.condicionesIniciales = [...allConditions];

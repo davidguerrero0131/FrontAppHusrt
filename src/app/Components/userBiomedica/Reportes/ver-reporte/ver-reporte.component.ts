@@ -68,8 +68,19 @@ export class VerReporteComponent implements OnInit {
     }
   }
 
+  userId: any = null;
+
   async ngOnInit() {
     this.idEquipo = this.route.snapshot.paramMap.get('id');
+    const token = sessionStorage.getItem('utoken');
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        this.userId = decoded.id;
+      } catch (error) {
+        console.error('Error decoding token:', error);
+      }
+    }
 
     try {
       this.equipo = await this.equipoService.getEquipoById(this.idEquipo);
@@ -116,7 +127,7 @@ export class VerReporteComponent implements OnInit {
     if (!token) return true;
     try {
       const decoded: any = jwtDecode(token);
-      return decoded?.rol === 'INVITADO';
+      return decoded?.rol === 'INVITADO' || decoded?.rol === 'BIOMEDICATECNICO';
     } catch {
       return true;
     }

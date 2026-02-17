@@ -113,9 +113,9 @@ export class CrearReporteComponent implements OnInit {
     this.reporteForm.get('tipoMantenimiento')?.disable();
 
     const token = getDecodedAccessToken();
-    console.log('Token Role:', token?.rol);
+
     if (token && (token.rol === 'SUPERADMIN' || token.rol === 'BIOMEDICAADMIN')) {
-      console.log('Enabling tipoMantenimiento for Admin');
+
       this.reporteForm.get('tipoMantenimiento')?.enable();
     }
   }

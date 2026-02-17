@@ -18,6 +18,9 @@ import { UserService } from '../../../../Services/appServices/userServices/user.
 import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { MesausernavbarComponent } from '../../../navbars/mesausernavbar/mesausernavbar.component';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-mesa-casos-list',
@@ -25,8 +28,9 @@ import { MesausernavbarComponent } from '../../../navbars/mesausernavbar/mesause
   imports: [
     CommonModule, FormsModule, TableModule, ButtonModule, DropdownModule,
     CalendarModule, TagModule, TooltipModule, ToolbarModule, FieldsetModule, DialogModule, InputTextModule,
-    MenuModule, MesausernavbarComponent
+    MenuModule, MesausernavbarComponent, AutoCompleteModule, ConfirmDialogModule
   ],
+  providers: [ConfirmationService],
   templateUrl: './mesa-casos-list.component.html',
   styleUrl: './mesa-casos-list.component.css'
 })
@@ -76,7 +80,8 @@ export class MesaCasosListComponent implements OnInit {
     private mesaService: MesaService,
     private servicioService: ServicioService,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private confirmationService: ConfirmationService
   ) { }
 
   ngOnInit() {
@@ -250,7 +255,17 @@ export class MesaCasosListComponent implements OnInit {
   displayAssignDialog: boolean = false;
   assigningCaso: any = null;
   usersService: any[] = [];
-  selectedResolutor: any = null;
+  selectedResolutor: any = null; // Can be single object or array
+  filteredUsers: any[] = [];
+
+  filterUsers(event: any) {
+    const query = event.query.toLowerCase();
+    this.filteredUsers = this.usersService.filter(user =>
+      user.nombres.toLowerCase().includes(query) ||
+      user.apellidos.toLowerCase().includes(query) ||
+      (user.mesaServicioRol?.nombre && user.mesaServicioRol.nombre.toLowerCase().includes(query))
+    );
+  }
 
   canAssign(caso: any): boolean {
     if (caso.estado === 'CERRADO') return false;
@@ -271,7 +286,12 @@ export class MesaCasosListComponent implements OnInit {
     if (caso.servicioId) {
       this.mesaService.getUsersByServicio(caso.servicioId).subscribe({
         next: (data: any[]) => {
-          this.usersService = data;
+          // Filter users: Role (Admin/Agent) AND Active
+          this.usersService = data.filter(user => {
+            const roleName = user.mesaServicioRol?.nombre;
+            const isActive = user.estado;
+            return (roleName === 'ADMINISTRADOR' || roleName === 'AGENTE') && isActive === true;
+          });
           this.displayAssignDialog = true;
         },
         error: (err) => {
@@ -284,27 +304,58 @@ export class MesaCasosListComponent implements OnInit {
   confirmAssign() {
     if (!this.assigningCaso || !this.selectedResolutor) return;
 
-    let userId = 0;
-    const token = sessionStorage.getItem('utoken');
-    if (token) {
-      const decoded: any = JSON.parse(atob(token.split('.')[1]));
-      userId = decoded.id;
-    }
+    this.confirmationService.confirm({
+      message: '¿Está seguro de asignar este(os) responsable(s) al caso?',
+      header: 'Confirmar Asignación',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        let userId = 0;
+        const token = sessionStorage.getItem('utoken');
+        if (token) {
+          const decoded: any = JSON.parse(atob(token.split('.')[1]));
+          userId = decoded.id;
+        }
 
-    const payload = {
-      usuarioId: this.selectedResolutor.id,
-      asignadoPor: userId
-    };
+        // Handle multiple selection (array) or single (object)
+        let resolutorsToAssign = [];
+        if (Array.isArray(this.selectedResolutor)) {
+          resolutorsToAssign = this.selectedResolutor;
+        } else {
+          resolutorsToAssign = [this.selectedResolutor];
+        }
 
-    this.mesaService.assignResolutor(this.assigningCaso.id, payload).subscribe({
-      next: () => {
-        this.displayAssignDialog = false;
-        this.assigningCaso = null;
-        this.selectedResolutor = null;
-        this.loadCasos();
-      },
-      error: (err) => {
-        console.error('Error assigning', err);
+        if (resolutorsToAssign.length === 0) return;
+
+        let completed = 0;
+        let errors = 0;
+
+        const finalize = () => {
+          if (completed + errors === resolutorsToAssign.length) {
+            this.displayAssignDialog = false;
+            this.assigningCaso = null;
+            this.selectedResolutor = null;
+            this.loadCasos();
+          }
+        };
+
+        resolutorsToAssign.forEach((user: any) => {
+          const payload = {
+            usuarioId: user.id,
+            asignadoPor: userId
+          };
+
+          this.mesaService.assignResolutor(this.assigningCaso.id, payload).subscribe({
+            next: () => {
+              completed++;
+              finalize();
+            },
+            error: (err) => {
+              console.error('Error assigning', err);
+              errors++;
+              finalize();
+            }
+          });
+        });
       }
     });
   }

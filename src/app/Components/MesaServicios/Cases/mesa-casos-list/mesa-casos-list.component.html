@@ -1,4 +1,6 @@
 <app-mesausernavbar *ngIf="isMesaUser"></app-mesausernavbar>
+<app-mesausernavbar *ngIf="isMesaUser"></app-mesausernavbar>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 <div class="grid m-2">
     <div class="col-12">
         <div class="card shadow-2 p-3">
@@ -156,16 +158,31 @@
     class="p-fluid">
     <ng-template pTemplate="content">
         <div class="field">
-            <label>Seleccione Usuario (Del Servicio)</label>
-            <p-dropdown [options]="usersService" [(ngModel)]="selectedResolutor" optionLabel="nombres"
-                placeholder="Responsable" appendTo="body">
-                <ng-template let-u pTemplate="item">
-                    {{u.nombres}} {{u.apellidos}} ({{u.mesaServicioRol?.nombre}})
+            <label class="font-bold text-lg mb-2 block">Asignado a: <span class="text-red-500">*</span></label>
+            <p-autoComplete [(ngModel)]="selectedResolutor" [suggestions]="filteredUsers"
+                (completeMethod)="filterUsers($event)" field="nombres" [multiple]="true" [dropdown]="true"
+                placeholder="Buscar funcionario..." appendTo="body" styleClass="w-full" [inputStyle]="{'width':'100%'}">
+
+                <ng-template let-user pTemplate="item">
+                    <div class="flex align-items-center gap-2">
+                        <div
+                            class="flex align-items-center justify-content-center bg-orange-100 border-circle w-2rem h-2rem text-orange-700 font-bold">
+                            {{user.nombres.charAt(0)}}
+                        </div>
+                        <div class="flex flex-column">
+                            <span class="font-medium">{{user.nombres}} {{user.apellidos}}</span>
+                            <span class="text-xs text-500">{{user.mesaServicioRol?.nombre}}</span>
+                        </div>
+                    </div>
                 </ng-template>
-                <ng-template let-u pTemplate="selectedItem">
-                    {{u.nombres}} {{u.apellidos}}
+
+                <ng-template let-user pTemplate="selectedItem">
+                    <div class="flex align-items-center gap-2" style="background-color: inherit;">
+                        <i class="pi pi-user text-sm"></i>
+                        <span class="text-sm">{{user.nombres}} {{user.apellidos}}</span>
+                    </div>
                 </ng-template>
-            </p-dropdown>
+            </p-autoComplete>
         </div>
     </ng-template>
     <ng-template pTemplate="footer">

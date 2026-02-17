@@ -20,17 +20,19 @@ export class ClasificacionRiesgosComponent implements OnInit {
     cantidadesEquipos: { [key: string]: number } = {};
 
     async ngOnInit() {
-        // We could optimize this by creating a specific backend endpoint for counts, 
-        // but for now we'll iterate or just show the cards.
-        // Given the previous pattern in 'ClasificacionServicio', they iterate services and get counts.
-        // Here keys are fixed. Let's try to get counts if possible, or just show the cards.
-        // Since we don't have a count endpoint yet, we will just display the cards.
-        // Optionally we could fetch all equipments and count them, but that might be heavy.
-        // For now, let's just show the cards.
+        for (let riesgo of this.riesgos) {
+            this.obtenerCantidadEquipos(riesgo);
+        }
+    }
 
-        // Attempt to fetch counts (Optional improvement)
-        // this.items = await this.equiposService.getAllEquipos(); 
-        // this.riesgos.forEach(r => this.cantidadesEquipos[r] = this.items.filter(e => e.riesgo === r).length);
+    async obtenerCantidadEquipos(riesgo: string) {
+        try {
+            const cantidad = await this.equiposService.getCantidadEquiposRiesgo(riesgo);
+            this.cantidadesEquipos[riesgo] = cantidad;
+        } catch (error) {
+            console.error(`Error al obtener la cantidad de equipos para el riesgo ${riesgo}`, error);
+            this.cantidadesEquipos[riesgo] = 0;
+        }
     }
 
     viewEquiposRiesgo(riesgo: string) {

@@ -60,7 +60,7 @@ export class MesaCategoriasComponent implements OnInit {
 
   loadServicios() {
     this.servicioService.getAllServiciosActivos().then(data => {
-      console.log('Servicios Data:', data);
+
       if (Array.isArray(data)) {
         this.servicios = data.filter((s: any) => s.requiereMesaServicios === true);
       } else {
@@ -74,7 +74,7 @@ export class MesaCategoriasComponent implements OnInit {
     this.selectedCategoryForManage = null;
     this.displaySubManageDialog = false;
     if (this.selectedServicio) {
-      console.log('Selected Servicio:', this.selectedServicio);
+
       this.loadCategorias();
     } else {
       this.categorias = [];
@@ -82,10 +82,10 @@ export class MesaCategoriasComponent implements OnInit {
   }
 
   loadCategorias() {
-    console.log('Loading categorias for service:', this.selectedServicio.id);
+
     this.mesaService.getCategorias(this.selectedServicio.id).subscribe({
       next: (data) => {
-        console.log('Categorias Data:', data);
+
         if (Array.isArray(data)) {
           this.categorias = data.map((cat: any) => ({
             ...cat,

@@ -67,7 +67,7 @@
                 (click)="viewModalReport(reportes)">Ver</button>
               <button type="button" class="btn btn-secondary btn-sm"
                 (click)="editarReporte(reportes.id, reportes.equipoIdFk)"
-                *ngIf="!reportes.rutaPdf && !isGuest()">Editar</button>
+                *ngIf="!reportes.rutaPdf && !isGuest() && reportes.usuarioIdFk === userId">Editar</button>
             </td>
             <td style="text-align: center;" *ngIf="!reportes.realizado && reportes.tipoMantenimiento !== 'Correctivo'">
               <button type="button" class="btn btn-warning btn-sm"
@@ -348,13 +348,19 @@
                 <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
                   *ngIf="reportSelected?.rutaPdf">Ver Reporte</button>
                 <div *ngIf="!reportSelected?.rutaPdf" class="flex flex-column gap-2">
-                  <button type="button" class="btn btn-dark mb-2" (click)="descargarFormato()">Generar Formato</button>
-                  <hr>
-                  <label class="font-bold">Cargar Reporte Firmado (PDF):</label>
-                  <input type="file" (change)="onFileSelected($event)" accept=".pdf" class="form-control mb-2">
-                  <button type="button" class="btn btn-primary" [disabled]="!selectedFile" (click)="subirPdf()">
-                    <i class="pi pi-upload mr-1"></i> Guardar PDF
-                  </button>
+                  <div *ngIf="!isGuest()">
+                    <button type="button" class="btn btn-dark mb-2" (click)="descargarFormato()">Generar
+                      Formato</button>
+                    <hr>
+                    <label class="font-bold">Cargar Reporte Firmado (PDF):</label>
+                    <input type="file" (change)="onFileSelected($event)" accept=".pdf" class="form-control mb-2">
+                    <button type="button" class="btn btn-primary" [disabled]="!selectedFile" (click)="subirPdf()">
+                      <i class="pi pi-upload mr-1"></i> Guardar PDF
+                    </button>
+                  </div>
+                  <div *ngIf="isGuest()" class="text-center p-3 surface-100 border-round">
+                    <p class="text-500 italic m-0">Reporte pendiente de carga por personal autorizado.</p>
+                  </div>
                 </div>
               </div>
 

@@ -148,7 +148,7 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   openPasswordModal(user: any) {
-    console.log('openPasswordModal called for:', user.nombreUsuario);
+
     this.selectedUser = user;
     this.passwordFormGroup.reset();
     this.visiblePasswordModal = true;
@@ -175,7 +175,7 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   async estadoUsuario(idUsuario: any, accion: string) {
-    console.log('EstadoUsuario called:', idUsuario, accion);
+
     if (accion === 'A') {
       Swal.fire({
         title: "Desea activar el Usuario?",

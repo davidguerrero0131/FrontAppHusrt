@@ -155,7 +155,7 @@ export class EquiposRiesgoComponent implements OnInit {
                         label: 'Nuevo reporte',
                         icon: 'pi pi-upload',
                         command: () => this.nuevoReporte(equipo.id),
-                        visible: ['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
+                        visible: getDecodedAccessToken().rol !== 'INVITADO'
                     }
 
                 ]
@@ -212,7 +212,49 @@ export class EquiposRiesgoComponent implements OnInit {
             'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
         ];
         const uniqueMeses = [...new Set(planes.map(p => p.mes))].sort((a: any, b: any) => a - b);
-        return uniqueMeses.map((m: any) => meses[m]).join(', ');
+        return uniqueMeses.map((m: any) => meses[m - 1]).join(', ');
+    }
+
+    obtenerMesesConCumplimiento(equipo: any): any[] {
+        const planes = equipo.planesMantenimiento || [];
+        const reportes = equipo.reporte || [];
+        const currentMonth = new Date().getMonth() + 1;
+        const meses = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+
+        if (planes.length === 0) return [];
+
+        const uniqueMesesNum = [...new Set(planes.map((p: any) => p.mes))].sort((a: any, b: any) => a - b);
+
+        return uniqueMesesNum.map((m: any) => {
+            const reporte = reportes.find((r: any) => r.mesProgramado === m);
+            let color = '';
+
+            if (reporte) {
+                if (reporte.realizado) {
+                    color = '#2ecc71'; // Verde (Realizado)
+                } else {
+                    if (currentMonth < m) {
+                        color = '#e74c3c'; // Rojo
+                    } else {
+                        color = '#f1c40f'; // Amarillo
+                    }
+                }
+            } else {
+                if (currentMonth > m) {
+                    color = '#e74c3c'; // Rojo
+                } else {
+                    color = '#3498db'; // Azul
+                }
+            }
+
+            return {
+                mes: meses[m - 1],
+                color: color
+            };
+        });
     }
 
     obtenerColorRiesgo(riesgo: string): string {
@@ -400,6 +442,7 @@ export class EquiposRiesgoComponent implements OnInit {
     errorMaximoIdentificado: number | null = null;
     observaciones: string = '';
     selectedFile: File | null = null;
+    selectedFileConfirmacion: File | null = null;
 
     opcionesResultado: any[] = [
         { label: 'Cumple', value: 'Cumple' },
@@ -423,11 +466,17 @@ export class EquiposRiesgoComponent implements OnInit {
         this.resultado = '';
         this.errorMaximoIdentificado = null;
         this.observaciones = '';
+        this.observaciones = '';
         this.selectedFile = null;
+        this.selectedFileConfirmacion = null;
     }
 
     onFileSelected(event: any) {
         this.selectedFile = event.target.files[0];
+    }
+
+    onFileSelectedConfirmacion(event: any) {
+        this.selectedFileConfirmacion = event.target.files[0];
     }
 
     async registrarMetrologia() {
@@ -446,7 +495,12 @@ export class EquiposRiesgoComponent implements OnInit {
         formData.append('errorMaximoIdentificado', this.errorMaximoIdentificado.toString());
         formData.append('observaciones', this.observaciones);
         formData.append('usuarioIdFk', getDecodedAccessToken().id);
+        formData.append('usuarioIdFk', getDecodedAccessToken().id);
         formData.append('rutaReporte', this.selectedFile);
+
+        if (this.selectedFileConfirmacion) {
+            formData.append('confirmacionMetrologica', this.selectedFileConfirmacion);
+        }
 
         try {
             await this.metrologiaService.registrarActividadConArchivo(formData);

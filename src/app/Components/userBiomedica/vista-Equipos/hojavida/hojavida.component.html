@@ -211,7 +211,7 @@
         </p-accordion-panel>
 
         <!-- Documentos Anexos -->
-        <p-accordion-panel value="5">
+        <p-accordion-panel value="5" *ngIf="!isGuest()">
           <p-accordion-header>Documentos Anexos</p-accordion-header>
           <p-accordion-content>
             <div class="mb-3">

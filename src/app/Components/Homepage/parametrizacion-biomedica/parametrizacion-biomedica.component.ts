@@ -25,14 +25,14 @@ export class ParametrizacionBiomedicaComponent {
         const token = sessionStorage.getItem('utoken');
         if (token) {
             const decoded = getDecodedAccessToken();
-            console.log('Decoded Token in Parametrizacion:', decoded);
+
             if (decoded?.rol === 'SUPERADMIN') {
                 this.isSuperAdmin = true;
             }
             if (decoded?.rol === 'BIOMEDICAADMIN') {
                 this.isBiomedicaAdmin = true;
             }
-            console.log('Flags:', { isSuperAdmin: this.isSuperAdmin, isBiomedicaAdmin: this.isBiomedicaAdmin });
+
         }
     }
 

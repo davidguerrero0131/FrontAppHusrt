@@ -55,7 +55,14 @@
                     <td>{{ equipo.servicios?.sede?.nombres }}</td>
                     <td>{{ equipo.servicios?.nombres }}</td>
                     <td>{{ equipo.ubicacionEspecifica }}</td>
-                    <td>{{ obtenerMesesTexto(equipo.planesMantenimiento) }}</td>
+                    <td>
+                        <span *ngFor="let m of obtenerMesesConCumplimiento(equipo); let last = last"
+                            [style.color]="m.color" [style.font-weight]="'bold'">
+                            {{ m.mes }}{{ last ? '' : ', ' }}
+                        </span>
+                        <span *ngIf="!equipo.planesMantenimiento || equipo.planesMantenimiento.length === 0">Sin
+                            programación</span>
+                    </td>
                     <td>{{ equipo.registroInvima }}</td>
                     <td
                         [ngStyle]="{'background-color': obtenerColorRiesgo(equipo.riesgo), 'color': 'black', 'font-weight': 'bold', 'text-align': 'center'}">

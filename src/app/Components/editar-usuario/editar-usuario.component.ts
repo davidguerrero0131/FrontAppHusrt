@@ -75,7 +75,7 @@ export class EditarUsuarioComponent implements OnInit {
         }
       } catch (error) {
         // No firm signature found or error loading, silent fail or log
-        // console.log('No firma found');
+
       }
     }
   }

@@ -50,7 +50,13 @@
         <td>{{ equipo.servicios?.sede?.nombres }}</td>
         <td>{{ equipo.servicios?.nombres }}</td>
         <td>{{ equipo.ubicacionEspecifica }}</td>
-        <td>{{ obtenerMesesTexto(equipo.planesMantenimiento) }}</td>
+        <td>
+          <span *ngFor="let m of obtenerMesesConCumplimiento(equipo); let last = last" [style.color]="m.color"
+            [style.font-weight]="'bold'">
+            {{ m.mes }}{{ last ? '' : ', ' }}
+          </span>
+          <span *ngIf="!equipo.planesMantenimiento || equipo.planesMantenimiento.length === 0">Sin programación</span>
+        </td>
         <td>{{ equipo.registroInvima }}</td>
         <td
           [ngStyle]="{'background-color': obtenerColorRiesgo(equipo.riesgo), 'color': 'black', 'font-weight': 'bold', 'text-align': 'center'}">
@@ -232,50 +238,86 @@
   styleClass="standard-modal modal-lg" [maximizable]="false" [style]="{width: '50vw'}">
 
   <div class="form-grid" style="width: 100%;" *ngIf="currentEquipo">
-    <div class="field mb-3">
-      <label class="font-bold block mb-2">Equipo</label>
-      <input pInputText type="text" [value]="currentEquipo.nombres" disabled class="w-full" />
+
+    <div class="field">
+      <label>Nombre Equipo</label>
+      <input pInputText type="nombreEquipo" placeholder="{{currentEquipo.nombres}}" disabled />
     </div>
 
-    <div class="grid">
-      <div class="col-12 md:col-6 mb-3">
-        <label class="font-bold block mb-2">Tipo de Actividad</label>
-        <p-dropdown [options]="opcionesTipoActividad" [(ngModel)]="tipoActividad" optionLabel="label"
-          optionValue="value" placeholder="Seleccione Tipo" appendTo="body" styleClass="w-full"></p-dropdown>
-      </div>
-      <div class="col-12 md:col-6 mb-3">
-        <label class="font-bold block mb-2">Empresa</label>
-        <input pInputText type="text" [(ngModel)]="empresa" placeholder="Empresa encargada" class="w-full" />
-      </div>
+    <div class="field">
+      <label>Marca</label>
+      <input pInputText type="nombreEquipo" placeholder="{{currentEquipo.marca}}" disabled />
     </div>
 
-    <div class="grid">
-      <div class="col-12 md:col-6 mb-3">
-        <label class="font-bold block mb-2">Fecha Realizado</label>
-        <p-datepicker [(ngModel)]="fechaRealizadoActividad" dateFormat="dd/mm/yy" [showIcon]="true" appendTo="body"
-          styleClass="w-full"></p-datepicker>
-      </div>
-      <div class="col-12 md:col-6 mb-3">
-        <label class="font-bold block mb-2">Resultado</label>
-        <p-dropdown [options]="opcionesResultado" [(ngModel)]="resultado" optionLabel="label" optionValue="value"
-          placeholder="Seleccione Resultado" appendTo="body" styleClass="w-full"></p-dropdown>
-      </div>
+    <div class="field">
+      <label>Modelo</label>
+      <input pInputText type="nombreEquipo" placeholder="{{currentEquipo.modelo}}" disabled />
     </div>
 
-    <div class="field mb-3">
-      <label class="font-bold block mb-2">Error Máximo Identificado</label>
-      <input pInputText type="number" [(ngModel)]="errorMaximoIdentificado" placeholder="Valor numérico"
-        class="w-full" />
+    <div class="field">
+      <label>Serie</label>
+      <input pInputText type="nombreEquipo" placeholder="{{currentEquipo.serie}}" disabled />
     </div>
 
-    <div class="field mb-3">
-      <label class="font-bold block mb-2">Cargar Reporte (PDF)</label>
-      <input type="file" (change)="onFileSelected($event)" accept="application/pdf" class="form-control w-full" />
+    <div class="field">
+      <label>Servicio</label>
+      <input pInputText type="nombreEquipo" placeholder="{{currentEquipo.servicios?.nombres}}" disabled />
     </div>
 
-    <div class="field mb-3">
-      <label class="font-bold block mb-2">Observaciones</label>
-      <textarea pInputTextarea [(ngModel)]="observaciones" rows="3" class="w-full"></textarea>
+    <div class="field">
+      <label>Ubicación</label>
+      <input pInputText type="nombreEquipo" placeholder="{{currentEquipo.ubicacion}}" disabled />
+    </div>
+
+    <div class="field">
+      <label>Ubicación especifica</label>
+      <input pInputText type="nombreEquipo" placeholder="{{currentEquipo.ubicacionEspecifica}}" disabled />
+    </div>
+  </div>
+
+  <div class="form-grid" style="width: 100%; margin-top: 1.5rem;">
+
+    <div class="field">
+      <label>Tipo de Actividad</label>
+      <p-dropdown [options]="opcionesTipoActividad" [(ngModel)]="tipoActividad" optionLabel="label" optionValue="value"
+        placeholder="Seleccione Tipo" appendTo="body" styleClass="w-full"></p-dropdown>
+    </div>
+
+    <div class="field">
+      <label>Empresa</label>
+      <input pInputText type="text" [(ngModel)]="empresa" placeholder="Empresa encargada" />
+    </div>
+
+    <div class="field">
+      <label>Fecha Realizado</label>
+      <p-datepicker [(ngModel)]="fechaRealizadoActividad" dateFormat="dd/mm/yy" [showIcon]="true"
+        appendTo="body"></p-datepicker>
+    </div>
+
+    <div class="field">
+      <label>Resultado</label>
+      <p-dropdown [options]="opcionesResultado" [(ngModel)]="resultado" optionLabel="label" optionValue="value"
+        placeholder="Seleccione Resultado" appendTo="body" styleClass="w-full"></p-dropdown>
+    </div>
+
+    <div class="field">
+      <label>Error Maximo Identificado</label>
+      <input pInputText type="number" [(ngModel)]="errorMaximoIdentificado" placeholder="Valor númerico" />
+    </div>
+
+    <div class="field">
+      <label>Cargar Reporte (PDF)</label>
+      <input type="file" (change)="onFileSelected($event)" accept="application/pdf" class="form-control" />
+    </div>
+
+    <div class="field">
+      <label>Cargar Confirmación Metrológica (PDF)</label>
+      <input type="file" (change)="onFileSelectedConfirmacion($event)" accept="application/pdf" class="form-control" />
+    </div>
+
+    <div class="field" style="grid-column: 1 / -1;">
+      <label>Observaciones</label>
+      <textarea pInputTextarea [(ngModel)]="observaciones" rows="3" style="width: 100%;"></textarea>
     </div>
 
   </div>

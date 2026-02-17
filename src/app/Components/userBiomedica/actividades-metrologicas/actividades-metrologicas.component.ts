@@ -1,4 +1,5 @@
 import { MetrologiaService } from './../../../Services/appServices/biomedicaServices/metrologia/metrologia.service';
+import { ArchivosService } from './../../../Services/appServices/general/archivos/archivos.service';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TabsModule } from 'primeng/tabs';
@@ -32,6 +33,7 @@ export class ActividadesMetrologicasComponent implements OnInit {
   @ViewChild('dt2') dt2!: Table;
   date: Date | undefined;
   metrologiaServices = inject(MetrologiaService);
+  archivosServices = inject(ArchivosService);
   loading: boolean = false;
   fechaActual = new Date();
   mes = this.fechaActual.getMonth() + 1;
@@ -234,6 +236,26 @@ export class ActividadesMetrologicasComponent implements OnInit {
       window.open(url, '_blank');
     } else {
       Swal.fire('Info', 'Este registro no tiene un certificado cargado.', 'info');
+    }
+  }
+
+  async verConfirmacion() {
+    if (this.actividadMetrologicaSelected && this.actividadMetrologicaSelected.confirmacionMetrologica) {
+      try {
+        const blob = await this.archivosServices.getArchivo(this.actividadMetrologicaSelected.confirmacionMetrologica);
+        if (blob.type === 'application/pdf') {
+          const objectUrl = URL.createObjectURL(blob);
+          window.open(objectUrl, '_blank');
+        } else {
+          console.error('El archivo recibido no es un PDF');
+          Swal.fire('Error', 'El archivo no es un PDF válido.', 'error');
+        }
+      } catch (error) {
+        console.error('Error al obtener la confirmación:', error);
+        Swal.fire('Error', 'No se pudo abrir el archivo de confirmación.', 'error');
+      }
+    } else {
+      Swal.fire('Info', 'Este registro no tiene una confirmación metrológica cargada.', 'info');
     }
   }
 }
