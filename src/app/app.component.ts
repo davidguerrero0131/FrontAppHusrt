@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, PLATFORM_ID, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -110,10 +111,10 @@ import { SuperadminnavbarComponent } from './Components/navbars/superadminnavbar
 import { BiomedicausernavbarComponent } from './Components/navbars/biomedicausernavbar/biomedicausernavbar.component';
 import { BiomedicatecniconavbarComponent } from './Components/navbars/biomedicatecniconavbar/biomedicatecniconavbar.component';
 import { Router, NavigationEnd } from '@angular/router';
-import { inject } from '@angular/core';
 import { getDecodedAccessToken } from './utilidades';
 import { filter } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
+import { ThemeService } from './Services/theme/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -210,12 +211,6 @@ import { CommonModule } from '@angular/common';
     FocusTrapModule,
     FloatLabelModule,
 
-    FloatLabelModule,
-    BiomedicaadminnavbarComponent,
-    SuperadminnavbarComponent,
-    BiomedicausernavbarComponent,
-    BiomedicausernavbarComponent, // Was already there? Duplicate?
-    // Wait, replace with:
     BiomedicaadminnavbarComponent,
     SuperadminnavbarComponent,
     BiomedicausernavbarComponent,
@@ -229,10 +224,13 @@ export class AppComponent {
   title = 'FrontAppHusrt';
 
   router = inject(Router);
+  platformId = inject(PLATFORM_ID);
   userRole: string = '';
   showNavbar: boolean = true;
+  themeService = inject(ThemeService);
 
   constructor() {
+    this.themeService.applyTheme();
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
@@ -259,18 +257,10 @@ export class AppComponent {
   }
 
   checkUserRole() {
-    if (typeof sessionStorage !== 'undefined') {
+    if (isPlatformBrowser(this.platformId)) {
       const token = sessionStorage.getItem('utoken');
       if (token) {
-        const decoded = getDecodedAccessToken(); // Using helper which reads from sessionStorage usually
-        // If helper needs token passed: getDecodedAccessToken(token) depends on implementation.
-        // Checking imports... it is from './utilidades'.
-        // Let's assume specific implementation. 
-        // Based on previous files, sometimes it takes no args (reads session storage inside) or takes token.
-        // I will check utilidades.ts next step to be sure, but standard fix for now.
-        // Actually, let's look at `UserbiomedicaComponent` consumption.
-        // It used `getDecodedAccessToken(token)` in one file and `getDecodedAccessToken()` in another. 
-        // I'll stick to what I wrote but fix the typo `const token`.
+        const decoded = getDecodedAccessToken();
         this.userRole = decoded?.rol || '';
       } else {
         this.userRole = '';

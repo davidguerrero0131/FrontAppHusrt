@@ -8,6 +8,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { jwtDecode } from 'jwt-decode';
+import { ThemeService } from '../../../Services/theme/theme.service';
 
 @Component({
     selector: 'app-biomedicatecniconavbar',
@@ -20,6 +21,7 @@ export class BiomedicatecniconavbarComponent implements OnInit {
 
     items: MenuItem[] | undefined;
     router = inject(Router);
+    themeService = inject(ThemeService);
 
     ngOnInit() {
         this.items = [

@@ -21,11 +21,11 @@ export class HomesuperadminComponent {
   ) { }
 
   viewParametrizacion() {
-    this.router.navigate(['/biomedica/parametrizacion']);
+    this.router.navigate(['/parametrizacion']);
   }
 
   viewGestionBiomedica() {
-    this.router.navigate(['/biomedica/gestion-operativa']);
+    this.router.navigate(['/gestion-operativa']);
   }
 
   viewMesaServicios() {
@@ -39,5 +39,9 @@ export class HomesuperadminComponent {
 
   viewGestionMantenimiento() {
     // Ejemplo: this.router.navigate(['/mantenimiento/home']);
+  }
+
+  viewPersonalizacion() {
+    this.router.navigate(['/personalizacion']);
   }
 }

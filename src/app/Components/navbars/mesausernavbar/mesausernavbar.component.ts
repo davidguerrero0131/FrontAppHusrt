@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuItem } from 'primeng/api';
@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { ThemeService } from '../../../Services/theme/theme.service';
 
 @Component({
   selector: 'app-mesausernavbar',
@@ -17,6 +18,7 @@ import { TooltipModule } from 'primeng/tooltip';
 export class MesausernavbarComponent implements OnInit {
 
   items: MenuItem[] | undefined;
+  themeService = inject(ThemeService);
 
   constructor(private router: Router) { }
 

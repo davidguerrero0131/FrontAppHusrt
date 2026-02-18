@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { ThemeService } from '../../../Services/theme/theme.service';
 
 @Component({
     selector: 'app-biomedicaadminnavbar',
@@ -19,6 +20,7 @@ export class BiomedicaadminnavbarComponent implements OnInit {
 
     items: MenuItem[] | undefined;
     router = inject(Router);
+    themeService = inject(ThemeService);
 
     ngOnInit() {
         this.items = [

@@ -1,116 +1,84 @@
-<div class="bg-white px-4 py-5 md:px-6 lg:px-8 min-h-screen">
-  <div class="grid">
+<div class="dashboard-container">
+
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>Panel de Super Administrador</h1>
+      <p>Gestión global del sistema, personalización y configuración avanzada.</p>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+
+    <!-- Personalización Estética (Prominent) -->
+    <div class="dashboard-card" (click)="viewPersonalizacion()">
+      <div class="card-icon-container gradient-blue">
+        <i class="pi pi-palette"></i>
+      </div>
+      <div class="card-content">
+        <h3>Personalización</h3>
+        <p>Ajuste los colores, fuentes y apariencia del sistema en tiempo real.</p>
+        <span class="card-action">Configurar <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
 
     <!-- Parametrización Biomédica -->
-    <div class="col-12 md:col-6 lg:col-3 cursor-pointer" (click)="viewParametrizacion()">
-      <p-card styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300">
-        <ng-template pTemplate="header">
-          <div class="bg-primary-50 p-3 border-round-top-xl text-center">
-            <i class="pi pi-cog text-primary text-4xl"></i>
-          </div>
-        </ng-template>
-        <ng-template pTemplate="title">
-          <div class="text-center text-xl font-bold text-900 mt-2">Parametrización</div>
-        </ng-template>
-        <ng-template pTemplate="subtitle">
-          <div class="text-center text-500 mb-3">Configuración General</div>
-        </ng-template>
-        <ng-template pTemplate="content">
-          <div class="text-center text-secondary">
-            Gestione tipos de equipo, fabricantes, proveedores y más.
-          </div>
-        </ng-template>
-      </p-card>
+    <div class="dashboard-card" (click)="viewParametrizacion()">
+      <div class="card-icon-container gradient-orange">
+        <i class="pi pi-cog"></i>
+      </div>
+      <div class="card-content">
+        <h3>Parametrización</h3>
+        <p>Gestione tipos de equipo, fabricantes, proveedores y más.</p>
+        <span class="card-action">Administrar <i class="pi pi-arrow-right"></i></span>
+      </div>
     </div>
 
     <!-- Gestión Biomédica -->
-    <div class="col-12 md:col-6 lg:col-3 cursor-pointer" (click)="viewGestionBiomedica()">
-      <p-card styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300">
-        <ng-template pTemplate="header">
-          <div class="bg-teal-50 p-3 border-round-top-xl text-center">
-            <i class="pi pi-heart text-teal-500 text-4xl"></i>
-          </div>
-        </ng-template>
-        <ng-template pTemplate="title">
-          <div class="text-center text-xl font-bold text-900 mt-2">Gestión Biomédica</div>
-        </ng-template>
-        <ng-template pTemplate="subtitle">
-          <div class="text-center text-500 mb-3">Operación Diaria</div>
-        </ng-template>
-        <ng-template pTemplate="content">
-          <div class="text-center text-secondary">
-            Acceda a inventarios, mantenimientos e indicadores.
-          </div>
-        </ng-template>
-      </p-card>
+    <div class="dashboard-card" (click)="viewGestionBiomedica()">
+      <div class="card-icon-container gradient-green">
+        <i class="pi pi-heart"></i>
+      </div>
+      <div class="card-content">
+        <h3>Gestión Biomédica</h3>
+        <p>Acceda a inventarios, mantenimientos e indicadores operativos.</p>
+        <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+      </div>
     </div>
 
     <!-- Gestión Mesa de Servicios -->
-    <div class="col-12 md:col-6 lg:col-3 cursor-pointer" (click)="viewMesaServicios()">
-      <p-card styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300">
-        <ng-template pTemplate="header">
-          <div class="bg-purple-50 p-3 border-round-top-xl text-center">
-            <i class="pi pi-ticket text-purple-500 text-4xl"></i>
-          </div>
-        </ng-template>
-        <ng-template pTemplate="title">
-          <div class="text-center text-xl font-bold text-900 mt-2">Gestión Mesa de Servicios</div>
-        </ng-template>
-        <ng-template pTemplate="subtitle">
-          <div class="text-center text-500 mb-3">Soporte y Tickets</div>
-        </ng-template>
-        <ng-template pTemplate="content">
-          <div class="text-center text-secondary">
-            Administre las solicitudes y la mesa de ayuda.
-          </div>
-        </ng-template>
-      </p-card>
+    <div class="dashboard-card" (click)="viewMesaServicios()">
+      <div class="card-icon-container gradient-purple">
+        <i class="pi pi-ticket"></i>
+      </div>
+      <div class="card-content">
+        <h3>Mesa de Servicios</h3>
+        <p>Administre las solicitudes de soporte y la mesa de ayuda.</p>
+        <span class="card-action">Gestionar <i class="pi pi-arrow-right"></i></span>
+      </div>
     </div>
 
     <!-- Gestión Sistemas (Placeholder) -->
-    <div class="col-12 md:col-6 lg:col-3">
-      <p-card
-        styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300 opacity-60">
-        <ng-template pTemplate="header">
-          <div class="bg-indigo-50 p-3 border-round-top-xl text-center">
-            <i class="pi pi-server text-indigo-500 text-4xl"></i>
-          </div>
-        </ng-template>
-        <ng-template pTemplate="title">
-          <div class="text-center text-xl font-bold text-900 mt-2">Gestión Sistemas</div>
-        </ng-template>
-        <ng-template pTemplate="subtitle">
-          <div class="text-center text-500 mb-3">Próximamente</div>
-        </ng-template>
-        <ng-template pTemplate="content">
-          <div class="text-center text-secondary">
-            Módulo de gestión para el área de sistemas.
-          </div>
-        </ng-template>
-      </p-card>
+    <div class="dashboard-card opacity-60">
+      <div class="card-icon-container gradient-gray">
+        <i class="pi pi-server"></i>
+      </div>
+      <div class="card-content">
+        <h3>Gestión Sistemas</h3>
+        <p>Módulo de gestión para el área de sistemas (Próximamente).</p>
+        <span class="card-action">Desactivado</span>
+      </div>
     </div>
 
     <!-- Gestión Mantenimiento (Placeholder) -->
-    <div class="col-12 md:col-6 lg:col-3">
-      <p-card
-        styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300 opacity-60">
-        <ng-template pTemplate="header">
-          <div class="bg-orange-50 p-3 border-round-top-xl text-center">
-            <i class="pi pi-wrench text-orange-500 text-4xl"></i>
-          </div>
-        </ng-template>
-        <ng-template pTemplate="title">
-          <div class="text-center text-xl font-bold text-900 mt-2">Gestión Mantenimiento</div>
-        </ng-template>
-        <ng-template pTemplate="subtitle">
-          <div class="text-center text-500 mb-3">Próximamente</div>
-        </ng-template>
-        <ng-template pTemplate="content">
-          <div class="text-center text-secondary">
-            Módulo de gestión para mantenimiento general.
-          </div>
-        </ng-template>
-      </p-card>
+    <div class="dashboard-card opacity-60">
+      <div class="card-icon-container gradient-gray">
+        <i class="pi pi-wrench"></i>
+      </div>
+      <div class="card-content">
+        <h3>Gestión Mantenimiento</h3>
+        <p>Módulo de gestión para mantenimiento general (Próximamente).</p>
+        <span class="card-action">Desactivado</span>
+      </div>
     </div>
 
   </div>

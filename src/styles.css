@@ -26,6 +26,24 @@
 
     /* Transitions */
     --transition-base: all 0.2s ease-in-out;
+
+    /* Semantic Colors - Initialized by ThemeService */
+    --success-color: #198754;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #0dcaf0;
+
+    /* Navigation - Initialized by ThemeService */
+    --navbar-bg: #ffffff;
+    --navbar-text: #333333;
+
+    /* Tables - Initialized by ThemeService */
+    --table-header-bg: #f8f9fa;
+    --table-header-text: #333333;
+
+    /* Login - Initialized by ThemeService */
+    --login-bg-start: #1e3c72;
+    --login-bg-end: #2a5298;
 }
 
 body {
@@ -93,8 +111,8 @@ h6 {
 }
 
 .p-datatable .p-datatable-thead>tr>th {
-    background-color: #f8f9fa;
-    color: var(--text-color);
+    background-color: var(--table-header-bg) !important;
+    color: var(--table-header-text) !important;
     font-weight: 600;
     border-color: #dee2e6;
 }
@@ -188,12 +206,12 @@ i,
 }
 
 .text-success {
-    color: #198754 !important;
+    color: var(--success-color) !important;
 }
 
 /* Keep semantic green but could shift to teal */
 .text-danger {
-    color: #dc3545 !important;
+    color: var(--danger-color) !important;
 }
 
 /* Keep semantic red */
@@ -227,7 +245,7 @@ i,
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    background: linear-gradient(135deg, var(--hero-start) 0%, var(--hero-end) 100%);
     color: white;
     padding: 3rem 2rem;
     border-radius: var(--border-radius-xl);
@@ -320,49 +338,31 @@ i,
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
-/* Universal Gradients */
-.gradient-blue {
-    background: linear-gradient(135deg, #42a5f5, #1e88e5);
-}
-
-.gradient-indigo {
-    background: linear-gradient(135deg, #7e57c2, #5e35b1);
-}
-
-.gradient-orange {
-    background: linear-gradient(135deg, #ffa726, #fb8c00);
-}
-
-.gradient-green {
-    background: linear-gradient(135deg, #66bb6a, #43a047);
-}
-
-.gradient-cyan {
-    background: linear-gradient(135deg, #26c6da, #00acc1);
-}
-
+/* Universal Gradients - Using Dynamic Theme Variables */
+.gradient-blue,
+.gradient-indigo,
+.gradient-cyan,
 .gradient-teal {
-    background: linear-gradient(135deg, #26a69a, #00897b);
+    background: linear-gradient(135deg, var(--card-primary-start), var(--card-primary-end)) !important;
 }
 
+.gradient-orange,
+.gradient-yellow {
+    background: linear-gradient(135deg, var(--card-warning-start), var(--card-warning-end)) !important;
+}
+
+.gradient-green,
+.gradient-mint {
+    background: linear-gradient(135deg, var(--card-success-start), var(--card-success-end)) !important;
+}
+
+.gradient-red,
 .gradient-purple {
-    background: linear-gradient(135deg, #ab47bc, #8e24aa);
-}
-
-.gradient-red {
-    background: linear-gradient(135deg, #ef5350, #e53935);
+    background: linear-gradient(135deg, var(--card-danger-start), var(--card-danger-end)) !important;
 }
 
 .gradient-gray {
     background: linear-gradient(135deg, #78909c, #546e7a);
-}
-
-.gradient-mint {
-    background: linear-gradient(135deg, #4db6ac, #009688);
-}
-
-.gradient-yellow {
-    background: linear-gradient(135deg, #fdd835, #fbc02d);
 }
 
 /* Card Content Standard */
@@ -547,4 +547,48 @@ i,
 .p-input-icon-right>input,
 .p-input-icon-right>.p-inputtext {
     padding-right: 2.5rem !important;
+}
+
+/* --- Login Layout --- */
+.login-layout {
+    min-height: 100vh;
+    background: #ffffff !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+/* PrimeNG Button Semantic Overrides */
+.p-button-success {
+    background: var(--success-color) !important;
+    border-color: var(--success-color) !important;
+}
+
+.p-button-danger {
+    background: var(--danger-color) !important;
+    border-color: var(--danger-color) !important;
+}
+
+.p-button-warning {
+    background: var(--warning-color) !important;
+    border-color: var(--warning-color) !important;
+    color: #212529 !important;
+}
+
+.p-button-info {
+    background: var(--info-color) !important;
+    border-color: var(--info-color) !important;
+}
+
+/* Navbar Theme Overrides */
+.glass-navbar,
+.p-menubar {
+    background-color: var(--navbar-bg) !important;
+    color: var(--navbar-text) !important;
+}
+
+.p-menubar .p-menuitem-link .p-menuitem-text,
+.p-menubar .p-menuitem-link .p-menuitem-icon {
+    color: var(--navbar-text) !important;
 }

@@ -4,8 +4,8 @@
             <div class="logo-container flex align-items-center gap-2 px-2 cursor-pointer" routerLink="/adminbiomedica">
                 <img src="LogoAgora.png" height="40" alt="Logo" />
                 <div class="flex flex-column">
-                    <span class="font-bold text-primary text-lg">Biomédica</span>
-                    <span class="text-xs text-secondary">Administrador</span>
+                    <span class="font-bold text-primary text-lg">{{ themeService.getThemeConfig().appName }}</span>
+                    <span class="text-xs text-secondary">Administrador Biomédica</span>
                 </div>
             </div>
         </ng-template>

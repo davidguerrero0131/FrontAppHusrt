@@ -33,10 +33,10 @@ export class HomeadminbiomedicaComponent {
   }
 
   // Operativa
-  showViewGestionOperativa() { this.router.navigate(['/biomedica/gestion-operativa']); }
+  showViewGestionOperativa() { this.router.navigate(['/gestion-operativa']); }
 
   // Parametrizacion
-  showViewParametrizacion() { this.router.navigate(['/biomedica/parametrizacion']); }
+  showViewParametrizacion() { this.router.navigate(['/parametrizacion']); }
 
 
 }

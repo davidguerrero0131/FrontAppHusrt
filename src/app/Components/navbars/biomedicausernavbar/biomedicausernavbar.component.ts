@@ -8,6 +8,8 @@ import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { MenuItem } from 'primeng/api';
+import { inject } from '@angular/core';
+import { ThemeService } from '../../../Services/theme/theme.service';
 
 @Component({
     selector: 'app-biomedicausernavbar',
@@ -20,6 +22,7 @@ export class BiomedicausernavbarComponent implements OnInit {
 
     items!: MenuItem[];
     userRole: string = '';
+    themeService = inject(ThemeService);
 
     constructor(private router: Router) { }
 

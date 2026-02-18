@@ -137,7 +137,6 @@ export class CrearHojavidaComponent implements OnInit {
   constructor(private fb: FormBuilder) {
     this.hojaVidaForm = this.fb.group({
       codigoInternacional: [''],
-      anoIngreso: [null],
       contrato: [''],
       proveedorIdFk: [null],
       fabricanteIdFk: [null],

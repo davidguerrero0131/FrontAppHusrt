@@ -6,6 +6,7 @@ import { isPlatformBrowser } from '@angular/common';
 
 import { Router } from '@angular/router';
 import { UserService } from '../../Services/appServices/userServices/user.service';
+import { ThemeService } from '../../Services/theme/theme.service';
 
 
 @Component({
@@ -20,6 +21,7 @@ export class LoginComponent implements OnInit {
   formulario: FormGroup;
   userServices = inject(UserService);
   router = inject(Router);
+  themeService = inject(ThemeService);
 
   constructor(
     private formBuilder: FormBuilder,

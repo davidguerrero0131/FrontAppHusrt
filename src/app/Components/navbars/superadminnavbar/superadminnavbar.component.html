@@ -4,7 +4,7 @@
       <div class="logo-container flex align-items-center gap-2 px-2 cursor-pointer" routerLink="/superadmin">
         <img src="LogoAgora.png" height="40" alt="Logo" />
         <div class="flex flex-column">
-          <span class="font-bold text-primary text-lg">AppHusrt</span>
+          <span class="font-bold text-primary text-lg">{{ themeService.getThemeConfig().appName }}</span>
           <span class="text-xs text-secondary">Super Admin</span>
         </div>
       </div>
