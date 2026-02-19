@@ -1,5 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -22,6 +24,7 @@ import { PanelMenuModule } from 'primeng/panelmenu';
     PanelMenuModule,
     RouterModule
   ],
+  imports: [MenubarModule, CommonModule, AvatarModule, ButtonModule, TooltipModule],
   templateUrl: './mantenimientoadminnavbar.component.html',
   styleUrl: './mantenimientoadminnavbar.component.css'
 })
@@ -96,5 +99,15 @@ export class MantenimientoadminnavbarComponent implements OnInit {
 
   closeCallback(e: any): void {
     this.sidebarRef.close(e);
+        routerLink: '/adminmantenimineto'
+      }
+    ];
+  }
+
+  navigateToAbout() {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('utoken', "");
+    }
+    this.router.navigate(['/login'])
   }
 }

@@ -2,7 +2,6 @@ import { MetrologiaService } from './../../../Services/appServices/biomedicaServ
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { CommonModule } from '@angular/common';
-import { BiomedicausernavbarComponent } from "../../navbars/biomedicausernavbar/biomedicausernavbar.component";
 import Swal from 'sweetalert2';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -15,11 +14,14 @@ import { DatePicker } from 'primeng/datepicker'
 import { Location } from '@angular/common';
 import { Dialog } from 'primeng/dialog';
 import { Console } from 'console';
+import { getDecodedAccessToken } from '../../../utilidades';
+
+import { API_URL } from '../../../constantes';
 
 @Component({
   selector: 'app-actividades-metrologicas',
   standalone: true,
-  imports: [CommonModule, TabsModule, BiomedicausernavbarComponent, DatePicker, FormsModule,
+  imports: [CommonModule, TabsModule, DatePicker, FormsModule,
     TableModule, IconFieldModule, InputIconModule, InputTextModule, CalendarModule, Dialog],
   templateUrl: './actividades-metrologicas.component.html',
   styleUrl: './actividades-metrologicas.component.css'
@@ -71,7 +73,7 @@ export class ActividadesMetrologicasComponent implements OnInit {
         this.actividadesMetrologicas = await this.metrologiaServices.getReportesActividadesMesAño({ mes: this.mes, anio: this.anio })
 
       } catch (error) {
-        console.log(error);
+
         Swal.fire({
           icon: 'error',
           title: 'No es posible cargar la informacion de los reportes de actividades metrológicas',
@@ -131,16 +133,93 @@ export class ActividadesMetrologicasComponent implements OnInit {
     this.location.back();
   }
 
+  // Propiedades para el formulario
+  tipoActividad: string = '';
+  empresa: string = '';
+  fechaRealizadoActividad: Date | undefined;
+  resultado: string = '';
+  errorMaximoIdentificado: number | null = null;
+  observaciones: string = '';
+  selectedFile: File | null = null;
+
+  opcionesResultado: any[] = [
+    { label: 'Cumple', value: 'Cumple' },
+    { label: 'No Cumple', value: 'No Cumple' },
+    { label: 'No Aplica', value: 'No Aplica' }
+  ];
+
+  opcionesTipoActividad: any[] = [
+    { label: 'Calibración', value: 'Calibración' },
+    { label: 'Calificación', value: 'Calificación' },
+    { label: 'Validación', value: 'Validación' },
+    { label: 'Confirmación Metrológica', value: 'Confirmación Metrológica' }
+  ];
+
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+  }
+
+  async registrarActividad() {
+    if (!this.actividadMetrologicaSelected) return;
+
+    if (!this.tipoActividad || !this.empresa || !this.fechaRealizadoActividad || !this.resultado || this.errorMaximoIdentificado === null) {
+      Swal.fire('Error', 'Por favor complete todos los campos obligatorios.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('tipoActividad', this.tipoActividad);
+    formData.append('empresa', this.empresa);
+    formData.append('fechaRealizado', this.fechaRealizadoActividad.toISOString()); // O formato adecuado
+    formData.append('resultado', this.resultado);
+    formData.append('errorMaximoIdentificado', this.errorMaximoIdentificado.toString());
+    formData.append('observaciones', this.observaciones);
+    formData.append('usuarioIdFk', getDecodedAccessToken().id); // Asignar quien registró/aprobó
+
+    if (this.selectedFile) {
+      formData.append('rutaReporte', this.selectedFile);
+    }
+
+    try {
+      await this.metrologiaServices.updateActividadMetrologica(this.actividadMetrologicaSelected.id, formData);
+      Swal.fire('Éxito', 'Actividad metrológica registrada correctamente.', 'success');
+      this.modalAddActividadMetrologica = false;
+      this.setDate(); // Recargar datos
+    } catch (error: any) {
+      console.error(error);
+      const errorMessage = error.message || 'Error desconocido';
+      const errorStatus = error.status ? `Status: ${error.status}` : '';
+      Swal.fire('Error', `No se pudo registrar la actividad. ${errorMessage} ${errorStatus}`, 'error');
+    }
+  }
+
   viewmodalAddActividadMetrologica(actividad: any) {
     this.modalAddActividadMetrologica = true;
-
     this.actividadMetrologicaSelected = actividad;
-    console.log(this.actividadMetrologicaSelected);
+    // Reset form
+    this.tipoActividad = '';
+    this.empresa = '';
+    this.fechaRealizadoActividad = undefined;
+    this.resultado = '';
+    this.errorMaximoIdentificado = null;
+    this.observaciones = '';
+    this.selectedFile = null;
+
   }
 
   viewActividadMetrologica(actividad: any) {
     this.modalViewActividadMetrologica = true;
     this.actividadMetrologicaSelected = actividad;
-    console.log(this.actividadMetrologicaSelected);
+
+  }
+
+  verCertificado() {
+    if (this.actividadMetrologicaSelected && this.actividadMetrologicaSelected.rutaReporte) {
+      const token = sessionStorage.getItem('utoken');
+      const url = `${API_URL}/downloadReporte/${this.actividadMetrologicaSelected.id}?token=${token}`;
+      window.open(url, '_blank');
+    } else {
+      Swal.fire('Info', 'Este registro no tiene un certificado cargado.', 'info');
+    }
   }
 }

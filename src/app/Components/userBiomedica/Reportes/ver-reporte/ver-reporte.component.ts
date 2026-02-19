@@ -3,7 +3,6 @@ import { ActivatedRoute } from '@angular/router';
 import { ReportesService } from '../../../../Services/appServices/biomedicaServices/reportes/reportes.service';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { ProtocolosService } from '../../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
-import { BiomedicausernavbarComponent } from '../../../navbars/biomedicausernavbar/biomedicausernavbar.component';
 import { Table } from 'primeng/table';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -16,10 +15,11 @@ import { Dialog } from "primeng/dialog";
 import { CardModule } from "primeng/card";
 import { ArchivosService } from '../../../../Services/appServices/general/archivos/archivos.service'
 import { Router } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
 @Component({
   selector: 'app-ver-reporte',
   standalone: true,
-  imports: [BiomedicausernavbarComponent, TableModule, IconFieldModule, InputIconModule, InputTextModule, SplitButtonModule, ButtonModule, CommonModule, Dialog, CardModule],
+  imports: [TableModule, IconFieldModule, InputIconModule, InputTextModule, SplitButtonModule, ButtonModule, CommonModule, Dialog, CardModule],
   templateUrl: './ver-reporte.component.html',
   styleUrl: './ver-reporte.component.css'
 })
@@ -79,10 +79,21 @@ export class VerReporteComponent implements OnInit {
     }
   }
 
-  editarReporte(idReporte: any, idEquipo: any){
+  editarReporte(idReporte: any, idEquipo: any) {
     sessionStorage.setItem('TipoMantenimiento', 'P');
     sessionStorage.setItem('idReporte', idReporte.toString());
     this.router.navigate(['biomedica/nuevoreporte/', idEquipo]);
+  }
+
+  isGuest(): boolean {
+    const token = sessionStorage.getItem('utoken');
+    if (!token) return true;
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded?.rol === 'INVITADO';
+    } catch {
+      return true;
+    }
   }
 
 }

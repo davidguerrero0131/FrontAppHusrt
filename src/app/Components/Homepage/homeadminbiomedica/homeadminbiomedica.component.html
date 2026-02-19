@@ -1,77 +1,34 @@
-<app-biomedicausernavbar></app-biomedicausernavbar>
-<div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
-</div>
+<div class="dashboard-container">
 
-
-<div class="grid-container">
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">INVENTARIO</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-inboxes-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-dark" (click)=showViewInventarioBio()>INGRESAR</button>
-      </div>
+  <div class="hero-section" style="margin-bottom: 3rem;">
+    <div class="hero-content">
+      <h1>Panel de Administración Biomédica</h1>
+      <p>Bienvenido al sistema de gestión de activos y parámetros.</p>
     </div>
   </div>
 
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">MANTENIMIENTO</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-gear-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-dark" (click)=showViewMantenimientoBio()>INGRESAR</button>
+  <div class="cards-grid" style="justify-content: center; max-width: 900px; margin: 0 auto;">
+    <!-- Gestion Operativa -->
+    <div class="dashboard-card" (click)="showViewGestionOperativa()">
+      <div class="card-icon-container gradient-blue">
+        <i class="pi pi-briefcase" style="font-size: 4rem;"></i>
+      </div>
+      <div class="card-content">
+        <h3>Gestión Operativa</h3>
+        <p>Inventarios, mantenimientos, semaforización y reportes.</p>
+        <span class="card-action">Acceder <i class="pi pi-arrow-right"></i></span>
       </div>
     </div>
-  </div>
 
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">SEMAFORIZACIÓN</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-stoplights" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-dark" (click)=showViewSemaforizacionBio()>INGRESAR</button>
+    <!-- Parametrizacion -->
+    <div class="dashboard-card" (click)="showViewParametrizacion()">
+      <div class="card-icon-container gradient-orange">
+        <i class="pi pi-cog" style="font-size: 4rem;"></i>
       </div>
-    </div>
-  </div>
-
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">INDICADORES</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-bar-chart-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-dark" (click)=showViewIndicadoresBio()>INGRESAR</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="grid-item boton">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">CALENDARIO</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-calendar-week" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-dark" (click)=showViewCalendarioBio()>INGRESAR</button>
-      </div>
-    </div>
-  </div>
-
-    <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">ACTIVIDADES METROLOGICAS</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-stopwatch-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-dark" (click)=showViewMantenimientoBio()>INGRESAR</button>
+      <div class="card-content">
+        <h3>Parametrización</h3>
+        <p>Configuración de equipos, fabricantes, proveedores y tablas maestras.</p>
+        <span class="card-action">Acceder <i class="pi pi-arrow-right"></i></span>
       </div>
     </div>
   </div>

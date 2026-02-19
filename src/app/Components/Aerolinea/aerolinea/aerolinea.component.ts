@@ -17,10 +17,10 @@ import { DialogModule } from 'primeng/dialog';
 })
 export class AerolineaComponent {
 
-   visibleQr: boolean = false;
+  visibleQr: boolean = false;
   formGroup: FormGroup;
 
-  constructor(private aerolineaService : AerolineaService, private router: Router, private formBuilder: FormBuilder){
+  constructor(private aerolineaService: AerolineaService, private router: Router, private formBuilder: FormBuilder) {
 
     this.formGroup = this.formBuilder.group({
       nombre: new FormControl('', [Validators.required]),
@@ -35,7 +35,7 @@ export class AerolineaComponent {
   }
 
 
-  async crearPasajero(){
+  async crearPasajero() {
     let obj = {
       nombre: this.formGroup.value.nombre,
       apellido: this.formGroup.value.apellido,
@@ -49,16 +49,16 @@ export class AerolineaComponent {
       rutaQr: " "
     }
 
-    console.log(obj)
 
-    try{
+
+    try {
       const user = await this.aerolineaService.addUser(obj);
-      if(!user.error){
+      if (!user.error) {
         Swal.fire({
           icon: 'success',
           title: 'Se creo un nuevo pasajero.',
           text: 'creado exitosamente',
-          confirmButtonText:'Descargar Ticket'
+          confirmButtonText: 'Descargar Ticket'
         }).then((result) => {
           if (result.isConfirmed) {
             this.downloadTicket(obj)
@@ -72,14 +72,14 @@ export class AerolineaComponent {
         //this.downloadTicket(obj)
         //this.visibleQr = true;
 
-      }else{
+      } else {
         Swal.fire({
           icon: 'warning',
           title: 'No fue posible guardar el pasajero',
           text: 'Existe una inconsistencia en los datos'
         })
       }
-    }catch{
+    } catch {
       Swal.fire({
         icon: 'warning',
         title: 'No fue posible guardar el pasajero',
@@ -89,7 +89,7 @@ export class AerolineaComponent {
 
   }
 
-  reloadpage(){
+  reloadpage() {
     window.location.reload()
     this.visibleQr = false;
   }

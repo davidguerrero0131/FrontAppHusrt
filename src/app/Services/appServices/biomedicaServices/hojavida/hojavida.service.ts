@@ -41,14 +41,20 @@ export class HojavidaService {
     )
   }
 
-  addHojaVida(hojaVida: any){
+  addHojaVida(hojaVida: any) {
     return firstValueFrom(
       this.httpClient.post<any>(`${this.baseUrl}/addhojasvida`, hojaVida, this.createHeaders())
     )
   }
 
+  updateHojaVida(id: any, hojaVida: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/hojasvida/${id}`, hojaVida, this.createHeaders())
+    )
+  }
+
   getToken() {
-    return localStorage.getItem('utoken');
+    return sessionStorage.getItem('utoken');
   }
 
   validateToken(token: string): boolean {
@@ -59,7 +65,7 @@ export class HojavidaService {
         text: 'Ha llegado al límite de tiempo de sesión activa.'
       })
       this.router.navigate(['/login']);
-      localStorage.setItem('utoken', '');
+      sessionStorage.setItem('utoken', '');
       return true;
     } else {
       return false;
@@ -79,7 +85,7 @@ export class HojavidaService {
   createHeaders() {
     return {
       headers: new HttpHeaders({
-        'authorization': localStorage.getItem('utoken')!
+        'authorization': sessionStorage.getItem('utoken')!
       })
     }
   }

@@ -12,24 +12,32 @@ import { Table } from 'primeng/table';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 
-import { BiomedicausernavbarComponent } from '../../navbars/biomedicausernavbar/biomedicausernavbar.component';
 import { MantenimientosService } from '../../../Services/appServices/biomedicaServices/mantenimientos/mantenimientos.service';
 import { MetrologiaService } from '../../../Services/appServices/biomedicaServices/metrologia/metrologia.service';
 import { ServicioService } from '../../../Services/appServices/general/servicio/servicio.service';
 import { TipoEquipoService } from '../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
 
-import { obtenerNombreMes } from '../../../utilidades';
+import { obtenerNombreMes, getDecodedAccessToken } from '../../../utilidades';
 
 @Component({
   selector: 'app-calendario',
   standalone: true,
-  imports: [CommonModule, FormsModule, CalendarModule, BiomedicausernavbarComponent,
+  imports: [CommonModule, FormsModule, CalendarModule,
     DatePicker, Select, TableModule, IconFieldModule, InputIconModule, InputTextModule],
   templateUrl: './calendario.component.html',
   styleUrl: './calendario.component.css'
 })
 
 export class CalendarioComponent implements OnInit {
+
+  // ... (existing properties)
+
+  get canProgram(): boolean {
+    const token = getDecodedAccessToken();
+    return token?.rol !== 'BIOMEDICATECNICO';
+  }
+
+  // ... (rest of the class)
 
   fechaPlan = new Date();
   mesPlan = this.fechaPlan.getMonth() + 1;

@@ -5,7 +5,7 @@ import { Observable } from 'rxjs'
 import { firstValueFrom } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
-import { createHeaders } from  '../../../../utilidades';
+import { createHeaders } from '../../../../utilidades';
 
 import { API_URL } from '../../../../constantes';
 
@@ -22,6 +22,12 @@ export class SedeService {
   getAllSedes() {
     return firstValueFrom(
       this.httpClient.get<any[]>(`${API_URL}/sedes`, createHeaders())
+    )
+  }
+
+  getSedeById(id: any) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/sedes/${id}`, createHeaders())
     )
   }
 

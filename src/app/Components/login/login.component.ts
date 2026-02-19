@@ -35,6 +35,7 @@ export class LoginComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       sessionStorage.setItem('utoken', '');
     }
+    sessionStorage.setItem('utoken', '');
   }
 
   async onSubmit() {

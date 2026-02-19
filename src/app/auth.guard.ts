@@ -6,8 +6,22 @@ import { isTokenExpired, getDecodedAccessToken } from './utilidades';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
+
   if (!isTokenExpired()) {
-    return true; // Permite el acceso a la ruta
+    const requiredRoles = route.data['roles'] as Array<string>;
+
+    // Si la ruta tiene roles definidos
+    if (requiredRoles && requiredRoles.length > 0) {
+      const decodedToken = getDecodedAccessToken();
+      const userRole = decodedToken ? decodedToken.rol : null;
+
+      if (!userRole || !requiredRoles.includes(userRole)) {
+        router.navigate(['/access-denied']);
+        return false;
+      }
+    }
+
+    return true; // Permite el acceso
   } else {
     Swal.fire({
       icon: 'warning',

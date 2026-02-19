@@ -42,14 +42,3 @@
   align-items: center;
   text-align: center;
 }
-
-.custom-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-}
-
-.form-item {
-  display: flex;
-  flex-direction: column;
-}

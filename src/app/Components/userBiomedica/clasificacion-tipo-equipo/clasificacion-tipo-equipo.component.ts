@@ -8,28 +8,28 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-clasificacion-tipo-equipo',
   standalone: true,
-  imports: [FormsModule, BiomedicausernavbarComponent, CommonModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './clasificacion-tipo-equipo.component.html',
   styleUrl: './clasificacion-tipo-equipo.component.css'
 })
 export class ClasificacionTipoEquipoComponent implements OnInit {
 
-  tiposEquipos! : any[];
+  tiposEquipos!: any[];
   cantidadesEquipos: { [id: number]: number } = {};
   tipoEquipoServices = inject(TipoEquipoService);
   searchText: string = '';
 
-  constructor (private router: Router){
+  constructor(private router: Router) {
   }
 
   async ngOnInit() {
-    try{
+    try {
       this.tiposEquipos = await this.tipoEquipoServices.getTiposEquiposBiomedica();
 
       for (let tipoEquipo of this.tiposEquipos) {
         this.obtenerCantidadEquipos(tipoEquipo.id);
       }
-    }catch{
+    } catch {
 
     }
   }
@@ -50,8 +50,8 @@ export class ClasificacionTipoEquipoComponent implements OnInit {
     );
   }
 
-  viewEquiposTipos(idServicio: any){
-    localStorage.setItem("idTipoEquipo", idServicio);
+  viewEquiposTipos(idServicio: any) {
+    sessionStorage.setItem("idTipoEquipo", idServicio);
     this.router.navigate(['biomedica/equipostipo']);
   }
 

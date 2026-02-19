@@ -50,8 +50,32 @@ export class ResponsableService {
     )
   }
 
+  getResponsableById(id: number) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${this.baseUrl}/responsable/${id}`, this.createHeaders())
+    );
+  }
+
+  createResponsable(responsable: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/addresponsable`, responsable, this.createHeaders())
+    );
+  }
+
+  updateResponsable(id: number, responsable: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/responsable/${id}`, responsable, this.createHeaders())
+    );
+  }
+
+  deleteResponsable(id: number) {
+    return firstValueFrom(
+      this.httpClient.delete<any>(`${this.baseUrl}/responsable/${id}`, this.createHeaders())
+    );
+  }
+
   getToken() {
-    return localStorage.getItem('utoken');
+    return sessionStorage.getItem('utoken');
   }
 
   validateToken(token: string): boolean {
@@ -62,7 +86,7 @@ export class ResponsableService {
         text: 'Ha llegado al límite de tiempo de sesión activa.'
       })
       this.router.navigate(['/login']);
-      localStorage.setItem('utoken', '');
+      sessionStorage.setItem('utoken', '');
       return true;
     } else {
       return false;
@@ -82,7 +106,7 @@ export class ResponsableService {
   createHeaders() {
     return {
       headers: new HttpHeaders({
-        'authorization': localStorage.getItem('utoken')!
+        'authorization': sessionStorage.getItem('utoken')!
       })
     }
   }

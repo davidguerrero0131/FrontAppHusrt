@@ -37,13 +37,13 @@ export class CambiarContrasenaComponent implements OnInit {
       nuevaContrasena: ['', [Validators.required, Validators.minLength(8)]],
       nuevaContrasena2: ['', [Validators.required, Validators.minLength(8)]]
     },
-  {
-});
+      {
+      });
   }
 
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token') || '';
-    localStorage.setItem('utoken', this.token);
+    sessionStorage.setItem('utoken', this.token);
 
 
 
@@ -76,7 +76,7 @@ export class CambiarContrasenaComponent implements OnInit {
     }
   }
 
-  validarContrasenas(){
+  validarContrasenas() {
     if (this.form.value.nuevaContrasena !== this.form.value.nuevaContrasena2) {
       return false;
     } else {

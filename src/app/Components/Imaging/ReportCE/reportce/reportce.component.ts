@@ -155,7 +155,7 @@ export class ReportceComponent implements OnInit {
         this.imagingService.getCitesDate(obj).subscribe((data) => {
           this.cites = data.body;
           this.updateCitesDate();
-          console.log(this.cites);
+
         });
       } else {
         Swal.fire({

@@ -16,6 +16,7 @@ export function obtenerNombreMes(numeroMes: number): string {
   return meses[numeroMes - 1];
 }
 
+// Funcion para verificar si el usuario tiene un token valido
 export function validateToken(token: string): boolean {
   const router = inject(Router);
   if (isTokenExpired()) {
@@ -34,6 +35,10 @@ export function validateToken(token: string): boolean {
 
 export function isTokenExpired(): boolean {
   const token = sessionStorage?.getItem('utoken')!;
+  if (typeof sessionStorage === 'undefined') {
+    return true;
+  }
+  const token = sessionStorage.getItem('utoken');
   if (!token) {
     return true; // Si no hay token, se considera expirado
   }
@@ -53,6 +58,29 @@ export function createHeaders() {
 
 export function getDecodedAccessToken(): any {
   const token = sessionStorage.getItem('utoken')!;
+  try {
+    return jwtDecode(token);
+  } catch (Error) {
+    return null;
+  }
+  if (typeof sessionStorage === 'undefined') {
+    return { headers: new HttpHeaders() };
+  }
+  return {
+    headers: new HttpHeaders({
+      'authorization': sessionStorage.getItem('utoken') || ''
+    })
+  }
+}
+
+export function getDecodedAccessToken(): any {
+  if (typeof sessionStorage === 'undefined') {
+    return null;
+  }
+  const token = sessionStorage.getItem('utoken');
+  if (!token) {
+    return null;
+  }
   try {
     return jwtDecode(token);
   } catch (Error) {

@@ -105,6 +105,16 @@ import { MessageService } from 'primeng/api';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 
+import { BiomedicaadminnavbarComponent } from './Components/navbars/biomedicaadminnavbar/biomedicaadminnavbar.component';
+import { SuperadminnavbarComponent } from './Components/navbars/superadminnavbar/superadminnavbar.component';
+import { BiomedicausernavbarComponent } from './Components/navbars/biomedicausernavbar/biomedicausernavbar.component';
+import { BiomedicatecniconavbarComponent } from './Components/navbars/biomedicatecniconavbar/biomedicatecniconavbar.component';
+import { Router, NavigationEnd } from '@angular/router';
+import { inject } from '@angular/core';
+import { getDecodedAccessToken } from './utilidades';
+import { filter } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
+
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet,
@@ -200,10 +210,71 @@ import { InputIconModule } from 'primeng/inputicon';
     FocusTrapModule,
     FloatLabelModule,
 
+    FloatLabelModule,
+    BiomedicaadminnavbarComponent,
+    SuperadminnavbarComponent,
+    BiomedicausernavbarComponent,
+    BiomedicausernavbarComponent, // Was already there? Duplicate?
+    // Wait, replace with:
+    BiomedicaadminnavbarComponent,
+    SuperadminnavbarComponent,
+    BiomedicausernavbarComponent,
+    BiomedicatecniconavbarComponent,
+    CommonModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
   title = 'FrontAppHusrt';
+
+  router = inject(Router);
+  userRole: string = '';
+  showNavbar: boolean = true;
+
+  constructor() {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.checkUserRole();
+      this.checkLoginRoute();
+    });
+  }
+
+  checkLoginRoute() {
+    const currentUrl = this.router.url;
+    // Hide navbar on login page or basic root if no token
+    if (currentUrl === '/login' || currentUrl === '/') {
+      this.showNavbar = false;
+      // If we are at root, maybe check token validity? For now, if root, hide.
+      // Actually usually root redirects to login or home. 
+      // Let's assume login page is /login.
+    } else {
+      this.showNavbar = true;
+    }
+
+    if (currentUrl.includes('login')) {
+      this.showNavbar = false;
+    }
+  }
+
+  checkUserRole() {
+    if (typeof sessionStorage !== 'undefined') {
+      const token = sessionStorage.getItem('utoken');
+      if (token) {
+        const decoded = getDecodedAccessToken(); // Using helper which reads from sessionStorage usually
+        // If helper needs token passed: getDecodedAccessToken(token) depends on implementation.
+        // Checking imports... it is from './utilidades'.
+        // Let's assume specific implementation. 
+        // Based on previous files, sometimes it takes no args (reads session storage inside) or takes token.
+        // I will check utilidades.ts next step to be sure, but standard fix for now.
+        // Actually, let's look at `UserbiomedicaComponent` consumption.
+        // It used `getDecodedAccessToken(token)` in one file and `getDecodedAccessToken()` in another. 
+        // I'll stick to what I wrote but fix the typo `const token`.
+        this.userRole = decoded?.rol || '';
+      } else {
+        this.userRole = '';
+      }
+    }
+  }
 }

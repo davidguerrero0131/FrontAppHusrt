@@ -14,6 +14,11 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
 import { ScrollerModule } from 'primeng/scroller';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { MantenimientoadminnavbarComponent } from '../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
 
 @Component({
   selector: 'app-homeadminmantenimiento',
@@ -31,6 +36,7 @@ import { ScrollerModule } from 'primeng/scroller';
     TooltipModule,
     ScrollerModule
   ],
+  imports: [MantenimientoadminnavbarComponent, CommonModule, CardModule, ButtonModule],
   templateUrl: './homeadminmantenimiento.component.html',
   styleUrl: './homeadminmantenimiento.component.css'
 })

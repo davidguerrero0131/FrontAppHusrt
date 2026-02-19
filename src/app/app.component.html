@@ -1,1 +1,8 @@
+<div *ngIf="showNavbar">
+    <app-superadminnavbar *ngIf="userRole === 'SUPERADMIN'"></app-superadminnavbar>
+    <app-biomedicaadminnavbar *ngIf="userRole === 'BIOMEDICAADMIN'"></app-biomedicaadminnavbar>
+    <app-biomedicatecniconavbar *ngIf="userRole === 'BIOMEDICATECNICO'"></app-biomedicatecniconavbar>
+    <app-biomedicausernavbar *ngIf="userRole === 'BIOMEDICAUSER' || userRole === 'INVITADO'"></app-biomedicausernavbar>
+</div>
+
 <router-outlet />

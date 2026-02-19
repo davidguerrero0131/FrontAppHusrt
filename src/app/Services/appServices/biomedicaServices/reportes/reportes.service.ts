@@ -35,6 +35,18 @@ export class ReportesService {
     )
   }
 
+  getReportesPreventivosRango(data: { mesInicio: number, mesFin: number, anio: number }) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${API_URL}/reportes/preventivosrango`, data, createHeaders())
+    )
+  }
+
+  getReportesCorrectivosRango(data: { mesInicio: number, mesFin: number, anio: number }) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${API_URL}/reportes/correctivosrango`, data, createHeaders())
+    )
+  }
+
   getPreventivoProgramado(idReporte: any) {
     return firstValueFrom(
       this.httpClient.get<any>(`${API_URL}/reporte/${idReporte}`, createHeaders())
@@ -68,5 +80,11 @@ export class ReportesService {
     return firstValueFrom(
       this.httpClient.get<any>(`${API_URL}/reportes/rango`, options)
     );
+  }
+
+  getReportesUsuario(idUsuario: any) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/reportes/usuario/${idUsuario}`, createHeaders())
+    )
   }
 }

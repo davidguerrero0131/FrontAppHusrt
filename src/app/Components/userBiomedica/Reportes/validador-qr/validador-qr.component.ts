@@ -18,7 +18,7 @@ export class ValidadorQRComponent {
 
   onCodeResult(result: string) {
     this.qrResult = result;
-    console.log('📦 Código QR detectado:', result);
+
   }
 
   onCamerasFound(devices: MediaDeviceInfo[]) {
