@@ -1,0 +1,4 @@
+/* Basic styles compatible with PrimeNG */
+:host ::ng-deep .p-button {
+    margin-right: 0.5rem;
+}

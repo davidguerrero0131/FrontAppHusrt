@@ -1,0 +1,170 @@
+<div class="title-container">
+    <h2><strong> REPORTE DE MANTENIMIENTO {{convertirMayusculas(tipoMantenimiento)}}</strong></h2>
+</div>
+
+<div class="title-container">
+    <h4><strong> DATOS DEL EQUIPO </strong></h4>
+</div>
+
+<div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
+
+    <div class="form-item">
+        <label>Nombre Equipo</label>
+        <input pInputText type="nombreEquipo" placeholder="{{equipo?.nombres}}" disabled />
+    </div>
+
+    <div class="form-item">
+        <label>Marca</label>
+        <input pInputText type="nombreEquipo" placeholder="{{equipo?.marca}}" disabled />
+    </div>
+
+    <div class="form-item">
+        <label>Modelo</label>
+        <input pInputText type="nombreEquipo" placeholder="{{equipo?.modelo}}" disabled />
+    </div>
+
+    <div class="form-item">
+        <label>Serie</label>
+        <input pInputText type="nombreEquipo" placeholder="{{equipo?.serie}}" disabled />
+    </div>
+
+    <div class="form-item">
+        <label>Servicio</label>
+        <input pInputText type="nombreEquipo" placeholder="{{equipo?.servicioInd?.nombres}}" disabled />
+    </div>
+
+    <div class="form-item">
+        <label>Ubicación</label>
+        <input pInputText type="nombreEquipo" placeholder="{{equipo?.ubicacionEspecifica}}" disabled />
+    </div>
+</div>
+
+<div class="title-container">
+    <h4><strong> DATOS DEL REPORTE </strong></h4>
+</div>
+
+<div class="form-container">
+    <p-card>
+        <form [formGroup]="reporteForm" (ngSubmit)="onSubmit()">
+            <div class="custom-grid">
+
+                <div class="form-item">
+                    <label>Fecha Inicio</label>
+                    <p-datePicker formControlName="fechaRealizado" inputId="fechaRealizado" showIcon
+                        dateFormat="yy-mm-dd" />
+                </div>
+
+                <div class="form-item">
+                    <label>Hora Inicio</label>
+                    <input pInputText type="time" formControlName="horaInicio" />
+                </div>
+
+                <div class="form-item">
+                    <label>Fecha Fin</label>
+                    <p-datePicker formControlName="fechaFin" inputId="fechaFin" showIcon dateFormat="yy-mm-dd" />
+                </div>
+
+                <div class="form-item">
+                    <label>Hora Terminación</label>
+                    <input pInputText type="time" formControlName="horaTerminacion" />
+                </div>
+
+                <div class="form-item">
+                    <label>Hora Total</label>
+                    <input pInputText type="text" formControlName="horaTotal" readonly />
+                </div>
+
+                <div class="form-item">
+                    <label>Tipo de Mantenimiento</label>
+                    <!-- Dropdown or just text since it is disabled -->
+                    <input pInputText formControlName="tipoMantenimiento" />
+                </div>
+
+                <div class="form-item">
+                    <label>Tipo de Falla</label>
+                    <p-select [options]="tiposFalla" formControlName="tipoFalla" placeholder="Seleccione"></p-select>
+                </div>
+
+                <div class="form-item">
+                    <label>Trabajo Realizado</label>
+                    <input pInputText formControlName="trabajoRealizado" />
+                </div>
+
+                <div class="form-item">
+                    <label>Calificación</label>
+                    <input pInputText type="number" formControlName="calificacion" />
+                </div>
+
+                <div class="form-item">
+                    <label>Nombre Realizo</label>
+                    <input pInputText placeholder="{{nombreUsuario?.nombreCompleto}}" type="nombreRealizo" disabled />
+                </div>
+
+                <div class="form-item">
+                    <label>Nombre Recibió</label>
+                    <input pInputText formControlName="nombreRecibio" />
+                </div>
+
+                <div class="form-item">
+                    <label>Cédula Recibió</label>
+                    <input pInputText formControlName="cedulaRecibio" />
+                </div>
+
+            </div>
+            <div style="margin-top: 3%;"></div>
+            <div class="custom-grid">
+                <div class="form-item">
+                    <label>Motivo</label>
+                    <textarea pInputTextarea rows="3" formControlName="motivo"></textarea>
+                </div>
+
+                <div class="form-item">
+                    <label>Observaciones</label>
+                    <textarea pInputTextarea rows="3" formControlName="observaciones"></textarea>
+                </div>
+            </div>
+
+            <div class="title-container" *ngIf="tipoMantenimiento === 'Preventivo'">
+                <h4><strong> PROTOCOLO PREVENTIVO </strong></h4>
+                <H6>Seleccione los pasos realizados en el mantenimiento</H6>
+            </div>
+
+            <div *ngIf="tipoMantenimiento === 'Preventivo'" class="grid formgrid p-fluid">
+                <div formArrayName="cumplimientoProtocolo" class="col-12">
+                    <div *ngFor="let grupo of cumplimientoProtocoloFormArray.controls; let i = index"
+                        [formGroupName]="i" class="field mb-3 grid align-items-center"
+                        style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;">
+
+                        <div class="col-8" style="flex: 1; padding-right: 10px;">
+                            <label for="protocolo_{{i}}" class="m-0">{{ grupo.get('paso')?.value }}</label>
+                        </div>
+
+                        <div class="col-4" style="flex: 0 0 160px;">
+                            <p-dropdown [options]="optionsProtocolo" formControlName="cumple" placeholder="Seleccione"
+                                [style]="{'width':'100%'}" appendTo="body"></p-dropdown>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div style="margin-top: 3%;"></div>
+
+            <div class="custom-grid">
+                <div class="form-item">
+                    <label>Adjuntar Imagenes (Opcional)</label>
+                    <input type="file" (change)="onFileSelected($event)" accept="image/*" class="form-control"
+                        multiple />
+                    <small *ngIf="selectedFiles.length > 0">{{ selectedFiles.length }} archivos seleccionados</small>
+                </div>
+            </div>
+
+            <div style="margin-top: 3%;"></div>
+
+            <div class="custom-grid">
+                <button type="submit" class="btn btn-dark">Guardar</button>
+                <button type="button" class="btn btn-secondary" (click)="goBack()">Cancelar</button>
+            </div>
+        </form>
+    </p-card>
+</div>

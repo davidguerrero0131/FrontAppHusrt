@@ -28,15 +28,15 @@ export class TipoEquipoService {
     )
   }
 
-  activarTipoEquipo(idTipoEquipo: any){
+  activarTipoEquipo(idTipoEquipo: any) {
     return firstValueFrom(
-      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/activar/` + idTipoEquipo, {},this.createHeaders())
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/activar/` + idTipoEquipo, {}, this.createHeaders())
     )
   }
 
-  desactivarTipoEquipo(idTipoEquipo: any){
+  desactivarTipoEquipo(idTipoEquipo: any) {
     return firstValueFrom(
-      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/desactivar/` + idTipoEquipo, {},this.createHeaders())
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/desactivar/` + idTipoEquipo, {}, this.createHeaders())
     )
   }
 
@@ -58,20 +58,32 @@ export class TipoEquipoService {
     )
   }
 
+  getTiposEquiposIndustrial() {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipoInd`, this.createHeaders())
+    )
+  }
+
   getTipoEquipo(idTipoEquipo: any) {
     return firstValueFrom(
       this.httpClient.get<any>(`${this.baseUrl}/tiposequipo/${idTipoEquipo}`, this.createHeaders())
     )
   }
 
-  actualizarTipoEquipo(idTipoEquipo: any, data: any){
+  actualizarTipoEquipo(idTipoEquipo: any, data: any) {
     return firstValueFrom(
       this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/${idTipoEquipo}`, data, this.createHeaders())
     )
   }
 
+  createTipoEquipo(data: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/addtiposequipo`, data, this.createHeaders())
+    )
+  }
+
   getToken() {
-    return localStorage.getItem('utoken');
+    return sessionStorage.getItem('utoken');
   }
 
   validateToken(token: string): boolean {
@@ -82,7 +94,7 @@ export class TipoEquipoService {
         text: 'Ha llegado al límite de tiempo de sesión activa.'
       })
       this.router.navigate(['/login']);
-      localStorage.setItem('utoken', '');
+      sessionStorage.setItem('utoken', '');
       return true;
     } else {
       return false;
@@ -102,7 +114,7 @@ export class TipoEquipoService {
   createHeaders() {
     return {
       headers: new HttpHeaders({
-        'authorization': localStorage.getItem('utoken')!
+        'authorization': sessionStorage.getItem('utoken')!
       })
     }
   }

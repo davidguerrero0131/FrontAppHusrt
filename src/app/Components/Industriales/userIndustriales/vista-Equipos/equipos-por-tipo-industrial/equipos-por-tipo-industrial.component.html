@@ -1,0 +1,71 @@
+<div style="width: 90%; margin-left: 5%; margin-right: 5%; margin-top: 2%;">
+
+    <div class="flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="text-3xl font-bold m-0 text-primary" *ngIf="tipoEquipo">Equipos: {{tipoEquipo.nombres}}</h2>
+            <p class="text-secondary" *ngIf="equipos">Total registros: {{equipos.length}}</p>
+        </div>
+        <button pButton label="Regresar" icon="pi pi-arrow-left" class="p-button-outlined"
+            (click)="regresar()"></button>
+    </div>
+
+    <div class="card">
+        <p-table #dt2 [value]="equipos" dataKey="id" [rows]="10" [showCurrentPageReport]="true"
+            [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading" [paginator]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} entradas"
+            [globalFilterFields]="['nombres', 'marca', 'modelo', 'serie', 'placa', 'servicioInd.nombres', 'ubicacionEspecifica']"
+            [tableStyle]="{ 'min-width': '75rem' }">
+
+            <ng-template pTemplate="caption">
+                <div class="flex">
+                    <span class="p-input-icon-left ml-auto">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Buscar..." />
+                    </span>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:15%">Nombre</th>
+                    <th style="width:12%">Marca</th>
+                    <th style="width:12%">Modelo</th>
+                    <th style="width:12%">Serie</th>
+                    <th style="width:10%">Placa</th>
+                    <th style="width:15%">Servicio</th>
+                    <th style="width:10%">Ubicación</th>
+                    <th style="width:14%">Acciones</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-equipo>
+                <tr>
+                    <td>{{ equipo.nombres }}</td>
+                    <td>{{ equipo.marca }}</td>
+                    <td>{{ equipo.modelo }}</td>
+                    <td>{{ equipo.serie }}</td>
+                    <td>{{ equipo.placa }}</td>
+                    <td>{{ equipo.servicioInd?.nombres }}</td>
+                    <td>{{ equipo.ubicacionEspecifica }}</td>
+                    <td class="flex gap-2">
+                        <button pButton icon="pi pi-eye" class="p-button-rounded p-button-info p-button-sm"
+                            (click)="verHojaVida(equipo.id)" pTooltip="Ver Hoja de Vida"></button>
+                        <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-warning p-button-sm"
+                            (click)="editarEquipo(equipo.id)" pTooltip="Editar"></button>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="8" class="text-center p-4">
+                        <div class="flex flex-column align-items-center">
+                            <i class="pi pi-inbox text-5xl text-gray-400 mb-2"></i>
+                            <span>No hay equipos registrados para este tipo.</span>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

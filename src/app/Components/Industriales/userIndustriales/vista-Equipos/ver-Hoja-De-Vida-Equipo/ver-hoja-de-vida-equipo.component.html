@@ -1,200 +1,195 @@
-<app-industriales-navbar></app-industriales-navbar>
-<div class="container-fluid p-4">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h3 class="mb-0">
-                <i class="bi bi-file-earmark-text me-2"></i>Hoja de Vida Industrial
-            </h3>
-            <button class="btn btn-light btn-sm" (click)="regresar()">
-                <i class="bi bi-arrow-left me-2"></i>Regresar
-            </button>
-        </div>
+<div style="width: 90%; margin-left: 5%; margin-right: 5%; margin-top: 2%;">
+    <p-card *ngIf="hojaVida" class="mb-4">
+        <ng-template pTemplate="header">
+            <div class="flex justify-content-between align-items-center p-3"
+                style="display: flex; justify-content: space-between; align-items: center; padding: 1rem;">
+                <span class="text-xl font-bold" style="font-size: 1.25rem; font-weight: 700;">Datos del Equipo
+                    Industrial</span>
+                <button pButton label="Regresar" icon="pi pi-arrow-left" (click)="regresar()"></button>
+            </div>
+        </ng-template>
 
-        <div class="card-body" *ngIf="loading">
-            <div class="text-center p-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
+        <div class="grid p-3" style="display: flex; flex-wrap: wrap;">
+
+            <!-- Columna izquierda: Imagen (Placeholder por ahora) -->
+            <div class="col-12 md:col-4 flex justify-content-center align-items-center"
+                style="width: 33%; display: flex; justify-content: center; align-items: center;">
+                <p-image src="assets/images/equipment-placeholder.png" [alt]="equipoInfo?.nombres" width="200" preview>
+                    <ng-template pTemplate="indicator">
+                        <i class="pi pi-image text-4xl"></i>
+                    </ng-template>
+                </p-image>
+            </div>
+
+            <!-- Columna derecha: Datos generales -->
+            <div class="col-12 md:col-8" style="width: 66%;">
+                <div class="grid" style="display: flex; flex-wrap: wrap;">
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Nombre:</strong> {{ equipoInfo?.nombre }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Marca:</strong> {{ equipoInfo?.marca }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Modelo:</strong> {{ equipoInfo?.modelo }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Serie:</strong> {{ equipoInfo?.serie }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Placa:</strong> {{ equipoInfo?.placa }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Tipo Equipo:</strong> {{
+                        equipoInfo?.tipoEquipoInd?.nombres }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Servicio:</strong> {{
+                        equipoInfo?.servicioInd?.nombres }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Sede:</strong> {{ equipoInfo?.sedeInd?.nombres
+                        }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Ubicación:</strong> {{ equipoInfo?.ubicacion }}
+                    </div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Responsable:</strong> {{
+                        equipoInfo?.responsableInd?.nombres }}</div>
                 </div>
-                <p class="mt-2 text-muted">Cargando información...</p>
             </div>
         </div>
 
-        <div class="card-body" *ngIf="!loading && equipoInfo">
-            <!-- SECCION 1: DATOS DEL EQUIPO -->
-            <div class="mb-5">
-                <h4 class="text-primary border-bottom pb-2 mb-3">Información del Equipo</h4>
-                <div class="row">
-                    <div class="col-md-3 mb-2"><strong>Nombre:</strong> {{ equipoInfo.nombre }}</div>
-                    <div class="col-md-3 mb-2"><strong>Marca:</strong> {{ equipoInfo.marca }}</div>
-                    <div class="col-md-3 mb-2"><strong>Modelo:</strong> {{ equipoInfo.modelo }}</div>
-                    <div class="col-md-3 mb-2"><strong>Serie:</strong> {{ equipoInfo.serie }}</div>
-                    <div class="col-md-3 mb-2"><strong>Placa:</strong> {{ equipoInfo.placa }}</div>
-                    <div class="col-md-3 mb-2"><strong>Ubicación:</strong> {{ equipoInfo.ubicacion }}</div>
-                    <div class="col-md-3 mb-2"><strong>Tipo de Equipo:</strong> {{ equipoInfo.tipoEquipoInd?.nombres }}
-                    </div>
-                    <div class="col-md-3 mb-2"><strong>Servicio:</strong> {{ equipoInfo.servicioInd?.nombres }}</div>
-                    <div class="col-md-3 mb-2"><strong>Sede:</strong> {{ equipoInfo.sedeInd?.nombres }}</div>
-                    <div class="col-md-3 mb-2"><strong>Responsable:</strong> {{ equipoInfo.responsableInd?.nombres }}
-                    </div>
-                </div>
-            </div>
+        <p-divider></p-divider>
 
-            <div class="row">
-                <!-- SECCION 2: HOJA DE VIDA (ADQUISICION) -->
-                <div class="col-md-6 mb-4" *ngIf="hojaVida">
-                    <div class="card h-100">
-                        <div class="card-header bg-light"><strong>Adquisición y Garantía</strong></div>
-                        <div class="card-body">
-                            <p><strong>Forma de Adquisición:</strong> {{ hojaVida.adquisicion }}</p>
-                            <p><strong>Fecha Compra:</strong> {{ hojaVida.fechaCompra | date:'dd/MM/yyyy' }}</p>
-                            <p><strong>Fecha Instalación:</strong> {{ hojaVida.fechaInstalacion | date:'dd/MM/yyyy' }}
-                            </p>
-                            <p><strong>Inicio Operación:</strong> {{ hojaVida.fechaInicioOperacion | date:'dd/MM/yyyy'
-                                }}</p>
-                            <p><strong>Vencimiento Garantía:</strong> {{ hojaVida.vencimientoGarantia |
-                                date:'dd/MM/yyyy' }}</p>
-                            <p><strong>Referencia:</strong> {{ hojaVida.referencia }}</p>
-                            <p><strong>Fabricación:</strong> {{ hojaVida.fabricacion }}</p>
-                        </div>
+        <!-- Accordion para secciones adicionales -->
+        <p-accordion [multiple]="true" [activeIndex]="[0,1,2,3,4]">
+
+            <!-- Adquisición -->
+            <p-accordionTab header="Adquisición y Garantía">
+                <div class="grid" style="display: flex; flex-wrap: wrap;">
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Forma Adquisición:</strong> {{
+                        hojaVida.adquisicion }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Fecha Compra:</strong> {{ hojaVida.fechaCompra |
+                        date:'dd/MM/yyyy' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Fecha Instalación:</strong> {{
+                        hojaVida.fechaInstalacion | date:'dd/MM/yyyy' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Inicio Operación:</strong> {{
+                        hojaVida.fechaInicioOperacion | date:'dd/MM/yyyy' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Vencimiento Garantía:</strong> {{
+                        hojaVida.vencimientoGarantia | date:'dd/MM/yyyy' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Referencia:</strong> {{ hojaVida.referencia }}
+                    </div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Fabricación:</strong> {{ hojaVida.fabricacion }}
                     </div>
                 </div>
+            </p-accordionTab>
 
-                <!-- SECCION 3: PROVEEDOR -->
-                <div class="col-md-6 mb-4" *ngIf="proveedor">
-                    <div class="card h-100">
-                        <div class="card-header bg-light"><strong>Proveedor y Fabricante</strong></div>
-                        <div class="card-body">
-                            <p><strong>Código Equipo (Prov):</strong> {{ proveedor.codigoEquipo }}</p>
-                            <p><strong>Código Int. (Prov):</strong> {{ proveedor.codigoInternacional }}</p>
-                            <p><strong>Fabricante:</strong> {{ proveedor.fabricante }}</p>
-                            <p><strong>Ciudad (Fab):</strong> {{ proveedor.ciudadFabricante }}</p>
-                            <p><strong>Representante:</strong> {{ proveedor.representante }}</p>
-                            <p><strong>Teléfono (Rep):</strong> {{ proveedor.telefonoRepresentante }}</p>
-                            <hr>
-                            <p><strong>Distribuidor:</strong> {{ proveedor.distribuidor }}</p>
-                            <p><strong>Ciudad (Dist):</strong> {{ proveedor.ciudadDistribuidor }}</p>
-                            <p><strong>Teléfono (Dist):</strong> {{ proveedor.telefonoDistribuidor }}</p>
-                        </div>
+            <!-- Proveedor -->
+            <p-accordionTab header="Información de Proveedor">
+                <div *ngIf="proveedor; else noProv" class="grid" style="display: flex; flex-wrap: wrap;">
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Proveedor (Código):</strong> {{
+                        proveedor.codigoEquipo }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Código Int.:</strong> {{
+                        proveedor.codigoInternacional }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Fabricante:</strong> {{ proveedor.fabricante }}
+                    </div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Ciudad Fab.:</strong> {{
+                        proveedor.ciudadFabricante }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Representante:</strong> {{
+                        proveedor.representante }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Tel. Representante:</strong> {{
+                        proveedor.telefonoRepresentante }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Distribuidor:</strong> {{ proveedor.distribuidor
+                        }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Tel. Distribuidor:</strong> {{
+                        proveedor.telefonoDistribuidor }}</div>
+                </div>
+                <ng-template #noProv>
+                    <div class="text-center font-italic text-500">Sin información de proveedor asignado.</div>
+                </ng-template>
+            </p-accordionTab>
+
+            <!-- Datos Técnicos -->
+            <p-accordionTab header="Datos Técnicos">
+                <div *ngIf="datosTecnicos; else noDatos" class="grid" style="display: flex; flex-wrap: wrap;">
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Voltaje:</strong> {{
+                        datosTecnicos.volMaxOperacion }} - {{ datosTecnicos.volMinOperacion }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Corriente:</strong> {{
+                        datosTecnicos.corrienteMaxOperacion }} - {{ datosTecnicos.corrienteMinOperacion }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Potencia:</strong> {{
+                        datosTecnicos.potenciaConsumida }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Frecuencia:</strong> {{ datosTecnicos.frecuencia
+                        }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Presión:</strong> {{ datosTecnicos.presion }}
+                    </div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Velocidad:</strong> {{ datosTecnicos.velocidad
+                        }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Temperatura:</strong> {{
+                        datosTecnicos.temperatura }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Peso:</strong> {{ datosTecnicos.peso }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Capacidad:</strong> {{ datosTecnicos.capacidad
+                        }}</div>
+                    <div class="col-12 mb-2"
+                        style="width: 100%; border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px;"
+                        *ngIf="datosTecnicos.accesorios">
+                        <strong>Accesorios:</strong> {{ datosTecnicos.accesorios }} ({{ datosTecnicos.marcaAccesorio }}
+                        - {{ datosTecnicos.modeloSerieAccesorio }})
                     </div>
                 </div>
-            </div>
+                <ng-template #noDatos>
+                    <div class="text-center font-italic text-500">Sin datos técnicos registrados.</div>
+                </ng-template>
+            </p-accordionTab>
 
-            <div class="row">
-                <!-- SECCION 4: DATOS TÉCNICOS -->
-                <div class="col-md-6 mb-4" *ngIf="datosTecnicos">
-                    <div class="card h-100">
-                        <div class="card-header bg-light"><strong>Datos Técnicos</strong></div>
-                        <div class="card-body">
-                            <p><strong>Volt. Operación:</strong> {{ datosTecnicos.volMaxOperacion }} - {{
-                                datosTecnicos.volMinOperacion }}</p>
-                            <p><strong>Corriente:</strong> {{ datosTecnicos.corrienteMaxOperacion }} - {{
-                                datosTecnicos.corrienteMinOperacion }}</p>
-                            <p><strong>Potencia:</strong> {{ datosTecnicos.potenciaConsumida }}</p>
-                            <p><strong>Frecuencia:</strong> {{ datosTecnicos.frecuencia }}</p>
-                            <p><strong>Presión:</strong> {{ datosTecnicos.presion }}</p>
-                            <p><strong>Velocidad:</strong> {{ datosTecnicos.velocidad }}</p>
-                            <p><strong>Temperatura:</strong> {{ datosTecnicos.temperatura }}</p>
-                            <p><strong>Peso:</strong> {{ datosTecnicos.peso }}</p>
-                            <p><strong>Capacidad:</strong> {{ datosTecnicos.capacidad }}</p>
-
-                            <!-- Accesorios -->
-                            <div
-                                *ngIf="datosTecnicos.accesorios || datosTecnicos.marcaAccesorio || datosTecnicos.modeloSerieAccesorio">
-                                <hr>
-                                <p><strong>Accesorios:</strong> {{ datosTecnicos.accesorios }}</p>
-                                <p><strong>Marca Accesorios:</strong> {{ datosTecnicos.marcaAccesorio }}</p>
-                                <p><strong>Modelo/Serie Accesorios:</strong> {{ datosTecnicos.modeloSerieAccesorio }}
-                                </p>
-                            </div>
-
-                            <hr>
-                            <strong>Fuentes de Alimentación:</strong>
-                            <ul>
-                                <li *ngIf="datosTecnicos.agua">Agua</li>
-                                <li *ngIf="datosTecnicos.aire">Aire</li>
-                                <li *ngIf="datosTecnicos.vapor">Vapor</li>
-                                <li *ngIf="datosTecnicos.derivadoPetroleo">Derivados Petróleo</li>
-                                <li *ngIf="datosTecnicos.electricidad">Electricidad</li>
-                                <li *ngIf="datosTecnicos.energiaSolar">Energía Solar</li>
-                                <li *ngIf="datosTecnicos.otros">Otros: {{ datosTecnicos.otros }}</li>
-                            </ul>
-                        </div>
+            <!-- Registro de Apoyo -->
+            <p-accordionTab header="Registro de Apoyo">
+                <div *ngIf="registroApoyo; else noApoyo" class="grid" style="display: flex; flex-wrap: wrap;">
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Manual Usuario:</strong> {{
+                        registroApoyo.manualUsuario ? 'Si' : 'No' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Manual Técnico:</strong> {{
+                        registroApoyo.manualTecnico ? 'Si' : 'No' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Equipo Fijo:</strong> {{
+                        registroApoyo.equipoFijo ? 'Si' : 'No' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Uso:</strong> {{ registroApoyo.uso }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Riesgo:</strong> {{ registroApoyo.riesgo }}
                     </div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Tecnología:</strong> {{
+                        registroApoyo.tecnologiaPredominante }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Clasificación:</strong> {{
+                        registroApoyo.clasificacion }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Estado Físico:</strong> {{ registroApoyo.estado
+                        }}</div>
+                </div>
+                <ng-template #noApoyo>
+                    <div class="text-center font-italic text-500">Sin registro de apoyo.</div>
+                </ng-template>
+            </p-accordionTab>
+
+            <!-- Documentos Anexos -->
+            <p-accordionTab header="Documentos Anexos">
+                <div class="mb-3 d-flex align-items-center" *ngIf="userRole === 'INDUSTRIALESADMIN'">
+                    <label for="fileUpload" class="p-button p-component p-button-sm mr-2" style="cursor: pointer;">
+                        <i class="pi pi-upload mr-2"></i> {{ uploading ? 'Subiendo...' : 'Subir Documento' }}
+                    </label>
+                    <input type="file" id="fileUpload" class="d-none" (change)="onFileSelected($event)"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png" style="display: none;">
                 </div>
 
-                <!-- SECCION 5: REGISTRO DE APOYO -->
-                <div class="col-md-6 mb-4" *ngIf="registroApoyo">
-                    <div class="card h-100">
-                        <div class="card-header bg-light"><strong>Registro de Apoyo</strong></div>
-                        <div class="card-body">
-                            <p><strong>Manual de Usuario:</strong> {{ registroApoyo.manualUsuario ? 'Si' : 'No' }}</p>
-                            <p><strong>Manual Técnico:</strong> {{ registroApoyo.manualTecnico ? 'Si' : 'No' }}</p>
-                            <p><strong>Equipo Fijo:</strong> {{ registroApoyo.equipoFijo ? 'Si' : 'No' }}</p>
-                            <p><strong>Uso:</strong> {{ registroApoyo.uso }}</p>
-                            <p><strong>Riesgo:</strong> {{ registroApoyo.riesgo }}</p>
-                            <p><strong>Tecnología:</strong> {{ registroApoyo.tecnologiaPredominante }}</p>
-                            <p><strong>Clasificación:</strong> {{ registroApoyo.clasificacion }}</p>
-                            <p><strong>Estado Físico:</strong> {{ registroApoyo.estado }}</p>
-                            <p><strong>Mantenimiento:</strong> {{ registroApoyo.mantenimiento }}</p>
-                            <p><strong>Propiedad:</strong> {{ registroApoyo.propiedad }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                <p-table [value]="documentos" [rows]="5" [paginator]="true" responsiveLayout="scroll">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Nombre Archivo</th>
+                            <th>Fecha Carga</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-doc>
+                        <tr>
+                            <td><i class="pi pi-file mr-2"></i>{{ doc.nombreOriginal }}</td>
+                            <td>{{ doc.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                            <td>
+                                <button pButton icon="pi pi-eye" class="p-button-rounded p-button-success mr-2"
+                                    (click)="visualizarDocumento(doc.id)" pTooltip="Visualizar"></button>
+                                <button pButton icon="pi pi-download" class="p-button-rounded p-button-info mr-2"
+                                    (click)="descargarDocumento(doc.id)" pTooltip="Descargar"></button>
+                                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                                    (click)="eliminarDocumento(doc.id)" pTooltip="Eliminar"
+                                    *ngIf="userRole === 'INDUSTRIALESADMIN'"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="3" class="text-center">No hay documentos anexos.</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-accordionTab>
 
-            <div class="row">
-                <!-- SECCION 6: DOCUMENTOS ANEXOS -->
-                <div class="col-12 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                            <strong>Documentos Anexos</strong>
-                            <div class="d-flex align-items-center">
-                                <label for="fileUpload" class="btn btn-primary btn-sm me-2"
-                                    [class.disabled]="uploading">
-                                    <i class="bi bi-upload me-2"></i>{{ uploading ? 'Subiendo...' : 'Subir Documento' }}
-                                </label>
-                                <input type="file" id="fileUpload" class="d-none" (change)="onFileSelected($event)"
-                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png">
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div *ngIf="documentos.length === 0" class="text-center text-muted py-3">
-                                No hay documentos adjuntos.
-                            </div>
-                            <div class="table-responsive" *ngIf="documentos.length > 0">
-                                <table class="table table-hover align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th>Nombre Archivo</th>
-                                            <th>Fecha Carga</th>
-                                            <th class="text-end">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr *ngFor="let doc of documentos">
-                                            <td>
-                                                <i class="bi bi-file-earmark-text me-2"></i>{{ doc.nombreOriginal }}
-                                            </td>
-                                            <td>{{ doc.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
-                                            <td class="text-end">
-                                                <button class="btn btn-sm btn-outline-primary me-2"
-                                                    (click)="descargarDocumento(doc.id)" title="Descargar/Ver">
-                                                    <i class="bi bi-eye"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-outline-danger"
-                                                    (click)="eliminarDocumento(doc.id)" title="Eliminar">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
+        </p-accordion>
+    </p-card>
 </div>

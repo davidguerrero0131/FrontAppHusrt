@@ -3,33 +3,32 @@ import { ServicioService } from '../../../Services/appServices/general/servicio/
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { BiomedicausernavbarComponent } from '../../navbars/biomedicausernavbar/biomedicausernavbar.component';
 
 @Component({
   selector: 'app-clasificacion-servicio',
   standalone: true,
-  imports: [BiomedicausernavbarComponent, FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './clasificacion-servicio.component.html',
   styleUrl: './clasificacion-servicio.component.css'
 })
 export class ClasificacionServicioComponent implements OnInit {
 
-  servicios! : any[];
+  servicios!: any[];
   cantidadesEquipos: { [id: number]: number } = {};
   servicioServices = inject(ServicioService)
   searchText: string = '';
 
-  constructor (private router: Router){
+  constructor(private router: Router) {
   }
 
   async ngOnInit() {
-    try{
+    try {
       this.servicios = await this.servicioServices.getAllServicios();
 
       for (let servicio of this.servicios) {
         this.obtenerCantidadEquipos(servicio.id);
       }
-    }catch{
+    } catch {
 
     }
   }
@@ -50,8 +49,8 @@ export class ClasificacionServicioComponent implements OnInit {
     );
   }
 
-  viewEquiposServicio(idServicio: any){
-    localStorage.setItem("idServicio", idServicio);
+  viewEquiposServicio(idServicio: any) {
+    sessionStorage.setItem("idServicio", idServicio);
     this.router.navigate(['biomedica/equiposservicio']);
   }
 }

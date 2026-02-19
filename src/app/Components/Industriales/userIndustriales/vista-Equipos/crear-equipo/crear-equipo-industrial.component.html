@@ -1,54 +1,58 @@
-<app-industriales-navbar></app-industriales-navbar>
-<div style="width: 90%; margin-left: 5%;">
-  <h1 style="text-align: center; margin-top: 40px;">Registro de Equipos Industriales</h1>
-  <div class="card" style="margin-top: 5%;">
+<div class="container-fluid p-4">
+  <div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h3 class="mb-0 text-white">Registro de Equipos Industriales</h3>
+      <button class="btn btn-outline-light btn-sm" (click)="regresar()">
+        <i class="bi bi-arrow-left me-2"></i>Volver
+      </button>
+    </div>
     <div class="card-body">
       <form [formGroup]="equipoForm" (ngSubmit)="guardar()">
 
         <div class="row g-3">
 
           <div class="col-md-6">
-            <label>Tipo de Equipo</label>
-            <select formControlName="tipoEquipoIdFk" class="form-control">
+            <label class="form-label fw-bold">Tipo de Equipo</label>
+            <select formControlName="tipoEquipoIdFk" class="form-select">
               <option value="">Seleccione...</option>
               <option *ngFor="let t of tiposequipo" [value]="t.id">{{ t.nombres }}</option>
             </select>
           </div>
 
           <div class="col-md-6">
-            <label>Nombre del equipo</label>
+            <label class="form-label fw-bold">Nombre del equipo</label>
             <input type="text" formControlName="nombres" class="form-control" placeholder="Ej: Caldera Industrial"
               appUppercase />
           </div>
 
           <div class="col-md-6">
-            <label>Marca</label>
+            <label class="form-label fw-bold">Marca</label>
             <input type="text" formControlName="marca" class="form-control" appUppercase />
           </div>
 
           <div class="col-md-6">
-            <label>Modelo</label>
+            <label class="form-label fw-bold">Modelo</label>
             <input type="text" formControlName="modelo" class="form-control" appUppercase />
           </div>
 
           <div class="col-md-6">
-            <label>Serie</label>
+            <label class="form-label fw-bold">Serie</label>
             <input type="text" formControlName="serie" class="form-control" appUppercase />
           </div>
 
           <div class="col-md-6">
-            <label>Placa</label>
+            <label class="form-label fw-bold">Placa</label>
             <input type="text" formControlName="placa" class="form-control" appUppercase />
           </div>
 
           <div class="col-md-6">
-            <label>REGISTRO SANITARIO Y/O PERMISO DE COMERCIALIZACIÓN</label>
+            <label class="form-label fw-bold">Registro Sanitario / Permiso</label>
             <input type="text" formControlName="registroInvima" class="form-control" appUppercase />
           </div>
 
           <div class="col-md-6">
-            <label>Riesgo</label>
-            <select formControlName="riesgo" class="form-control">
+            <label class="form-label fw-bold">Riesgo</label>
+            <select formControlName="riesgo" class="form-select">
               <option value="I">I</option>
               <option value="IIA">IIA</option>
               <option value="IIB">IIB</option>
@@ -58,37 +62,37 @@
           </div>
 
           <div class="col-md-6">
-            <label>Servicio</label>
-            <select formControlName="servicioIdFk" class="form-control">
+            <label class="form-label fw-bold">Servicio</label>
+            <select formControlName="servicioIdFk" class="form-select">
               <option value="">Seleccione...</option>
               <option *ngFor="let s of servicios" [value]="s.id">{{ s.nombres }}</option>
             </select>
           </div>
 
           <div class="col-md-6">
-            <label>Ubicación Específica</label>
+            <label class="form-label fw-bold">Ubicación Específica</label>
             <input type="text" formControlName="ubicacionEspecifica" class="form-control" appUppercase />
           </div>
 
           <div class="col-md-6">
-            <label>Sede</label>
-            <select formControlName="sedeIdFk" class="form-control">
+            <label class="form-label fw-bold">Sede</label>
+            <select formControlName="sedeIdFk" class="form-select">
               <option value="">Seleccione...</option>
               <option *ngFor="let sd of sedes" [value]="sd.id">{{ sd.nombres }}</option>
             </select>
           </div>
 
           <div class="col-md-6">
-            <label>Responsable</label>
-            <select formControlName="responsableIdFk" class="form-control">
+            <label class="form-label fw-bold">Responsable</label>
+            <select formControlName="responsableIdFk" class="form-select">
               <option value="">Seleccione...</option>
               <option *ngFor="let r of responsables" [value]="r.id">{{ r.nombres }}</option>
             </select>
           </div>
 
           <div class="col-md-6">
-            <label>Estado</label>
-            <select formControlName="estado" class="form-control">
+            <label class="form-label fw-bold">Estado</label>
+            <select formControlName="estado" class="form-select">
               <option value="Bueno">Bueno</option>
               <option value="Regular">Regular</option>
               <option value="Malo">Malo</option>
@@ -97,84 +101,66 @@
           </div>
 
           <div class="col-md-6">
-            <label>Numero de Mantenimientos Preventivos Anuales:</label>
-            <input type="number" max="12" min="0" formControlName="periodicidadM" class="form-control" />
+            <label class="form-label fw-bold">Frecuencia Mantenimiento</label>
+            <select formControlName="periodicidadM" class="form-select">
+              <option [ngValue]="0">No requiere</option>
+              <option [ngValue]="1">1 - Anual (1 año)</option>
+              <option [ngValue]="2">2 - Semestral (Cada 6 meses)</option>
+              <option [ngValue]="3">3 - Trimestral (Cada 3 meses)</option>
+              <option [ngValue]="4">4 - Bimestral (Cada 2 meses)</option>
+              <option [ngValue]="5">5 - Mensual (Cada mes)</option>
+            </select>
           </div>
-
-          <div class="col-md-6">
-            <label>Numero de Calibraciones Anuales:</label>
-            <input type="number" max="12" min="0" formControlName="periodicidadC" class="form-control" />
-          </div>
-
-          <div class="col-md-12" style="margin-top: 30px; margin-bottom: 20px;">
-            <div class="row">
-              <!--<div class="col-md-3">
-                <div class="form-check form-check-inline">
-                  <input type="checkbox" formControlName="calibracion" class="form-check-input"
-                    id="calibracion" />
-                  <label for="calibracion" class="form-check-label">Requiere Calibración</label>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="form-check form-check-inline">
-                  <input type="checkbox" formControlName="calificacion" class="form-check-input"
-                    id="calificacion" />
-                  <label for="calificacion" class="form-check-label">Requiere Calificación</label>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="form-check form-check-inline">
-                  <input type="checkbox" formControlName="validacion" class="form-check-input"
-                    id="validacion" />
-                  <label for="validacion" class="form-check-label">Requiere Validación</label>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="form-check form-check-inline">
-                  <input type="checkbox" formControlName="estadoBaja" class="form-check-input"
-                    id="estadoBaja" />
-                  <label for="estadoBaja" class="form-check-label">Equipo dado de baja</label>
-                </div>
-              </div>-->
-            </div>
-          </div>
-
         </div>
 
-        <div class="text-center mt-4">
-          <button type="button" (click)="guardar()" class="btn btn-dark px-5" style="margin: 10px;">Guardar</button>
-          <button type="button" (click)="regresar()" class="btn btn-secondary px-5">Regresar</button>
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" (click)="regresar()" class="btn btn-secondary">
+            Cancelar
+          </button>
+          <button type="button" (click)="guardar()" class="btn btn-primary">
+            <i class="bi bi-save me-2"></i>Guardar Equipo
+          </button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<p-dialog header="Agregar Fechas de Mantenimiento" [modal]="true" [(visible)]="modalAddFechasMantenimiento"
-  [style]="{ width: '25rem' }" [closable]="false">
-  <div *ngFor="let item of fechasMantenimiento; let i = index; trackBy: trackByIndex" class="mb-3">
-    <label class="block mb-2" [for]="'fecha-mant-'+i">Mantenimiento {{ i + 1 }}</label>
-    <p-datepicker [(ngModel)]="fechasMantenimiento[i]" view="month" dateFormat="mm/yy" [style]="{ width: '100%' }">
-    </p-datepicker>
+<p-dialog header="Programar Fechas de Mantenimiento" [modal]="true" [(visible)]="modalAddFechasMantenimiento"
+  [style]="{ width: '400px' }" [closable]="false" [draggable]="false" [resizable]="false">
+  <div class="p-3">
+    <div *ngFor="let item of fechasMantenimiento; let i = index; trackBy: trackByIndex" class="mb-3">
+      <label class="d-block mb-1 fw-bold">Mantenimiento {{ i + 1 }}</label>
+      <p-datepicker [(ngModel)]="fechasMantenimiento[i]" view="month" dateFormat="mm/yy" [style]="{ width: '100%' }"
+        appendTo="body" inputStyleClass="form-control"></p-datepicker>
+    </div>
   </div>
-  <div style="height: 240px;"></div>
-  <div class="flex justify-end gap-2">
-    <p-button label="Guardar" (click)="validarFechasMantenimiento()" />
-  </div>
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn btn-primary w-100" (click)="validarFechasMantenimiento()">
+      Confirmar Fechas
+    </button>
+  </ng-template>
 </p-dialog>
 
-<p-dialog header="Agregar Fechas de Calibración" [modal]="true" [(visible)]="modalAddFechasCalibracion"
-  [style]="{ width: '25rem' }" [closable]="false">
-  <div *ngFor="let item of fechasCalibracion; let i = index; trackBy: trackByIndex" class="mb-3">
-    <label class="block mb-2" [for]="'fecha-cal-'+i">Calibración {{ i + 1 }}</label>
-    <p-datepicker [(ngModel)]="fechasCalibracion[i]" view="month" dateFormat="mm/yy" [style]="{ width: '100%' }">
-    </p-datepicker>
+<p-dialog header="Programar Actividad Metrológica" [modal]="true" [(visible)]="modalAddFechasCalibracion"
+  [style]="{ width: '450px' }" [closable]="false" [draggable]="false" [resizable]="false">
+  <div class="p-3">
+    <div *ngFor="let item of fechasCalibracion; let i = index; trackBy: trackByIndex" class="mb-3 border p-3 rounded">
+      <div class="mb-2">
+        <label class="d-block mb-1 fw-bold">Tipo de Actividad</label>
+        <p-dropdown [options]="tipoActividadOptions" [(ngModel)]="item.tipoActividad" optionLabel="label"
+          optionValue="value" [style]="{'width':'100%'}" appendTo="body"></p-dropdown>
+      </div>
+      <div>
+        <label class="d-block mb-1 fw-bold">Fecha Programada</label>
+        <p-datepicker [(ngModel)]="item.fecha" view="month" dateFormat="mm/yy" [style]="{ width: '100%' }"
+          appendTo="body" inputStyleClass="form-control"></p-datepicker>
+      </div>
+    </div>
   </div>
-  <div style="height: 240px;"></div>
-  <div class="flex justify-end gap-2">
-    <p-button label="Guardar" (click)="validarFechasCalibracion()" />
-  </div>
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn btn-primary w-100" (click)="validarFechasCalibracion()">
+      Confirmar Metrología
+    </button>
+  </ng-template>
 </p-dialog>

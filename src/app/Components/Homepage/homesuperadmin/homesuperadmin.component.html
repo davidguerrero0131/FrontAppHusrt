@@ -1,66 +1,94 @@
-<app-superadminnavbar></app-superadminnavbar>
-<div style="margin-top: 5%; margin-left: 5%; margin-right: 5%; background-color: white;">
-</div>
+<div class="bg-white px-4 py-5 md:px-6 lg:px-8 min-h-screen">
+  <div class="grid">
 
-<div class="grid-container">
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">GESTION DE USUARIOS</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-person-circle" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-outline-primary" style="float: left;" (click)="showRegisterForm()">Nuevo
-          Usuario</button>
-        <button type="button" class="btn btn-outline-success" style="float: right;" (click)="showViewUsers()">Ver
-          Usuarios</button>
-      </div>
+    <!-- Parametrización Biomédica -->
+    <div class="col-12 md:col-6 lg:col-3 cursor-pointer" (click)="viewParametrizacion()">
+      <p-card styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300">
+        <ng-template pTemplate="header">
+          <div class="bg-primary-50 p-3 border-round-top-xl text-center">
+            <i class="pi pi-cog text-primary text-4xl"></i>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="title">
+          <div class="text-center text-xl font-bold text-900 mt-2">Parametrización</div>
+        </ng-template>
+        <ng-template pTemplate="subtitle">
+          <div class="text-center text-500 mb-3">Configuración General</div>
+        </ng-template>
+        <ng-template pTemplate="content">
+          <div class="text-center text-secondary">
+            Gestione tipos de equipo, fabricantes, proveedores y más.
+          </div>
+        </ng-template>
+      </p-card>
     </div>
-  </div>
 
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">GESTION DE EQUIPOS</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-cpu-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-outline-primary" style="float: left;" (click)="newEquipo()">Nuevo
-          Equipo</button>
-        <button type="button" class="btn btn-outline-success" style="float: right;" (click)="showViewUsers()">Ver
-          Equipos</button>
-      </div>
+    <!-- Gestión Biomédica -->
+    <div class="col-12 md:col-6 lg:col-3 cursor-pointer" (click)="viewGestionBiomedica()">
+      <p-card styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300">
+        <ng-template pTemplate="header">
+          <div class="bg-teal-50 p-3 border-round-top-xl text-center">
+            <i class="pi pi-heart text-teal-500 text-4xl"></i>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="title">
+          <div class="text-center text-xl font-bold text-900 mt-2">Gestión Biomédica</div>
+        </ng-template>
+        <ng-template pTemplate="subtitle">
+          <div class="text-center text-500 mb-3">Operación Diaria</div>
+        </ng-template>
+        <ng-template pTemplate="content">
+          <div class="text-center text-secondary">
+            Acceda a inventarios, mantenimientos e indicadores.
+          </div>
+        </ng-template>
+      </p-card>
     </div>
-  </div>
 
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">GESTION DE SERVICIOS</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-file-earmark-medical-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-outline-primary" style="float: left;" (click)="newEquipo()">Nuevo
-          Servicio</button>
-        <button type="button" class="btn btn-outline-success" style="float: right;" (click)="viewServicios()">Ver
-          Servicios</button>
-      </div>
+    <!-- Gestión Sistemas (Placeholder) -->
+    <div class="col-12 md:col-6 lg:col-3">
+      <p-card
+        styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300 opacity-60">
+        <ng-template pTemplate="header">
+          <div class="bg-indigo-50 p-3 border-round-top-xl text-center">
+            <i class="pi pi-server text-indigo-500 text-4xl"></i>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="title">
+          <div class="text-center text-xl font-bold text-900 mt-2">Gestión Sistemas</div>
+        </ng-template>
+        <ng-template pTemplate="subtitle">
+          <div class="text-center text-500 mb-3">Próximamente</div>
+        </ng-template>
+        <ng-template pTemplate="content">
+          <div class="text-center text-secondary">
+            Módulo de gestión para el área de sistemas.
+          </div>
+        </ng-template>
+      </p-card>
     </div>
-  </div>
 
-  <div class="grid-item">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title" style="text-align: center; margin-bottom: 1px;">GESTION DE TIPOS DE EQUIPO</h5>
-        <div style="text-align: center; margin-bottom: 30px;">
-          <i class="bi bi-calculator-fill" style="font-size: 6rem; color: rgb(0, 0, 0);"></i>
-        </div>
-        <button type="button" class="btn btn-outline-primary" style="float: left;" (click)="newEquipo()">Nuevo
-          tipoEquipo</button>
-        <button type="button" class="btn btn-outline-success" style="float: right;" (click)="viewTiposEquipo()">Ver
-          tiposEquipo</button>
-      </div>
+    <!-- Gestión Mantenimiento -->
+    <div class="col-12 md:col-6 lg:col-3 cursor-pointer" (click)="viewGestionMantenimiento()">
+      <p-card styleClass="h-full shadow-2 border-round-xl hover:shadow-4 transition-all transition-duration-300">
+        <ng-template pTemplate="header">
+          <div class="bg-orange-50 p-3 border-round-top-xl text-center">
+            <i class="pi pi-wrench text-orange-500 text-4xl"></i>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="title">
+          <div class="text-center text-xl font-bold text-900 mt-2">Gestión Mantenimiento</div>
+        </ng-template>
+        <ng-template pTemplate="subtitle">
+          <div class="text-center text-500 mb-3">Gestión Industrial</div>
+        </ng-template>
+        <ng-template pTemplate="content">
+          <div class="text-center text-secondary">
+            Módulo de gestión para mantenimiento general e industrial.
+          </div>
+        </ng-template>
+      </p-card>
     </div>
-  </div>
 
+  </div>
 </div>

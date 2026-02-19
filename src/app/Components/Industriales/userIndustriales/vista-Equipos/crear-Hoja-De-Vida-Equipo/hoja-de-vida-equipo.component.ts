@@ -6,12 +6,12 @@ import { HojaDeVidaIndustrialService } from '../../../../../Services/appServices
 import { EquiposIndustrialesService } from '../../../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
 import Swal from 'sweetalert2';
 import { UppercaseDirective } from '../../../../../Directives/uppercase.directive';
-import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
+
 
 @Component({
     selector: 'app-hoja-de-vida-equipo',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormsModule, UppercaseDirective, IndustrialesNavbarComponent],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, UppercaseDirective],
     templateUrl: './hoja-de-vida-equipo.component.html',
     styleUrls: ['./hoja-de-vida-equipo.component.css']
 })

@@ -8,6 +8,9 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { CardModule } from 'primeng/card';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+
 
 import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
 import { PlanMantenimientoIndustrialesService } from '../../../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
@@ -19,11 +22,13 @@ import Swal from 'sweetalert2';
     imports: [
         CommonModule,
         FormsModule,
-        IndustrialesNavbarComponent,
         ButtonModule,
         DropdownModule,
         OverlayPanelModule,
-        CardModule
+        CardModule,
+        TableModule,
+        TableModule,
+        TagModule
     ],
     templateUrl: './programar-mantenimiento.component.html',
     styleUrl: './programar-mantenimiento.component.css'
@@ -37,6 +42,10 @@ export class ProgramarMantenimientoComponent {
     // Variables para Selección
     selectedMes: any = null;
     selectedAnio: number = new Date().getFullYear();
+
+    // Data Preview
+    planesPreview: any[] = [];
+    loadingPreview: boolean = false;
 
     // Datos para Dropdowns
     meses: any[] = [
@@ -65,24 +74,58 @@ export class ProgramarMantenimientoComponent {
         ];
     }
 
+    // Método para disparar la carga cuando cambia el año
+    onYearChange() {
+        if (this.selectedMes) {
+            this.cargarPreview();
+        }
+    }
+
+    // Método para seleccionar mes y cargar preview
+    selectMes(mes: any, overlay: any) {
+        this.selectedMes = mes;
+        overlay.hide();
+        this.cargarPreview();
+    }
+
+    async cargarPreview() {
+        if (!this.selectedMes || !this.selectedAnio) return;
+
+        this.loadingPreview = true;
+        try {
+            // Reutilizamos el servicio que obtiene planes por periodo (mostrando todos: activos e inactivos)
+            this.planesPreview = await this.planService.getPlanesByPeriodo(this.selectedAnio, this.selectedMes.code);
+            this.loadingPreview = false;
+        } catch (error) {
+            console.error(error);
+            this.loadingPreview = false;
+        }
+    }
+
     async programarMantenimientos() {
         if (!this.selectedMes || !this.selectedAnio) {
             Swal.fire('Atención', 'Seleccione mes y año', 'warning');
             return;
         }
 
+        if (this.planesPreview.length === 0) {
+            Swal.fire('Información', 'No hay planes para programar en este periodo.', 'info');
+            return;
+        }
+
         this.loading = true;
         try {
+            // La función programarPlanes actualiza el estado a true de todos los planes del periodo
             const res = await this.planService.programarPlanes(this.selectedAnio, this.selectedMes.code);
             this.loading = false;
 
             Swal.fire({
                 title: 'Programación Exitosa',
-                text: `Se han programado ${res.registrosActualizados} planes para ${this.selectedMes.name} ${this.selectedAnio}`,
+                text: `Se han activado los planes para ${this.selectedMes.name} ${this.selectedAnio}`,
                 icon: 'success'
             }).then(() => {
-                // Redirigir al dashboard o limpiar? Mejor nos quedamos aquí por si quiere programar otro mes
-                this.selectedMes = null;
+                // Recargamos el preview para que se vean como activos
+                this.cargarPreview();
             });
         } catch (error) {
             this.loading = false;
@@ -92,6 +135,6 @@ export class ProgramarMantenimientoComponent {
     }
 
     goBack() {
-        this.router.navigate(['/adminindustriales']);
+        this.router.navigate(['/industriales/ver-programacion']);
     }
 }

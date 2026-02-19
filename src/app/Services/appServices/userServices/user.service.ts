@@ -24,7 +24,10 @@ export class UserService {
   }
 
   getToken() {
-    return localStorage.getItem('utoken');
+    if (typeof sessionStorage !== 'undefined') {
+      return sessionStorage.getItem('utoken');
+    }
+    return null;
   }
 
   registro(formValue: any) {
@@ -59,7 +62,7 @@ export class UserService {
 
   activarUsuario(idUser: number) {
     return firstValueFrom(
-      this.httpClient.put<any>(`${this.baseUrl}/activarusuario/` + idUser, {},createHeaders())
+      this.httpClient.put<any>(`${this.baseUrl}/activarusuario/` + idUser, {}, createHeaders())
     )
   }
 
@@ -77,12 +80,16 @@ export class UserService {
   }
 
   login(formValue: any) {
-  console.log('🔄 UserService - Enviando al backend:', formValue); // ✅ Log para debugging
-  
-  return firstValueFrom(
-    this.httpClient.post<any>(`${this.baseUrl}/login`, formValue)
-  );
-}
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/login`, formValue)
+    )
+  }
+
+  loginInvitado() {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/login/invitado`, {})
+    )
+  }
 
   getAllUsers() {
     return firstValueFrom(
@@ -94,6 +101,14 @@ export class UserService {
     return firstValueFrom(
       this.httpClient.get<any[]>(`${this.baseUrl}/roles`, createHeaders())
     )
+  }
+
+  getDecodedAccessToken(token: string): any {
+    try {
+      return jwtDecode(token);
+    } catch (Error) {
+      return null;
+    }
   }
 
 

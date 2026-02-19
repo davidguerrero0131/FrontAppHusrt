@@ -1,4 +1,3 @@
-<app-industriales-navbar></app-industriales-navbar>
 <div class="container-fluid p-4">
   <!-- Loading Spinner -->
   <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
@@ -7,273 +6,156 @@
     </div>
   </div>
 
-  <!-- Detalle del Equipo -->
-  <div *ngIf="!loading && equipo" class="card">
-    <!-- Header -->
-    <div class="card-header d-flex justify-content-between align-items-center no-print">
-      <h3 class="mb-0">
-        <i class="bi bi-info-circle me-2"></i>Detalle del Equipo Industrial
-      </h3>
-      <div class="btn-group">
-        <button class="btn btn-warning" (click)="editarEquipo()">
-          <i class="bi bi-pencil me-2"></i>Editar
-        </button>
-        <button class="btn btn-secondary" (click)="regresar()">
-          <i class="bi bi-arrow-left me-2"></i>Volver
-        </button>
-      </div>
-    </div>
-
-    <div class="card-body">
-
-      <!-- Información Básica -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <h5 class="section-title">
-            <i class="bi bi-gear-fill me-2"></i>Información Básica
-          </h5>
-          <hr>
-        </div>
-      </div>
-
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Nombre del Equipo:</label>
-            <p class="detail-value">{{ equipo.nombres || 'N/A' }}</p>
+  <ng-container *ngIf="!loading && equipo">
+    <p-card class="mb-4">
+      <ng-template pTemplate="header">
+        <div class="flex justify-content-between align-items-center p-3">
+          <span class="text-xl font-bold">Datos del Equipo Industrial</span>
+          <div class="flex gap-2">
+            <p-button label="Volver" icon="pi pi-arrow-left" styleClass="p-button-secondary"
+              (click)="regresar()"></p-button>
+            <p-button label="Editar" icon="pi pi-pencil" styleClass="p-button-warning" (click)="editarEquipo()"
+              *ngIf="userRole === 'INDUSTRIALESADMIN'"></p-button>
           </div>
         </div>
+      </ng-template>
 
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Marca:</label>
-            <p class="detail-value">{{ equipo.marca || 'N/A' }}</p>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Modelo:</label>
-            <p class="detail-value">{{ equipo.modelo || 'N/A' }}</p>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Serie:</label>
-            <p class="detail-value">{{ equipo.serie || 'N/A' }}</p>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Placa:</label>
-            <p class="detail-value">{{ equipo.placa || 'N/A' }}</p>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Registro INVIMA:</label>
-            <p class="detail-value">{{ equipo.registroInvima || 'No aplica' }}</p>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Clasificación de Riesgo:</label>
-            <p class="detail-value">
-              <span [class]="'badge bg-' + getRiesgoColor(equipo.riesgo)">
-                {{ equipo.riesgo }}
-              </span>
-            </p>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Estado:</label>
-            <p class="detail-value">
-              <span [class]="'badge bg-' + getEstadoColor(equipo.estado)">
-                {{ equipo.estado }}
-              </span>
-            </p>
+      <div class="p-fluid grid p-3">
+        <!-- Columna derecha: Datos generales -->
+        <div class="col-12 md:col-12">
+          <div class="grid">
+            <div class="col-12 sm:col-4"><strong>Equipo:</strong> {{ equipo.nombres }}</div>
+            <div class="col-12 sm:col-4"><strong>Marca:</strong> {{ equipo.marca }}</div>
+            <div class="col-12 sm:col-4"><strong>Modelo:</strong> {{ equipo.modelo }}</div>
+            <div class="col-12 sm:col-4"><strong>Serie:</strong> {{ equipo.serie }}</div>
+            <div class="col-12 sm:col-4"><strong>Placa:</strong> {{ equipo.placa }}</div>
+            <div class="col-12 sm:col-4"><strong>Sede:</strong> {{ equipo.sedeInd?.nombres }}</div>
+            <div class="col-12 sm:col-4"><strong>Servicio:</strong> {{ equipo.servicioInd?.nombres }}</div>
+            <div class="col-12 sm:col-4"><strong>Ubicación Esp:</strong> {{ equipo.ubicacionEspecifica }}</div>
+            <div class="col-12 sm:col-4">
+              <strong>Estado:</strong>
+              <span [class]="'badge bg-' + getEstadoColor(equipo.estado)">{{ equipo.estado }}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Ubicación y Asignación -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <h5 class="section-title">
-            <i class="bi bi-geo-alt-fill me-2"></i>Ubicación y Asignación
-          </h5>
-          <hr>
-        </div>
-      </div>
+      <p-divider></p-divider>
 
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Tipo de Equipo:</label>
-            <p class="detail-value">{{ equipo.tipoEquipoInd?.nombres || 'N/A' }}</p>
-          </div>
-        </div>
+      <p-accordion [multiple]="true">
 
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Servicio:</label>
-            <p class="detail-value">{{ equipo.servicioInd?.nombres || 'N/A' }}</p>
-          </div>
-        </div>
+        <!-- Hoja de Vida Details -->
+        <p-accordion-panel value="0" *ngIf="equipo.hojaDeVida">
+          <p-accordion-header>Detalle de Hoja de Vida, Proveedor y Fabricante</p-accordion-header>
+          <p-accordion-content>
+            <div class="grid">
+              <!-- General HV Info -->
+              <div class="col-12 md:col-12">
+                <h5>Información General</h5>
+              </div>
+              <div class="col-12 sm:col-4"><strong>Código Internacional:</strong> {{
+                equipo.hojaDeVida.codigoInternacional || 'N/A' }}</div>
+              <div class="col-12 sm:col-4"><strong>Año Ingreso:</strong> {{ equipo.hojaDeVida.anoIngreso || 'N/A' }}
+              </div>
+              <div class="col-12 sm:col-4"><strong>Contrato:</strong> {{ equipo.hojaDeVida.contrato || 'N/A' }}</div>
+              <div class="col-12 sm:col-4"><strong>Costo Compra:</strong> {{ equipo.hojaDeVida.costoCompra || 'N/A' }}
+              </div>
+              <div class="col-12 sm:col-4"><strong>Fuente:</strong> {{ equipo.hojaDeVida.fuente || 'N/A' }}</div>
+              <div class="col-12 sm:col-4"><strong>Propiedad:</strong> {{ equipo.hojaDeVida.propiedad || 'N/A' }}</div>
 
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Sede:</label>
-            <p class="detail-value">{{ equipo.sedeInd?.nombres || 'N/A' }}</p>
-          </div>
-        </div>
+              <p-divider class="col-12"></p-divider>
 
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Responsable:</label>
-            <p class="detail-value">{{ equipo.responsableInd?.nombres || 'N/A' }}</p>
-          </div>
-        </div>
+              <!-- Proveedor & Fabricante -->
+              <div class="col-12 md:col-6">
+                <h6>Proveedor</h6>
+                <div *ngIf="equipo.hojaDeVida.proveedor; else noProv">
+                  <div><strong>Nombre:</strong> {{ equipo.hojaDeVida.proveedor.nombres }}</div>
+                  <div><strong>Teléfono:</strong> {{ equipo.hojaDeVida.proveedor.telefono }}</div>
+                  <div><strong>Correo:</strong> {{ equipo.hojaDeVida.proveedor.correo }}</div>
+                </div>
+                <ng-template #noProv><span class="text-muted">No asignado</span></ng-template>
+              </div>
+              <div class="col-12 md:col-6">
+                <h6>Fabricante</h6>
+                <div *ngIf="equipo.hojaDeVida.fabricante; else noFab">
+                  <div><strong>Nombre:</strong> {{ equipo.hojaDeVida.fabricante.nombres }}</div>
+                  <div><strong>País:</strong> {{ equipo.hojaDeVida.fabricante.pais }}</div>
+                </div>
+                <ng-template #noFab><span class="text-muted">No asignado</span></ng-template>
+              </div>
+            </div>
+          </p-accordion-content>
+        </p-accordion-panel>
 
-        <div class="col-md-12">
-          <div class="detail-item">
-            <label class="detail-label">Ubicación Específica:</label>
-            <p class="detail-value">{{ equipo.ubicacionEspecifica || 'N/A' }}</p>
-          </div>
-        </div>
-      </div>
+        <!-- Datos Técnicos -->
+        <p-accordion-panel value="1" *ngIf="equipo.hojaDeVida?.datosTecnicos">
+          <p-accordion-header>Datos Técnicos</p-accordion-header>
+          <p-accordion-content>
+            <div class="grid">
+              <div class="col-12 sm:col-4" *ngFor="let key of datosTecnicosKeys()">
+                <strong>{{ key }}:</strong> {{ equipo.hojaDeVida.datosTecnicos[key] }}
+              </div>
+            </div>
+          </p-accordion-content>
+        </p-accordion-panel>
 
-      <!-- Mantenimiento y Calibración -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <h5 class="section-title">
-            <i class="bi bi-tools me-2"></i>Mantenimiento y Calibración
-          </h5>
-          <hr>
-        </div>
-      </div>
+        <!-- Planes Mantenimiento/Metrologia -->
+        <p-accordion-panel value="2">
+          <p-accordion-header>Planes de Mantenimiento y Calibración</p-accordion-header>
+          <p-accordion-content>
+            <div class="grid">
+              <div class="col-12">
+                <h6>Mantenimiento (Periodicidad: {{ equipo.periodicidadM }} anuales)</h6>
+                <div class="flex flex-wrap gap-2">
+                  <!-- Aquí podrías iterar sobre los planes reales si se cargaran en el objeto equipo o aparte -->
+                  <!-- Por ahora mostramos la periodicidad como resumen -->
+                  <span class="p-tag p-tag-info">Ver planes en calendario</span>
+                </div>
+              </div>
+              <div class="col-12 mt-3">
+                <h6>Calibración (Periodicidad: {{ equipo.periodicidadC }} anuales)</h6>
+                <span class="p-tag p-tag-warning">Ver planes en calendario</span>
+              </div>
+            </div>
+          </p-accordion-content>
+        </p-accordion-panel>
 
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Periodicidad de Mantenimiento:</label>
-            <p class="detail-value">
-              {{ equipo.periodicidadM }} {{ equipo.periodicidadM === 1 ? 'mes' : 'meses' }}
-            </p>
-          </div>
-        </div>
+        <!-- Historial / Trazabilidad -->
+        <p-accordion-panel value="3">
+          <p-accordion-header>Historial del Equipo</p-accordion-header>
+          <p-accordion-content>
+            <p-table [value]="historial" [rows]="10" [paginator]="true" responsiveLayout="scroll">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Fecha</th>
+                  <th>Tipo</th>
+                  <th>Usuario</th>
+                  <th>Detalles</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-evento>
+                <tr>
+                  <td>{{ evento.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td><span [class]="'badge bg-secondary'">{{ evento.tipo }}</span></td>
+                  <td>{{ evento.usuario }}</td>
+                  <td>
+                    <!-- Si detalles es JSON, parsearlo o mostrarlo formateado -->
+                    <div style="max-width: 300px; white-space: pre-wrap; word-break: break-word;">
+                      {{ evento.detalles }}
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="4" class="text-center">No hay historial registrado.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-accordion-content>
+        </p-accordion-panel>
 
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Periodicidad de Calibración:</label>
-            <p class="detail-value">
-              {{ equipo.periodicidadC }} {{ equipo.periodicidadC === 1 ? 'mes' : 'meses' }}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Características Especiales -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <h5 class="section-title">
-            <i class="bi bi-check2-square me-2"></i>Características Especiales
-          </h5>
-          <hr>
-        </div>
-      </div>
-
-      <div class="row g-3 mb-4">
-        <div class="col-md-3">
-          <div class="detail-item">
-            <label class="detail-label">Activo:</label>
-            <p class="detail-value">
-              <span [class]="equipo.activo ? 'badge bg-success' : 'badge bg-danger'">
-                {{ equipo.activo ? 'Sí' : 'No' }}
-              </span>
-            </p>
-          </div>
-        </div>
-
-        <div class="col-md-3">
-          <div class="detail-item">
-            <label class="detail-label">Requiere Calibración:</label>
-            <p class="detail-value">
-              <span [class]="equipo.calibracion ? 'badge bg-success' : 'badge bg-secondary'">
-                {{ equipo.calibracion ? 'Sí' : 'No' }}
-              </span>
-            </p>
-          </div>
-        </div>
-
-        <div class="col-md-3">
-          <div class="detail-item">
-            <label class="detail-label">Requiere Calificación:</label>
-            <p class="detail-value">
-              <span [class]="equipo.calificacion ? 'badge bg-success' : 'badge bg-secondary'">
-                {{ equipo.calificacion ? 'Sí' : 'No' }}
-              </span>
-            </p>
-          </div>
-        </div>
-
-        <div class="col-md-3">
-          <div class="detail-item">
-            <label class="detail-label">Requiere Validación:</label>
-            <p class="detail-value">
-              <span [class]="equipo.validacion ? 'badge bg-success' : 'badge bg-secondary'">
-                {{ equipo.validacion ? 'Sí' : 'No' }}
-              </span>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Información Adicional -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <h5 class="section-title">
-            <i class="bi bi-clock-history me-2"></i>Información Adicional
-          </h5>
-          <hr>
-        </div>
-      </div>
-
-      <div class="row g-3">
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Fecha de Registro:</label>
-            <p class="detail-value">{{ equipo.createdAt | date:'dd/MM/yyyy HH:mm' : 'N/A' }}</p>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <div class="detail-item">
-            <label class="detail-label">Última Actualización:</label>
-            <p class="detail-value">{{ equipo.updatedAt | date:'dd/MM/yyyy HH:mm' : 'N/A' }}</p>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Footer con botones -->
-    <div class="card-footer no-print">
-      <div class="d-flex justify-content-end gap-2">
-        <button class="btn btn-secondary" (click)="regresar()">
-          <i class="bi bi-arrow-left me-2"></i>Volver al Listado
-        </button>
-        <button class="btn btn-warning" (click)="editarEquipo()">
-          <i class="bi bi-pencil me-2"></i>Editar Equipo
-        </button>
-      </div>
-    </div>
-
-  </div>
+      </p-accordion>
+    </p-card>
+  </ng-container>
 </div>

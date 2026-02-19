@@ -1,10 +1,12 @@
-<app-industriales-navbar></app-industriales-navbar>
 <div class="container-fluid p-4">
   <div class="card">
-    <div class="card-header">
-      <h3 class="mb-0">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h3 class="mb-0 text-white">
         <i class="bi bi-plus-circle me-2"></i>Crear Plan de Mantenimiento Industrial
       </h3>
+      <button class="btn btn-outline-light btn-sm" (click)="regresar()">
+        <i class="bi bi-arrow-left me-2"></i>Volver
+      </button>
     </div>
 
     <div class="card-body">
@@ -30,6 +32,16 @@
             </select>
             <div class="invalid-feedback">
               Debe seleccionar un equipo
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label">Periodicidad (Meses) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" formControlName="periodicidad" min="1"
+              placeholder="Ej: 1 (Mensual), 2 (Bimestral), 6 (Semestral)..."
+              [class.is-invalid]="planForm.get('periodicidad')?.invalid && planForm.get('periodicidad')?.touched">
+            <div class="invalid-feedback">
+              Ingrese la periodicidad en meses (mínimo 1)
             </div>
           </div>
 
@@ -75,15 +87,6 @@
               [class.is-invalid]="planForm.get('rangoDeFin')?.invalid && planForm.get('rangoDeFin')?.touched">
             <div class="invalid-feedback">
               Ingrese un día válido entre 15 y 31
-            </div>
-          </div>
-
-          <div class="col-md-12">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="estado" formControlName="estado">
-              <label class="form-check-label" for="estado">
-                Plan Activo
-              </label>
             </div>
           </div>
         </div>

@@ -1,16 +1,15 @@
-<app-industriales-navbar></app-industriales-navbar>
-
 <div class="container mt-4">
     <div class="card">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h3 class="mb-0">Programar Mantenimientos</h3>
-            <button pButton icon="pi pi-arrow-left" label="Volver" class="p-button-text text-white"
-                (click)="goBack()"></button>
+            <h3 class="mb-0 text-white">Programar Mantenimientos</h3>
+            <button class="btn btn-outline-light btn-sm" (click)="goBack()">
+                <i class="bi bi-arrow-left me-2"></i>Volver
+            </button>
         </div>
-        <div class="card-body p-5">
-            <div class="row justify-content-center">
-                <div class="col-md-6">
-                    <p class="text-muted text-center mb-4">
+        <div class="card-body p-4">
+            <div class="row mb-5">
+                <div class="col-md-5 mx-auto">
+                    <p class="text-muted text-center mb-3">
                         Seleccione el periodo (Año y Mes) para el cual desea activar masivamente los planes de
                         mantenimiento.
                     </p>
@@ -18,8 +17,8 @@
                     <div class="d-flex flex-column gap-3">
                         <div class="d-flex flex-column">
                             <label class="fw-bold mb-1">Año</label>
-                            <p-dropdown [options]="anios" [(ngModel)]="selectedAnio" optionLabel="label"
-                                optionValue="value" [style]="{'width':'100%'}"></p-dropdown>
+                            <p-dropdown [options]="anios" [(ngModel)]="selectedAnio" (onChange)="onYearChange()"
+                                optionLabel="label" optionValue="value" [style]="{'width':'100%'}"></p-dropdown>
                         </div>
 
                         <div class="d-flex flex-column">
@@ -39,7 +38,7 @@
                                         <div class="col-4" *ngFor="let mes of meses">
                                             <button type="button" class="btn w-100 btn-sm"
                                                 [ngClass]="{'btn-primary': selectedMes?.code === mes.code, 'btn-outline-secondary': selectedMes?.code !== mes.code}"
-                                                (click)="selectedMes = mes; opProgramar.hide()">
+                                                (click)="selectMes(mes, opProgramar)">
                                                 {{ mes.name.substring(0, 3) | uppercase }}
                                             </button>
                                         </div>
@@ -49,12 +48,61 @@
                         </div>
 
                         <button pButton icon="pi pi-check" label="Programar Mantenimientos"
-                            class="p-button-primary w-100 mt-3 p-button-lg" (click)="programarMantenimientos()"
-                            [loading]="loading">
+                            class="p-button-success w-100 mt-2 p-button-lg" (click)="programarMantenimientos()"
+                            [loading]="loading" [disabled]="!selectedMes || loadingPreview">
                         </button>
                     </div>
                 </div>
             </div>
+
+            <!-- PREVIEW SECTION -->
+            <div *ngIf="selectedMes">
+                <hr class="my-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">
+                        Vista previa de Mantenimientos para {{selectedMes.name}} {{selectedAnio}}
+                        <span class="badge bg-secondary ms-2" *ngIf="!loadingPreview">{{planesPreview.length}}</span>
+                    </h5>
+                </div>
+
+                <p-table [value]="planesPreview" [loading]="loadingPreview" [rows]="10" [paginator]="true"
+                    styleClass="p-datatable-sm p-datatable-gridlines" responsiveLayout="scroll">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width: 25%">Equipo</th>
+                            <th style="width: 15%">Marca/Modelo</th>
+                            <th style="width: 15%">Placa/Serie</th>
+                            <th style="width: 20%">Servicio</th>
+                            <th style="width: 15%">Ubicación</th>
+                            <th style="width: 10%">Estado</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-plan>
+                        <tr>
+                            <td>{{ plan.equipo?.nombres }}</td>
+                            <td>{{ plan.equipo?.marca }} <br> <small class="text-muted">{{ plan.equipo?.modelo
+                                    }}</small></td>
+                            <td>{{ plan.equipo?.placa }} <br> <small class="text-muted">{{ plan.equipo?.serie }}</small>
+                            </td>
+                            <td>{{ plan.equipo?.servicioInd?.nombres }}</td>
+                            <td>{{ plan.equipo?.ubicacionEspecifica }}</td>
+                            <td class="text-center">
+                                <p-tag [severity]="plan.estado ? 'success' : 'warning'"
+                                    [value]="plan.estado ? 'Activo' : 'Inactivo'">
+                                </p-tag>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="6" class="text-center p-4">
+                                No se encontraron planes para este periodo.
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+
         </div>
     </div>
 </div>

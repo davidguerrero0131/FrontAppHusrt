@@ -1,137 +1,476 @@
-<app-industriales-navbar></app-industriales-navbar>
+<!-- VIEW: LIST SEDES (Full Page, Identical to Biomedical) -->
+<div *ngIf="currentView === 'listSedes'" class="dashboard-container">
 
-<div class="container-fluid p-4">
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h3 class="mb-0">Gestión de Equipos Industriales</h3>
-      <button class="btn btn-primary" (click)="showRegisterForm()">
+  <div class="text-center mb-5">
+    <h1 class="text-3xl font-bold mb-2">Equipos Industriales</h1>
+    <p class="text-secondary text-lg">Busque según la Sede Requerida.</p>
+  </div>
+
+  <div class="search-container">
+    <input type="text" placeholder="Buscar sede..." [(ngModel)]="searchText" class="search-bar">
+  </div>
+
+  <div class="cards-grid">
+    <div class="dashboard-card" *ngFor="let sede of filteredSedes()" (click)="selectSedeFromCard(sede)">
+      <div class="card-icon-container gradient-teal">
+        <i class="pi pi-building"></i>
+      </div>
+      <div class="card-content">
+        <h3>{{ sede.nombres }}</h3>
+        <p>Ver equipos en esta sede.</p>
+        <span class="card-action">Seleccionar <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="filteredSedes().length === 0" class="alert alert-info mt-4 text-center">
+    No se encontraron sedes con ese nombre.
+  </div>
+
+  <div class="text-center mt-5">
+    <button class="btn btn-secondary" (click)="showDashboard()">
+      <i class="bi bi-arrow-left me-2"></i>Volver al Inicio
+    </button>
+  </div>
+
+</div>
+
+
+<!-- VIEW: LIST TIPOS EQUIPO (Full Page, Identical to Biomedical) -->
+<div *ngIf="currentView === 'listTipos'" class="dashboard-container">
+
+  <div class="text-center mb-5">
+    <h1 class="text-3xl font-bold mb-2">Equipos Industriales</h1>
+    <p class="text-secondary text-lg">Busque según el Tipo de Equipo Requerido.</p>
+  </div>
+
+  <div class="search-container">
+    <input type="text" placeholder="Buscar tipo de equipo..." [(ngModel)]="searchTextTipo" class="search-bar">
+  </div>
+
+  <div class="cards-grid">
+    <div class="dashboard-card" *ngFor="let tipo of filteredTiposEquipo()" (click)="selectTipoFromCard(tipo)">
+      <div class="card-icon-container gradient-purple">
+        <i class="pi pi-cog"></i>
+      </div>
+      <div class="card-content">
+        <h3>{{ tipo.nombres }}</h3>
+        <p>Ver equipos de este tipo.</p>
+        <span class="card-action">Seleccionar <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="filteredTiposEquipo().length === 0" class="alert alert-info mt-4 text-center">
+    No se encontraron tipos de equipo con ese nombre.
+  </div>
+
+  <div class="text-center mt-5">
+    <button class="btn btn-secondary" (click)="showDashboard()">
+      <i class="bi bi-arrow-left me-2"></i>Volver al Inicio
+    </button>
+  </div>
+
+</div>
+
+
+<!-- VIEW: LIST COMODATOS (Full Page, Identical to Biomedical) -->
+<div *ngIf="currentView === 'listComodatos'" class="dashboard-container">
+
+  <div class="text-center mb-5">
+    <h1 class="text-3xl font-bold mb-2">Equipos Industriales - Comodatos</h1>
+    <p class="text-secondary text-lg">Busque según el Responsable de comodatos Requerido.</p>
+  </div>
+
+  <div class="search-container">
+    <input type="text" placeholder="Buscar responsable..." [(ngModel)]="searchTextComodato" class="search-bar">
+  </div>
+
+  <div class="cards-grid">
+    <div class="dashboard-card" *ngFor="let responsable of filteredResponsables()"
+      (click)="selectResponsableFromCard(responsable)">
+      <div class="card-icon-container gradient-orange">
+        <i class="pi pi-file"></i>
+      </div>
+      <div class="card-content">
+        <h3>{{ responsable.nombres }}</h3>
+        <p>Ver equipos de este responsable.</p>
+        <span class="card-action">Ver Equipos <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="filteredResponsables().length === 0" class="alert alert-info mt-4 text-center">
+    No se encontraron responsables con ese nombre.
+  </div>
+
+  <div class="text-center mt-5">
+    <button class="btn btn-secondary" (click)="showDashboard()">
+      <i class="bi bi-arrow-left me-2"></i>Volver al Inicio
+    </button>
+  </div>
+
+</div>
+
+
+<!-- VIEW: LIST RIESGOS (Full Page, Card Pattern) -->
+<div *ngIf="currentView === 'listRiesgos'" class="dashboard-container">
+
+  <div class="text-center mb-5">
+    <h1 class="text-3xl font-bold mb-2">Equipos Industriales - Clasificación de Riesgo</h1>
+    <p class="text-secondary text-lg">Seleccione el nivel de riesgo para filtrar los equipos.</p>
+  </div>
+
+  <div class="cards-grid" style="justify-content: center; max-width: 1100px; margin: 0 auto;">
+
+    <!-- Riesgo I -->
+    <div class="dashboard-card" (click)="filterByRiesgo('I')">
+      <div class="card-icon-container gradient-red">
+        <i class="pi pi-exclamation-triangle"></i>
+      </div>
+      <div class="card-content">
+        <h3>Riesgo I</h3>
+        <p>Bajo riesgo.</p>
+        <span class="card-action">Ver Equipos <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+    <!-- Riesgo IIA -->
+    <div class="dashboard-card" (click)="filterByRiesgo('IIA')">
+      <div class="card-icon-container gradient-orange">
+        <i class="pi pi-exclamation-triangle"></i>
+      </div>
+      <div class="card-content">
+        <h3>Riesgo IIA</h3>
+        <p>Riesgo moderado bajo.</p>
+        <span class="card-action">Ver Equipos <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+    <!-- Riesgo IIB -->
+    <div class="dashboard-card" (click)="filterByRiesgo('IIB')">
+      <div class="card-icon-container gradient-purple">
+        <i class="pi pi-exclamation-triangle"></i>
+      </div>
+      <div class="card-content">
+        <h3>Riesgo IIB</h3>
+        <p>Riesgo moderado alto.</p>
+        <span class="card-action">Ver Equipos <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+    <!-- Riesgo III -->
+    <div class="dashboard-card" (click)="filterByRiesgo('III')">
+      <div class="card-icon-container gradient-red">
+        <i class="pi pi-exclamation-circle"></i>
+      </div>
+      <div class="card-content">
+        <h3>Riesgo III</h3>
+        <p>Alto riesgo.</p>
+        <span class="card-action">Ver Equipos <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="text-center mt-5">
+    <button class="btn btn-secondary" (click)="showDashboard()">
+      <i class="bi bi-arrow-left me-2"></i>Volver al Inicio
+    </button>
+  </div>
+
+</div>
+
+
+<!-- VIEW: DASHBOARD (Full Page, Matching Biomedical clasificacion-inventario) -->
+<div *ngIf="currentView === 'dashboard'" class="dashboard-container">
+
+  <div class="text-center mb-5">
+    <h1 class="text-3xl font-bold mb-2">Clasificar Equipos</h1>
+    <p class="text-secondary text-lg">Busque equipos por sede, tipo, comodato o riesgo.</p>
+  </div>
+
+  <!-- Search Section -->
+  <div class="busqueda-container">
+    <h3 class="mb-3 font-semibold text-xl">Búsqueda por Serie</h3>
+
+    <div class="flex flex-column md:flex-row justify-content-center gap-3 align-items-center">
+      <p-select [options]="allEquipos" [(ngModel)]="selectedEquipo" optionLabel="serie" [filter]="true" filterBy="serie"
+        [showClear]="true" placeholder="Seleccione una serie" styleClass="w-full md:w-20rem">
+        <ng-template #selectedItem let-selectedOption>
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-box"></i>
+            <div>{{ selectedOption.serie }}</div>
+          </div>
+        </ng-template>
+        <ng-template let-equipo #item>
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-box"></i>
+            <div>{{ equipo.serie }}</div>
+          </div>
+        </ng-template>
+      </p-select>
+
+      <button pButton label="Buscar" icon="pi pi-search" (click)="buscarEquipoPorSerie()"
+        class="p-button-primary"></button>
+      <button *ngIf="userRole === 'INDUSTRIALESADMIN'" pButton label="Crear Equipo" icon="pi pi-plus"
+        (click)="showRegisterForm()" class="p-button-success"></button>
+    </div>
+  </div>
+
+  <!-- Grid Section -->
+  <div class="cards-grid mt-5">
+
+    <!-- Tipo de Equipo -->
+    <div class="dashboard-card" (click)="showByTipo()">
+      <div class="card-icon-container gradient-purple">
+        <i class="pi pi-cog"></i>
+      </div>
+      <div class="card-content">
+        <h3>Tipo de Equipo</h3>
+        <p>Clasificación técnica de activos.</p>
+        <span class="card-action">Ver Tipos <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+    <!-- Sede -->
+    <div class="dashboard-card" (click)="showBySede()">
+      <div class="card-icon-container gradient-teal">
+        <i class="pi pi-building"></i>
+      </div>
+      <div class="card-content">
+        <h3>Sede</h3>
+        <p>Ubicación física del equipo.</p>
+        <span class="card-action">Ver Sedes <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+    <!-- Comodatos -->
+    <div class="dashboard-card" (click)="showByComodato()">
+      <div class="card-icon-container gradient-orange">
+        <i class="pi pi-file"></i>
+      </div>
+      <div class="card-content">
+        <h3>Comodatos</h3>
+        <p>Equipos en modalidad de préstamo.</p>
+        <span class="card-action">Ver Comodatos <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+    <!-- Riesgo -->
+    <div class="dashboard-card" (click)="showByRiesgo()">
+      <div class="card-icon-container gradient-red">
+        <i class="pi pi-exclamation-triangle"></i>
+      </div>
+      <div class="card-content">
+        <h3>Riesgo</h3>
+        <p>Clasificación por nivel de riesgo.</p>
+        <span class="card-action">Ver Riesgos <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+    <!-- Todos los Equipos -->
+    <div class="dashboard-card" (click)="showAllEquipos()">
+      <div class="card-icon-container gradient-cyan">
+        <i class="pi pi-list"></i>
+      </div>
+      <div class="card-content">
+        <h3>Todos los Equipos</h3>
+        <p>Listado completo de equipos.</p>
+        <span class="card-action">Ver Todo <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- VIEW: TABLE (Full Page, Biomedical Style) -->
+<div *ngIf="currentView === 'table'" class="dashboard-container">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <button class="btn btn-secondary me-2" (click)="showDashboard()">
+        <i class="bi bi-arrow-left me-2"></i>Volver al Inicio
+      </button>
+    </div>
+    <h3 class="mb-0">
+      Gestión de Equipos Industriales
+      <span *ngIf="filterTitle" class="text-muted fs-6 ms-2">- {{ filterTitle }}</span>
+    </h3>
+    <div>
+      <button class="btn btn-primary" (click)="showRegisterForm()" *ngIf="userRole === 'INDUSTRIALESADMIN'">
         <i class="bi bi-plus-circle me-2"></i>Registrar Nuevo Equipo
       </button>
     </div>
+  </div>
 
-    <div class="card-body">
-      <p-table #dt [value]="equipos" [loading]="loading" [paginator]="true" [rows]="10"
-        [rowsPerPageOptions]="[5, 10, 20, 50]" [showCurrentPageReport]="true"
-        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} equipos"
-        [globalFilterFields]="['nombre', 'marca', 'modelo', 'serie', 'ubicacion']" styleClass="p-datatable-striped"
-        [tableStyle]="{'min-width': '60rem'}">
+  <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body"></p-menu>
 
-        <ng-template pTemplate="caption">
-          <div class="d-flex justify-content-between align-items-center">
-            <span class="p-input-icon-left w-50">
-              <i class="pi pi-search"></i>
-              <input pInputText type="text" #searchInput (input)="dt.filterGlobal(searchInput.value, 'contains')"
-                placeholder="Buscar equipos..." class="form-control" />
-            </span>
+  <p-table #dt [value]="equipos" [loading]="loading" [paginator]="true" [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20, 50]" [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} equipos"
+    [globalFilterFields]="['nombres', 'marca', 'modelo', 'serie', 'ubicacionEspecifica']"
+    styleClass="p-datatable-striped" [tableStyle]="{'min-width': '60rem'}">
+
+    <ng-template pTemplate="caption">
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="p-input-icon-left w-50">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" #searchInput (input)="dt.filterGlobal(searchInput.value, 'contains')"
+            placeholder="Buscar equipos..." class="form-control" />
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nombres">
+          Nombre <p-sortIcon field="nombres"></p-sortIcon>
+        </th>
+        <th pSortableColumn="marca">
+          Marca <p-sortIcon field="marca"></p-sortIcon>
+        </th>
+        <th pSortableColumn="modelo">
+          Modelo <p-sortIcon field="modelo"></p-sortIcon>
+        </th>
+        <th pSortableColumn="serie">
+          Serie <p-sortIcon field="serie"></p-sortIcon>
+        </th>
+        <th pSortableColumn="ubicacionEspecifica">
+          Ubicación <p-sortIcon field="ubicacionEspecifica"></p-sortIcon>
+        </th>
+        <th pSortableColumn="activo">
+          Estado <p-sortIcon field="activo"></p-sortIcon>
+        </th>
+        <th style="width: 200px">Acciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-equipo>
+      <tr>
+        <td>{{ equipo.nombres || 'N/A' }}</td>
+        <td>{{ equipo.marca || 'N/A' }}</td>
+        <td>{{ equipo.modelo || 'N/A' }}</td>
+        <td>{{ equipo.serie || 'N/A' }}</td>
+        <td>{{ equipo.ubicacionEspecifica || 'N/A' }}</td>
+        <td>
+          <span [class]="equipo.activo ? 'badge bg-success' : 'badge bg-danger'">
+            {{ equipo.activo ? 'Activo' : 'Inactivo' }}
+          </span>
+        </td>
+        <td style="text-align: center;">
+          <button pButton type="button" icon="pi pi-ellipsis-v" (click)="abrirMenu($event, equipo, menu)"
+            class="p-button-rounded p-button-text p-button-secondary">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center py-4">
+          <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+          <p class="text-muted">No se encontraron equipos industriales</p>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="loadingbody">
+      <tr>
+        <td colspan="7" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
           </div>
-        </ng-template>
+          <p class="mt-2 text-muted">Cargando equipos...</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
 
-        <ng-template pTemplate="header">
-          <tr>
-            <th pSortableColumn="nombre">
-              Nombre <p-sortIcon field="nombre"></p-sortIcon>
-            </th>
-            <th pSortableColumn="marca">
-              Marca <p-sortIcon field="marca"></p-sortIcon>
-            </th>
-            <th pSortableColumn="modelo">
-              Modelo <p-sortIcon field="modelo"></p-sortIcon>
-            </th>
-            <th pSortableColumn="serie">
-              Serie <p-sortIcon field="serie"></p-sortIcon>
-            </th>
-            <th pSortableColumn="ubicacion">
-              Ubicación <p-sortIcon field="ubicacion"></p-sortIcon>
-            </th>
-            <th pSortableColumn="activo">
-              Estado <p-sortIcon field="activo"></p-sortIcon>
-            </th>
-            <th style="width: 200px">Acciones</th>
-          </tr>
-        </ng-template>
+</div>
 
-        <ng-template pTemplate="body" let-equipo>
-          <tr>
-            <td>{{ equipo.nombre || 'N/A' }}</td>
-            <td>{{ equipo.marca || 'N/A' }}</td>
-            <td>{{ equipo.modelo || 'N/A' }}</td>
-            <td>{{ equipo.serie || 'N/A' }}</td>
-            <td>{{ equipo.ubicacion || 'N/A' }}</td>
-            <td>
-              <span [class]="equipo.activo ? 'badge bg-success' : 'badge bg-danger'">
-                {{ equipo.activo ? 'Activo' : 'Inactivo' }}
-              </span>
-            </td>
-            <td>
-              <div class="dropdown">
-                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="bi bi-gear-fill"></i>
-                </button>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a class="dropdown-item" role="button" (click)="verDetalle(equipo.id)">
-                      <i class="bi bi-eye me-2 text-info"></i> Ver detalle
-                    </a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" role="button" (click)="editarEquipo(equipo.id)">
-                      <i class="bi bi-pencil me-2 text-warning"></i> Editar
-                    </a>
-                  </li>
-                  <li *ngIf="!equipo.hojaDeVida">
-                    <a class="dropdown-item" role="button" (click)="crearHojaDeVida(equipo.id)">
-                      <i class="bi bi-file-earmark-plus me-2 text-primary"></i> Crear Hoja de Vida
-                    </a>
-                  </li>
-                  <li *ngIf="equipo.hojaDeVida">
-                    <a class="dropdown-item" role="button" (click)="editarHojaDeVida(equipo.id)">
-                      <i class="bi bi-file-earmark-text me-2 text-warning"></i> Editar Hoja de Vida
-                    </a>
-                  </li>
-                  <li *ngIf="equipo.hojaDeVida">
-                    <a class="dropdown-item" role="button" (click)="verHojaDeVida(equipo.id)">
-                      <i class="bi bi-eye me-2 text-info"></i> Ver Hoja de Vida
-                    </a>
-                  </li>
-                  <li>
-                    <hr class="dropdown-divider">
-                  </li>
-                  <li *ngIf="equipo.activo">
-                    <a class="dropdown-item" role="button" (click)="cambiarEstadoActivo(equipo.id, true)">
-                      <i class="bi bi-x-circle me-2 text-danger"></i> Dar de baja
-                    </a>
-                  </li>
-                  <li *ngIf="!equipo.activo">
-                    <a class="dropdown-item" role="button" (click)="cambiarEstadoActivo(equipo.id, false)">
-                      <i class="bi bi-check-circle me-2 text-success"></i> Reactivar
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
 
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="7" class="text-center py-4">
-              <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
-              <p class="text-muted">No se encontraron equipos industriales</p>
-            </td>
-          </tr>
-        </ng-template>
+<!-- Dialog Historial -->
+<p-dialog [(visible)]="displayHistorial" [header]="'Historial de Acciones - ' + equipoHistorialNombre" [modal]="true"
+  [style]="{width: '60vw'}" [resizable]="false" [draggable]="false" [closable]="true">
 
-        <ng-template pTemplate="loadingbody">
-          <tr>
-            <td colspan="7" class="text-center py-4">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-              </div>
-              <p class="mt-2 text-muted">Cargando equipos...</p>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+  <p-table [value]="historialSeleccionado" [rows]="5" [paginator]="true" responsiveLayout="scroll"
+    styleClass="p-datatable-sm p-datatable-gridlines">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Fecha</th>
+        <th>Tipo</th>
+        <th>Usuario</th>
+        <th>Detalles</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-evento>
+      <tr>
+        <td>{{ evento.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td><span class="badge bg-info">{{ evento.tipo }}</span></td>
+        <td>{{ evento.usuario }}</td>
+        <td>
+          <div style="font-size: 0.9em; white-space: pre-wrap;">{{ evento.detalles }}</div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4" class="text-center p-3">No hay registros de historial para este equipo.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <ng-template pTemplate="footer">
+    <button pButton icon="pi pi-check" (click)="displayHistorial=false" label="Cerrar" class="p-button-text"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog Registrar Traslado -->
+<p-dialog header="Registrar Traslado de Equipo" [(visible)]="displayTrasladoDialog" [modal]="true"
+  [style]="{width: '50vw'}" [draggable]="false" [resizable]="false">
+
+  <div class="p-fluid" *ngIf="selectedEquipoTraslado">
+    <div class="field mb-3">
+      <label class="font-bold">Equipo: </label>
+      <span> {{ selectedEquipoTraslado.nombre }} ({{ selectedEquipoTraslado.serie }})</span>
+    </div>
+
+    <div class="field mb-3">
+      <label for="servicioDestino">Servicio Destino <span class="text-danger">*</span></label>
+      <select class="form-select" [(ngModel)]="servicioDestinoId">
+        <option [ngValue]="null">Seleccione un servicio</option>
+        <option *ngFor="let serv of serviciosList" [value]="serv.id">
+          {{ serv.nombres }}
+        </option>
+      </select>
+    </div>
+
+    <div class="field mb-3">
+      <label for="nombreReceptor">Nombre quien recibe <span class="text-danger">*</span></label>
+      <input type="text" pInputText id="nombreReceptor" [(ngModel)]="nombreReceptor" class="w-100 form-control"
+        placeholder="Nombre completo" />
+    </div>
+
+    <div class="field mb-3">
+      <label for="cargoReceptor">Cargo quien recibe <span class="text-danger">*</span></label>
+      <input type="text" pInputText id="cargoReceptor" [(ngModel)]="cargoReceptor" class="w-100 form-control"
+        placeholder="Cargo" />
+    </div>
+
+    <div class="field mb-3">
+      <label for="observaciones">Observaciones</label>
+      <textarea rows="3" pInputTextarea [(ngModel)]="observacionesTransferencia" class="w-100 form-control"
+        placeholder="Detalles del traslado..."></textarea>
     </div>
   </div>
-</div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancelar" icon="pi pi-times" (click)="displayTrasladoDialog=false"
+      class="p-button-text"></button>
+    <p-button label="Confirmar Traslado" icon="pi pi-check" (onClick)="confirmarTraslado()"
+      styleClass="p-button-success" [loading]="loadingTraslado"></p-button>
+  </ng-template>
+</p-dialog>

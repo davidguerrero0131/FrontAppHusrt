@@ -19,11 +19,11 @@ export class EquiposIndustrialesService {
   }
 
   // Obtener TODOS los equipos (activos e inactivos)
-async getAllEquiposTodos(): Promise<any[]> {
-  return firstValueFrom(
-    this.httpClient.get<any[]>(`${this.baseUrl}/equipos/todos`, createHeaders())
-  );
-}
+  async getAllEquiposTodos(): Promise<any[]> {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/todos`, createHeaders())
+    );
+  }
 
   // Obtener todos los equipos industriales activos
   async getAllEquipos(): Promise<any[]> {
@@ -106,6 +106,13 @@ async getAllEquiposTodos(): Promise<any[]> {
   async reactivarEquipo(idEquipo: number): Promise<any> {
     return firstValueFrom(
       this.httpClient.put<any>(`${this.baseUrl}/p/${idEquipo}`, {}, createHeaders())
+    );
+  }
+
+  // Obtener historial unificado del equipo (Traslados + Trazabilidad)
+  async getHistorial(idEquipo: number): Promise<any[]> {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/historial/equipo/${idEquipo}`, createHeaders())
     );
   }
 }

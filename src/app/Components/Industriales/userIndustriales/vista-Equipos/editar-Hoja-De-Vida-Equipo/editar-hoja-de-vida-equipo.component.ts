@@ -6,12 +6,12 @@ import { HojaDeVidaIndustrialService } from '../../../../../Services/appServices
 import { EquiposIndustrialesService } from '../../../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
 import Swal from 'sweetalert2';
 import { UppercaseDirective } from '../../../../../Directives/uppercase.directive';
-import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
+
 
 @Component({
     selector: 'app-editar-hoja-de-vida-equipo',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormsModule, UppercaseDirective, IndustrialesNavbarComponent],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, UppercaseDirective],
     templateUrl: './editar-hoja-de-vida-equipo.component.html',
     styleUrls: ['./editar-hoja-de-vida-equipo.component.css']
 })
@@ -265,56 +265,83 @@ export class EditarHojaDeVidaEquipoComponent implements OnInit {
         this.loading = true;
 
         try {
-            // 1. Guardar o Actualizar Hoja de Vida
-            const rawHojaVida = { ...this.hojaVidaForm.value, equipoIndustrialIdFk: Number(this.idEquipo) };
+            // 1. Fabricante (Si es nuevo)
+            let fabricanteId = this.fabricanteSeleccionado?.id || null;
+            if (!this.fabricanteSeleccionado && this.fabricanteForm.value.nombres) {
+                // Si hay datos en el form de fabricante y no se seleccionó uno existente, crearlo.
+                // Validación simple para no crear vacíos si el usuario no tocó nada
+                const fabricanteData = this.cleanData(this.fabricanteForm.value);
+                if (fabricanteData.nombres) {
+                    const resFab = await this.hojaVidaService.createFabricante(fabricanteData);
+                    fabricanteId = resFab.id;
+                    await this.cargarListas(); // Recargar listas
+                }
+            }
+            if (!fabricanteId && this.hojaVidaForm.value.fabricacion) {
+                // Intentar buscar por nombre si no se tiene ID (fallback)
+                const match = this.listaFabricantes.find(f => f.nombres === this.hojaVidaForm.value.fabricacion);
+                if (match) fabricanteId = match.id;
+            }
+
+
+            // 2. Guardar o Actualizar Proveedor
+            const rawProveedor = { ...this.proveedorForm.value, equipoIndustrialIdFk: Number(this.idEquipo) };
+            const proveedorData = this.cleanData(rawProveedor);
+            let proveedorId = this.idProveedor;
+
+            if (this.idProveedor) {
+                await this.hojaVidaService.updateProveedor(this.idProveedor, proveedorData);
+            } else if (Object.values(proveedorData).some(v => v !== null && v !== false && v !== '')) {
+                // Solo crear si hay algún dato relevante
+                const resProv = await this.hojaVidaService.createProveedor(proveedorData);
+                proveedorId = resProv.id;
+                this.idProveedor = proveedorId;
+            }
+
+
+            // 3. Guardar o Actualizar Datos Técnicos
+            const rawDatosTecnicos = { ...this.datosTecnicosForm.value, equipoIndustrialIdFk: Number(this.idEquipo) };
+            const datosTecnicosData = this.cleanData(rawDatosTecnicos);
+            let datosTecnicosId = this.idDatosTecnicos;
+
+            if (this.idDatosTecnicos) {
+                await this.hojaVidaService.updateDatosTecnicos(this.idDatosTecnicos, datosTecnicosData);
+            } else {
+                const resDatos = await this.hojaVidaService.createDatosTecnicos(datosTecnicosData);
+                datosTecnicosId = resDatos.id;
+                this.idDatosTecnicos = datosTecnicosId;
+            }
+
+
+            // 4. Guardar o Actualizar Hoja de Vida (Con los IDs recolectados)
+            const rawHojaVida = {
+                ...this.hojaVidaForm.value,
+                equipoIndustrialIdFk: Number(this.idEquipo),
+                fabricanteIdFk: fabricanteId,
+                proveedorIdFk: proveedorId,
+                datosTecnicosIdFk: datosTecnicosId
+            };
             const hojaVidaData = this.cleanData(rawHojaVida);
 
             if (this.idHojaVida) {
                 await this.hojaVidaService.updateHojaVida(this.idHojaVida, hojaVidaData);
             } else {
-                const res = await this.hojaVidaService.createHojaVida(hojaVidaData);
-                this.idHojaVida = res.id;
+                const resHV = await this.hojaVidaService.createHojaVida(hojaVidaData);
+                this.idHojaVida = resHV.id;
             }
 
-            // 2. Guardar o Actualizar Datos Técnicos
-            const rawDatosTecnicos = { ...this.datosTecnicosForm.value, equipoIndustrialIdFk: Number(this.idEquipo) };
-            const datosTecnicosData = this.cleanData(rawDatosTecnicos);
 
-            if (this.idDatosTecnicos) {
-                await this.hojaVidaService.updateDatosTecnicos(this.idDatosTecnicos, datosTecnicosData);
-            } else {
-                const res = await this.hojaVidaService.createDatosTecnicos(datosTecnicosData);
-                this.idDatosTecnicos = res.id;
-            }
-
-            // 3. Guardar o Actualizar Proveedor
-            const rawProveedor = { ...this.proveedorForm.value, equipoIndustrialIdFk: Number(this.idEquipo) };
-            const proveedorData = this.cleanData(rawProveedor);
-
-            if (this.idProveedor) {
-                await this.hojaVidaService.updateProveedor(this.idProveedor, proveedorData);
-            } else {
-                const res = await this.hojaVidaService.createProveedor(proveedorData);
-                this.idProveedor = res.id;
-            }
-
-            // 4. Guardar o Actualizar Registro de Apoyo
+            // 5. Guardar o Actualizar Registro de Apoyo
             const rawRegistroApoyo = { ...this.registroApoyoForm.value, equipoIndustrialIdFk: Number(this.idEquipo) };
             const registroApoyoData = this.cleanData(rawRegistroApoyo);
 
             if (this.idRegistroApoyo) {
                 await this.hojaVidaService.updateRegistroApoyo(this.idRegistroApoyo, registroApoyoData);
             } else {
-                const res = await this.hojaVidaService.createRegistroApoyo(registroApoyoData);
-                this.idRegistroApoyo = res.id;
+                const resApoyo = await this.hojaVidaService.createRegistroApoyo(registroApoyoData);
+                this.idRegistroApoyo = resApoyo.id;
             }
 
-            // 5. Guardar Fabricante
-            if (!this.fabricanteSeleccionado && this.fabricanteForm.valid && this.fabricanteForm.value.nombres) {
-                const fabricanteData = this.cleanData(this.fabricanteForm.value);
-                await this.hojaVidaService.createFabricante(fabricanteData);
-                this.cargarListas();
-            }
 
             this.loading = false;
             Swal.fire({
@@ -325,6 +352,7 @@ export class EditarHojaDeVidaEquipoComponent implements OnInit {
                 this.regresar();
             });
 
+
         } catch (error: any) {
             this.loading = false;
             console.error('Error al guardar:', error);
@@ -334,6 +362,7 @@ export class EditarHojaDeVidaEquipoComponent implements OnInit {
     }
 
     regresar() {
-        this.router.navigate(['/industriales/gestion-equipos']);
+        this.router.navigate(['/adminequipos']);
     }
 }
+

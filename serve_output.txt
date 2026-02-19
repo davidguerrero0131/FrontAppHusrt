@@ -1,0 +1,63 @@
+﻿ [1mPort 4200 is already in use.
+Would you like to use a different port?[22m [2m(Y/n)[22m[47G
+node.exe : [1m[31mAn 
+unhandled exception 
+occurred: Port 4200 is 
+already in use. Use 
+'--port' to specify a 
+different port.
+En línea: 1 Carácter: 1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Users\Jeffer 
+Martinez\AppDat ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: ([1  
+  m[31mAn unh...differe   
+ nt port.:String) [], R    
+emoteException
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+See "C:\Users\JEFFER~1\AppD
+ata\Local\Temp\ng-WmKH7o\an
+gular-errors.log" for 
+further details.[39m[22m
+D:\DOCUMENTS\ING\00. PASANT
+IA\repositorios\FrontAppHus
+rt-biomedica-general 01\nod
+e_modules\@angular-devkit\a
+rchitect\node_modules\rxjs\
+dist\cjs\internal\util\repo
+rtUnhandledError.js:13
+            throw err;
+            ^
+
+Error: Port 4200 is 
+already in use. Use 
+'--port' to specify a 
+different port.
+    at createInUseError 
+(D:\DOCUMENTS\ING\00. PASAN
+TIA\repositorios\FrontAppHu
+srt-biomedica-general 01\no
+de_modules\@angular\build\s
+rc\utils\check-port.js:51:1
+2)
+    at 
+D:\DOCUMENTS\ING\00. PASANT
+IA\repositorios\FrontAppHus
+rt-biomedica-general 01\nod
+e_modules\@angular\build\sr
+c\utils\check-port.js:76:12
+1
+    at process.processTicks
+AndRejections (node:interna
+l/process/task_queues:105:5
+)
+
+Node.js v22.20.0
+[?25h

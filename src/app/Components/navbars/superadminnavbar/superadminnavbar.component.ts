@@ -1,23 +1,63 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { MenubarModule } from 'primeng/menubar';
+import { MenuItem } from 'primeng/api';
+import { CommonModule } from '@angular/common';
+import { AvatarModule } from 'primeng/avatar';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-superadminnavbar',
   standalone: true,
-  imports: [],
+  imports: [MenubarModule, CommonModule, AvatarModule, ButtonModule, TooltipModule, RouterModule],
   templateUrl: './superadminnavbar.component.html',
-  styleUrls: ['./superadminnavbar.component.css']
+  styleUrl: './superadminnavbar.component.css'
 })
-export class SuperadminnavbarComponent {
+export class SuperadminnavbarComponent implements OnInit {
 
-    @Input() isExpanded: boolean = false;
-  @Output() toggleSidebar: EventEmitter<boolean> = new EventEmitter<boolean>();
+  items: MenuItem[] | undefined;
 
-  handleSidebarToggle = () => this.toggleSidebar.emit(!this.isExpanded);
+  constructor(private router: Router) { }
 
-  constructor(private router: Router){}
+  ngOnInit() {
+    this.items = [
+      {
+        label: 'Inicio',
+        icon: 'pi pi-home',
+        routerLink: '/superadmin'
+      },
+      {
+        label: 'Usuarios',
+        icon: 'pi pi-users',
+        routerLink: '/admusuarios'
+      },
+      {
+        label: 'Equipos',
+        icon: 'pi pi-server',
+        routerLink: '/biomedica/adminequipos'
+      },
+      {
+        label: 'Servicios',
+        icon: 'pi pi-list',
+        routerLink: '/admservicios'
+      },
+      {
+        label: 'Tipos Equipo',
+        icon: 'pi pi-tags',
+        routerLink: '/admtiposequipo'
+      }
+    ];
+  }
+
   navigateToAbout() {
-    localStorage.removeItem('utoken'); // 👈 Mejor práctica para el logout
-    this.router.navigate(['/login']);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('utoken', "");
+    }
+    this.router.navigate(['/login'])
+  }
+
+  viewUser() {
+    this.router.navigate(['/updateprofil']);
   }
 }

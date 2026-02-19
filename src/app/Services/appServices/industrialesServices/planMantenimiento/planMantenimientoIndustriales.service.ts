@@ -45,6 +45,13 @@ export class PlanMantenimientoIndustrialesService {
     );
   }
 
+  // Obtener planes de mantenimiento por rango de meses
+  async getPlanesByRango(ano: number, mesInicio: number, mesFin: number): Promise<any[]> {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/planes/rango/${ano}/${mesInicio}/${mesFin}`, createHeaders())
+    );
+  }
+
   // Obtener un plan por ID
   async getPlanById(id: number): Promise<any> {
     return firstValueFrom(
@@ -98,6 +105,13 @@ export class PlanMantenimientoIndustrialesService {
   async getResumenByEquipo(idEquipo: number): Promise<any[]> {
     return firstValueFrom(
       this.httpClient.get<any[]>(`${this.baseUrl}/resumen/equipo/${idEquipo}`, createHeaders())
+    );
+  }
+
+  // Actualizar automáticamente planes vencidos a estado Pendiente (4)
+  async actualizarPendientes(): Promise<any> {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/actualizar-pendientes`, {}, createHeaders())
     );
   }
 }

@@ -7,10 +7,11 @@ import { PlanMantenimientoIndustrialesService } from '../../../../../Services/ap
 import { EquiposIndustrialesService } from '../../../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
 import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
 
+
 @Component({
   selector: 'app-editar-plan-mantenimiento',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, IndustrialesNavbarComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './editar-plan-mantenimiento.component.html',
   styleUrls: ['./editar-plan-mantenimiento.component.css']
 })
@@ -141,7 +142,7 @@ export class EditarPlanMantenimientoComponent implements OnInit {
   }
 
   regresar() {
-    this.router.navigate(['/industriales/gestion-plan-mantenimiento']);
+    this.router.navigate(['/industriales/gestion-mantenimientos']);
   }
 
   getAnosDisponibles(): number[] {

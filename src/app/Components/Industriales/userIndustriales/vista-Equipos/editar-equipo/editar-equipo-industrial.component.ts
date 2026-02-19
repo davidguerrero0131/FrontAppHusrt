@@ -9,12 +9,12 @@ import { SedeService } from '../../../../../Services/appServices/general/sede/se
 import { UppercaseDirective } from '../../../../../Directives/uppercase.directive';
 import Swal from 'sweetalert2';
 import { EquiposIndustrialesService } from '../../../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
-import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
+
 
 @Component({
   selector: 'app-editar-equipo-industrial',
   standalone: true,
-  imports: [CommonModule, UppercaseDirective, FormsModule, ReactiveFormsModule, IndustrialesNavbarComponent],
+  imports: [CommonModule, UppercaseDirective, FormsModule, ReactiveFormsModule],
   templateUrl: './editar-equipo-industrial.component.html',
   styleUrls: ['./editar-equipo-industrial.component.css']
 })
@@ -70,7 +70,7 @@ export class EditarEquipoIndustrialComponent implements OnInit {
       this.equipoId = parseInt(id);
 
       // Cargar datos de los selectores
-      this.tiposequipo = await this.tipoEquipoServices.getAllTiposEquipos();
+      this.tiposequipo = await this.tipoEquipoServices.getTiposEquiposIndustrial();
       this.servicios = await this.serviciosServices.getAllServicios();
       this.responsables = await this.responsablesServices.getAllResponsables();
       this.sedes = await this.sedesServices.getAllSedes();
@@ -175,6 +175,6 @@ export class EditarEquipoIndustrialComponent implements OnInit {
   }
 
   regresar() {
-    this.router.navigate(['/industriales/gestion-equipos']);
+    this.router.navigate(['/adminequipos']);
   }
 }

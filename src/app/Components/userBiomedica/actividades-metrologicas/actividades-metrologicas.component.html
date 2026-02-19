@@ -1,5 +1,3 @@
-<app-biomedicausernavbar></app-biomedicausernavbar>
-
 <div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
 </div>
 
@@ -55,6 +53,7 @@
         <ng-template pTemplate="header">
           <tr>
             <th style="width:10%; align-items: center; text-align: center">Nombre</th>
+            <th style="width:10%; align-items: center; text-align: center">Tipo de Actividad</th>
             <th style="width:10%; align-items: center; text-align: center">Marca</th>
             <th style="width:10%; align-items: center; text-align: center">Modelo</th>
             <th style="width:10%; align-items: center; text-align: center">Serie</th>
@@ -70,6 +69,11 @@
             <td style="text-align: center; align-items: center; text-align: center">
               <span class="ml-1 vertical-align-middle">
                 {{reporte.equipo.nombres}}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{reporte.tipoActividad}}
               </span>
             </td>
             <td style="text-align: center; align-items: center; text-align: center">
@@ -158,6 +162,7 @@
             <ng-template pTemplate="header">
               <tr>
                 <th style="width:10%; align-items: center; text-align: center">Nombre</th>
+                <th style="width:10%; align-items: center; text-align: center">Tipo de Actividad</th>
                 <th style="width:10%; align-items: center; text-align: center">Marca</th>
                 <th style="width:10%; align-items: center; text-align: center">Modelo</th>
                 <th style="width:10%; align-items: center; text-align: center">Serie</th>
@@ -173,6 +178,11 @@
                 <td style="text-align: center; align-items: center; text-align: center">
                   <span class="ml-1 vertical-align-middle">
                     {{reporte.equipo.nombres}}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{reporte.tipoActividad}}
                   </span>
                 </td>
                 <td style="text-align: center; align-items: center; text-align: center">
@@ -250,6 +260,7 @@
             <ng-template pTemplate="header">
               <tr>
                 <th style="width:10%; align-items: center; text-align: center">Nombre</th>
+                <th style="width:10%; align-items: center; text-align: center">Tipo de Actividad</th>
                 <th style="width:10%; align-items: center; text-align: center">Marca</th>
                 <th style="width:10%; align-items: center; text-align: center">Modelo</th>
                 <th style="width:10%; align-items: center; text-align: center">Serie</th>
@@ -265,6 +276,11 @@
                 <td style="text-align: center; align-items: center; text-align: center">
                   <span class="ml-1 vertical-align-middle">
                     {{reporte.equipo.nombres}}
+                  </span>
+                </td>
+                <td style="text-align: center; align-items: center; text-align: center">
+                  <span class="ml-1 vertical-align-middle">
+                    {{reporte.tipoActividad}}
                   </span>
                 </td>
                 <td style="text-align: center; align-items: center; text-align: center">
@@ -324,143 +340,189 @@
 
 
 <p-dialog header="Registrar Actividad Metrologica" [modal]="true" [(visible)]="modalAddActividadMetrologica"
-  [style]="{ width: '70rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="false">
+  styleClass="standard-modal modal-lg" [maximizable]="false">
 
-  <div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
+  <div class="form-grid" style="width: 100%;">
 
-    <div class="form-item">
+    <div class="field">
       <label>Nombre Equipo</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.nombres}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Marca</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.marca}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Modelo</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.modelo}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Serie</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.serie}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Servicio</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.servicios.nombres}}"
         disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Ubicación</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.ubicacion}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Ubicación especifica</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.ubicacionEspecifica}}"
         disabled />
     </div>
   </div>
 
-  <div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
+  <div class="form-grid" style="width: 100%; margin-top: 1.5rem;">
 
+    <div class="field">
+      <label>Tipo de Actividad</label>
+      <select class="form-select" [(ngModel)]="tipoActividad">
+        <option value="" disabled selected>Seleccione</option>
+        <option *ngFor="let option of opcionesTipoActividad" [value]="option.value">{{ option.label }}</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Empresa</label>
+      <input pInputText type="text" [(ngModel)]="empresa" placeholder="Empresa encargada" />
+    </div>
+
+    <div class="field">
+      <label>Fecha Realizado</label>
+      <p-datepicker [(ngModel)]="fechaRealizadoActividad" dateFormat="dd/mm/yy" [showIcon]="true"
+        appendTo="body"></p-datepicker>
+    </div>
+
+    <div class="field">
+      <label>Resultado</label>
+      <select class="form-select" [(ngModel)]="resultado">
+        <option value="" disabled selected>Seleccione</option>
+        <option *ngFor="let option of opcionesResultado" [value]="option.value">{{ option.label }}</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Error Maximo Identificado</label>
+      <input pInputText type="number" [(ngModel)]="errorMaximoIdentificado" placeholder="Valor númerico" />
+    </div>
+
+    <div class="field">
+      <label>Cargar Reporte (PDF)</label>
+      <input type="file" (change)="onFileSelected($event)" accept="application/pdf" class="form-control" />
+    </div>
+
+    <div class="field" style="grid-column: 1 / -1;">
+      <label>Observaciones</label>
+      <textarea pInputTextarea [(ngModel)]="observaciones" rows="3" style="width: 100%;"></textarea>
+    </div>
 
   </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary"
+      (click)="modalAddActividadMetrologica = false"></button>
+    <button pButton pRipple label="Guardar" icon="pi pi-check" (click)="registrarActividad()"></button>
+  </ng-template>
 
 </p-dialog>
 
 <p-dialog header="Actividad Metrologica" [modal]="true" [(visible)]="modalViewActividadMetrologica"
-  [style]="{ width: '70rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="false">
+  styleClass="standard-modal modal-lg" [maximizable]="false">
 
-  <h3 style="text-align: center;">Datos del Equipo</h3>
+  <h3 class="text-center mb-4">Datos del Equipo</h3>
 
-  <div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
-    <div class="form-item">
+  <div class="form-grid" style="width: 100%;">
+    <div class="field">
       <label>Nombre Equipo</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.nombres}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Marca</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.marca}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Modelo</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.modelo}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Serie</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.serie}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Servicio</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.servicios.nombres}}"
         disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Ubicación</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.ubicacion}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Ubicación especifica</label>
       <input pInputText type="nombreEquipo" placeholder="{{actividadMetrologicaSelected?.equipo.ubicacionEspecifica}}"
         disabled />
     </div>
   </div>
 
-  <h3 style="text-align: center;">Datos de la Actividad Metrologica</h3>
+  <h3 class="text-center mb-4 mt-4">Datos de la Actividad Metrologica</h3>
 
-  <div class="custom-grid" style="width: 94%; margin-left: 3%; margin-right: 3%;">
+  <div class="form-grid" style="width: 100%;">
 
-    <div class="form-item">
+    <div class="field">
       <label>Tipo de Actividad</label>
       <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.tipoActividad}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Empresa</label>
       <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.empresa}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Fecha Realizado</label>
       <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.fechaRealizado}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Resultado</label>
       <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.resultado}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Error Maximo Identificado</label>
       <input pInputText type="text" placeholder="{{actividadMetrologicaSelected?.errorMaximoIdentificado}}" disabled />
     </div>
 
-    <div class="form-item">
+    <div class="field">
       <label>Usuario que Aprobo</label>
       <input pInputText type="text"
         placeholder="{{actividadMetrologicaSelected?.usuarioAprobo?.nombres}} {{actividadMetrologicaSelected?.usuarioAprobo?.apellidos}}"
         disabled />
     </div>
 
-    <div class="form-item">
-
-    </div>
-
-    <div class="form-item">
-      <button type="button" class="btn btn-dark">Ver Certificado</button>
-    </div>
-
   </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Ver Certificado" icon="pi pi-file-pdf" class="p-button-outlined"
+      (click)="verCertificado()"></button>
+    <button pButton pRipple label="Cerrar" icon="pi pi-times" class="p-button-text p-button-secondary"
+      (click)="modalViewActividadMetrologica = false"></button>
+  </ng-template>
 
 </p-dialog>

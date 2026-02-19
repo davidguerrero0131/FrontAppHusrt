@@ -12,12 +12,13 @@ import { EquiposIndustrialesService } from '../../../../../Services/appServices/
 import { DialogModule } from "primeng/dialog";
 import { ButtonModule } from "primeng/button";
 import { DatePicker } from 'primeng/datepicker';
-import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
+import { DropdownModule } from 'primeng/dropdown';
+
 
 @Component({
   selector: 'app-crear-equipo-industrial',
   standalone: true,
-  imports: [CommonModule, UppercaseDirective, DialogModule, ButtonModule, FormsModule, DatePicker, ReactiveFormsModule, IndustrialesNavbarComponent],
+  imports: [CommonModule, UppercaseDirective, DialogModule, ButtonModule, FormsModule, DatePicker, ReactiveFormsModule, DropdownModule],
   templateUrl: './crear-equipo-industrial.component.html',
   styleUrls: ['./crear-equipo-industrial.component.css']
 })
@@ -26,9 +27,17 @@ export class CrearEquipoIndustrialComponent implements OnInit {
   tiposequipo: any[] | undefined;
   servicios: any[] | undefined;
   responsables: any[] | undefined;
+
   sedes: any[] | undefined;
   fechasMantenimiento: (Date | null)[] = [];
-  fechasCalibracion: (Date | null)[] = [];
+  fechasCalibracion: { fecha: Date | null, tipoActividad: string }[] = [];
+
+  tipoActividadOptions = [
+    { label: 'Calibración', value: 'Calibración' },
+    { label: 'Calificación', value: 'Calificación' },
+    { label: 'Validación', value: 'Validación' },
+    { label: 'Confirmación Metrológica', value: 'Confirmación Metrológica' }
+  ];
 
   modalAddFechasMantenimiento: boolean = false;
   modalAddFechasCalibracion: boolean = false;
@@ -58,7 +67,7 @@ export class CrearEquipoIndustrialComponent implements OnInit {
       ubicacionEspecifica: ['', Validators.required],
       activo: [true],
       periodicidadM: [0, Validators.required],
-      periodicidadC: [0, Validators.required],
+
       estadoBaja: [false],
       estado: ['Bueno'],
       calibracion: [false],
@@ -73,7 +82,7 @@ export class CrearEquipoIndustrialComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      this.tiposequipo = await this.tipoEquipoServices.getAllTiposEquipos();
+      this.tiposequipo = await this.tipoEquipoServices.getTiposEquiposIndustrial();
       console.log('Tipos de equipo:', this.tiposequipo);
 
       this.servicios = await this.serviciosServices.getAllServicios();
@@ -107,7 +116,7 @@ export class CrearEquipoIndustrialComponent implements OnInit {
         ubicacionEspecifica: this.equipoForm.get('ubicacionEspecifica')?.value,
         activo: this.equipoForm.get('activo')?.value,
         periodicidadM: this.equipoForm.get('periodicidadM')?.value,
-        periodicidadC: this.equipoForm.get('periodicidadC')?.value,
+
         estadoBaja: this.equipoForm.get('estadoBaja')?.value,
         estado: this.equipoForm.get('estado')?.value,
         calibracion: this.equipoForm.get('calibracion')?.value,
@@ -119,18 +128,8 @@ export class CrearEquipoIndustrialComponent implements OnInit {
         responsableIdFk: this.equipoForm.get('responsableIdFk')?.value
       };
 
-      // Si hay mantenimientos programados, abrir modal para fechas
-      if (this.equipo.periodicidadM > 0) {
-        await this.iniciarFechasMantenimiento();
-      } else {
-        // Si no hay mantenimientos, ir directo a calibraciones
-        if (this.equipo.periodicidadC > 0) {
-          this.iniciarFechasCalibracion();
-        } else {
-          // Si no hay ni mantenimientos ni calibraciones, guardar directamente
-          await this.guardarEquipoConFechas();
-        }
-      }
+      // Iniciar el flujo de fechas (Mantenimiento -> Calibración -> Guardar)
+      await this.iniciarFechasMantenimiento();
 
     } else {
       Swal.fire({
@@ -148,8 +147,7 @@ export class CrearEquipoIndustrialComponent implements OnInit {
       // Preparar datos para enviar al backend
       const equipoConFechas = {
         ...this.equipo,
-        fechasMantenimiento: this.fechasMantenimiento.filter(f => f !== null),
-        fechasCalibracion: this.fechasCalibracion.filter(f => f !== null)
+        fechasMantenimiento: this.fechasMantenimiento.filter(f => f !== null)
       };
 
       console.log('Enviando equipo con fechas:', equipoConFechas);
@@ -180,34 +178,80 @@ export class CrearEquipoIndustrialComponent implements OnInit {
   }
 
   async iniciarFechasMantenimiento() {
-    if (this.equipo.periodicidadM > 0) {
-      const cantidad = this.equipo.periodicidadM;
-      this.fechasMantenimiento = [];
-      for (let i = 0; i < cantidad; i++) {
-        this.fechasMantenimiento.push(null);
+    const frecuencia = Number(this.equipo.periodicidadM); // Ensure it's a number
+    this.fechasMantenimiento = [];
+
+    if (frecuencia > 0) {
+      const hoy = new Date();
+      let mesesIntervalo = 0;
+      let cantidadEventos = 0;
+
+      // Logic defined by user
+      switch (frecuencia) {
+        case 1: // 1 año despues
+          mesesIntervalo = 12;
+          cantidadEventos = 1;
+          break;
+        case 2: // Cada 6 meses
+          mesesIntervalo = 6;
+          cantidadEventos = 2;
+          break;
+        case 3: // Cada 3 meses
+          mesesIntervalo = 3;
+          cantidadEventos = 4;
+          break;
+        case 4: // Cada 2 meses
+          mesesIntervalo = 2;
+          cantidadEventos = 6;
+          break;
+        case 5: // Cada mes
+          mesesIntervalo = 1;
+          cantidadEventos = 12;
+          break;
+        default:
+          mesesIntervalo = 0;
+          break;
       }
+
+      if (mesesIntervalo > 0) {
+        for (let i = 1; i <= cantidadEventos; i++) {
+          const nuevaFecha = new Date(hoy);
+          nuevaFecha.setMonth(hoy.getMonth() + (mesesIntervalo * i));
+          this.fechasMantenimiento.push(nuevaFecha);
+        }
+      }
+
+      // Open Modal to let user verify/confirm
       setTimeout(() => {
         this.viewModalFechasMantenimiento();
-        console.log('Fechas Mantenimiento inicializadas:', this.fechasMantenimiento);
-      }, 100); // Reducido de 1500 a 100ms
+        console.log('Fechas Mantenimiento calculadas:', this.fechasMantenimiento);
+      }, 100);
+
     } else {
+      // Si periodicidad es 0, pasar directamente a calibración
       this.iniciarFechasCalibracion();
     }
   }
 
   iniciarFechasCalibracion() {
-    if (this.equipo.periodicidadC > 0) {
-      const cantidad = this.equipo.periodicidadC;
-      this.fechasCalibracion = [];
-      for (let i = 0; i < cantidad; i++) {
-        this.fechasCalibracion.push(null);
-      }
+    // Verificar si se requiere alguna actividad metrológica
+    const requiereMetrologia = this.equipo.calibracion || this.equipo.calificacion || this.equipo.validacion;
+
+    if (requiereMetrologia) {
+      // Por defecto agregar un slot para la fecha
+      this.fechasCalibracion = [{ fecha: null, tipoActividad: 'Calibración' }];
+
+      // Ajustar el tipo de actividad por defecto según lo seleccionado
+      if (this.equipo.validacion) this.fechasCalibracion[0].tipoActividad = 'Validación';
+      if (this.equipo.calificacion) this.fechasCalibracion[0].tipoActividad = 'Calificación';
+      if (this.equipo.calibracion) this.fechasCalibracion[0].tipoActividad = 'Calibración';
+
       setTimeout(() => {
-        this.viewModalFechasCalibracion();
+        this.modalAddFechasCalibracion = true;
         console.log('Fechas Calibración inicializadas:', this.fechasCalibracion);
-      }, 100); // Reducido de 500 a 100ms
+      }, 100);
     } else {
-      // Si no hay calibraciones, guardar el equipo
+      // Si no requiere metrología, guardar directamente
       this.guardarEquipoConFechas();
     }
   }
@@ -215,11 +259,6 @@ export class CrearEquipoIndustrialComponent implements OnInit {
   viewModalFechasMantenimiento() {
     this.modalAddFechasMantenimiento = true;
     console.log("Modal Mantenimiento abierto: " + this.modalAddFechasMantenimiento);
-  }
-
-  viewModalFechasCalibracion() {
-    this.modalAddFechasCalibracion = true;
-    console.log("Modal Calibración abierto: " + this.modalAddFechasCalibracion);
   }
 
   validarFechasMantenimiento() {
@@ -243,7 +282,7 @@ export class CrearEquipoIndustrialComponent implements OnInit {
   }
 
   validarFechasCalibracion() {
-    const fechasCompletas = this.fechasCalibracion.every(fecha => fecha !== null);
+    const fechasCompletas = this.fechasCalibracion.every(f => f.fecha !== null && f.tipoActividad !== '');
 
     if (!fechasCompletas) {
       Swal.fire({
@@ -262,8 +301,6 @@ export class CrearEquipoIndustrialComponent implements OnInit {
     this.guardarEquipoConFechas();
   }
 
-  // Este método ya no se usa, se reemplaza por guardarEquipoConFechas
-  // pero lo dejo por si lo necesitas para referencia
   finalizarRegistro() {
     Swal.fire({
       title: "Registro Completo",

@@ -1,0 +1,211 @@
+﻿[33mÔØ»[39m Building...
+[32mÔ£ö[39m Building...
+[35mBrowser bundles[39m      
+[1mInitial chunk files[22m  [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mmain-LOZRDXQD.js[39m     [2m | [22m[2mmain[22m            [2m | [22m  [36m4.43 MB[39m[2m | [22m              [36m750.85 kB[39m
+[32mstyles-YNDQQ24V.css[39m  [2m | [22m[2mstyles[22m          [2m | [22m[36m356.97 kB[39m[2m | [22m               [36m21.26 kB[39m
+[32mpolyfills-B6TNHZQ6.js[39m[2m | [22m[2mpolyfills[22m       [2m | [22m [36m34.58 kB[39m[2m | [22m               [36m11.32 kB[39m
+[32mchunk-GAL4ENT6.js[39m    [2m | [22m[2m-[22m               [2m | [22m  [36m1.34 kB[39m[2m | [22m              [36m576 bytes[39m
+
+[1m [22m                    [2m | [22m[1mInitial total[22m   [2m | [22m  [1m[91m4.82 MB[39m[22m[2m | [22m              [1m784.01 kB[22m
+
+[1mLazy chunk files[22m     [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-GBOB52RX.js[39m    [2m | [22m[2mquill[22m           [2m | [22m[36m204.93 kB[39m[2m | [22m               [36m51.79 kB[39m
+
+
+[35mServer bundles[39m       
+[1mInitial chunk files[22m  [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mmain.server.mjs[39m      [2m | [22m[2mmain.server[22m     [2m | [22m  [36m4.87 MB[39m[2m | [22m                       
+[32mserver.mjs[39m           [2m | [22m[2mserver[22m          [2m | [22m  [36m1.33 MB[39m[2m | [22m                       
+[32mpolyfills.server.mjs[39m [2m | [22m[2mpolyfills.server[22m[2m | [22m[36m266.08 kB[39m[2m | [22m                       
+[32mchunk-H4UZCO6D.mjs[39m   [2m | [22m[2m-[22m               [2m | [22m  [36m2.92 kB[39m[2m | [22m                       
+[32mchunk-GFUZYSQG.mjs[39m   [2m | [22m[2m-[22m               [2m | [22m  [36m1.24 kB[39m[2m | [22m                       
+
+[1mLazy chunk files[22m     [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mchunk-EZ7FBJRW.mjs[39m   [2m | [22m[2mquill[22m           [2m | [22m[36m204.96 kB[39m[2m | [22m                       
+[32mchunk-EJSJJTUO.mjs[39m   [2m | [22m[2mxhr2[22m            [2m | [22m [36m12.14 kB[39m[2m | [22m                       
+[32mchunk-5WAYVMQQ.mjs[39m   [2m | [22m[2mxhr2[22m            [2m | [22m [36m12.07 kB[39m[2m | [22m                       
+
+[35mPrerendered 72 static routes.[39m
+Application bundle generation failed. [25.961 seconds]
+
+node.exe : 
+[1m[33m[33mÔû▓ [43;33m[
+[43;30mWARNING[43;33m][0
+m [1mbundle initial 
+exceeded maximum budget. 
+Budget 500.00 kB was not 
+met by 4.32 MB with a 
+total of 4.82 MB.[0m
+En línea: 1 Carácter: 1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Users\Jeffer 
+Martinez\AppDat ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: ([1  
+  m[33m[33mÔ...of 4.82   
+  MB.[0m:String) [], R    
+emoteException
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+
+
+[33mÔû▓ [43;33m[[43;30mW
+ARNING[43;33m][0m 
+[1mModule 'quill-delta' 
+used by 'node_modules/quill
+/core.js' is not ESM[0m
+
+  CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+  For more information 
+see: [4mhttps://angular.de
+v/tools/cli/build#configuri
+ng-commonjs-dependencies[0
+m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[
+41;97mERROR[41;31m][0m 
+[1mbundle initial 
+exceeded maximum budget. 
+Budget 1.00 MB was not met 
+by 3.82 MB with a total of 
+4.82 MB.[0m
+
+
+[31mX [41;31m[[41;97mERR
+OR[41;31m][0m [1mThe 'ad
+minmesaservicios/casos/:id'
+ route uses prerendering 
+and includes parameters, 
+but 'getPrerenderParams' 
+is missing. Please define 
+'getPrerenderParams' 
+function for this route in 
+your server routing 
+configuration or specify a 
+different 'renderMode'.[0m
+
+
+[31mX [41;31m[[41;97mERR
+OR[41;31m][0m [1mThe 'bi
+omedica/nuevoreporte/:id' 
+route uses prerendering 
+and includes parameters, 
+but 'getPrerenderParams' 
+is missing. Please define 
+'getPrerenderParams' 
+function for this route in 
+your server routing 
+configuration or specify a 
+different 'renderMode'.[0m
+
+
+[31mX [41;31m[[41;97mERR
+OR[41;31m][0m [1mThe 'bi
+omedica/hojavidaequipo/:id'
+ route uses prerendering 
+and includes parameters, 
+but 'getPrerenderParams' 
+is missing. Please define 
+'getPrerenderParams' 
+function for this route in 
+your server routing 
+configuration or specify a 
+different 'renderMode'.[0m
+
+
+[31mX [41;31m[[41;97mERR
+OR[41;31m][0m [1mThe 'bi
+omedica/adminequipos/edit/:
+id' route uses 
+prerendering and includes 
+parameters, but 
+'getPrerenderParams' is 
+missing. Please define 
+'getPrerenderParams' 
+function for this route in 
+your server routing 
+configuration or specify a 
+different 'renderMode'.[0m
+
+
+[31mX [41;31m[[41;97mERR
+OR[41;31m][0m [1mThe 'ed
+itar-equipo-industrial/:id'
+ route uses prerendering 
+and includes parameters, 
+but 'getPrerenderParams' 
+is missing. Please define 
+'getPrerenderParams' 
+function for this route in 
+your server routing 
+configuration or specify a 
+different 'renderMode'.[0m
+
+
+[31mX [41;31m[[41;97mERR
+OR[41;31m][0m [1mThe 'in
+dustriales/hoja-de-vida/:id
+' route uses prerendering 
+and includes parameters, 
+but 'getPrerenderParams' 
+is missing. Please define 
+'getPrerenderParams' 
+function for this route in 
+your server routing 
+configuration or specify a 
+different 'renderMode'.[0m
+
+
+[31mX [41;31m[[41;97mERR
+OR[41;31m][0m [1mThe 'in
+dustriales/editar-hoja-de-v
+ida/:id' route uses 
+prerendering and includes 
+parameters, but 
+'getPrerenderParams' is 
+missing. Please define 
+'getPrerenderParams' 
+function for this route in 
+your server routing 
+configuration or specify a 
+different 'renderMode'.[0m
+
+
+[31mX [41;31m[[41;97mERR
+OR[41;31m][0m [1mThe 'in
+dustriales/editar-mantenimi
+ento/:id' route uses 
+prerendering and includes 
+parameters, but 
+'getPrerenderParams' is 
+missing. Please define 
+'getPrerenderParams' 
+function for this route in 
+your server routing 
+configuration or specify a 
+different 'renderMode'.[0m
+
+
+[31mX [41;31m[[41;97mERR
+OR[41;31m][0m [1mThe 'in
+dustriales/crear-reporte/:i
+d' route uses prerendering 
+and includes parameters, 
+but 'getPrerenderParams' 
+is missing. Please define 
+'getPrerenderParams' 
+function for this route in 
+your server routing 
+configuration or specify a 
+different 'renderMode'.[0m
+
+[39m[22m

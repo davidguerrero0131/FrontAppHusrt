@@ -1,51 +1,23 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/adminindustriales">AppHusrt</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/admusuarios">Usuarios</a>
-        </li>
+<div class="menubar-wrapper" *ngIf="isVisible">
+  <p-menubar [model]="items" styleClass="glass-navbar border-none">
+    <ng-template pTemplate="start">
+      <div class="logo-container flex align-items-center gap-2 px-2 cursor-pointer" [routerLink]="homeLink">
+        <img src="LogoAgora.png" height="40" alt="Logo" />
+        <div class="flex flex-column">
+          <span class="font-bold text-primary text-lg">Industrial</span>
+          <span class="text-xs text-secondary">Gestión de Activos</span>
+        </div>
+      </div>
+    </ng-template>
 
-        <!-- Dropdown Equipos -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Equipos Industriales
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/Industriales/nuevoequipoindustrial">Crear Equipo</a></li>
-            <li><a class="dropdown-item" href="/adminequipos">Listar Equipos</a></li>
-          </ul>
-        </li>
-
-        <!-- Dropdown Planes -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Planes de Mantenimiento
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/industriales/crear-plan-mantenimiento">Crear Plan</a></li>
-            <li><a class="dropdown-item" href="/industriales/gestion-plan-mantenimiento">Listar Planes</a></li>
-          </ul>
-        </li>
-
-        <!-- Dropdown Programación -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Programación
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/industriales/programar-mantenimiento">Programar Mantenimiento</a></li>
-            <li><a class="dropdown-item" href="/industriales/ver-programacion">Ver Programación</a></li>
-          </ul>
-        </li>
-      </ul>
-      <button type="button" class="btn btn-outline-dark" style="justify-content: right;"
-        (click)="navigateToAbout()">Cerrar Sesión</button>
-    </div>
-  </div>
-</nav>
+    <ng-template pTemplate="end">
+      <div class="flex align-items-center gap-2">
+        <p-avatar icon="pi pi-user" styleClass="mr-2 cursor-pointer" shape="circle"
+          [style]="{'background-color': '#eef2ff', 'color': '#0056b3'}" (click)="viewUser()"
+          pTooltip="Perfil"></p-avatar>
+        <button pButton icon="pi pi-power-off" class="p-button-rounded p-button-text p-button-danger"
+          pTooltip="Cerrar Sesión" tooltipPosition="bottom" (click)="navigateToAbout()"></button>
+      </div>
+    </ng-template>
+  </p-menubar>
+</div>

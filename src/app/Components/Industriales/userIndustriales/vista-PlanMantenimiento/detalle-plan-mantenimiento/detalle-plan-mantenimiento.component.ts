@@ -5,10 +5,11 @@ import Swal from 'sweetalert2';
 import { PlanMantenimientoIndustrialesService } from '../../../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
 import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
 
+
 @Component({
   selector: 'app-detalle-plan-mantenimiento',
   standalone: true,
-  imports: [CommonModule, IndustrialesNavbarComponent],
+  imports: [CommonModule],
   templateUrl: './detalle-plan-mantenimiento.component.html',
   styleUrls: ['./detalle-plan-mantenimiento.component.css']
 })
@@ -54,7 +55,7 @@ export class DetallePlanMantenimientoComponent implements OnInit {
   }
 
   regresar() {
-    this.router.navigate(['/industriales/gestion-plan-mantenimiento']);
+    this.router.navigate(['/industriales/gestion-mantenimientos']);
   }
 
   obtenerNombreMes(numeroMes: number): string {

@@ -1,24 +1,90 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, inject } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { MenubarModule } from 'primeng/menubar';
+import { MenuItem } from 'primeng/api';
+import { CommonModule } from '@angular/common';
+import { AvatarModule } from 'primeng/avatar';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'app-industriales-navbar', // ✅ Corregido con guiones
+  selector: 'app-industriales-navbar',
   standalone: true,
-  imports: [],
+  imports: [MenubarModule, CommonModule, AvatarModule, ButtonModule, TooltipModule, RouterModule],
   templateUrl: './industrialesnavbar.component.html',
   styleUrls: ['./industrialesnavbar.component.css']
 })
-export class IndustrialesNavbarComponent { // ✅ Nombre en PascalCase
+export class IndustrialesNavbarComponent implements OnInit {
 
-  @Input() isExpanded: boolean = false;
-  @Output() toggleSidebar: EventEmitter<boolean> = new EventEmitter<boolean>();
+  items: MenuItem[] | undefined;
+  router = inject(Router);
+  homeLink: string = '/adminindustriales';
+  isVisible: boolean = false;
 
-  handleSidebarToggle = () => this.toggleSidebar.emit(!this.isExpanded);
+  ngOnInit() {
+    this.checkRole();
+    this.items = [
+      {
+        label: 'Inicio',
+        icon: 'pi pi-home',
+        routerLink: this.homeLink
+      },
+      {
+        label: 'Gestión Operativa',
+        icon: 'pi pi-briefcase',
+        items: [
+          { label: 'Inventario', icon: 'pi pi-box', routerLink: '/adminequipos' },
+          { label: 'Mantenimiento', icon: 'pi pi-wrench', routerLink: '/industriales/gestion-mantenimientos' },
+          { label: 'Calendario', icon: 'pi pi-calendar', routerLink: '/industriales/ver-programacion' }
+        ]
+      }
+    ];
+  }
 
-  constructor(private router: Router) {}
-  
+  checkRole() {
+    if (typeof sessionStorage !== 'undefined') {
+      const token = sessionStorage.getItem('utoken');
+      if (token) {
+        const decoded: any = this.getDecodedAccessToken(token);
+        const role = decoded?.rol;
+
+        // Hide if SuperAdmin (because SuperAdmin has their own navbar)
+        // Show only for Industrial roles
+        if (role === 'SUPERADMIN') {
+          this.isVisible = false;
+        } else if (role === 'INDUSTRIALESADMIN' || role === 'INDUSTRIALESUSER' || role === 'INDUSTRIALESTECNICO') {
+          this.isVisible = true;
+        } else {
+          // Default behavior for other roles? Maybe hide for now to be safe, or show?
+          // User said "unicamente con el rol de industrialesadmin" (and likely other industrial roles)
+          this.isVisible = false;
+        }
+
+        if (role === 'INDUSTRIALESUSER') {
+          this.homeLink = '/industriales/gestion-operativa';
+        }
+      } else {
+        this.isVisible = false;
+      }
+    }
+  }
+
+  getDecodedAccessToken(token: string): any {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return null;
+    }
+  }
+
   navigateToAbout() {
-    localStorage.removeItem('utoken');
-    this.router.navigate(['/login']);
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('utoken', "");
+    }
+    this.router.navigate(['/login'])
+  }
+
+  viewUser() {
+    this.router.navigate(['/updateprofil']);
   }
 }

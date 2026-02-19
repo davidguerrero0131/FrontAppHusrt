@@ -1,92 +1,390 @@
-<app-industriales-navbar></app-industriales-navbar>
+<div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
 
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-            <h3 class="mb-0">Mantenimientos Programados</h3>
-            <button pButton icon="pi pi-arrow-left" label="Volver" class="p-button-text text-white"
-                (click)="goBack()"></button>
-        </div>
-        <div class="card-body p-4">
+    <div style="margin-bottom: 2%;">
+        <h3 style="text-align: center;">PROGRAMACION DE MANTENIMIENTOS INDUSTRIALES</h3>
+    </div>
 
-            <!-- Filtros -->
-            <div class="row mb-4 align-items-end">
-                <div class="col-md-3">
-                    <label class="fw-bold mb-1">Año</label>
-                    <p-dropdown [options]="anios" [(ngModel)]="selectedAnio" optionLabel="label" optionValue="value"
-                        [style]="{'width':'100%'}"></p-dropdown>
-                </div>
+    <div style="margin-bottom: 1%;">
+        <div class="btn-group botonesMenu" role="group" aria-label="Basic example">
 
-                <div class="col-md-3">
-                    <label class="fw-bold mb-1">Mes</label>
-                    <button pButton type="button" label="{{ selectedMes ? selectedMes.name : 'Seleccione un mes' }}"
-                        icon="pi pi-calendar" class="p-button-outlined w-100 text-start justify-content-between"
-                        (click)="opVer.toggle($event)">
-                    </button>
+            <button type="button" class="btn" [ngClass]="panelActivo === 'mantenimientos' ? 'btn-dark' : 'btn-light'"
+                (click)="setPanel('mantenimientos')">
+                Mantenimiento Equipos Industriales
+            </button>
 
-                    <p-overlayPanel #opVer [style]="{width: '300px'}" [showCloseIcon]="true">
-                        <ng-template pTemplate>
-                            <div class="row g-2">
-                                <div class="col-4" *ngFor="let mes of meses">
-                                    <button type="button" class="btn w-100 btn-sm"
-                                        [ngClass]="{'btn-primary': selectedMes?.code === mes.code, 'btn-outline-secondary': selectedMes?.code !== mes.code}"
-                                        (click)="selectedMes = mes; cargarPlanesProgramados(); opVer.hide()">
-                                        {{ mes.name.substring(0, 3) | uppercase }}
-                                    </button>
-                                </div>
-                            </div>
-                        </ng-template>
-                    </p-overlayPanel>
-                </div>
-
-                <div class="col-md-2">
-                    <button class="btn btn-primary w-100" (click)="cargarPlanesProgramados()" [disabled]="!selectedMes">
-                        <i class="bi bi-arrow-clockwise me-2"></i>Refrescar
-                    </button>
-                </div>
-            </div>
-
-            <hr>
-
-            <!-- TABLA DE RESULTADOS -->
-            <p-table [value]="planesProgramados" [scrollable]="true" scrollHeight="600px"
-                styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped" [loading]="loading"
-                *ngIf="selectedMes">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th>Equipo</th>
-                        <th>Modelo</th>
-                        <th>Placa/Serie</th>
-                        <th>Rango Inicio</th>
-                        <th>Rango Fin</th>
-                        <th>Estado</th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-plan>
-                    <tr>
-                        <td>{{ plan.equipo?.nombres || 'N/A' }}</td>
-                        <td>{{ plan.equipo?.modelo || 'N/A' }}</td>
-                        <td>{{ plan.equipo?.placa || plan.equipo?.serie }}</td>
-                        <td>{{ plan.rangoDeInicio | date:'shortDate' }}</td>
-                        <td>{{ plan.rangoDeFin | date:'shortDate' }}</td>
-                        <td>
-                            <span class="badge bg-success">Activo</span>
-                        </td>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="emptymessage">
-                    <tr>
-                        <td colspan="6" class="text-center p-4">
-                            No hay planes programados (activos) para este periodo.
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
-
-            <div *ngIf="!selectedMes" class="alert alert-warning text-center mt-3">
-                Seleccione un año y un mes para consultar la programación.
-            </div>
-
+            <button type="button" class="btn" [ngClass]="panelActivo === 'seguimiento' ? 'btn-dark' : 'btn-light'"
+                (click)="setPanel('seguimiento')">
+                Mantenimiento Áreas Físicas
+            </button>
         </div>
     </div>
-</div>
+
+    <!-- SECTION: INDUSTRIALES -->
+    <div *ngIf="activeSection === 'industrial'">
+
+        <div class="btn-group botonesMenu" role="group" aria-label="Basic example">
+            <button type="button" class="btn" [ngClass]="panelActivo === 'seguimiento' ? 'btn-dark' : 'btn-light'"
+                (click)="setPanel('seguimiento')">
+                Seguimiento Actividades
+            </button>
+
+            <button type="button" class="btn" [ngClass]="panelActivo === 'mantenimientos' ? 'btn-dark' : 'btn-light'"
+                (click)="setPanel('mantenimientos')">
+                Programación Mantenimientos
+            </button>
+
+            <button type="button" class="btn" [ngClass]="panelActivo === 'mensuales' ? 'btn-dark' : 'btn-light'"
+                (click)="setPanel('mensuales')">
+                Plan de Actividades
+            </button>
+        </div>
+
+        <div style="margin-top: 1%; text-align: center;">
+            <button class="btn btn-outline-secondary mb-3" (click)="goBack()">
+                <i class="pi pi-arrow-left"></i> Volver al panel
+            </button>
+        </div>
+
+        <!-- PANEL SEGUIMIENTO -->
+        <div class="panelMantenimientos" *ngIf="panelActivo === 'seguimiento'">
+            <h4 class="text-center mt-5">Funcionalidad de Seguimiento en Construcción</h4>
+        </div>
+
+        <!-- PANEL MANTENIMIENTOS (MAIN) -->
+        <div class="panelMantenimientos" *ngIf="panelActivo === 'mantenimientos'">
+
+            <div class="filtromes flex flex-column md:flex-row align-items-center gap-3" style="margin-bottom: 2%;">
+                <h6 class="m-0">Seleccione un mes para visualizar:</h6>
+
+                <p-datepicker [(ngModel)]="date" view="month" dateFormat="mm/yy" [readonlyInput]="true"
+                    inputStyleClass="w-full md:w-10rem"></p-datepicker>
+
+                <button type="button" class="btn btn-dark" (click)="setDate()">
+                    Buscar
+                </button>
+            </div>
+
+            <div style="text-align: center;">
+                <h6>Plan de mantenimiento del mes: {{nombreMes()}} </h6>
+            </div>
+            <div style="text-align: right; margin-right: 5%;">
+                <button *ngIf="canProgram && userRole === 'INDUSTRIALESADMIN'" type="button" class="btn btn-success"
+                    style="width: 250px;" (click)="programarMantenimiento()">Programar
+                    Mantenimientos</button>
+            </div>
+
+            <div class="card" style="width: 90%; align-items: center; margin-left: 5%; margin-right: 5%;">
+                <p-table #dt2 [value]="equiposPlanPreventivoMes" dataKey="id" [rows]="10"
+                    [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
+                    [tableStyle]="{ 'min-width': '10rem' }"
+                    [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'equipo.servicioInd.nombres', 'equipo.ubicacionEspecifica']">
+                    <ng-template #caption>
+                        <div class="flex">
+                            <p-iconfield iconPosition="left" class="ml-auto">
+                                <p-inputicon>
+                                    <i class="pi pi-search"></i>
+                                </p-inputicon>
+                                <input pInputText type="text" (input)="onGlobalFilter($event)"
+                                    placeholder="Búsqueda General" />
+                            </p-iconfield>
+                        </div>
+                    </ng-template>
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width:10%; align-items: center; text-align: center">Nombre</th>
+                            <th style="width:10%; align-items: center; text-align: center">Marca</th>
+                            <th style="width:10%; align-items: center; text-align: center">Modelo</th>
+                            <th style="width:10%; align-items: center; text-align: center">Serie</th>
+                            <th style="width:10%; align-items: center; text-align: center">Placa</th>
+                            <th style="width:10%; align-items: center; text-align: center">Servicio</th>
+                            <th style="width:10%; align-items: center; text-align: center">Ubicación</th>
+                            <th style="width:10%; align-items: center; text-align: center">Estado</th>
+                            <th style="width:10%; align-items: center; text-align: center">Acciones</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-registro>
+                        <tr>
+                            <td style="text-align: center; align-items: center;">
+                                {{registro.equipo?.nombres}}
+                            </td>
+                            <td style="text-align: center; align-items: center;">
+                                {{ registro.equipo?.marca }}
+                            </td>
+                            <td style="text-align: center; align-items: center;">
+                                {{ registro.equipo?.modelo }}
+                            </td>
+                            <td style="text-align: center; align-items: center;">
+                                {{ registro.equipo?.serie }}
+                            </td>
+                            <td style="text-align: center; align-items: center;">
+                                {{ registro.equipo?.placa }}
+                            </td>
+                            <td style="text-align: center; align-items: center;">
+                                {{ registro.equipo?.servicioInd?.nombres }}
+                            </td>
+                            <td style="text-align: center; align-items: center;">
+                                {{ registro.equipo?.ubicacionEspecifica }}
+                            </td>
+                            <td style="text-align: center; align-items: center;">
+                                <p-tag [severity]="getEstadoSeverity(registro.estado)"
+                                    [value]="getEstadoLabel(registro.estado)">
+                                </p-tag>
+                            </td>
+                            <td style="text-align: center; align-items: center;">
+                                <button
+                                    *ngIf="(registro.estado === 1 || registro.estado === 4) && (userRole === 'INDUSTRIALESADMIN' || userRole === 'INDUSTRIALESTECNICO')"
+                                    pButton type="button" icon="pi pi-file"
+                                    class="p-button-rounded p-button-info p-button-text"
+                                    (click)="realizarReporte(registro)" pTooltip="Realizar Reporte"
+                                    tooltipPosition="top">
+                                </button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="7">No hay Programación.</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+
+        <!-- PANEL PLAN DE ACTIVIDADES -->
+        <div class="panelMantenimientos" *ngIf="panelActivo === 'mensuales'">
+            <div class="contenedor" style="width: 98%; margin-left: 1%; ">
+                <div class="izquierda" style="background-color: white; align-items: center;">
+                    <button type="button" class="btn" style="width: 60%; margin-top: 1%;" (click)="viewPanelMes()"
+                        [ngClass]="viewPlanMes === true ? 'btn-dark' : 'btn-light'">Plan Mensual</button>
+                    <button type="button" class="btn" style="width: 60%; margin-top: 1%;"
+                        (click)="viewPanelTipoEquipo()"
+                        [ngClass]="viewPlanTipoEquipo === true ? 'btn-dark' : 'btn-light'">Plan Tipo Equipo</button>
+                    <button type="button" class="btn" style="width: 60%; margin-top: 1%;" (click)="viewPanelServicio()"
+                        [ngClass]="viewPlanServicio === true ? 'btn-dark' : 'btn-light'">Plan Servicio</button>
+                </div>
+
+                <div class="derecha" style="background-color: white;">
+
+                    <!-- SUB-PANEL: PLAN MENSUAL -->
+                    <div *ngIf="viewPlanMes">
+                        <div class="filtromes flex flex-column md:flex-row align-items-center gap-3"
+                            style="margin-bottom: 2%;">
+                            <h6 class="m-0">Seleccione un mes para visualizar:</h6>
+                            <p-datepicker [(ngModel)]="date" view="month" dateFormat="mm/yy" [readonlyInput]="true"
+                                inputStyleClass="w-full md:w-10rem"></p-datepicker>
+                            <button type="button" class="btn btn-dark" (click)="setDate()">
+                                Buscar
+                            </button>
+                        </div>
+
+                        <!-- Reuse same table as Main Mantenimientos Tab -->
+                        <div>
+                            <h6>Mantenimientos Mes: {{nombreMes()}} </h6>
+                            <div class="card">
+                                <p-table #dt2 [value]="equiposPlanPreventivoMes" dataKey="id" [rows]="10"
+                                    [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
+                                    [tableStyle]="{ 'min-width': '10rem' }"
+                                    [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'equipo.servicioInd.nombres', 'equipo.ubicacionEspecifica']">
+                                    <ng-template #caption>
+                                        <div class="flex">
+                                            <p-iconfield iconPosition="left" class="ml-auto">
+                                                <p-inputicon>
+                                                    <i class="pi pi-search"></i>
+                                                </p-inputicon>
+                                                <input pInputText type="text" (input)="onGlobalFilter($event)"
+                                                    placeholder="Búsqueda General" />
+                                            </p-iconfield>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template pTemplate="header">
+                                        <tr>
+                                            <th style="width:10%; align-items: center; text-align: center">Nombre</th>
+                                            <th style="width:10%; align-items: center; text-align: center">Marca</th>
+                                            <th style="width:10%; align-items: center; text-align: center">Modelo</th>
+                                            <th style="width:10%; align-items: center; text-align: center">Serie</th>
+                                            <th style="width:10%; align-items: center; text-align: center">Placa</th>
+                                            <th style="width:10%; align-items: center; text-align: center">Servicio</th>
+                                            <th style="width:10%; align-items: center; text-align: center">Ubicación
+                                            </th>
+                                            <th style="width:10%; align-items: center; text-align: center">Estado</th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-registro>
+                                        <tr>
+                                            <td style="text-align: center; align-items: center;">
+                                                {{registro.equipo?.nombres}}
+                                            </td>
+                                            <td style="text-align: center; align-items: center;">{{
+                                                registro.equipo?.marca
+                                                }}
+                                            </td>
+                                            <td style="text-align: center; align-items: center;">{{
+                                                registro.equipo?.modelo
+                                                }}
+                                            </td>
+                                            <td style="text-align: center; align-items: center;">{{
+                                                registro.equipo?.serie
+                                                }}
+                                            </td>
+                                            <td style="text-align: center; align-items: center;">{{
+                                                registro.equipo?.placa
+                                                }}
+                                            </td>
+                                            <td style="text-align: center; align-items: center;">{{
+                                                registro.equipo?.servicioInd?.nombres }}</td>
+                                            <td style="text-align: center; align-items: center;">{{
+                                                registro.equipo?.ubicacionEspecifica }}</td>
+                                            <td style="text-align: center; align-items: center;">
+                                                <p-tag [severity]="getEstadoSeverity(registro.estado)"
+                                                    [value]="getEstadoLabel(registro.estado)">
+                                                </p-tag>
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="emptymessage">
+                                        <tr>
+                                            <td colspan="7">No hay planes.</td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUB-PANEL: PLAN TIPO EQUIPO -->
+                    <div *ngIf="viewPlanTipoEquipo">
+                        <div class="filtromes flex flex-column md:flex-row align-items-center gap-3"
+                            style="margin-bottom: 2%;">
+                            <h6 class="m-0">Seleccione un Tipo de Equipo:</h6>
+                            <p-dropdown [options]="tiposEquipo" [(ngModel)]="selectedTipoEquipo" optionLabel="nombres"
+                                [filter]="true" filterBy="nombres" [showClear]="true" placeholder="Seleccione un Tipo"
+                                class="w-full md:w-56">
+                            </p-dropdown>
+                            <button type="button" class="btn btn-dark" (click)="setTipoEquipo()">
+                                Buscar
+                            </button>
+                        </div>
+
+                        <div>
+                            <div *ngIf="selectedTipoEquipo">
+                                <h6>Plan de Mantenimientos de {{selectedTipoEquipo.nombres}} </h6>
+                            </div>
+                            <div class="card">
+                                <p-table #dt2 [value]="equiposPlanMantenimientoTipoEquipo" dataKey="id" [rows]="10"
+                                    [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
+                                    [tableStyle]="{ 'min-width': '10rem' }"
+                                    [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'mes', 'equipo.placa', 'equipo.servicioInd.nombres', 'equipo.ubicacionEspecifica']">
+                                    <ng-template #caption>
+                                        <div class="flex">
+                                            <p-iconfield iconPosition="left" class="ml-auto">
+                                                <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+                                                <input pInputText type="text" (input)="onGlobalFilter($event)"
+                                                    placeholder="Búsqueda General" />
+                                            </p-iconfield>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template pTemplate="header">
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Marca</th>
+                                            <th>Modelo</th>
+                                            <th>Serie</th>
+                                            <th>Placa</th>
+                                            <th>Mes</th>
+                                            <th>Servicio</th>
+                                            <th>Ubicación</th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-registro>
+                                        <tr>
+                                            <td style="text-align: center;">{{registro.equipo?.nombres}}</td>
+                                            <td style="text-align: center;">{{registro.equipo?.marca}}</td>
+                                            <td style="text-align: center;">{{registro.equipo?.modelo}}</td>
+                                            <td style="text-align: center;">{{registro.equipo?.serie}}</td>
+                                            <td style="text-align: center;">{{registro.equipo?.placa}}</td>
+                                            <td style="text-align: center;">{{getNombreMes(registro.mes)}}</td>
+                                            <td style="text-align: center;">{{registro.equipo?.servicioInd?.nombres}}
+                                            </td>
+                                            <td style="text-align: center;">{{registro.equipo?.ubicacionEspecifica}}
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="emptymessage">
+                                        <tr>
+                                            <td colspan="8">No hay planes.</td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUB-PANEL: PLAN SERVICIO -->
+                    <div *ngIf="viewPlanServicio">
+                        <div class="filtromes flex flex-column md:flex-row align-items-center gap-3"
+                            style="margin-bottom: 2%;">
+                            <h6 class="m-0">Seleccione un Servicio:</h6>
+                            <p-dropdown [options]="servicios" [(ngModel)]="selectedServicio" optionLabel="nombres"
+                                [filter]="true" filterBy="nombres" [showClear]="true"
+                                placeholder="Seleccione un Servicio" class="w-full md:w-56">
+                            </p-dropdown>
+                            <button type="button" class="btn btn-dark" (click)="setServicio()">
+                                Buscar
+                            </button>
+                        </div>
+
+                        <div>
+                            <div *ngIf="selectedServicio">
+                                <h6>Plan de Mantenimientos de {{selectedServicio.nombres}} </h6>
+                            </div>
+                            <div class="card">
+                                <p-table #dt2 [value]="equiposPlanMantenimientoServicio" dataKey="id" [rows]="10"
+                                    [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
+                                    [tableStyle]="{ 'min-width': '10rem' }"
+                                    [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'servicioInd.nombres', 'equipo.ubicacionEspecifica']">
+                                    <ng-template #caption>
+                                        <div class="flex">
+                                            <p-iconfield iconPosition="left" class="ml-auto">
+                                                <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+                                                <input pInputText type="text" (input)="onGlobalFilter($event)"
+                                                    placeholder="Búsqueda General" />
+                                            </p-iconfield>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template pTemplate="header">
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Marca</th>
+                                            <th>Modelo</th>
+                                            <th>Serie</th>
+                                            <th>Placa</th>
+                                            <th>Mes</th>
+                                            <th>Ubicación</th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-registro>
+                                        <tr>
+                                            <td style="text-align: center;">{{registro.equipo?.nombres}}</td>
+                                            <td style="text-align: center;">{{registro.equipo?.marca}}</td>
+                                            <td style="text-align: center;">{{registro.equipo?.modelo}}</td>
+                                            <td style="text-align: center;">{{registro.equipo?.serie}}</td>
+                                            <td style="text-align: center;">{{registro.equipo?.placa}}</td>
+                                            <td style="text-align: center;">{{getNombreMes(registro.mes)}}</td>
+                                            <td style="text-align: center;">{{registro.equipo?.ubicacionEspecifica}}
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="emptymessage">
+                                        <tr>
+                                            <td colspan="7">No hay planes.</td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>

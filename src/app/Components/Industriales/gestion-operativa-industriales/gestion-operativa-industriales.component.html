@@ -1,0 +1,63 @@
+<div class="dashboard-container">
+
+    <!-- Hero Section -->
+    <div class="hero-section" style="background: linear-gradient(135deg, #1a5f7a 0%, #159895 100%);">
+        <div class="hero-content">
+            <h1>Bienvenido a Industriales</h1>
+            <p>Gestión integral de equipos industriales, mantenimientos y reportes.</p>
+        </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="cards-grid">
+
+        <!-- Inventario -->
+        <div class="dashboard-card" (click)="showViewEquiposIndustriales()">
+            <div class="card-icon-container gradient-blue">
+                <i class="pi pi-box"></i>
+            </div>
+            <div class="card-content">
+                <h3>Inventario Equipos Industriales</h3>
+                <p>Gestión de equipos y activos.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <!-- Mantenimiento -->
+        <div class="dashboard-card" (click)="showViewMantenimientosIndustriales()">
+            <div class="card-icon-container gradient-indigo">
+                <i class="pi pi-wrench"></i>
+            </div>
+            <div class="card-content">
+                <h3>Mantenimiento</h3>
+                <p>Programación y ejecución técnica.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <!-- Calendario -->
+        <div class="dashboard-card" (click)="goToVerProgramacion()">
+            <div class="card-icon-container gradient-cyan">
+                <i class="pi pi-calendar"></i>
+            </div>
+            <div class="card-content">
+                <h3>Calendario</h3>
+                <p>Agenda de actividades y cronograma.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <!-- Inventario Áreas Físicas (Disabled) -->
+        <div class="dashboard-card disabled-card" (click)="showViewAreasFisicas()">
+            <div class="card-icon-container gradient-purple" style="opacity: 0.5;">
+                <i class="pi pi-building"></i>
+            </div>
+            <div class="card-content" style="opacity: 0.6;">
+                <h3>Inventario Áreas Físicas</h3>
+                <p>Gestión de infraestructura física.</p>
+                <span class="card-action">Próximamente <i class="pi pi-lock"></i></span>
+            </div>
+        </div>
+
+    </div>
+</div>

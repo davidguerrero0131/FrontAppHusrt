@@ -179,11 +179,8 @@ export class HojaDeVidaIndustrialService {
     async uploadDocument(equipoId: number, file: File): Promise<any> {
         const formData = new FormData();
         formData.append('archivo', file);
-        formData.append('equipoId', equipoId.toString());
 
-        return firstValueFrom(this.httpClient.post<any>(`${this.baseUrl}/doc-ind/upload`, formData, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('utoken')}` } // No Content-Type, browser sets it for FormData
-        }));
+        return firstValueFrom(this.httpClient.post<any>(`${this.baseUrl}/doc-ind/upload/${equipoId}`, formData, createHeaders()));
     }
 
     async getDocumentsByEquipo(equipoId: number): Promise<any[]> {

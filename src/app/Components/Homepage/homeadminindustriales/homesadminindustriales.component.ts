@@ -1,53 +1,26 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-
+import { Router } from '@angular/router';
 import { IndustrialesNavbarComponent } from '../../navbars/IndustrialesNavbar/industrialesnavbar.component';
-// import { PlanMantenimientoIndustrialesService } from '../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
-// import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-homesadminindustriales',
+  selector: 'app-homeadminindustriales',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    IndustrialesNavbarComponent
-  ],
+  imports: [CommonModule],
   templateUrl: './homesadminindustriales.component.html',
   styleUrl: './homesadminindustriales.component.css'
 })
 export class homeadminindustrialescomponent {
 
-  private router = inject(Router);
-
+  router = inject(Router);
 
   constructor() { }
 
-  // Navegación
-  newEquipoIndustrial() {
-    this.router.navigate(['/Industriales/nuevoequipoindustrial']);
+  showViewGestionOperativa() {
+    this.router.navigate(['/industriales/gestion-operativa']);
   }
 
-  showViewEquiposIndustriales() {
-    this.router.navigate(['/adminequipos']);
-  }
-
-  newMantenimientoIndustrial() {
-    this.router.navigate(['/industriales/crear-plan-mantenimiento']);
-  }
-
-  showViewMantenimientosIndustriales() {
-    this.router.navigate(['/industriales/gestion-plan-mantenimiento']);
-  }
-
-  // Navegación Programación
-  goToProgramarMantenimiento() {
-    this.router.navigate(['/industriales/programar-mantenimiento']);
-  }
-
-  goToVerProgramacion() {
-    this.router.navigate(['/industriales/ver-programacion']);
+  showViewParametrizacion() {
+    this.router.navigate(['/industriales/parametrizacion']);
   }
 }

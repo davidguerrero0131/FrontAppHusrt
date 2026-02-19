@@ -1,0 +1,142 @@
+import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { Observable } from 'rxjs'
+import { firstValueFrom } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
+import Swal from 'sweetalert2';
+
+import { API_URL } from '../../../../constantes';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class TipoEquipoService {
+
+  private httpClient = inject(HttpClient);
+  private router = inject(Router);
+  private baseUrl: string;
+
+  constructor() {
+    this.baseUrl = API_URL;
+
+  }
+
+  getAllTiposEquipos() {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipo`, this.createHeaders())
+    )
+  }
+
+  activarTipoEquipo(idTipoEquipo: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/activar/` + idTipoEquipo, {}, this.createHeaders())
+    )
+  }
+
+  desactivarTipoEquipo(idTipoEquipo: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/desactivar/` + idTipoEquipo, {}, this.createHeaders())
+    )
+  }
+
+  getCantidadEquipos(idTipoEquipo: any) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${this.baseUrl}/cantidadequipostipo/${idTipoEquipo}`, this.createHeaders())
+    )
+  }
+
+  getAllTiposEquiposBiomedica() {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/alltiposequipoBio`, this.createHeaders())
+    )
+  }
+
+  getTiposEquiposBiomedica() {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipoBio`, this.createHeaders())
+    )
+  }
+
+  getTipoEquipo(idTipoEquipo: any) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${this.baseUrl}/tiposequipo/${idTipoEquipo}`, this.createHeaders())
+    )
+  }
+
+  actualizarTipoEquipo(idTipoEquipo: any, data: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/${idTipoEquipo}`, data, this.createHeaders())
+    )
+  }
+
+  // Mediciones específicas
+  getMediciones(idTipoEquipo: any) {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipo/${idTipoEquipo}/mediciones`, this.createHeaders())
+    )
+  }
+
+  createMedicion(data: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/tiposequipo/mediciones`, data, this.createHeaders())
+    )
+  }
+
+  updateMedicion(idMedicion: any, data: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/mediciones/${idMedicion}`, data, this.createHeaders())
+    )
+  }
+
+  deleteMedicion(idMedicion: any) {
+    return firstValueFrom(
+      this.httpClient.delete<any>(`${this.baseUrl}/tiposequipo/mediciones/${idMedicion}`, this.createHeaders())
+    )
+  }
+
+  getToken() {
+    return sessionStorage.getItem('utoken');
+  }
+
+  validateToken(token: string): boolean {
+    if (this.isTokenExpired(token)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sesion Expirada',
+        text: 'Ha llegado al límite de tiempo de sesión activa.'
+      })
+      this.router.navigate(['/login']);
+      sessionStorage.setItem('utoken', '');
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isTokenExpired(token: string): boolean {
+    if (!token) {
+      return true; // Si no hay token, se considera expirado
+    }
+    const decodedToken = this.getDecodedAccessToken(token);
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    return decodedToken.exp < currentTime;
+  }
+
+  createHeaders() {
+    return {
+      headers: new HttpHeaders({
+        'authorization': sessionStorage.getItem('utoken')!
+      })
+    }
+  }
+
+  getDecodedAccessToken(token: string): any {
+    try {
+      return jwtDecode(token);
+    } catch (Error) {
+      return null;
+    }
+  }
+}

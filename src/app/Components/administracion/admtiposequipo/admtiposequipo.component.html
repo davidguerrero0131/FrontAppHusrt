@@ -1,77 +1,186 @@
-<app-superadminnavbar></app-superadminnavbar>
+<div class="card px-4 py-4 m-4 shadow-2 border-round-xl surface-card">
 
-<div style="text-align: center;">
-  <h1>Tipos de Equipo</h1>
-</div>
+  <p-toolbar styleClass="mb-4 gap-2 border-none surface-ground">
+    <ng-template pTemplate="left">
+      <div class="flex align-items-center gap-2">
+        <i class="pi pi-th-large text-2xl text-primary"></i>
+        <h2 class="m-0 font-bold text-900">Tipos de Equipo</h2>
+      </div>
+    </ng-template>
 
-<div class="card" style="margin-top: 3%; width: 94%; margin-left: 3%; margin-right: 3%;">
+    <ng-template pTemplate="right">
+      <p-button label="Agregar" icon="pi pi-plus" (onClick)="viewModalAddTipoEquipo()" severity="primary"
+        [raised]="true"></p-button>
+    </ng-template>
+  </p-toolbar>
+
   <p-table #dt2 [value]="tiposEquipos" dataKey="id" [paginator]="true" [rows]="10"
     [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [globalFilterFields]="['nombres', 'tipoR']"
-    [tableStyle]="{ 'min-width': '10rem' }">
+    [tableStyle]="{ 'min-width': '75rem' }" styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true">
 
-    <!-- Filtro -->
-    <ng-template #caption>
-      <div class="flex justify-content-end">
-        <p-iconfield iconPosition="left">
-          <p-inputicon>
-            <i class="pi pi-search"></i>
-          </p-inputicon>
-          <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda" />
+    <ng-template pTemplate="caption">
+      <div class="flex justify-content-between flex-column sm:flex-row align-items-center">
+        <div class="mb-2 sm:mb-0">
+          <button pButton label="Limpiar" class="p-button-outlined" icon="pi pi-filter-slash"
+            (click)="dt2.clear()"></button>
+        </div>
+        <p-iconfield position="left">
+          <p-inputicon styleClass="pi pi-search" />
+          <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Buscar tipo..." />
         </p-iconfield>
       </div>
     </ng-template>
 
-    <!-- Cabecera -->
     <ng-template pTemplate="header">
       <tr>
-        <th style="width:5%">ID</th>
-        <th>Nombre</th>
-        <th>Materiales consumibles</th>
+        <th pSortableColumn="id" style="width:5%">ID <p-sortIcon field="id"></p-sortIcon></th>
+        <th pSortableColumn="nombres">Nombre <p-sortIcon field="nombres"></p-sortIcon></th>
+        <th>Materiales Consumibles</th>
         <th>Herramientas</th>
-        <th>Tiempo Mantenimiento (min)</th>
-        <th>Area</th>
-        <th>Opciones</th>
+        <th pSortableColumn="tiempoMinutos">Minutos <p-sortIcon field="tiempoMinutos"></p-sortIcon></th>
+        <th pSortableColumn="tipoR">Área <p-sortIcon field="tipoR"></p-sortIcon></th>
+        <th style="width:12%">Opciones</th>
       </tr>
     </ng-template>
 
-    <!-- Cuerpo -->
     <ng-template pTemplate="body" let-equipo>
       <tr>
-        <td class="text-center">
-          {{ equipo?.id }}
+        <td class="text-center">{{ equipo?.id }}</td>
+        <td>
+          <button pButton [label]="equipo.nombres" class="p-button-link pl-0 text-left font-bold"
+            (click)="viewTipoEquipo(equipo)"></button>
         </td>
-        <td><button type="button" class="btn btn-link" style="color: black;" (click)="viewTipoEquipo(equipo)">{{ equipo.nombres }}</button></td>
         <td>{{ equipo.materialConsumible }}</td>
         <td>{{ equipo.herramienta }}</td>
-        <td>{{ equipo.tiempoMinutos }}</td>
-        <td *ngIf="equipo.tipoR == 1">Biomedica</td>
-        <td *ngIf="equipo.tipoR == 2">Sistemas</td>
-        <td *ngIf="equipo.tipoR == 3">Mantenimiento</td>
+        <td class="text-center">{{ equipo.tiempoMinutos }}</td>
         <td>
-          <button type="button" class="btn btn-outline-secondary"><i class="bi bi-pencil-square"></i></button>
-          <button type="button" class="btn btn-outline-danger" *ngIf="equipo.activo"><i
-              class="bi bi-x-circle" (click)="estadoTipoEquipo(equipo.id, 'D')"></i></button>
-          <button type="button" class="btn btn-outline-success" *ngIf="!equipo.activo"><i
-              class="bi bi-check2-circle" (click)="estadoTipoEquipo(equipo.id, 'A')"></i></button>
+          <p-tag *ngIf="equipo.tipoR == 1" value="Biomédica" severity="info"></p-tag>
+          <p-tag *ngIf="equipo.tipoR == 2" value="Sistemas" severity="warning"></p-tag>
+          <p-tag *ngIf="equipo.tipoR == 3" value="Industrial" severity="success"></p-tag>
+        </td>
+        <td>
+          <div class="flex gap-2">
+            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="warn"
+              (onClick)="openEditModal(equipo)" pTooltip="Editar"></p-button>
+            <p-button *ngIf="equipo.activo" icon="pi pi-ban" [rounded]="true" [text]="true" severity="danger"
+              (onClick)="estadoTipoEquipo(equipo.id, 'D')" pTooltip="Desactivar"></p-button>
+            <p-button *ngIf="!equipo.activo" icon="pi pi-check-circle" [rounded]="true" [text]="true" severity="success"
+              (onClick)="estadoTipoEquipo(equipo.id, 'A')" pTooltip="Activar"></p-button>
+          </div>
         </td>
       </tr>
     </ng-template>
 
-    <!-- Mensaje vacío -->
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="10" class="text-center">No hay Equipos.</td>
+        <td colspan="7" class="text-center p-4">No se encontraron tipos de equipos.</td>
       </tr>
     </ng-template>
   </p-table>
 </div>
 
 
-<p-dialog header="{{ tipoEquipoSelected?.nombres }}" [(visible)]="viewModalTipoEquipo" [modal]="true" [responsive]="true"
-  [style]="{ width: '90vw', maxWidth: '95%' }" [baseZIndex]="10000"
-  [breakpoints]="{ '960px': '90vw', '640px': '95vw' }">
-  <div class="p-fluid p-3">
+<!-- Protocols Modal -->
+<p-dialog [header]="'Protocolos de ' + tipoEquipoSelected?.nombres" [(visible)]="viewProtocolsModal" [modal]="true"
+  [style]="{ width: '70vw', maxWidth: '95%' }" styleClass="p-fluid">
 
-
+  <div class="flex gap-2 mb-3">
+    <input type="text" pInputText [(ngModel)]="newProtocoloPaso" placeholder="Paso del nuevo protocolo"
+      class="flex-grow-1" />
+    <button pButton type="button" icon="pi pi-plus" label="Agregar" (click)="addProtocolo()" class="w-auto"></button>
   </div>
+
+  <p-table [value]="protocoloTipoEquipo" [rows]="5" [paginator]="true" styleClass="p-datatable-sm">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Paso</th>
+        <th style="width: 15%">Estado</th>
+        <th style="width: 15%">Acción</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-protocolo>
+      <tr>
+        <td>{{ protocolo.paso }}</td>
+        <td>
+          <p-tag [value]="protocolo.estado ? 'Activo' : 'Inactivo'"
+            [severity]="protocolo.estado ? 'success' : 'danger'"></p-tag>
+        </td>
+        <td>
+          <p-button [icon]="protocolo.estado ? 'pi pi-times' : 'pi pi-check'"
+            [label]="protocolo.estado ? 'Desactivar' : 'Activar'" [severity]="protocolo.estado ? 'danger' : 'success'"
+            [text]="true" (onClick)="toggleProtocolStatus(protocolo)">
+          </p-button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="3" class="text-center p-4">No hay protocolos registrados.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
+
+
+<!-- Add/Edit Modal -->
+<p-dialog [header]="isEditing ? 'Editar Tipo de Equipo' : 'Agregar Tipo de Equipo'" [modal]="true"
+  [(visible)]="viewAddTipoEquipo" [style]="{ width: '50rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  styleClass="p-fluid">
+
+  <form [formGroup]="formGroup" (ngSubmit)="saveTipoEquipo()" class="flex flex-column gap-3 pt-2">
+
+    <div class="flex flex-column gap-2">
+      <label class="font-bold">Nombre</label>
+      <input pInputText formControlName="nombres" />
+    </div>
+
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6 flex flex-column gap-2">
+        <label class="font-bold">Materiales Consumibles</label>
+        <textarea pInputTextarea rows="3" formControlName="materialConsumible"></textarea>
+      </div>
+      <div class="field col-12 md:col-6 flex flex-column gap-2">
+        <label class="font-bold">Herramientas</label>
+        <textarea pInputTextarea rows="3" formControlName="herramienta"></textarea>
+      </div>
+    </div>
+
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6 flex flex-column gap-2">
+        <label class="font-bold">Tiempo (Minutos)</label>
+        <input pInputText formControlName="tiempoMinutos" />
+      </div>
+      <div class="field col-12 md:col-6 flex flex-column gap-2">
+        <label class="font-bold">Repuestos Mínimos</label>
+        <input pInputText formControlName="repuestosMinimos" />
+      </div>
+    </div>
+
+    <div class="flex flex-column gap-2">
+      <label class="font-bold">Actividad</label>
+      <input pInputText formControlName="actividad" />
+    </div>
+
+    <div class="flex align-items-center gap-2 mt-2">
+      <p-inputSwitch formControlName="requiereMetrologia" inputId="reqMetrologia"></p-inputSwitch>
+      <label for="reqMetrologia" class="font-bold">Requiere Actividad Metrológica</label>
+    </div>
+
+    <div class="flex flex-column gap-2">
+      <label class="font-bold">Área</label>
+      <select formControlName="tipoR" class="p-inputtext w-full">
+        <option value="1">Biomédica</option>
+        <option value="2">Sistema</option>
+        <option value="3">Industrial</option>
+      </select>
+      <!-- Ideally use p-dropdown here, but select is simpler for fixed values without array in TS -->
+    </div>
+
+    <div class="flex justify-content-end gap-2 mt-4">
+      <p-button label="Cancelar" icon="pi pi-times" [text]="true" (onClick)="viewAddTipoEquipo = false"
+        severity="secondary"></p-button>
+      <p-button label="Guardar" icon="pi pi-check" type="submit" [disabled]="formGroup.invalid"></p-button>
+    </div>
+
+  </form>
 </p-dialog>
