@@ -1,0 +1,55 @@
+<div class="card border-0 shadow-sm rounded-0 mb-4 bg-white">
+    <app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+</div>
+
+<div class="fade-in-animation">
+    <div class="container-fluid px-5 mb-3">
+        <button pButton icon="pi pi-arrow-left" label="Volver a Servicios" (click)="backToDashboard()"
+            class="p-button-text"></button>
+    </div>
+
+    <div class="dashboard-container">
+
+        <div class="text-center mb-5">
+            <h1 class="text-3xl font-bold mb-2">Detalle de Servicio - {{ servicioSeleccionado?.nombres }}</h1>
+        </div>
+
+        <div class="cards-grid">
+            <!-- Ver Áreas -->
+            <div class="dashboard-card" (click)="viewAreas()">
+                <div class="card-icon-container gradient-blue">
+                    <i class="pi pi-building"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Áreas Físicas</h3>
+                    <p>Ver listado de áreas físicas asociadas.</p>
+                    <span class="card-action">Ver Áreas <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Ver Mantenimientos -->
+            <div class="dashboard-card" (click)="viewMantenimientos()">
+                <div class="card-icon-container gradient-indigo">
+                    <i class="pi pi-wrench"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Mantenimientos</h3>
+                    <p>Gestión de mantenimientos del servicio.</p>
+                    <span class="card-action">Ver Mantenimientos <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Ver Inspecciones -->
+            <div class="dashboard-card" (click)="viewInspecciones()">
+                <div class="card-icon-container gradient-green">
+                    <i class="pi pi-check-circle"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Inspecciones</h3>
+                    <p>Ver historial de inspecciones realizadas.</p>
+                    <span class="card-action">Ver Inspecciones <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

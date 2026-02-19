@@ -1,0 +1,40 @@
+.dashboard-container {
+    padding: 2rem;
+}
+
+.filtromes {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.badge {
+    padding: 0.25em 0.5em;
+    border-radius: 4px;
+    font-weight: bold;
+    color: white;
+}
+
+.status-0 {
+    background-color: #dc3545;
+}
+
+/* Cancelado */
+.status-1 {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* Pendiente */
+.status-2 {
+    background-color: #0dcaf0;
+    color: #212529;
+}
+
+/* En Proceso */
+.status-3 {
+    background-color: #198754;
+}
+
+/* Completado */

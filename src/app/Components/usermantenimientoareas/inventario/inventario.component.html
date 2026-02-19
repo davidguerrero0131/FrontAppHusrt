@@ -1,0 +1,101 @@
+<div class="card border-0 shadow-sm rounded-0 mb-4 bg-white">
+    <app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+</div>
+
+<div class="fade-in-animation">
+    <div class="container-fluid px-5 mb-3">
+        <button pButton icon="pi pi-arrow-left" label="Volver a Gestión Operativa" (click)="backToDashboard()"
+            class="p-button-text"></button>
+    </div>
+
+    <div class="dashboard-container">
+
+        <div class="text-center mb-5">
+            <h1 class="text-3xl font-bold mb-2">Inventario de Áreas y Elementos</h1>
+            <p class="text-secondary text-lg">Busque áreas, elementos o consulte clasificaciones.</p>
+        </div>
+
+        <!-- Search Section -->
+        <div class="busqueda-container">
+            <h3 class="mb-3 font-semibold text-xl">Búsqueda por Elemento</h3>
+
+            <div class="flex flex-column md:flex-row justify-content-center gap-3 align-items-center">
+                <p-dropdown [options]="equipos" [(ngModel)]="selectedEquipo" optionLabel="serie" [filter]="true"
+                    filterBy="serie" [showClear]="true" placeholder="Seleccione un elemento"
+                    styleClass="w-full md:w-20rem">
+                    <ng-template pTemplate="selectedItem" let-selectedOption>
+                        <div class="flex align-items-center gap-2">
+                            <i class="pi pi-box"></i>
+                            <div>{{ selectedOption.serie }}</div>
+                        </div>
+                    </ng-template>
+                    <ng-template let-equipo pTemplate="item">
+                        <div class="flex align-items-center gap-2">
+                            <i class="pi pi-box"></i>
+                            <div>{{ equipo.serie }}</div>
+                        </div>
+                    </ng-template>
+                </p-dropdown>
+
+                <button pButton label="Buscar" icon="pi pi-search" (click)="buscarEquipo()"
+                    class="p-button-primary"></button>
+                <button *ngIf="showCreateEquipmentButton" pButton label="Crear Elemento" icon="pi pi-plus"
+                    (click)="goToCreateEquipment()" class="p-button-success"></button>
+            </div>
+        </div>
+
+        <!-- Grid Section -->
+        <div class="cards-grid mt-5">
+
+            <!-- Áreas Físicas (Mapped from Servicio) -->
+            <div class="dashboard-card" (click)="showViewServicios()">
+                <div class="card-icon-container gradient-blue">
+                    <i class="pi pi-building"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Áreas Físicas</h3>
+                    <p>Gestionar ubicaciones (Servicios, Salas, etc.).</p>
+                    <span class="card-action">Ver Áreas <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+
+            <!-- Elementos (Mapped from Tipo de Equipo) -->
+            <div class="dashboard-card" (click)="showViewTiposEquipoBio()">
+                <div class="card-icon-container gradient-purple">
+                    <i class="pi pi-box"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Elementos</h3>
+                    <p>Gestionar tipos de elementos y activos.</p>
+                    <span class="card-action">Ver Elementos <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Asignación de Elementos (Using Comodatos slot for now as generic) -->
+            <div class="dashboard-card" (click)="showViewEmpComodatos()">
+                <div class="card-icon-container gradient-orange">
+                    <i class="pi pi-link"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Asignaciones</h3>
+                    <p>Asignar elementos a áreas específicas.</p>
+                    <span class="card-action">Gestionar Asignaciones <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Riesgo (Kept as requested template, maybe removal if not needed) -->
+            <div class="dashboard-card" (click)="showViewRiesgos()">
+                <div class="card-icon-container gradient-green">
+                    <i class="pi pi-exclamation-triangle"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Clasificación Riesgo</h3>
+                    <p>Clasificación por nivel de riesgo.</p>
+                    <span class="card-action">Ver Riesgos <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

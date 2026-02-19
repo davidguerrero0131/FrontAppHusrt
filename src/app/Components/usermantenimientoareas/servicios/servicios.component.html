@@ -1,0 +1,37 @@
+<div class="card border-0 shadow-sm rounded-0 mb-4 bg-white">
+    <app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+</div>
+
+<div class="fade-in-animation">
+    <div class="container-fluid px-5 mb-3">
+        <button pButton icon="pi pi-arrow-left" label="Volver a Inventario" (click)="backToDashboard()"
+            class="p-button-text"></button>
+    </div>
+
+    <div class="dashboard-container">
+
+        <div class="text-center mb-5">
+            <h1 class="text-3xl font-bold mb-2">Servicios</h1>
+            <p class="text-secondary text-lg">Busque el Servicio requerido.</p>
+        </div>
+
+        <div class="search-container mb-4" style="max-width: 600px; margin: 0 auto;">
+            <input pInputText type="text" placeholder="Buscar servicio..." [(ngModel)]="searchText" class="w-full">
+        </div>
+
+        <div class="cards-grid">
+            <div class="dashboard-card" *ngFor="let servicio of filteredTiposEquipos()"
+                (click)="viewEquiposTipos(servicio.id)">
+                <div class="card-icon-container gradient-mint">
+                    <i class="pi pi-building"></i>
+                </div>
+                <div class="card-content">
+                    <h3>{{ servicio.nombres }}</h3>
+                    <p>Total Áreas: <strong>{{ cantidadesEquipos[servicio.id] || 0 }}</strong></p>
+                    <span class="card-action">Ver Detalles <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

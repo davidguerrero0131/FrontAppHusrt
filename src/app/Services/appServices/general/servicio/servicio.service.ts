@@ -81,9 +81,10 @@ export class ServicioService {
   }
 
   createHeaders() {
+    const token = localStorage.getItem('utoken');
     return {
       headers: new HttpHeaders({
-        'authorization': localStorage.getItem('utoken')!
+        'authorization': token ? token : ''
       })
     }
   }

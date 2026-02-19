@@ -24,7 +24,10 @@ export class UserService {
   }
 
   getToken() {
-    return localStorage.getItem('utoken');
+    if (typeof sessionStorage !== 'undefined') {
+      return sessionStorage.getItem('utoken');
+    }
+    return null;
   }
 
   registro(formValue: any) {
@@ -59,7 +62,7 @@ export class UserService {
 
   activarUsuario(idUser: number) {
     return firstValueFrom(
-      this.httpClient.put<any>(`${this.baseUrl}/activarusuario/` + idUser, {},createHeaders())
+      this.httpClient.put<any>(`${this.baseUrl}/activarusuario/` + idUser, {}, createHeaders())
     )
   }
 
@@ -82,6 +85,12 @@ export class UserService {
     )
   }
 
+  loginInvitado() {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/login/invitado`, {})
+    )
+  }
+
   getAllUsers() {
     return firstValueFrom(
       this.httpClient.get<any[]>(`${this.baseUrl}/users`, createHeaders())
@@ -94,6 +103,14 @@ export class UserService {
     )
   }
 
+
+  getDecodedAccessToken(token: string): any {
+    try {
+      return jwtDecode(token);
+    } catch (Error) {
+      return null;
+    }
+  }
 
 }
 

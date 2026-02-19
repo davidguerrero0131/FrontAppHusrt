@@ -1,0 +1,114 @@
+<div class="card border-0 shadow-sm rounded-0 mb-4 bg-white" *ngIf="!isDialog">
+    <app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+</div>
+
+<div class="fade-in-animation container-fluid px-5">
+    <div class="flex justify-content-between align-items-center mb-4" *ngIf="!isDialog">
+        <div class="flex align-items-center gap-2">
+            <button pButton icon="pi pi-arrow-left" (click)="cancelar()"
+                class="p-button-text p-button-rounded mr-2"></button>
+            <h2 class="text-2xl font-bold m-0 text-primary">{{ isEditMode ? 'Editar' : 'Generar' }} Reporte de
+                Mantenimiento</h2>
+        </div>
+    </div>
+
+    <div class="card shadow-2 p-4">
+        <form [formGroup]="form" (ngSubmit)="guardar()">
+
+            <!-- Header Section -->
+            <div class="grid">
+                <div class="col-12 md:col-6">
+                    <label class="block font-bold mb-2">Fecha</label>
+                    <p-calendar formControlName="fecha" [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body"
+                        styleClass="w-full"></p-calendar>
+                </div>
+                <div class="col-12 md:col-6">
+                    <label class="block font-bold mb-2">Tipo de Reporte</label>
+                    <input pInputText formControlName="tipoReporte" class="w-full" [readonly]="true" />
+                </div>
+            </div>
+
+            <p-divider align="left">
+                <div class="inline-flex align-items-center">
+                    <i class="pi pi-cog mr-2"></i>
+                    <b>Datos Técnicos</b>
+                </div>
+            </p-divider>
+
+            <div class="grid">
+                <div class="col-12 md:col-6">
+                    <label class="block mb-2">Nombre del Activo <span class="text-red-500">*</span></label>
+                    <input pInputText formControlName="nombre" class="w-full" [readonly]="true" />
+                </div>
+                <div class="col-12 md:col-6">
+                    <label class="block mb-2">Ubicación <span class="text-red-500">*</span></label>
+                    <input pInputText formControlName="ubicacion" class="w-full" [readonly]="true" />
+                </div>
+            </div>
+
+            <p-divider align="left">
+                <div class="inline-flex align-items-center">
+                    <i class="pi pi-wrench mr-2"></i>
+                    <b>Detalle del Servicio</b>
+                </div>
+            </p-divider>
+
+            <div class="grid">
+                <div class="col-12 mb-3">
+                    <label class="block font-bold mb-2">Tipo de Mantenimiento</label>
+                    <div class="flex gap-4">
+                        <div *ngFor="let opt of tipoMantenimientoOptions" class="field-checkbox">
+                            <p-radioButton [inputId]="opt.value" name="tipoMantenimiento" [value]="opt.value"
+                                formControlName="tipoMantenimiento"></p-radioButton>
+                            <label [for]="opt.value" class="ml-2">{{ opt.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label class="block font-bold mb-2">Fallas Encontradas <span class="text-red-500">*</span></label>
+                    <textarea pInputTextarea formControlName="fallasEncontradas" rows="3" class="w-full"></textarea>
+                </div>
+
+                <div class="col-12">
+                    <label class="block font-bold mb-2">Reporte de Actividades</label>
+                    <textarea pInputTextarea formControlName="reporte" rows="5" class="w-full"></textarea>
+                </div>
+
+                <div class="col-12">
+                    <label class="block font-bold mb-2">Observaciones Generales</label>
+                    <textarea pInputTextarea formControlName="observaciones" rows="3" class="w-full"></textarea>
+                </div>
+            </div>
+
+            <p-divider align="left">
+                <div class="inline-flex align-items-center">
+                    <i class="pi pi-user-edit mr-2"></i>
+                    <b>Firmas / Responsables</b>
+                </div>
+            </p-divider>
+
+            <div class="grid">
+                <div class="col-12 md:col-4">
+                    <label class="block mb-2">Realizado Por</label>
+                    <input pInputText formControlName="realizadoPor" class="w-full" />
+                </div>
+                <div class="col-12 md:col-4">
+                    <label class="block mb-2">Recibido Por</label>
+                    <input pInputText formControlName="recibidoPor" class="w-full" />
+                </div>
+                <div class="col-12 md:col-4">
+                    <label class="block mb-2">Cargo</label>
+                    <input pInputText formControlName="cargo" class="w-full" />
+                </div>
+            </div>
+
+            <div class="flex justify-content-end gap-2 mt-4">
+                <button type="button" pButton label="Cancelar" icon="pi pi-times" class="p-button-secondary"
+                    (click)="cancelar()"></button>
+                <button type="submit" pButton [label]="isEditMode ? 'Actualizar' : 'Guardar Reporte'" icon="pi pi-save"
+                    [loading]="loading"></button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,180 @@
+<div class="card border-0 shadow-sm rounded-0 mb-4 bg-white">
+    <app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+</div>
+
+<div class="fade-in-animation">
+    <div class="container-fluid px-5 mb-3 flex justify-content-between align-items-center">
+        <button pButton icon="pi pi-arrow-left" label="Volver a Gestión Operativa" (click)="backToDashboard()"
+            class="p-button-text"></button>
+        <button pButton icon="pi pi-plus" label="Agendar Mantenimiento" (click)="agendarMantenimiento()"
+            class="p-button-primary"></button>
+    </div>
+
+    <div class="dashboard-container px-5">
+        <div class="text-center mb-4">
+            <h1 class="text-3xl font-bold">Mantenimiento Áreas Físicas</h1>
+            <p class="text-secondary">Dashboard de gestión operativa</p>
+        </div>
+
+        <!-- Filtro Mes -->
+        <div class="filtromes flex flex-column md:flex-row align-items-center gap-3 justify-content-center mb-4">
+            <h6 class="m-0">Seleccione un mes para visualizar:</h6>
+            <p-calendar [(ngModel)]="date" view="month" dateFormat="mm/yy" [readonlyInput]="true"
+                inputId="monthpicker"></p-calendar>
+            <button pButton label="Buscar" icon="pi pi-search" (click)="setDate()"></button>
+        </div>
+
+        <div class="text-center mb-4">
+            <h5 class="font-bold">Mantenimientos del mes de {{obtenerNombreMes(mes)}} del año {{anio}}</h5>
+        </div>
+
+        <!-- Botones Menu -->
+        <div class="flex justify-content-center gap-2 mb-4">
+            <button pButton [label]="'Preventivos'" [outlined]="!panelPreventivos" (click)="viewPreventivos()"
+                class="p-button-rounded"></button>
+            <button pButton [label]="'Metas'" [outlined]="!panelMetas" (click)="viewMetas()"
+                class="p-button-rounded p-button-warning"></button>
+            <button pButton [label]="'Correctivos'" [outlined]="!panelCorrectivos" (click)="viewCorrectivos()"
+                class="p-button-rounded p-button-danger"></button>
+        </div>
+
+        <!-- Panel Preventivos -->
+        <div *ngIf="panelPreventivos">
+            <p-table [value]="preventivos" [rows]="10" [paginator]="true" [loading]="loading"
+                styleClass="p-datatable-striped" responsiveLayout="scroll">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Actividad</th>
+                        <th>Área</th>
+                        <th>Responsable</th>
+                        <th>Días Rango</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-plan>
+                    <tr>
+                        <td>{{ plan.actividad }}</td>
+                        <td>{{ plan.area?.nombre || 'N/A' }}</td>
+                        <td>{{ plan.responsable }}</td>
+                        <td>{{ plan.diaRangoInicio }} - {{ plan.diaRangoFin }}</td>
+                        <td>
+                            <span [class]="'badge ' + getStatusClass(plan)">{{ getEstadoLabel(plan.estado) }}</span>
+                        </td>
+                        <td>
+                            <button *ngIf="canRealizarInspeccion(plan)" pButton label="Realizar" icon="pi pi-check"
+                                class="p-button-sm p-button-success" (click)="realizarInspeccion(plan)"></button>
+
+                            <span *ngIf="isFueraDeRango(plan)" class="text-danger font-bold">Fuera de Rango</span>
+
+                            <button *ngIf="plan.estado === 3" pButton label="Ver Detalle" icon="pi pi-eye"
+                                class="p-button-sm p-button-info" (click)="verDetalleInspeccion(plan)"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="5" class="text-center p-4">No hay preventivos registrados para este mes.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <!-- Panel Metas -->
+        <div *ngIf="panelMetas">
+            <div class="grid">
+                <div class="col-12 md:col-3">
+                    <div class="flex flex-column gap-2">
+                        <button pButton label="Realizados" [outlined]="!panelRealizados" (click)="panelRealizadosView()"
+                            class="w-full"></button>
+                        <button pButton label="Pendientes" [outlined]="!panelPendientes" (click)="panelPendientesView()"
+                            class="w-full p-button-danger"></button>
+                    </div>
+                </div>
+                <div class="col-12 md:col-9">
+                    <div *ngIf="panelRealizados">
+                        <h5 class="mb-3">Mantenimientos Realizados (Completados)</h5>
+                        <p-table [value]="preventivosRealizados" [rows]="10" [paginator]="true">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Actividad</th>
+                                    <th>Área</th>
+                                    <th>Responsable</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-plan>
+                                <tr>
+                                    <td>{{ plan.actividad }}</td>
+                                    <td>{{ plan.area?.nombre }}</td>
+                                    <td>{{ plan.responsable }}</td>
+                                    <td><span class="text-green-500 font-bold">Completado</span></td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td colspan="4" class="text-center p-4">No hay mantenimientos completados.</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                    <div *ngIf="panelPendientes">
+                        <h5 class="mb-3">Mantenimientos Pendientes</h5>
+                        <p-table [value]="preventivosPendientes" [rows]="10" [paginator]="true">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Actividad</th>
+                                    <th>Área</th>
+                                    <th>Responsable</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-plan>
+                                <tr>
+                                    <td>{{ plan.actividad }}</td>
+                                    <td>{{ plan.area?.nombre }}</td>
+                                    <td>{{ plan.responsable }}</td>
+                                    <td><span class="text-orange-500 font-bold">Pendiente</span></td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                                <tr>
+                                    <td colspan="4" class="text-center p-4">No hay mantenimientos pendientes.</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Correctivos (Inspecciones) -->
+        <div *ngIf="panelCorrectivos">
+            <h5 class="mb-3">Inspecciones / Correctivos</h5>
+            <p-table [value]="correctivos" [rows]="10" [paginator]="true" [loading]="loading">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Área</th>
+                        <th>Realizado Por</th>
+                        <th>Observaciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-insp>
+                    <tr>
+                        <td>{{ insp.fecha | date:'dd/MM/yyyy' }}</td>
+                        <td>{{ insp.area?.nombre || 'N/A' }}</td>
+                        <td>{{ insp.realizadoPor || 'N/A' }}</td>
+                        <td>{{ insp.observaciones }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="4" class="text-center p-4">No hay inspecciones/correctivos registrados.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+    </div>
+</div>

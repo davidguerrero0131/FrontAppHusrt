@@ -1,0 +1,119 @@
+<div class="card border-0 shadow-sm rounded-0 mb-4 bg-white">
+    <app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+</div>
+
+<div class="fade-in-animation">
+    <div class="container-fluid px-5 mb-3">
+        <button pButton icon="pi pi-arrow-left" label="Volver al Panel Principal" (click)="backToDashboard()"
+            class="p-button-text"></button>
+    </div>
+
+    <div class="dashboard-container">
+
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1>Gestión Operativa</h1>
+                <p>Accede a inventarios, mantenimientos, indicadores y actividades metrológicas, todo en un solo lugar.
+                </p>
+            </div>
+        </div>
+
+        <div class="cards-grid">
+            <!-- Inventario -->
+            <div class="dashboard-card" (click)="showViewInventario()">
+                <div class="card-icon-container gradient-blue">
+                    <i class="pi pi-box"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Inventario</h3>
+                    <p>Gestiona el inventario de Áreas y Elementos.</p>
+                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Mantenimiento -->
+            <div class="dashboard-card" (click)="showViewMantenimiento()">
+                <div class="card-icon-container gradient-indigo">
+                    <i class="pi pi-wrench"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Mantenimiento</h3>
+                    <p>Administra mantenimientos preventivos y correctivos.</p>
+                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Inspecciones -->
+            <div class="dashboard-card" (click)="showViewInspecciones()">
+                <div class="card-icon-container gradient-purple">
+                    <i class="pi pi-check-square"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Inspecciones</h3>
+                    <p>Visualiza el listado de inspecciones realizadas.</p>
+                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Semaforización -->
+            <div class="dashboard-card" (click)="showViewSemaforizacion()">
+                <div class="card-icon-container gradient-orange">
+                    <i class="pi pi-circle-fill"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Semaforización</h3>
+                    <p>Visualiza el estado de los equipos.</p>
+                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Indicadores -->
+            <div class="dashboard-card" (click)="showViewIndicadores()">
+                <div class="card-icon-container gradient-green">
+                    <i class="pi pi-chart-bar"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Indicadores</h3>
+                    <p>Analiza métricas e indicadores de gestión.</p>
+                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Calendario -->
+            <div class="dashboard-card" (click)="showViewCalendario()">
+                <div class="card-icon-container gradient-cyan">
+                    <i class="pi pi-calendar"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Calendario</h3>
+                    <p>Cronograma de actividades y mantenimientos.</p>
+                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Actividades Metrologicas -->
+            <div class="dashboard-card" (click)="showViewActividadesMetrologicas()">
+                <div class="card-icon-container gradient-teal">
+                    <i class="pi pi-clock"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Act. Metrológicas</h3>
+                    <p>Gestión de calibración y metrología.</p>
+                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Reportes Globales -->
+            <div class="dashboard-card" (click)="showViewReportes()">
+                <div class="card-icon-container gradient-pink">
+                    <i class="pi pi-file"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Reportes</h3>
+                    <p>Historial reportes</p>
+                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

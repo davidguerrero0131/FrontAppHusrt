@@ -1,0 +1,45 @@
+<div class="card border-0 shadow-sm rounded-0 mb-4 bg-white">
+    <app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+</div>
+
+<div class="fade-in-animation">
+    <div class="container-fluid px-5 mb-3">
+        <button pButton icon="pi pi-arrow-left" label="Volver a Detalle" (click)="backToDashboard()"
+            class="p-button-text"></button>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="text-center mb-5">
+            <h1 class="text-3xl font-bold mb-2">Elementos - {{ areaNombre }}</h1>
+            <p class="text-secondary text-lg">Listado de equipos y elementos en esta área.</p>
+        </div>
+
+        <div class="card" *ngIf="elementos.length > 0; else noData">
+            <p-table [value]="elementos" [rows]="10" [paginator]="true">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Código</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-elemento>
+                    <tr>
+                        <td>{{ elemento.nombre }}</td>
+                        <td>{{ elemento.descripcion }}</td>
+                        <td>{{ elemento.codigo || 'N/A' }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <ng-template #noData>
+            <div class="card">
+                <div class="text-center p-4">
+                    <i class="pi pi-box text-500 mb-2" style="font-size: 2rem"></i>
+                    <div class="text-500 font-medium">No hay elementos registrados en esta área.</div>
+                </div>
+            </div>
+        </ng-template>
+    </div>
+</div>

@@ -1,20 +1,23 @@
-<div class="card border-0 shadow-sm rounded-0 mb-4">
-    <p-menubar [model]="items" styleClass="border-none bg-surface-0 border-round-xl">
+<div class="menubar-wrapper">
+    <p-menubar [model]="items" styleClass="glass-navbar border-none">
         <ng-template pTemplate="start">
-            <div class="flex align-items-center gap-2 mr-4">
-                <i class="pi pi-wrench text-primary text-2xl"></i>
-                <a class="text-xl font-bold text-color no-underline" [routerLink]="['/adminmantenimiento']">AppHusrt -
-                    Mantenimiento</a>
+            <div class="logo-container flex align-items-center gap-2 px-2 cursor-pointer"
+                routerLink="/adminmantenimiento">
+                <img src="LogoAgora.png" height="40" alt="Logo" />
+                <div class="flex flex-column">
+                    <span class="font-bold text-primary text-lg">Mantenimiento Áreas</span>
+                    <span class="text-xs text-secondary">Administrador</span>
+                </div>
             </div>
         </ng-template>
 
         <ng-template pTemplate="end">
-            <div class="flex align-items-center gap-3">
-                <p-avatar icon="pi pi-user" styleClass="bg-primary-50 text-primary" shape="circle"
-                    pTooltip="Admin Mantenimiento"></p-avatar>
-                <!-- Changed navigateToAbout to logout for consistency with existing TS -->
-                <button pButton icon="pi pi-sign-out" class="p-button-rounded p-button-text p-button-secondary"
-                    (click)="logout()" pTooltip="Cerrar Sesión"></button>
+            <div class="flex align-items-center gap-2">
+                <p-avatar icon="pi pi-user" styleClass="mr-2 cursor-pointer" shape="circle"
+                    [style]="{'background-color': '#eef2ff', 'color': '#0056b3'}" (click)="viewUser()"
+                    pTooltip="Perfil"></p-avatar>
+                <button pButton icon="pi pi-power-off" class="p-button-rounded p-button-text p-button-danger"
+                    pTooltip="Cerrar Sesión" tooltipPosition="bottom" (click)="logout()"></button>
             </div>
         </ng-template>
     </p-menubar>

@@ -16,47 +16,47 @@ export function obtenerNombreMes(numeroMes: number): string {
   return meses[numeroMes - 1];
 }
 
-  export function validateToken(token: string): boolean {
-    const router  = inject(Router);
-    if (isTokenExpired()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Sesion Expirada',
-        text: 'Ha llegado al límite de tiempo de sesión activa.'
-      })
-      router.navigate(['/login']);
-      localStorage.setItem('utoken', '');
-      return true;
-    } else {
-      return false;
-    }
+export function validateToken(token: string): boolean {
+  const router = inject(Router);
+  if (isTokenExpired()) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Sesion Expirada',
+      text: 'Ha llegado al límite de tiempo de sesión activa.'
+    })
+    router.navigate(['/login']);
+    sessionStorage.setItem('utoken', '');
+    return true;
+  } else {
+    return false;
   }
+}
 
-  export function isTokenExpired(): boolean {
-    const token = localStorage?.getItem('utoken')!;
-    if (!token) {
-      return true; // Si no hay token, se considera expirado
-    }
-    const decodedToken = getDecodedAccessToken();
-    const currentTime = Math.floor(Date.now() / 1000);
-
-    return decodedToken.exp < currentTime;
+export function isTokenExpired(): boolean {
+  const token = sessionStorage?.getItem('utoken')!;
+  if (!token) {
+    return true; // Si no hay token, se considera expirado
   }
+  const decodedToken = getDecodedAccessToken();
+  const currentTime = Math.floor(Date.now() / 1000);
 
-  export function createHeaders() {
-    return {
-      headers: new HttpHeaders({
-        'authorization': localStorage.getItem('utoken')!
-      })
-    }
-  }
+  return decodedToken.exp < currentTime;
+}
 
-  export function getDecodedAccessToken(): any {
-    const token = localStorage.getItem('utoken')!;
-    try {
-      return jwtDecode(token);
-    } catch (Error) {
-      return null;
-    }
+export function createHeaders() {
+  return {
+    headers: new HttpHeaders({
+      'authorization': sessionStorage.getItem('utoken')!
+    })
   }
+}
+
+export function getDecodedAccessToken(): any {
+  const token = sessionStorage.getItem('utoken')!;
+  try {
+    return jwtDecode(token);
+  } catch (Error) {
+    return null;
+  }
+}
 

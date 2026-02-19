@@ -13,6 +13,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
+import { ScrollerModule } from 'primeng/scroller';
 
 @Component({
   selector: 'app-homeadminmantenimiento',
@@ -27,7 +28,8 @@ import { TooltipModule } from 'primeng/tooltip';
     DropdownModule,
     IconFieldModule,
     InputIconModule,
-    TooltipModule
+    TooltipModule,
+    ScrollerModule
   ],
   templateUrl: './homeadminmantenimiento.component.html',
   styleUrl: './homeadminmantenimiento.component.css'
@@ -63,6 +65,49 @@ export class HomeadminmantenimientoComponent implements OnInit {
   // Sub-panels for Metas
   panelRealizados: boolean = false;
   panelPendientes: boolean = true; // Default to pending
+
+  // Dashboard Toggle
+  showDashboard: boolean = true;
+
+  // Inventario Data
+  equipos: any[] = [];
+  selectedEquipo: any;
+  showCreateEquipmentButton: boolean = false;
+
+  // Areas Data (Mock for UI structure)
+  searchText: string = '';
+  servicioSeleccionado: any = null;
+
+  // Mapping 'TiposEquipos' structure from request to 'Services/Areas' context
+  servicios: any[] = [
+    { id: 1, nombres: 'Urgencias', total: 15 },
+    { id: 2, nombres: 'Hospitalización', total: 30 },
+    { id: 3, nombres: 'Cirugía', total: 10 },
+    { id: 4, nombres: 'Laboratorio', total: 5 },
+    { id: 5, nombres: 'Imágenes Diagnósticas', total: 8 }
+  ];
+  cantidadesEquipos: { [key: number]: number } = { 1: 15, 2: 30, 3: 10, 4: 5, 5: 8 };
+
+  // Level 4 Data (Mock Areas Fisicas per Service)
+  areasFisicas: any[] = [];
+  // Mock Data
+  allAreasFisicas = [
+    { id: 101, nombre: 'Consultorio 1', servicioId: 1, ubicacion: 'Piso 1' },
+    { id: 102, nombre: 'Sala de Espera', servicioId: 1, ubicacion: 'Piso 1' },
+    { id: 103, nombre: 'Triage', servicioId: 1, ubicacion: 'Piso 1' },
+    { id: 201, nombre: 'Habitación 201', servicioId: 2, ubicacion: 'Piso 2' },
+    { id: 202, nombre: 'Habitación 202', servicioId: 2, ubicacion: 'Piso 2' },
+    { id: 301, nombre: 'Quirófano 1', servicioId: 3, ubicacion: 'sótano' },
+  ];
+
+  // Navigation is now handled by routing to specific components
+  showViewGestionOperativa() {
+    this.router.navigate(['/adminmantenimiento/gestion-operativa']);
+  }
+
+  showViewParametrizacion() {
+    console.log("Parametrizacion clicked");
+  }
 
   async ngOnInit() {
     await this.loadData();

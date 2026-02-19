@@ -1,26 +1,33 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
-import { BadgeModule } from 'primeng/badge';
+import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { AvatarModule } from 'primeng/avatar';
-import { Sidebar, SidebarModule } from 'primeng/sidebar';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
+import { SidebarModule, Sidebar } from 'primeng/sidebar';
 import { PanelMenuModule } from 'primeng/panelmenu';
-import { MenuItem } from 'primeng/api';
-
-import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-mantenimientoadminnavbar',
   standalone: true,
-  imports: [MenubarModule, BadgeModule, CommonModule, AvatarModule, SidebarModule, ButtonModule, PanelMenuModule, RouterModule],
+  imports: [
+    MenubarModule,
+    CommonModule,
+    AvatarModule,
+    ButtonModule,
+    TooltipModule,
+    SidebarModule,
+    PanelMenuModule,
+    RouterModule
+  ],
   templateUrl: './mantenimientoadminnavbar.component.html',
-  styleUrls: ['./mantenimientoadminnavbar.component.css']
+  styleUrl: './mantenimientoadminnavbar.component.css'
 })
 export class MantenimientoadminnavbarComponent implements OnInit {
 
-  items!: MenuItem[];
+  items: MenuItem[] | undefined;
   sidebarVisible: boolean = false;
 
   @ViewChild('sidebarRef') sidebarRef!: Sidebar;
@@ -30,79 +37,50 @@ export class MantenimientoadminnavbarComponent implements OnInit {
   ngOnInit() {
     this.items = [
       {
-        label: 'Áreas Físicas',
-        icon: 'pi pi-building',
+        label: 'Inicio',
+        icon: 'pi pi-home',
+        routerLink: '/adminmantenimiento'
+      },
+      {
+        label: 'Mesa de Servicios',
+        icon: 'pi pi-briefcase',
+        routerLink: '/adminmesaservicios/casos'
+      },
+      {
+        label: 'Gestión Operativa',
+        icon: 'pi pi-cog',
         items: [
-          {
-            label: 'Listado',
-            icon: 'pi pi-list',
-            command: () => this.router.navigate(['/areas/listado'])
-          },
-          {
-            label: 'Nueva Área',
-            icon: 'pi pi-plus',
-            command: () => this.router.navigate(['/areas/crear'])
-          },
-          {
-            label: 'Asignar Elementos',
-            icon: 'pi pi-link',
-            command: () => this.router.navigate(['/areas/asignar-elementos'])
-          }
+          { label: 'Planes de Mantenimiento', icon: 'pi pi-calendar', routerLink: '/areas/planes/listado' },
+          { label: 'Inspecciones', icon: 'pi pi-check-square', routerLink: '/areas/inspecciones/listado' },
+          { label: 'Asignación de Elementos', icon: 'pi pi-link', routerLink: '/areas/asignar-elementos' }
         ]
       },
       {
-        label: 'Elementos',
+        label: 'Parametrización',
         icon: 'pi pi-box',
         items: [
           {
-            label: 'Listado',
-            icon: 'pi pi-list',
-            command: () => this.router.navigate(['/elementos/listado'])
+            label: 'Áreas Físicas',
+            icon: 'pi pi-building',
+            items: [
+              { label: 'Listado', icon: 'pi pi-list', routerLink: '/areas/listado' },
+              { label: 'Crear Nueva', icon: 'pi pi-plus', routerLink: '/areas/crear' }
+            ]
           },
           {
-            label: 'Nuevo Elemento',
-            icon: 'pi pi-plus',
-            command: () => this.router.navigate(['/elementos/crear'])
-          }
-        ]
-      },
-      {
-        label: 'Planes Mantenimiento',
-        icon: 'pi pi-calendar',
-        items: [
-          {
-            label: 'Listado',
-            icon: 'pi pi-list',
-            command: () => this.router.navigate(['/areas/planes/listado'])
+            label: 'Elementos',
+            icon: 'pi pi-box',
+            items: [
+              { label: 'Listado', icon: 'pi pi-list', routerLink: '/elementos/listado' },
+              { label: 'Crear Nuevo', icon: 'pi pi-plus', routerLink: '/elementos/crear' }
+            ]
           },
-          {
-            label: 'Nuevo Plan',
-            icon: 'pi pi-plus',
-            command: () => this.router.navigate(['/areas/planes/crear'])
-          }
-        ]
-      },
-      {
-        label: 'Inspecciones',
-        icon: 'pi pi-check-circle',
-        items: [
-          {
-            label: 'Listado',
-            icon: 'pi pi-list',
-            command: () => this.router.navigate(['/areas/inspecciones/listado'])
-          },
-          {
-            label: 'Nueva Inspección',
-            icon: 'pi pi-plus',
-            command: () => this.router.navigate(['/areas/inspecciones/crear'])
-          }
+          { separator: true },
+          { label: 'Crear Plan', icon: 'pi pi-plus', routerLink: '/areas/planes/crear' },
+          { label: 'Nueva Inspección', icon: 'pi pi-plus', routerLink: '/areas/inspecciones/crear' }
         ]
       }
     ];
-  }
-
-  closeCallback(e: any): void {
-    this.sidebarRef.close(e);
   }
 
   logout() {
@@ -111,6 +89,12 @@ export class MantenimientoadminnavbarComponent implements OnInit {
   }
 
   viewUser() {
-    this.router.navigate(['/updateprofil']);
+    // Navigate to profile or show user details
+    // Assuming a route exists or just a placeholder for now as per previous version
+    console.log('View User Profile');
+  }
+
+  closeCallback(e: any): void {
+    this.sidebarRef.close(e);
   }
 }
