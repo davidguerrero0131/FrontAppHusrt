@@ -1,0 +1,88 @@
+<div class="card border-0 shadow-sm rounded-0 mb-4 bg-white">
+    <app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+</div>
+
+<div class="fade-in-animation">
+    <div class="container-fluid px-5 mb-3">
+        <button pButton icon="pi pi-arrow-left" label="Volver a Gestión Operativa" (click)="backToDashboard()"
+            class="p-button-text"></button>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="text-center mb-5">
+            <h1 class="text-3xl font-bold mb-2">Reportes Globales</h1>
+            <p class="text-secondary text-lg">Visualiza y filtra todos los reportes de mantenimiento.</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="card mb-4 p-4 flex flex-row flex-wrap gap-4 align-items-end">
+            <div class="flex flex-column gap-2 flex-grow-1 md:flex-grow-0">
+                <label for="servicioFilter" class="font-bold">Filtrar por Servicio</label>
+                <p-dropdown [options]="servicios" [(ngModel)]="selectedServicio" optionLabel="nombres"
+                    [showClear]="true" placeholder="Seleccione un Servicio" (onChange)="onServicioChange()"
+                    styleClass="w-full md:w-20rem">
+                </p-dropdown>
+            </div>
+
+            <div class="flex flex-column gap-2 flex-grow-1 md:flex-grow-0">
+                <label for="areaFilter" class="font-bold">Filtrar por Área</label>
+                <p-dropdown [options]="areas" [(ngModel)]="selectedArea" optionLabel="nombre" [showClear]="true"
+                    placeholder="Seleccione un Área" (onChange)="applyFilters()" styleClass="w-full md:w-20rem"
+                    [disabled]="!selectedServicio && areas.length === 0"> <!-- Optional disabled check -->
+                </p-dropdown>
+            </div>
+            <div class="flex flex-column gap-2 flex-grow-1 md:flex-grow-0">
+                <label for="elementoFilter" class="font-bold">Filtrar por Elemento</label>
+                <p-dropdown [options]="elementos" [(ngModel)]="selectedElemento" optionLabel="nombre" [showClear]="true"
+                    placeholder="Seleccione un Elemento" (onChange)="applyFilters()" styleClass="w-full md:w-20rem">
+                </p-dropdown>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card" *ngIf="filteredReportes.length > 0; else noData">
+            <p-table [value]="filteredReportes" [rows]="10" [paginator]="true" [tableStyle]="{ 'min-width': '50rem' }">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="fecha">Fecha <p-sortIcon field="fecha"></p-sortIcon></th>
+                        <th pSortableColumn="tipoReporte">Tipo <p-sortIcon field="tipoReporte"></p-sortIcon></th>
+                        <th>Área / Ubicación</th>
+                        <th pSortableColumn="nombre">Elemento <p-sortIcon field="nombre"></p-sortIcon></th>
+                        <th pSortableColumn="tipoMantenimiento">Mantenimiento <p-sortIcon
+                                field="tipoMantenimiento"></p-sortIcon></th>
+                        <th pSortableColumn="realizadoPor">Realizado Por <p-sortIcon field="realizadoPor"></p-sortIcon>
+                        </th>
+                        <th style="text-align: center">Acciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-reporte>
+                    <tr>
+                        <td>{{ reporte.fecha | date:'dd/MM/yyyy' }}</td>
+                        <td>{{ reporte.tipoReporte }}</td>
+                        <td>{{ reporte.areaElemento?.areas?.nombre || reporte.ubicacion || 'N/A' }}</td>
+                        <td>{{ reporte.nombre }}</td>
+                        <td>
+                            <p-tag [severity]="reporte.tipoMantenimiento === 'Preventivo' ? 'success' : 'warning'"
+                                [value]="reporte.tipoMantenimiento">
+                            </p-tag>
+                        </td>
+                        <td>{{ reporte.realizadoPor }}</td>
+                        <td style="text-align: center">
+                            <button pButton icon="pi pi-eye" class="p-button-rounded p-button-info p-button-text"
+                                (click)="verReporte(reporte.id)" pTooltip="Ver Detalle"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <ng-template #noData>
+            <div class="card">
+                <div class="text-center p-4">
+                    <i class="pi pi-folder-open text-500 mb-2" style="font-size: 2rem"></i>
+                    <div class="text-500 font-medium">No se encontraron reportes con los filtros seleccionados.</div>
+                </div>
+            </div>
+        </ng-template>
+    </div>
+</div>

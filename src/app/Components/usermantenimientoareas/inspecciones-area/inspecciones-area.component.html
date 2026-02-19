@@ -1,0 +1,49 @@
+<div class="card border-0 shadow-sm rounded-0 mb-4 bg-white">
+    <app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+</div>
+
+<div class="fade-in-animation">
+    <div class="container-fluid px-5 mb-3">
+        <button pButton icon="pi pi-arrow-left" label="Volver a Detalle" (click)="backToDashboard()"
+            class="p-button-text"></button>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="text-center mb-5">
+            <h1 class="text-3xl font-bold mb-2">Inspecciones - {{ areaNombre }}</h1>
+            <p class="text-secondary text-lg">Historial de inspecciones realizadas en el área.</p>
+        </div>
+
+        <div class="card" *ngIf="inspecciones.length > 0; else noData">
+            <p-table [value]="inspecciones" [rows]="10" [paginator]="true">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Responsable</th>
+                        <th>Estado</th>
+                        <th>Observaciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-inspeccion>
+                    <tr>
+                        <td>{{ inspeccion.fecha | date:'short' }}</td>
+                        <td>{{ inspeccion.responsable || 'N/A' }}</td>
+                        <td><span class="badge"
+                                [ngClass]="{'bg-success': inspeccion.estado === 'Aprobado', 'bg-warning': inspeccion.estado !== 'Aprobado'}">{{
+                                inspeccion.estado }}</span></td>
+                        <td>{{ inspeccion.observaciones }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <ng-template #noData>
+            <div class="card">
+                <div class="text-center p-4">
+                    <i class="pi pi-check-circle text-500 mb-2" style="font-size: 2rem"></i>
+                    <div class="text-500 font-medium">No hay inspecciones registradas para esta área.</div>
+                </div>
+            </div>
+        </ng-template>
+    </div>
+</div>

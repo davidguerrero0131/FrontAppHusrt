@@ -1,3 +1,4 @@
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
@@ -5,6 +6,7 @@ import { MenubarModule } from 'primeng/menubar';
 import { BadgeModule } from 'primeng/badge';
 import { CommonModule } from '@angular/common';
 import { AvatarModule } from 'primeng/avatar';
+import { Sidebar, SidebarModule } from 'primeng/sidebar';
 import { ButtonModule } from 'primeng/button';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { MenuItem } from 'primeng/api';
@@ -12,6 +14,9 @@ import { MenuItem } from 'primeng/api';
 @Component({
     selector: 'app-biomedicausernavbar',
     standalone: true,
+    imports: [MenubarModule, BadgeModule, CommonModule, AvatarModule, SidebarModule, ButtonModule, PanelMenuModule, RouterModule],
+    templateUrl: './biomedicausernavbar.component.html',
+    styleUrls: ['./biomedicausernavbar.component.css']
     imports: [MenubarModule, BadgeModule, CommonModule, AvatarModule, ButtonModule, PanelMenuModule, RouterModule],
     templateUrl: './biomedicausernavbar.component.html',
     styleUrl: './biomedicausernavbar.component.css'
@@ -19,6 +24,11 @@ import { MenuItem } from 'primeng/api';
 export class BiomedicausernavbarComponent implements OnInit {
 
     items!: MenuItem[];
+    sidebarVisible: boolean = false;
+
+    @ViewChild('sidebarRef') sidebarRef!: Sidebar;
+
+    constructor(private router: Router) { }
     userRole: string = '';
 
     constructor(private router: Router) { }
@@ -54,6 +64,26 @@ export class BiomedicausernavbarComponent implements OnInit {
     ngOnInit() {
         this.items = [
             {
+                label: 'Equipos',
+                icon: 'pi pi-cog',
+                items: [
+                    {
+                        label: 'Listado',
+                        icon: 'pi pi-list',
+                        command: () => this.router.navigate(['/userbiomedica/equipos'])
+                    }
+                ]
+            },
+            {
+                label: 'Reportes',
+                icon: 'pi pi-file',
+                items: [
+                    {
+                        label: 'Mis Reportes',
+                        icon: 'pi pi-folder',
+                        command: () => this.router.navigate(['/userbiomedica/reportes'])
+                    }
+                ]
                 label: 'Inicio',
                 icon: 'pi pi-home',
                 routerLink: this.getHomeLink()
@@ -149,23 +179,24 @@ export class BiomedicausernavbarComponent implements OnInit {
         }
     }
 
-    toggleAll() {
-        const expanded = !this.areAllItemsExpanded();
-        this.items = this.toggleAllRecursive(this.items, expanded);
+    closeCallback(e: any): void {
+        this.sidebarRef.close(e);
     }
 
-    private toggleAllRecursive(items: MenuItem[], expanded: boolean): MenuItem[] {
-        return items.map((menuItem) => {
-            menuItem.expanded = expanded;
-            if (menuItem.items) {
-                menuItem.items = this.toggleAllRecursive(menuItem.items, expanded);
-            }
-            return menuItem;
-        });
+    logout() {
+        localStorage.removeItem('utoken');
+        this.router.navigate(['/login']);
     }
 
-    private areAllItemsExpanded(): boolean {
-        return this.items.every((menuItem) => menuItem.expanded);
+    viewUser() {
+        this.router.navigate(['/updateprofil']);
     }
 
+    getDecodedAccessToken(token: string): any {
+        try {
+            return jwtDecode(token);
+        } catch (Error) {
+            return null;
+        }
+    }
 }

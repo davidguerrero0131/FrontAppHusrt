@@ -1,0 +1,45 @@
+<div class="card p-4">
+    <h2>{{ isEditMode ? 'Editar Área' : 'Nueva Área' }}</h2>
+
+    <form [formGroup]="areaForm" (ngSubmit)="guardar()" class="grid mt-4">
+
+        <div class="col-12 md:col-6 field">
+            <label for="nombre" class="block font-bold mb-2">Nombre</label>
+            <input pInputText id="nombre" formControlName="nombre" class="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': areaForm.get('nombre')?.invalid && areaForm.get('nombre')?.touched}" />
+            <small *ngIf="areaForm.get('nombre')?.invalid && areaForm.get('nombre')?.touched" class="p-error">El nombre
+                es requerido.</small>
+        </div>
+
+        <div class="col-12 md:col-6 field">
+            <label for="ubicacion" class="block font-bold mb-2">Ubicación</label>
+            <p-dropdown id="ubicacion" [options]="ubicacionesOptions" formControlName="ubicacion" optionLabel="label"
+                optionValue="value" placeholder="Seleccione una ubicación" styleClass="w-full"></p-dropdown>
+            <small *ngIf="areaForm.get('ubicacion')?.invalid && areaForm.get('ubicacion')?.touched" class="p-error">La
+                ubicación es requerida.</small>
+        </div>
+
+        <div class="col-12 field">
+            <label for="descripcion" class="block font-bold mb-2">Descripción</label>
+            <textarea pInputTextarea id="descripcion" formControlName="descripcion" rows="3" class="w-full"></textarea>
+            <small *ngIf="areaForm.get('descripcion')?.invalid && areaForm.get('descripcion')?.touched"
+                class="p-error">La descripción es requerida.</small>
+        </div>
+
+        <div class="col-12 md:col-6 field">
+            <label for="servicio" class="block font-bold mb-2">Servicio</label>
+            <p-dropdown id="servicio" [options]="servicios" formControlName="servicioIdFk" optionLabel="nombres"
+                optionValue="id" placeholder="Seleccione un servicio" [filter]="true" filterBy="nombres"
+                styleClass="w-full"></p-dropdown>
+            <small *ngIf="areaForm.get('servicioIdFk')?.invalid && areaForm.get('servicioIdFk')?.touched"
+                class="p-error">El servicio es requerido.</small>
+        </div>
+
+        <div class="col-12 flex justify-content-end gap-2 mt-4">
+            <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-secondary"
+                (click)="cancelar()"></p-button>
+            <p-button label="Guardar" icon="pi pi-check" type="submit" [disabled]="areaForm.invalid"></p-button>
+        </div>
+
+    </form>
+</div>

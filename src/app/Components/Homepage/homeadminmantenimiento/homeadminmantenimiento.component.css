@@ -1,0 +1,19 @@
+.panelMantenimientos {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    /* Light gray background like a panel */
+    border-radius: 0.5rem;
+}
+
+.filtromes {
+    background-color: #ffffff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.botonesMenu .btn {
+    margin: 0 5px;
+    border-radius: 20px;
+    /* Rounded buttons */
+}

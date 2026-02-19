@@ -1,7 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID, Inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
+import { isPlatformBrowser } from '@angular/common';
 
 import { Router } from '@angular/router';
 import { UserService } from '../../Services/appServices/userServices/user.service';
@@ -22,7 +23,7 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.formulario = new FormGroup({
       usuarion: new FormControl(),
@@ -31,6 +32,9 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.setItem('utoken', '');
+    }
     sessionStorage.setItem('utoken', '');
   }
 
@@ -45,12 +49,16 @@ export class LoginComponent implements OnInit {
           this.router.navigate(['/superadmin']);
         } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'MANTENIMIENTOADMIN') {
           this.router.navigate(['/adminmantenimiento']);
+        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'ADMINMANTENIMIENTO') {
+          this.router.navigate(['/adminmantenimiento']);
         } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'BIOMEDICAADMIN') {
           this.router.navigate(['/adminbiomedica']);
         } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'BIOMEDICAUSER') {
           this.router.navigate(['/userbiomedica']);
         } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'BIOMEDICATECNICO') {
           this.router.navigate(['/userbiomedica']);
+        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'MESAUSER') {
+          this.router.navigate(['/mesauser/home']);
         }
       }
     } catch {

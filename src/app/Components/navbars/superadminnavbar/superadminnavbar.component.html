@@ -1,3 +1,10 @@
+<div class="card border-0 shadow-sm rounded-0 mb-4">
+  <p-menubar [model]="items" styleClass="border-none bg-surface-0 border-round-xl">
+    <ng-template pTemplate="start">
+      <div class="flex align-items-center gap-2 mr-4">
+        <img src="assets/LogoAgora.png" height="40" alt="Logo" onerror="this.src='assets/logo.png'" />
+        <div class="flex flex-column">
+          <a class="font-bold text-primary text-lg no-underline" [routerLink]="['/superadmin']">AppHusrt</a>
 <div class="menubar-wrapper">
   <p-menubar [model]="items" styleClass="glass-navbar border-none border-round-xl">
     <ng-template pTemplate="start">
@@ -11,6 +18,11 @@
     </ng-template>
 
     <ng-template pTemplate="end">
+      <div class="flex align-items-center gap-3">
+        <p-avatar icon="pi pi-user" styleClass="bg-primary-50 text-primary cursor-pointer" shape="circle"
+          (click)="viewUser()" pTooltip="Perfil"></p-avatar>
+        <button pButton icon="pi pi-sign-out" class="p-button-rounded p-button-text p-button-danger" (click)="logout()"
+          pTooltip="Cerrar Sesión"></button>
       <div class="flex align-items-center gap-2">
         <p-avatar icon="pi pi-user" styleClass="mr-2 cursor-pointer" shape="circle"
           [style]="{'background-color': '#eef2ff', 'color': '#0056b3'}" (click)="viewUser()"

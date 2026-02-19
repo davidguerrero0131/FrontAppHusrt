@@ -1,3 +1,5 @@
+@import "primeicons/primeicons.css";
+
 /* Global CSS Variables for "Pleasant" Theme */
 :root {
     /* Color Palette - Clean & Modern (Blue/Teal dominant) */
@@ -461,12 +463,20 @@ i,
 
 /* Responsive Overrides */
 @media (max-width: 992px) {
+
+    .modal-md,
+    .modal-lg {
     .modal-md, .modal-lg {
         width: 90vw;
     }
 }
 
 @media (max-width: 576px) {
+
+    .modal-sm,
+    .modal-md,
+    .modal-lg,
+    .modal-xl {
     .modal-sm, .modal-md, .modal-lg, .modal-xl {
         width: 95vw;
     }
@@ -482,6 +492,8 @@ i,
 .form-grid .field {
     display: flex;
     flex-direction: column;
+    margin-bottom: 0;
+    /* Let grid gap handle spacing */
     margin-bottom: 0; /* Let grid gap handle spacing */
 }
 
@@ -490,4 +502,74 @@ i,
     font-weight: 500;
     margin-bottom: 0.5rem;
     color: var(--text-color);
+}
+
+/* Fix SweetAlert2 z-index to be above PrimeNG Dialogs */
+.swal2-container {
+    z-index: 99999 !important;
+}
+
+/* Custom Utilities from Reference (Argon/Bootstrap Extension) */
+.mt--8 {
+    margin-top: -8rem !important;
+}
+
+.bg-default {
+    background-color: #172b4d !important;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%) !important;
+}
+
+.py-7 {
+    padding-top: 6rem !important;
+    padding-bottom: 6rem !important;
+}
+
+.separator-bottom {
+    top: auto;
+    bottom: 0;
+}
+
+.separator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 150px;
+    transform: translateZ(0);
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.fill-default {
+    fill: #172b4d;
+}
+
+.text-lead {
+    font-size: 1.25rem;
+    font-weight: 300;
+}
+
+.bg-secondary {
+    background-color: #f7fafc !important;
+}
+
+.input-group-alternative {
+    box-shadow: 0 1px 3px rgba(50, 50, 93, .15), 0 1px 0 rgba(0, 0, 0, .02);
+    border: 0;
+    transition: box-shadow .15s ease;
+}
+
+.input-group-alternative .form-control,
+.input-group-alternative .input-group-text {
+    border: 0;
+    box-shadow: none;
+}
+
+.glass-navbar {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }

@@ -1,0 +1,105 @@
+<div class="grid m-2">
+    <div class="col-12">
+        <div class="card shadow-2 p-3">
+            <p-toolbar styleClass="mb-4 gap-2 border-none">
+                <ng-template pTemplate="left">
+                    <div class="flex align-items-center gap-2">
+                        <i class="pi pi-building text-2xl text-primary"></i>
+                        <div class="flex flex-column">
+                            <h2 class="text-xl font-bold m-0 text-900">Gestión de Áreas Físicas</h2>
+                            <span class="text-500 text-sm">Administración de ubicaciones y servicios</span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="right">
+                    <p-button label="Nueva Área" icon="pi pi-plus" styleClass="p-button-success mr-2"
+                        (click)="crearArea()"></p-button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt1 [value]="areas" dataKey="id" [rows]="10" [showCurrentPageReport]="true"
+                [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading" [paginator]="true"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} entradas"
+                [globalFilterFields]="['nombre', 'ubicacion', 'descripcion', 'estado']"
+                styleClass="p-datatable-striped p-datatable-sm" responsiveLayout="scroll">
+
+                <ng-template pTemplate="caption">
+                    <div class="flex">
+                        <span class="p-input-icon-left ml-auto">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter($event)"
+                                placeholder="Buscar palabra clave" />
+                        </span>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+                        <th pSortableColumn="descripcion">Descripción <p-sortIcon field="descripcion"></p-sortIcon></th>
+                        <th pSortableColumn="ubicacion">Ubicación <p-sortIcon field="ubicacion"></p-sortIcon></th>
+                        <th pSortableColumn="estado">Estado <p-sortIcon field="estado"></p-sortIcon></th>
+                        <th style="min-width:10rem; text-align: center">Opciones</th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <input pInputText type="text"
+                                (input)="dt1.filter($any($event.target).value, 'nombre', 'contains')"
+                                placeholder="Filtrar" class="w-full">
+                        </th>
+                        <th>
+                            <input pInputText type="text"
+                                (input)="dt1.filter($any($event.target).value, 'descripcion', 'contains')"
+                                placeholder="Filtrar" class="w-full">
+                        </th>
+                        <th>
+                            <input pInputText type="text"
+                                (input)="dt1.filter($any($event.target).value, 'ubicacion', 'contains')"
+                                placeholder="Filtrar" class="w-full">
+                        </th>
+                        <th>
+                            <!-- Filter for status if needed -->
+                        </th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-area>
+                    <tr>
+                        <td class="font-bold">{{ area.nombre }}</td>
+                        <td>{{ area.descripcion }}</td>
+                        <td>
+                            <span class="p-tag p-tag-rounded"
+                                [ngClass]="{'bg-cyan-500': area.ubicacion === 'Torre 1', 'bg-orange-500': area.ubicacion === 'Torre 2'}">
+                                {{ area.ubicacion || 'N/A' }}
+                            </span>
+                        </td>
+                        <td>
+                            <p-tag [severity]="area.estado === 1 ? 'success' : 'danger'"
+                                [value]="area.estado === 1 ? 'Activo' : 'Inactivo'">
+                            </p-tag>
+                        </td>
+                        <td style="text-align: center">
+                            <button pButton icon="pi pi-cog" styleClass="p-button-secondary p-button-text"
+                                (click)="setMenuArea(area); menu.toggle($event)"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="5" class="text-center p-4">
+                            <div class="flex flex-column align-items-center">
+                                <i class="pi pi-building text-500 mb-2" style="font-size: 2rem"></i>
+                                <span class="text-500 font-medium">No se encontraron áreas registradas.</span>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <p-menu #menu [model]="items" [popup]="true" appendTo="body"></p-menu>
+
+        </div>
+    </div>
+</div>

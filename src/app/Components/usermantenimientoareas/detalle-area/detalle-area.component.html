@@ -1,0 +1,57 @@
+<div class="card border-0 shadow-sm rounded-0 mb-4 bg-white">
+    <app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+</div>
+
+<div class="fade-in-animation">
+    <div class="container-fluid px-5 mb-3">
+        <button pButton icon="pi pi-arrow-left" label="Volver a Áreas" (click)="backToAreas()"
+            class="p-button-text"></button>
+    </div>
+
+    <div class="dashboard-container">
+
+        <div class="text-center mb-5">
+            <h1 class="text-3xl font-bold mb-2">Detalle de Área - {{ areaSeleccionada?.nombre }}</h1>
+            <p class="text-secondary" *ngIf="areaSeleccionada?.servicios">Servicio: {{
+                areaSeleccionada.servicios.nombres }}</p>
+        </div>
+
+        <div class="cards-grid">
+            <!-- Mantenimientos Preventivos -->
+            <div class="dashboard-card" (click)="viewMantenimientos()">
+                <div class="card-icon-container gradient-indigo">
+                    <i class="pi pi-calendar-plus"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Mantenimientos Preventivos</h3>
+                    <p>Ver planes y mantenimientos preventivos del área.</p>
+                    <span class="card-action">Ver Mantenimientos <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Inspecciones -->
+            <div class="dashboard-card" (click)="viewInspecciones()">
+                <div class="card-icon-container gradient-green">
+                    <i class="pi pi-check-circle"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Inspecciones</h3>
+                    <p>Historial de inspecciones realizadas en el área.</p>
+                    <span class="card-action">Ver Inspecciones <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Elementos / Activos -->
+            <div class="dashboard-card" (click)="viewElementos()">
+                <div class="card-icon-container gradient-purple">
+                    <i class="pi pi-box"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Elementos</h3>
+                    <p>Listado de equipos y elementos asignados.</p>
+                    <span class="card-action">Ver Elementos <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

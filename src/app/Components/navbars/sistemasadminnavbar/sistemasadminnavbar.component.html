@@ -1,5 +1,19 @@
 <div class="card border-0 shadow-sm rounded-0 mb-4">
     <p-menubar [model]="items" styleClass="border-none bg-surface-0 border-round-xl">
+        <ng-template pTemplate="start">
+            <div class="flex align-items-center gap-2 mr-4">
+                <i class="pi pi-server text-primary text-2xl"></i>
+                <a class="text-xl font-bold text-color no-underline" [routerLink]="['/adminsistemas']">AppHusrt -
+                    Sistemas</a>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="end">
+            <div class="flex align-items-center gap-3">
+                <p-avatar icon="pi pi-user" styleClass="bg-primary-50 text-primary" shape="circle"
+                    pTooltip="Admin Sistemas"></p-avatar>
+                <button pButton icon="pi pi-sign-out" class="p-button-rounded p-button-text p-button-secondary"
+                    (click)="logout()" pTooltip="Cerrar Sesión"></button>
         <ng-template #start>
             <div class="flex align-items-center gap-2 mr-4">
                 <i class="pi pi-server text-primary text-2xl"></i>

@@ -34,6 +34,7 @@ export function validateToken(token: string): boolean {
 }
 
 export function isTokenExpired(): boolean {
+  const token = sessionStorage?.getItem('utoken')!;
   if (typeof sessionStorage === 'undefined') {
     return true;
   }
@@ -48,6 +49,20 @@ export function isTokenExpired(): boolean {
 }
 
 export function createHeaders() {
+  return {
+    headers: new HttpHeaders({
+      'authorization': sessionStorage.getItem('utoken')!
+    })
+  }
+}
+
+export function getDecodedAccessToken(): any {
+  const token = sessionStorage.getItem('utoken')!;
+  try {
+    return jwtDecode(token);
+  } catch (Error) {
+    return null;
+  }
   if (typeof sessionStorage === 'undefined') {
     return { headers: new HttpHeaders() };
   }
