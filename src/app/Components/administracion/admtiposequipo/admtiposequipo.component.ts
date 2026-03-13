@@ -1,6 +1,7 @@
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ProtocolosService } from './../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
 import { TipoEquipoService } from './../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
+import { ChequeosIndustrialesService } from '../../../Services/chequeos-industriales.service';
 import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -34,6 +35,7 @@ export class AdmtiposequipoComponent implements OnInit {
   @ViewChild('dt2') dt2!: Table;
   tipoequipoService = inject(TipoEquipoService);
   protocolosServices = inject(ProtocolosService);
+  chequeosService = inject(ChequeosIndustrialesService);
   tiposEquipos!: any[];
   loading: boolean = false;
   viewModalTipoEquipo: boolean = false;
@@ -45,7 +47,15 @@ export class AdmtiposequipoComponent implements OnInit {
   newProtocoloPaso: string = ''; // For the new protocol input
 
   isAdminBiomedica: boolean = false;
-  isAdminIndustriales: boolean = false; // New flag
+  isAdminIndustriales: boolean = false;
+
+  // Chequeo config modal
+  viewChequeoModal: boolean = false;
+  tipoSeleccionadoChequeo: any = null;
+  configChequeo: any = null;
+  itemsChequeo: any[] = [];
+  nuevoItem: string = '';
+  savingConfig: boolean = false;
 
   constructor() {
     this.formGroup = this.formBuilder.group({
@@ -62,17 +72,12 @@ export class AdmtiposequipoComponent implements OnInit {
 
   async ngOnInit() {
     this.checkRole();
-    const all = await this.tipoequipoService.getAllTiposEquipos();
+    await this.cargarTiposIndustriales();
+  }
 
-    if (this.isAdminBiomedica) {
-      // Filter only Type 1 (Biomedica)
-      this.tiposEquipos = all.filter(t => t.tipoR === 1);
-    } else if (this.isAdminIndustriales) {
-      // Filter only Type 2 (Industriales)
-      this.tiposEquipos = all.filter(t => t.tipoR === 2);
-    } else {
-      this.tiposEquipos = all;
-    }
+  private async cargarTiposIndustriales() {
+    const all = await this.tipoequipoService.getAllTiposEquipos();
+    this.tiposEquipos = all.filter((t: any) => t.tipoR === 3);
   }
 
   checkRole() {
@@ -133,7 +138,7 @@ export class AdmtiposequipoComponent implements OnInit {
         // Update
         try {
           await this.tipoequipoService.actualizarTipoEquipo(this.tipoEquipoSelected.id, this.formGroup.value);
-          this.tiposEquipos = await this.tipoequipoService.getAllTiposEquipos();
+          await this.cargarTiposIndustriales();
           this.viewAddTipoEquipo = false;
           Swal.fire("Tipo de Equipo actualizado!", "", "success");
         } catch (error) {
@@ -159,7 +164,7 @@ export class AdmtiposequipoComponent implements OnInit {
       }).then(async (result) => {
         if (result.isConfirmed) {
           const res = await this.tipoequipoService.activarTipoEquipo(idTipoEquipo);
-          this.tiposEquipos = await this.tipoequipoService.getAllTiposEquipos();
+          await this.cargarTiposIndustriales();
           Swal.fire("Tipo de equipo activo!", "", "success");
         } else if (result.isDenied) {
           Swal.fire("Se descarto la activacion del tipo de equipo", "", "info");
@@ -175,7 +180,7 @@ export class AdmtiposequipoComponent implements OnInit {
         if (result.isConfirmed) {
           try {
             const res = await this.tipoequipoService.desactivarTipoEquipo(idTipoEquipo);
-            this.tiposEquipos = await this.tipoequipoService.getAllTiposEquipos();
+            await this.cargarTiposIndustriales();
             Swal.fire("Tipo de equipo Inactivo!", "", "success");
           } catch {
             Swal.fire("El tipo de quipo tiene equipos activos relacionados", "", "error");
@@ -249,6 +254,68 @@ export class AdmtiposequipoComponent implements OnInit {
     } catch (error) {
       console.error(error);
       Swal.fire("Error", "No se pudo agregar el protocolo", "error");
+    }
+  }
+
+  // ===== Chequeo Config Methods =====
+  async abrirModalChequeo(equipo: any) {
+    this.tipoSeleccionadoChequeo = equipo;
+    this.nuevoItem = '';
+    this.configChequeo = null;
+    this.itemsChequeo = [];
+    try {
+      const config = await this.chequeosService.obtenerConfigPorTipo(equipo.id).toPromise();
+      this.configChequeo = config;
+      this.itemsChequeo = config?.items ?? [];
+    } catch {
+      // No config yet - that's OK
+    }
+    this.viewChequeoModal = true;
+  }
+
+  async toggleHabilitarChequeo() {
+    if (!this.tipoSeleccionadoChequeo) return;
+    this.savingConfig = true;
+    try {
+      if (!this.configChequeo) {
+        const nombre = this.tipoSeleccionadoChequeo.nombres as string;
+        const identificador = nombre.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Z0-9]/g, '_').replace(/_+/g, '_');
+        const config = await this.chequeosService.crearConfig({
+          tipoEquipoIdFk: this.tipoSeleccionadoChequeo.id,
+          identificadorString: identificador,
+          label: nombre,
+          color: '#0d7377'
+        }).toPromise();
+        this.configChequeo = config;
+      } else {
+        const updated = await this.chequeosService.toggleConfig(this.configChequeo.id).toPromise();
+        this.configChequeo = { ...this.configChequeo, habilitado: updated.habilitado };
+      }
+      const msg = this.configChequeo.habilitado ? 'Habilitado en chequeos diarios' : 'Deshabilitado de chequeos diarios';
+      Swal.fire({ icon: 'success', title: msg, timer: 1800, showConfirmButton: false });
+    } catch (e) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar la configuracion.' });
+    }
+    this.savingConfig = false;
+  }
+
+  async agregarItemChequeo() {
+    if (!this.nuevoItem.trim() || !this.configChequeo) return;
+    try {
+      const item = await this.chequeosService.agregarItemConfig(this.configChequeo.id, this.nuevoItem.trim()).toPromise();
+      this.itemsChequeo = [...this.itemsChequeo, item];
+      this.nuevoItem = '';
+    } catch {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo agregar el item.' });
+    }
+  }
+
+  async eliminarItemChequeo(itemId: number) {
+    try {
+      await this.chequeosService.eliminarItemConfig(itemId).toPromise();
+      this.itemsChequeo = this.itemsChequeo.filter((i: any) => i.id !== itemId);
+    } catch {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar el item.' });
     }
   }
 }

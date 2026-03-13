@@ -101,6 +101,11 @@ import { CrearReporteIndustrialComponent } from './Components/Industriales/userI
 import { GestionOperativaIndustrialesComponent } from './Components/Industriales/gestion-operativa-industriales/gestion-operativa-industriales.component';
 import { ParametrizacionIndustrialesComponent } from './Components/Industriales/parametrizacion-industriales/parametrizacion-industriales.component';
 import { EquiposPorTipoIndustrialComponent } from './Components/Industriales/userIndustriales/vista-Equipos/equipos-por-tipo-industrial/equipos-por-tipo-industrial.component';
+import { IndicadoresIndustrialesComponent } from './Components/Industriales/indicadores-industriales/indicadores-industriales.component';
+import { ChequeosIndustrialesComponent } from './Components/Industriales/chequeos-industriales/chequeos-industriales.component';
+import { ChequeosTurnosComponent } from './Components/Industriales/chequeos-industriales/chequeos-turnos/chequeos-turnos.component';
+import { ChequeosDiariosComponent } from './Components/Industriales/chequeos-industriales/chequeos-diarios/chequeos-diarios.component';
+import { ChequeosSemanalesComponent } from './Components/Industriales/chequeos-industriales/chequeos-semanales/chequeos-semanales.component';
 
 
 export const routes: Routes = [
@@ -217,6 +222,16 @@ export const routes: Routes = [
   { path: 'industriales/ver-programacion', component: VerProgramacionComponent, canActivate: [authGuard], data: { roles: ['INDUSTRIALESADMIN', 'INDUSTRIALESTECNICO', 'SUPERADMIN'] } },
   { path: 'industriales/crear-reporte/:id', component: CrearReporteIndustrialComponent, canActivate: [authGuard], data: { roles: ['INDUSTRIALESADMIN', 'INDUSTRIALESTECNICO', 'SUPERADMIN'] } },
   { path: 'industriales/equipos-tipo', component: EquiposPorTipoIndustrialComponent, canActivate: [authGuard], data: { roles: ['INDUSTRIALESADMIN', 'INDUSTRIALESTECNICO', 'SUPERADMIN'] } },
+  { path: 'industriales/indicadores', component: IndicadoresIndustrialesComponent, canActivate: [authGuard], data: { roles: ['INDUSTRIALESADMIN', 'INDUSTRIALESTECNICO', 'INDUSTRIALESUSER', 'SUPERADMIN'] } },
+
+  // Chequeos Industriales
+  { path: 'industriales/chequeos', component: ChequeosIndustrialesComponent, canActivate: [authGuard], data: { roles: ['INDUSTRIALESADMIN', 'INDUSTRIALESTECNICO', 'INDUSTRIALESUSER', 'SUPERADMIN'] } },
+  { path: 'industriales/chequeos/turnos', component: ChequeosTurnosComponent, canActivate: [authGuard], data: { roles: ['INDUSTRIALESADMIN', 'INDUSTRIALESTECNICO', 'INDUSTRIALESUSER', 'SUPERADMIN'] } },
+  { path: 'industriales/chequeos/diarios', component: ChequeosDiariosComponent, canActivate: [authGuard], data: { roles: ['INDUSTRIALESADMIN', 'INDUSTRIALESTECNICO', 'INDUSTRIALESUSER', 'SUPERADMIN'] } },
+  { path: 'industriales/chequeos/diarios/formulario', loadComponent: () => import('./Components/Industriales/chequeos-industriales/chequeos-diarios/formulario-chequeo/formulario-chequeo.component').then(m => m.FormularioChequeoComponent), canActivate: [authGuard], data: { roles: ['INDUSTRIALESADMIN', 'INDUSTRIALESTECNICO', 'INDUSTRIALESUSER', 'SUPERADMIN'] } },
+  { path: 'industriales/chequeos/diarios/consolidado', loadComponent: () => import('./Components/Industriales/chequeos-industriales/chequeos-diarios/consolidado-mensual/consolidado-mensual.component').then(m => m.ConsolidadoMensualComponent), canActivate: [authGuard], data: { roles: ['INDUSTRIALESADMIN', 'INDUSTRIALESTECNICO', 'INDUSTRIALESUSER', 'SUPERADMIN'] } },
+  { path: 'industriales/chequeos/semanales', component: ChequeosSemanalesComponent, canActivate: [authGuard], data: { roles: ['INDUSTRIALESADMIN', 'INDUSTRIALESTECNICO', 'INDUSTRIALESUSER', 'SUPERADMIN'] } },
+  { path: 'industriales/chequeos/sin-chequeo', loadComponent: () => import('./Components/Industriales/chequeos-industriales/equipos-sin-chequeo/equipos-sin-chequeo.component').then(m => m.EquiposSinChequeoComponent), canActivate: [authGuard], data: { roles: ['INDUSTRIALESADMIN', 'INDUSTRIALESTECNICO', 'INDUSTRIALESUSER', 'SUPERADMIN'] } },
 
 
 ];

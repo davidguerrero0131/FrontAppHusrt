@@ -45,7 +45,7 @@
     "file-server": "^2.2.1",
     "front-proyect-husrt": "file:",
     "jquery": "^3.7.1",
-    "jspdf": "^4.0.0",
+    "jspdf": "^4.2.0",
     "jspdf-autotable": "^5.0.7",
     "jwt-decode": "^4.0.0",
     "ngx-qrcode2": "^9.0.0",

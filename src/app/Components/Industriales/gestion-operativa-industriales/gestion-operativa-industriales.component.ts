@@ -28,6 +28,14 @@ export class GestionOperativaIndustrialesComponent {
         this.router.navigate(['/industriales/ver-programacion']);
     }
 
+    goToIndicadores() {
+        this.router.navigate(['/industriales/indicadores']);
+    }
+
+    goToChequeos() {
+        this.router.navigate(['/industriales/chequeos']);
+    }
+
     showViewAreasFisicas() {
         // Disabled for now
         // Swal.fire('Próximamente', 'Este módulo estará disponible pronto.', 'info');

@@ -139,6 +139,12 @@ export class CrearReporteIndustrialComponent implements OnInit {
       this.reporteForm.get('tipoFalla')?.disable();
       this.reporteForm.get('motivo')?.setValue('Programado para mantenimiento preventivo');
       this.reporteForm.get('motivo')?.disable();
+    } else if (this.tipoMantenimiento === 'Correctivo') {
+      const motivoFallo = sessionStorage.getItem('MotivoFalloIndustrial');
+      if (motivoFallo) {
+        this.reporteForm.get('tipoFalla')?.setValue(motivoFallo);
+        this.reporteForm.get('tipoFalla')?.disable();
+      }
     }
     this.reporteForm.get('tipoMantenimiento')?.disable();
   }
@@ -224,6 +230,10 @@ export class CrearReporteIndustrialComponent implements OnInit {
     const tipo = sessionStorage.getItem('TipoMantenimientoIndustrial');
     if (tipo === 'C') {
       this.tipoMantenimiento = 'Correctivo';
+      const motivoFallo = sessionStorage.getItem('MotivoFalloIndustrial');
+      if (motivoFallo) {
+        // (Form logic moved to initForm to prevent undefined TypeError)
+      }
     } else if (tipo === 'P') {
       this.tipoMantenimiento = 'Preventivo';
     } else {
@@ -296,6 +306,11 @@ export class CrearReporteIndustrialComponent implements OnInit {
       uploadData.append('idPlanMantenimientoIndustrial', planId); // Needed for backend logic to update plan status
     }
 
+    const correctivoId = sessionStorage.getItem('idMantenimientoCorrectivoIndustrial');
+    if (correctivoId) {
+      uploadData.append('idMantenimientoCorrectivoIndustrial', correctivoId);
+    }
+
     if (this.planDetails) {
       uploadData.append('mesProgramado', this.planDetails.mes);
       uploadData.append('añoProgramado', this.planDetails.ano);
@@ -318,6 +333,9 @@ export class CrearReporteIndustrialComponent implements OnInit {
 
       Swal.fire('Éxito', 'Reporte creado correctamente', 'success');
       sessionStorage.removeItem('idPlanMantenimientoIndustrial'); // Clear session
+      sessionStorage.removeItem('idMantenimientoCorrectivoIndustrial');
+      sessionStorage.removeItem('TipoMantenimientoIndustrial');
+      sessionStorage.removeItem('MotivoFalloIndustrial');
       this.location.back();
     } catch (error) {
       console.error(error);

@@ -1,0 +1,108 @@
+<div class="dashboard-container" style="min-height: 100vh; background: #f1f5f9;">
+
+    <!-- Hero Section -->
+    <div class="hero-section" style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); padding: 2rem; color: white; text-align: center;">
+        <h1 style="margin:0; font-size: 1.8rem; font-weight: 700;">Equipos Pendientes de Chequeo</h1>
+        <p style="margin: 0.5rem 0 0; opacity: 0.85;">{{ fechaHoy | titlecase }}</p>
+    </div>
+
+    <!-- Back + Summary bar -->
+    <div style="padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <button class="btn btn-outline-secondary" (click)="regresar()">
+            <i class="pi pi-arrow-left"></i> Regresar
+        </button>
+        <div *ngIf="!loading && faltantesHoy.length > 0" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-left: auto;">
+            <span *ngFor="let t of totalPorTipo"
+                style="background: white; border: 2px solid #7c3aed; color: #7c3aed; border-radius: 999px; padding: 0.25rem 0.8rem; font-size: 0.82rem; font-weight: 700; cursor: pointer;"
+                (click)="goToChequeoDiario(t.tipo)">
+                {{ t.label }}: {{ t.count }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" style="padding: 4rem; text-align: center; color: #888;">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2.5rem; color: #7c3aed;"></i>
+        <p style="margin-top: 1rem; font-size: 1rem;">Verificando equipos...</p>
+    </div>
+
+    <!-- All clear state -->
+    <div *ngIf="!loading && faltantesHoy.length === 0"
+        style="margin: 2rem auto; max-width: 500px; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 3rem; text-align: center;">
+        <i class="pi pi-check-circle" style="font-size: 4rem; color: #22c55e;"></i>
+        <h3 style="margin: 1rem 0 0.5rem; color: #166534;">¡Todo al día!</h3>
+        <p style="color: #64748b; margin: 0;">Todos los equipos activos ya tienen su chequeo registrado para hoy.</p>
+    </div>
+
+    <!-- Equipment Table -->
+    <div *ngIf="!loading && faltantesHoy.length > 0" style="padding: 0 2rem 2rem;">
+        <div style="background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;">
+
+            <!-- Table Header -->
+            <div style="padding: 1.25rem 1.5rem; border-bottom: 2px solid #f1f5f9; display: flex; align-items: center; gap: 0.75rem;">
+                <i class="pi pi-list" style="color: #7c3aed; font-size: 1.2rem;"></i>
+                <h4 style="margin: 0; font-weight: 700; color: #1e293b;">
+                    {{ faltantesHoy.length }} equipo(s) sin chequeo hoy
+                </h4>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background: #faf5ff; color: #6b21a8;">
+                            <th style="padding: 0.85rem 1.5rem; text-align: left; font-weight: 700; border-bottom: 2px solid #e9d5ff;">#</th>
+                            <th style="padding: 0.85rem 1rem; text-align: left; font-weight: 700; border-bottom: 2px solid #e9d5ff;">Equipo</th>
+                            <th style="padding: 0.85rem 1rem; text-align: left; font-weight: 700; border-bottom: 2px solid #e9d5ff;">Tipo</th>
+                            <th style="padding: 0.85rem 1rem; text-align: left; font-weight: 700; border-bottom: 2px solid #e9d5ff;">Ubicación</th>
+                            <th style="padding: 0.85rem 1.5rem; text-align: center; font-weight: 700; border-bottom: 2px solid #e9d5ff;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of faltantesHoy; let i = index"
+                            style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;">
+                            <td style="padding: 0.8rem 1.5rem; color: #94a3b8; font-weight: 500;">{{ i + 1 }}</td>
+                            <td style="padding: 0.8rem 1rem; font-weight: 600; color: #1e293b;">{{ item.nombre }}</td>
+
+                            <!-- Tipo cell: show badge if known, or selector if unknown -->
+                            <td style="padding: 0.8rem 1rem;">
+                                <ng-container *ngIf="item.tipoIdentificador; else sinTipo">
+                                    <span style="background: #ede9fe; color: #7c3aed; border-radius: 999px; padding: 0.2rem 0.8rem; font-size: 0.78rem; font-weight: 700;">
+                                        {{ item.tipoLabel }}
+                                    </span>
+                                </ng-container>
+                                <ng-template #sinTipo>
+                                    <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                        <select [(ngModel)]="item.tipoIdentificadorSeleccionado"
+                                            style="border: 2px solid #e9d5ff; border-radius: 8px; padding: 0.25rem 0.5rem; font-size: 0.8rem; color: #6b21a8; outline: none; cursor: pointer;">
+                                            <option value="">-- Asignar tipo --</option>
+                                            <option *ngFor="let t of tiposDisponibles" [value]="t.identificador">{{ t.label }}</option>
+                                        </select>
+                                        <button *ngIf="item.tipoIdentificadorSeleccionado"
+                                            style="background: #7c3aed; color: white; border: none; border-radius: 6px; padding: 0.25rem 0.5rem; font-size: 0.78rem; cursor: pointer;"
+                                            (click)="asignarTipo(item)"
+                                            title="Guardar tipo">
+                                            <i class="pi pi-check"></i>
+                                        </button>
+                                    </div>
+                                </ng-template>
+                            </td>
+
+                            <td style="padding: 0.8rem 1rem; color: #64748b;">{{ item.ubicacion || 'N/D' }}</td>
+                            <td style="padding: 0.8rem 1.5rem; text-align: center;">
+                                <button *ngIf="item.tipoIdentificador" class="btn btn-sm"
+                                    style="background: #7c3aed; color: white; border: none; border-radius: 8px; padding: 0.4rem 1rem; font-size: 0.82rem; font-weight: 600; cursor: pointer;"
+                                    (click)="goToChequeoDiario(item.tipoIdentificador)">
+                                    <i class="pi pi-check"></i> Chequear
+                                </button>
+                                <span *ngIf="!item.tipoIdentificador" style="color: #f59e0b; font-size: 0.8rem;">
+                                    <i class="pi pi-exclamation-circle"></i> Asigna tipo primero
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

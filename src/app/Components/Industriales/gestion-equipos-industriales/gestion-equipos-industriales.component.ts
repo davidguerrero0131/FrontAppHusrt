@@ -4,14 +4,25 @@ import { TableModule } from 'primeng/table';
 import { MessageService, MenuItem } from 'primeng/api';
 import Swal from 'sweetalert2';
 import { jwtDecode } from 'jwt-decode';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { MenuModule } from 'primeng/menu';
+import { AccordionModule } from 'primeng/accordion';
+import { CardModule } from 'primeng/card';
+import { DividerModule } from 'primeng/divider';
+import { ImageModule } from 'primeng/image';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { IndustrialesNavbarComponent } from '../../navbars/IndustrialesNavbar/industrialesnavbar.component';
 
 
 import { EquiposIndustrialesService } from '../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
+import { HojaDeVidaIndustrialService } from '../../../Services/appServices/industrialesServices/HojaDeVida/HojaDeVidaIndustrial.service';
 import { TrasladosIndustrialesService } from '../../../Services/appServices/industrialesServices/traslados/trasladosIndustriales.service';
+import { ReporteIndustrialService } from '../../../Services/appServices/industrialesServices/reportes/reporte-industrial.service';
+import { ProtocoloIndustrialService } from '../../../Services/appServices/industrialesServices/protocolo/protocolo-industrial.service';
 import { ServicioService } from '../../../Services/appServices/general/servicio/servicio.service';
+import { API_URL } from '../../../constantes';
 
 import { SedeService } from '../../../Services/appServices/general/sede/sede.service';
 import { TipoEquipoService } from '../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
@@ -34,13 +45,20 @@ import { SelectModule } from 'primeng/select';
     ButtonModule,
     InputTextModule,
     MenuModule,
-    SelectModule
+    SelectModule,
+    AccordionModule,
+    CardModule,
+    DividerModule,
+    ImageModule,
+    TooltipModule
   ],
   providers: [MessageService],
   templateUrl: './gestion-equipos-industriales.component.html',
   styleUrls: ['./gestion-equipos-industriales.component.css']
 })
 export class GestionEquiposIndustrialesComponent implements OnInit {
+
+  protected readonly API_URL = API_URL;
 
   equipos!: any[];
   allEquipos!: any[];
@@ -67,6 +85,34 @@ export class GestionEquiposIndustrialesComponent implements OnInit {
   cargoReceptor: string = '';
   observacionesTransferencia: string = '';
   loadingTraslado: boolean = false;
+
+  // Detail Modal State
+  displayDetalleDialog: boolean = false;
+  equipoDetalle: any = null;
+  historialDetalle: any[] = [];
+  loadingDetalle: boolean = false;
+
+  // Hoja de Vida Modal State
+  displayHojaVidaDialog: boolean = false;
+  hvEquipoInfo: any = null;
+  hvHojaVida: any = null;
+  hvDatosTecnicos: any = null;
+  hvProveedor: any = null;
+  hvRegistroApoyo: any = null;
+  hvDocumentos: any[] = [];
+  loadingHojaVida: boolean = false;
+  hvUploading: boolean = false;
+
+  // Reportes History Modal State
+  displayReportesDialog: boolean = false;
+  reportesEquipo: any[] = [];
+  reportesEquipoNombre: string = '';
+  loadingReportes: boolean = false;
+
+  // Resumen Reporte Modal State
+  displayResumenReporteDialog: boolean = false;
+  reporteSeleccionado: any = null;
+  rutina: any[] = [];
 
   userRole: string = '';
 
@@ -95,7 +141,10 @@ export class GestionEquiposIndustrialesComponent implements OnInit {
     private servicioService: ServicioService,
     private sedeService: SedeService,
     private tipoEquipoService: TipoEquipoService,
-    private responsableService: ResponsableService
+    private responsableService: ResponsableService,
+    private hojaVidaService: HojaDeVidaIndustrialService,
+    private reporteService: ReporteIndustrialService,
+    private protocoloService: ProtocoloIndustrialService
   ) { }
 
   async ngOnInit() {
@@ -293,6 +342,141 @@ export class GestionEquiposIndustrialesComponent implements OnInit {
     this.router.navigate(['/detalle-equipo-industrial', idEquipo]);
   }
 
+  async verDetalleModal(id: number) {
+    this.displayDetalleDialog = true;
+    this.loadingDetalle = true;
+    this.equipoDetalle = null;
+    this.historialDetalle = [];
+    try {
+      this.equipoDetalle = await this.equiposService.getEquipoById(id);
+      this.historialDetalle = await this.equiposService.getHistorial(id);
+    } catch (error) {
+      console.error('Error al cargar detalle:', error);
+      Swal.fire('Error', 'No se pudo cargar el detalle del equipo', 'error');
+      this.displayDetalleDialog = false;
+    } finally {
+      this.loadingDetalle = false;
+    }
+  }
+
+  getEstadoColor(estado: string): string {
+    switch (estado) {
+      case 'Operativo': return 'success';
+      case 'En Mantenimiento': return 'warning';
+      case 'Fuera De Servicio': return 'danger';
+      default: return 'secondary';
+    }
+  }
+
+  datosTecnicosKeys(): string[] {
+    return this.equipoDetalle?.hojaDeVida?.datosTecnicos
+      ? Object.keys(this.equipoDetalle.hojaDeVida.datosTecnicos).filter(k => !['id', 'equipoIndustrialIdFk', 'createdAt', 'updatedAt'].includes(k))
+      : [];
+  }
+
+  // --- Hoja de Vida Modal ---
+  async verHojaDeVidaModal(idEquipo: number) {
+    this.displayHojaVidaDialog = true;
+    this.loadingHojaVida = true;
+    this.hvEquipoInfo = null;
+    this.hvHojaVida = null;
+    this.hvDatosTecnicos = null;
+    this.hvProveedor = null;
+    this.hvRegistroApoyo = null;
+    this.hvDocumentos = [];
+    try {
+      this.hvEquipoInfo = await this.equiposService.getEquipoById(idEquipo);
+
+      const results = await Promise.allSettled([
+        this.hojaVidaService.getHojaVidaByEquipo(idEquipo),
+        this.hojaVidaService.getDatosTecnicosByEquipo(idEquipo),
+        this.hojaVidaService.getProveedorByEquipo(idEquipo),
+        this.hojaVidaService.getRegistroApoyoByEquipo(idEquipo)
+      ]);
+
+      if (results[0].status === 'fulfilled') this.hvHojaVida = results[0].value;
+      if (results[1].status === 'fulfilled') this.hvDatosTecnicos = results[1].value;
+      if (results[2].status === 'fulfilled') this.hvProveedor = results[2].value;
+      if (results[3].status === 'fulfilled') this.hvRegistroApoyo = results[3].value;
+
+      // Cargar documentos
+      try {
+        this.hvDocumentos = await this.hojaVidaService.getDocumentsByEquipo(idEquipo);
+      } catch (e) {
+        console.error('Error cargando documentos:', e);
+      }
+    } catch (error) {
+      console.error('Error al cargar hoja de vida:', error);
+      Swal.fire('Error', 'No se pudo cargar la hoja de vida del equipo', 'error');
+      this.displayHojaVidaDialog = false;
+    } finally {
+      this.loadingHojaVida = false;
+    }
+  }
+
+  async hvOnFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        Swal.fire('Error', 'El archivo supera el límite de 10MB', 'error');
+        return;
+      }
+      try {
+        this.hvUploading = true;
+        await this.hojaVidaService.uploadDocument(this.hvEquipoInfo.id, file);
+        Swal.fire('Éxito', 'Documento subido correctamente', 'success');
+        this.hvDocumentos = await this.hojaVidaService.getDocumentsByEquipo(this.hvEquipoInfo.id);
+      } catch (error) {
+        console.error('Error subiendo documento:', error);
+        Swal.fire('Error', 'No se pudo subir el documento', 'error');
+      } finally {
+        this.hvUploading = false;
+        event.target.value = '';
+      }
+    }
+  }
+
+  async hvEliminarDocumento(id: number) {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'No podrás revertir esta acción',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await this.hojaVidaService.deleteDocument(id);
+          Swal.fire('Eliminado', 'El documento ha sido eliminado.', 'success');
+          this.hvDocumentos = await this.hojaVidaService.getDocumentsByEquipo(this.hvEquipoInfo.id);
+        } catch (error) {
+          Swal.fire('Error', 'No se pudo eliminar el documento', 'error');
+        }
+      }
+    });
+  }
+
+  hvDescargarDocumento(id: number) {
+    this.hojaVidaService.downloadDocument(id).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        window.open(url);
+      },
+      error: (error: any) => {
+        console.error('Error al descargar documento:', error);
+        Swal.fire('Error', 'No se pudo descargar el documento', 'error');
+      }
+    });
+  }
+
+  hvVisualizarDocumento(id: number) {
+    const token = sessionStorage.getItem('utoken');
+    const url = `${API_URL}/api/industriales/doc-ind/view/${id}?token=${token}`;
+    window.open(url, '_blank');
+  }
+
   regresar() {
     this.router.navigate(['/adminindustriales']);
   }
@@ -386,6 +570,11 @@ export class GestionEquiposIndustrialesComponent implements OnInit {
         label: 'Ver Historial',
         icon: 'pi pi-history',
         command: () => this.verHistorialAction(equipo.id, equipo.nombres)
+      },
+      {
+        label: 'Historial Reportes',
+        icon: 'pi pi-file-check',
+        command: () => this.verReportesAction(equipo.id, equipo.nombres)
       }
     ];
 
@@ -490,7 +679,7 @@ export class GestionEquiposIndustrialesComponent implements OnInit {
 
   // Wrapper actions
   verDetalleAction(id: number) {
-    this.verDetalle(id);
+    this.verDetalleModal(id);
   }
   editarEquipoAction(id: number) {
     this.editarEquipo(id);
@@ -502,13 +691,210 @@ export class GestionEquiposIndustrialesComponent implements OnInit {
     this.editarHojaDeVida(id);
   }
   verHojaDeVidaAction(id: number) {
-    this.verHojaDeVida(id);
+    this.verHojaDeVidaModal(id);
   }
   cambiarEstadoActivoAction(id: number, active: boolean) {
     this.cambiarEstadoActivo(id, active);
   }
   verHistorialAction(id: number, nombre: string) {
     this.verHistorial(id, nombre);
+  }
+  verReportesAction(id: number, nombre: string) {
+    this.verReportesModal(id, nombre);
+  }
+
+  async verReportesModal(idEquipo: number, nombreEquipo: string) {
+    this.displayReportesDialog = true;
+    this.loadingReportes = true;
+    this.reportesEquipo = [];
+    this.reportesEquipoNombre = nombreEquipo;
+    try {
+      this.reportesEquipo = await this.reporteService.getReportesEquipo(idEquipo);
+    } catch (error) {
+      console.error('Error al cargar reportes:', error);
+      Swal.fire('Error', 'No se pudo cargar el historial de reportes', 'error');
+      this.displayReportesDialog = false;
+    } finally {
+      this.loadingReportes = false;
+    }
+  }
+
+  async verResumenReporte(reporte: any) {
+    this.reporteSeleccionado = reporte;
+    this.rutina = [];
+
+    // Load protocol compliance data
+    try {
+      this.rutina = await this.protocoloService.getCumplimientoProtocoloReporte(reporte.id);
+    } catch (e) {
+      console.warn('No se pudo cargar la rutina de mantenimiento', e);
+      this.rutina = [];
+    }
+
+    this.displayResumenReporteDialog = true;
+  }
+
+  getImagenesReporte(rutaImagen: string): string[] {
+    if (!rutaImagen) return [];
+    try {
+      const parsed = JSON.parse(rutaImagen);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+      return [rutaImagen];
+    } catch (e) {
+      return [rutaImagen];
+    }
+  }
+
+  getImageUrl(fotoPath: string | null | undefined): string {
+    if (!fotoPath) {
+      return 'assets/images/equipment-placeholder.png';
+    }
+    // Extraer solo el nombre del archivo de la ruta absoluta
+    const filename = fotoPath.split('\\').pop()?.split('/').pop();
+    if (filename) {
+      return `${this.API_URL}/api/industriales/hojavida/imagen/${filename}`;
+    }
+    return 'assets/images/equipment-placeholder.png';
+  }
+
+  descargarHojaVidaPdf() {
+    if (!this.hvEquipoInfo || !this.hvHojaVida) {
+      Swal.fire('Error', 'No hay datos de Hoja de Vida para descargar.', 'error');
+      return;
+    }
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 15;
+
+    // Title
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('HOJA DE VIDA DEL EQUIPO', pageWidth / 2, y, { align: 'center' });
+    y += 8;
+    doc.setFontSize(12);
+    doc.text(this.hvEquipoInfo?.nombres || '', pageWidth / 2, y, { align: 'center' });
+    y += 10;
+
+    // Helper to format dates
+    const formatDate = (d: any) => {
+      if (!d) return 'N/A';
+      try {
+        const date = new Date(d);
+        return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+      } catch { return 'N/A'; }
+    };
+
+    // Section helper using autoTable
+    const addSection = (title: string, data: [string, string][]) => {
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text(title, 14, y);
+      y += 2;
+
+      autoTable(doc, {
+        startY: y,
+        head: [],
+        body: data,
+        theme: 'grid',
+        styles: { fontSize: 9, cellPadding: 3 },
+        columnStyles: {
+          0: { fontStyle: 'bold', cellWidth: 55, fillColor: [240, 240, 240] },
+          1: { cellWidth: 'auto' }
+        },
+        margin: { left: 14, right: 14 },
+        didDrawPage: () => { }
+      });
+
+      y = (doc as any).lastAutoTable.finalY + 8;
+    };
+
+    // 1. Datos Generales
+    addSection('DATOS GENERALES', [
+      ['Nombre', this.hvEquipoInfo?.nombres || 'N/A'],
+      ['Marca', this.hvEquipoInfo?.marca || 'N/A'],
+      ['Modelo', this.hvEquipoInfo?.modelo || 'N/A'],
+      ['Serie', this.hvEquipoInfo?.serie || 'N/A'],
+      ['Placa', this.hvEquipoInfo?.placa || 'N/A'],
+      ['Tipo Equipo', this.hvEquipoInfo?.tipoEquipoInd?.nombres || 'N/A'],
+      ['Servicio', this.hvEquipoInfo?.servicioInd?.nombres || 'N/A'],
+      ['Sede', this.hvEquipoInfo?.sedeInd?.nombres || 'N/A'],
+      ['Ubicación', this.hvEquipoInfo?.ubicacionEspecifica || 'N/A'],
+      ['Responsable', this.hvEquipoInfo?.responsableInd?.nombres || 'N/A'],
+    ]);
+
+    // 2. Adquisición y Garantía
+    addSection('ADQUISICIÓN Y GARANTÍA', [
+      ['Forma Adquisición', this.hvHojaVida?.adquisicion || 'N/A'],
+      ['Fecha Compra', formatDate(this.hvHojaVida?.fechaCompra)],
+      ['Fecha Instalación', formatDate(this.hvHojaVida?.fechaInstalacion)],
+      ['Inicio Operación', formatDate(this.hvHojaVida?.fechaInicioOperacion)],
+      ['Vencimiento Garantía', formatDate(this.hvHojaVida?.vencimientoGarantia)],
+      ['Referencia', this.hvHojaVida?.referencia || 'N/A'],
+      ['Fabricación', this.hvHojaVida?.fabricacion || 'N/A'],
+    ]);
+
+    // 3. Proveedor
+    if (this.hvProveedor) {
+      addSection('INFORMACIÓN DE PROVEEDOR', [
+        ['Código Equipo', this.hvProveedor?.codigoEquipo || 'N/A'],
+        ['Código Internacional', this.hvProveedor?.codigoInternacional || 'N/A'],
+        ['Fabricante', this.hvProveedor?.fabricante || 'N/A'],
+        ['Ciudad Fabricante', this.hvProveedor?.ciudadFabricante || 'N/A'],
+        ['Representante', this.hvProveedor?.representante || 'N/A'],
+        ['Tel. Representante', this.hvProveedor?.telefonoRepresentante || 'N/A'],
+        ['Distribuidor', this.hvProveedor?.distribuidor || 'N/A'],
+        ['Tel. Distribuidor', this.hvProveedor?.telefonoDistribuidor || 'N/A'],
+      ]);
+    }
+
+    // 4. Datos Técnicos
+    if (this.hvDatosTecnicos) {
+      const datosRows: [string, string][] = [
+        ['Voltaje', `${this.hvDatosTecnicos?.volMaxOperacion || ''} - ${this.hvDatosTecnicos?.volMinOperacion || ''}`],
+        ['Corriente', `${this.hvDatosTecnicos?.corrienteMaxOperacion || ''} - ${this.hvDatosTecnicos?.corrienteMinOperacion || ''}`],
+        ['Potencia', this.hvDatosTecnicos?.potenciaConsumida || 'N/A'],
+        ['Frecuencia', this.hvDatosTecnicos?.frecuencia || 'N/A'],
+        ['Presión', this.hvDatosTecnicos?.presion || 'N/A'],
+        ['Velocidad', this.hvDatosTecnicos?.velocidad || 'N/A'],
+        ['Temperatura', this.hvDatosTecnicos?.temperatura || 'N/A'],
+        ['Peso', this.hvDatosTecnicos?.peso || 'N/A'],
+        ['Capacidad', this.hvDatosTecnicos?.capacidad || 'N/A'],
+      ];
+      if (this.hvDatosTecnicos?.accesorios) {
+        datosRows.push(['Accesorios', `${this.hvDatosTecnicos.accesorios} (${this.hvDatosTecnicos.marcaAccesorio || ''} - ${this.hvDatosTecnicos.modeloSerieAccesorio || ''})`]);
+      }
+      addSection('DATOS TÉCNICOS', datosRows);
+    }
+
+    // 5. Registro de Apoyo
+    if (this.hvRegistroApoyo) {
+      addSection('REGISTRO DE APOYO', [
+        ['Manual Usuario', this.hvRegistroApoyo?.manualUsuario ? 'Sí' : 'No'],
+        ['Manual Técnico', this.hvRegistroApoyo?.manualTecnico ? 'Sí' : 'No'],
+        ['Equipo Fijo', this.hvRegistroApoyo?.equipoFijo ? 'Sí' : 'No'],
+        ['Uso', this.hvRegistroApoyo?.uso || 'N/A'],
+        ['Riesgo', this.hvRegistroApoyo?.riesgo || 'N/A'],
+        ['Tecnología Predominante', this.hvRegistroApoyo?.tecnologiaPredominante || 'N/A'],
+        ['Clasificación', this.hvRegistroApoyo?.clasificacion || 'N/A'],
+        ['Estado Físico', this.hvRegistroApoyo?.estado || 'N/A'],
+      ]);
+    }
+
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Página ${i} de ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
+      doc.text(`Generado: ${new Date().toLocaleDateString('es-CO')}`, pageWidth - 14, doc.internal.pageSize.getHeight() - 10, { align: 'right' });
+    }
+
+    const filename = `Hoja_de_Vida_${(this.hvEquipoInfo?.nombres || 'Equipo').replace(/\s+/g, '_')}.pdf`;
+    doc.save(filename);
   }
 
   editarPlanMantenimientoAction(id: number) {

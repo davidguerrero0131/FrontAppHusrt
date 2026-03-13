@@ -17,6 +17,7 @@ import { PlanMantenimientoIndustrialesService } from '../../../../../Services/ap
 import { ReporteIndustrialService } from '../../../../../Services/appServices/industrialesServices/reportes/reporte-industrial.service';
 import { ProtocoloIndustrialService } from '../../../../../Services/appServices/industrialesServices/protocolo/protocolo-industrial.service';
 import { API_URL } from '../../../../../constantes';
+import { generarReporteMantenimientoPDF } from './pdf-reporte.util';
 
 
 @Component({
@@ -91,6 +92,7 @@ export class GestionPlanMantenimientoComponent implements OnInit {
   // Modal Properties
   displayReporteDialog: boolean = false;
   reporteSeleccionado: any = null;
+  equipoReporteSeleccionado: any = null;
   rutina: any[] = [];
 
   async ngOnInit() {
@@ -152,6 +154,19 @@ export class GestionPlanMantenimientoComponent implements OnInit {
 
       // Filtrar planes no programados (estado false o 0)
       this.planes = this.planes.filter(p => p.estado);
+
+      // Try to fetch Correctivos
+      try {
+        if (this.mesInicio === this.mesFin) {
+          this.correctivos = await this.reporteService.getReportesCorrectivosMesAño({ anio: this.anio, mes: this.mesInicio });
+        } else {
+          this.correctivos = await this.reporteService.getReportesCorrectivosRango({ anio: this.anio, mesInicio: this.mesInicio, mesFin: this.mesFin });
+        }
+        console.log("Correctivos loaded:", this.correctivos);
+      } catch (err) {
+        console.warn('No correctives found or error:', err);
+        this.correctivos = [];
+      }
 
       this.preventivos = [...this.planes]; // Assign to preventivos
 
@@ -236,6 +251,7 @@ export class GestionPlanMantenimientoComponent implements OnInit {
 
     try {
       this.reporteSeleccionado = await this.reporteService.getReporteByPlanDetails(plan.equipo.id, plan.mes, plan.ano, plan.id);
+      this.equipoReporteSeleccionado = plan.equipo || null;
 
       if (this.reporteSeleccionado) {
         try {
@@ -253,6 +269,26 @@ export class GestionPlanMantenimientoComponent implements OnInit {
     }
   }
 
+  async verResumenCorrectivo(correctivo: any) {
+    if (!correctivo.id) {
+       Swal.fire('Error', 'ID de Correctivo inválido', 'error');
+       return;
+    }
+    
+    try {
+        this.reporteSeleccionado = await this.reporteService.getReporteByCorrectivoId(correctivo.id);
+        this.equipoReporteSeleccionado = correctivo.equipo || null;
+        
+        // Correctives don't strictly use protocols like preventives do, but we ensure array is empty
+        this.rutina = []; 
+        
+        this.displayReporteDialog = true;
+    } catch(error) {
+        console.error(error);
+        Swal.fire('Información', 'Aún no se ha generado un reporte para este mantenimiento correctivo.', 'info');
+    }
+  }
+
   /*
   async cambiarEstado(idPlan: number, estadoActual: boolean) {
      // ... (Previous logic commented out or removed as we reused the button)
@@ -261,6 +297,69 @@ export class GestionPlanMantenimientoComponent implements OnInit {
      // Implies the button action changes or is restricted.
   }
   */
+
+  async cambiarEstadoCorrectivo(correctivo: any) {
+    if (this.userRole === 'INDUSTRIALESUSER') {
+      Swal.fire('Acceso Denegado', 'No tienes permisos para modificar este estado', 'error');
+      return;
+    }
+
+    if (correctivo.estado === 'Corregir') {
+       // Ir al reporte
+       sessionStorage.setItem('idMantenimientoCorrectivoIndustrial', correctivo.id.toString());
+       sessionStorage.setItem('TipoMantenimientoIndustrial', 'C');
+       if (correctivo.motivo) {
+           sessionStorage.setItem('MotivoFalloIndustrial', correctivo.motivo);
+       }
+       if (correctivo.equipo && correctivo.equipo.id) {
+         this.router.navigate(['/industriales/crear-reporte', correctivo.equipo.id]);
+       } else {
+         Swal.fire('Error', 'No se encontró información del equipo', 'error');
+       }
+       return;
+    }
+
+    if (correctivo.estado === 'Corregido' || correctivo.estado === 'Realizado') {
+        this.verResumenCorrectivo(correctivo);
+        return;
+    }
+
+    let nuevoEstado = '';
+    
+    // Cycle logic: Corregir -> Corregido -> Realizado
+    if (correctivo.estado === 'Corregir') {
+      nuevoEstado = 'Corregido';
+    } else if (correctivo.estado === 'Corregido') {
+      nuevoEstado = 'Realizado';
+    } else {
+      return; // Already Realizado, don't change or cycle back
+    }
+
+    try {
+       // Obtener usuario del token
+       const token = sessionStorage.getItem('utoken');
+       let usuarioIdFk;
+       if (token) {
+           const decoded = this.getDecodedAccessToken(token);
+           if (decoded && decoded.id) {
+               usuarioIdFk = decoded.id;
+           }
+       }
+
+      await this.reporteService.updateEstadoCorrectivo(correctivo.id, {
+         estado: nuevoEstado,
+         usuarioIdFk: usuarioIdFk
+      });
+      correctivo.estado = nuevoEstado;
+      if (nuevoEstado === 'Realizado') {
+        correctivo.fechaRealizado = new Date().toISOString().split('T')[0];
+      }
+      Swal.fire('Actualizado', `Estado cambiado a ${nuevoEstado}`, 'success');
+    } catch (e) {
+      console.error(e);
+      Swal.fire('Error', 'No se pudo actualizar el estado', 'error');
+    }
+  }
 
   onGlobalFilter(event: Event): void {
     const target = event.target as HTMLInputElement;
@@ -315,5 +414,20 @@ export class GestionPlanMantenimientoComponent implements OnInit {
 
   regresar() {
     this.router.navigate(['/adminindustriales']);
+  }
+
+  imprimirReporte() {
+    if (!this.reporteSeleccionado) {
+      Swal.fire('Info', 'No hay un reporte seleccionado para imprimir.', 'info');
+      return;
+    }
+    const doc = generarReporteMantenimientoPDF(
+      this.reporteSeleccionado,
+      this.equipoReporteSeleccionado,
+      this.rutina
+    );
+    const tipo = this.reporteSeleccionado.tipoMantenimiento ?? 'mantenimiento';
+    const fecha = this.reporteSeleccionado.fechaRealizado ?? 'reporte';
+    doc.save(`Reporte_${tipo}_${fecha}.pdf`);
   }
 }

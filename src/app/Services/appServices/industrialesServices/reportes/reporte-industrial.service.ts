@@ -43,6 +43,12 @@ export class ReporteIndustrialService {
         )
     }
 
+    updateEstadoCorrectivo(id: number, data: { estado: string, usuarioIdFk?: number }) {
+        return firstValueFrom(
+            this.httpClient.put<any>(`${API_URL}/api/industriales/correctivos/${id}/estado`, data, createHeaders())
+        )
+    }
+
     getReporteById(idReporte: any) {
         return firstValueFrom(
             this.httpClient.get<any>(`${API_URL}/api/industriales/reportes/${idReporte}`, createHeaders())
@@ -70,6 +76,12 @@ export class ReporteIndustrialService {
     getReporteByPlanDetails(idEquipo: number, mes: number, anio: number, planId?: number) {
         return firstValueFrom(
             this.httpClient.post<any>(`${API_URL}/api/industriales/reportes/buscar/plan`, { idEquipo, mes, anio, planId }, createHeaders())
+        )
+    }
+
+    getReporteByCorrectivoId(idCorrectivo: number) {
+        return firstValueFrom(
+            this.httpClient.post<any>(`${API_URL}/api/industriales/reportes/buscar/correctivo`, { idCorrectivo }, createHeaders())
         )
     }
 }

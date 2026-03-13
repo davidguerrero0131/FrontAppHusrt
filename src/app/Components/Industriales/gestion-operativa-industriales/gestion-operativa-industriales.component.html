@@ -47,6 +47,30 @@
             </div>
         </div>
 
+        <!-- Chequeos de Equipos -->
+        <div class="dashboard-card" (click)="goToChequeos()">
+            <div class="card-icon-container gradient-teal">
+                <i class="pi pi-check-circle"></i>
+            </div>
+            <div class="card-content">
+                <h3>Chequeos de Equipos Industriales</h3>
+                <p>Control y verificación de equipos.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <!-- Indicadores -->
+        <div class="dashboard-card" (click)="goToIndicadores()">
+            <div class="card-icon-container gradient-orange">
+                <i class="pi pi-chart-bar"></i>
+            </div>
+            <div class="card-content">
+                <h3>Indicadores</h3>
+                <p>Métricas y estadísticas de mantenimiento.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
         <!-- Inventario Áreas Físicas (Disabled) -->
         <div class="dashboard-card disabled-card" (click)="showViewAreasFisicas()">
             <div class="card-icon-container gradient-purple" style="opacity: 0.5;">

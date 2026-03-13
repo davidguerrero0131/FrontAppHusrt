@@ -7,6 +7,7 @@ import { EquiposIndustrialesService } from '../../../../../Services/appServices/
 import Swal from 'sweetalert2';
 import { API_URL } from '../../../../../constantes';
 
+import { generarHojaVidaPDF } from './pdf-hoja-vida.util';
 
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -100,12 +101,8 @@ export class VerHojaDeVidaEquipoComponent implements OnInit {
     async cargarDatos() {
         try {
             this.loading = true;
-
-            // Cargar Info Equipo
             this.equipoInfo = await this.equipoService.getEquipoById(this.idEquipo);
 
-            // Cargar Entidades Relacionadas con Hoja de Vida
-            // Usamos Promise.allSettled para que si una falla no detenga las otras (aunque deberían existir si el botón estaba habilitado)
             const results = await Promise.allSettled([
                 this.hojaVidaService.getHojaVidaByEquipo(this.idEquipo),
                 this.hojaVidaService.getDatosTecnicosByEquipo(this.idEquipo),
@@ -141,7 +138,6 @@ export class VerHojaDeVidaEquipoComponent implements OnInit {
                 Swal.fire('Error', 'El archivo supera el límite de 10MB', 'error');
                 return;
             }
-
             try {
                 this.uploading = true;
                 await this.hojaVidaService.uploadDocument(this.idEquipo, file);
@@ -152,7 +148,6 @@ export class VerHojaDeVidaEquipoComponent implements OnInit {
                 Swal.fire('Error', 'No se pudo subir el documento', 'error');
             } finally {
                 this.uploading = false;
-                // Limpiar input
                 event.target.value = '';
             }
         }
@@ -194,7 +189,6 @@ export class VerHojaDeVidaEquipoComponent implements OnInit {
     }
 
     visualizarDocumento(id: number) {
-        // Construct the URL with the token query parameter for inline viewing
         const token = sessionStorage.getItem('utoken');
         const url = `${API_URL}/api/industriales/doc-ind/view/${id}?token=${token}`;
         window.open(url, '_blank');
@@ -202,5 +196,27 @@ export class VerHojaDeVidaEquipoComponent implements OnInit {
 
     regresar() {
         this.router.navigate(['/adminequipos']);
+    }
+
+    // =========================================================================
+    //  GENERACIÓN DE PDF - HOJA DE VIDA INDUSTRIAL
+    // =========================================================================
+
+    generarPDF() {
+        if (!this.hojaVida || !this.equipoInfo) {
+            Swal.fire('Error', 'No hay datos suficientes para generar el PDF', 'error');
+            return;
+        }
+
+        try {
+            const doc = generarHojaVidaPDF(
+                this.equipoInfo, this.hojaVida, this.datosTecnicos, this.proveedor, this.registroApoyo
+            );
+            const nombreEquipo = this.equipoInfo?.nombres || 'Equipo';
+            doc.save(`Hoja_de_Vida_${nombreEquipo.replace(/\s+/g, '_')}.pdf`);
+        } catch (error) {
+            console.error('Error generando PDF:', error);
+            Swal.fire('Error', 'No se pudo generar el PDF', 'error');
+        }
     }
 }

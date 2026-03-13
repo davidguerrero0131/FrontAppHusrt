@@ -66,6 +66,8 @@
               (onClick)="estadoTipoEquipo(equipo.id, 'D')" pTooltip="Desactivar"></p-button>
             <p-button *ngIf="!equipo.activo" icon="pi pi-check-circle" [rounded]="true" [text]="true" severity="success"
               (onClick)="estadoTipoEquipo(equipo.id, 'A')" pTooltip="Activar"></p-button>
+            <p-button icon="pi pi-calendar" [rounded]="true" [text]="true" severity="info"
+              (onClick)="abrirModalChequeo(equipo)" pTooltip="Configurar Chequeo Diario"></p-button>
           </div>
         </td>
       </tr>
@@ -173,7 +175,6 @@
         <option value="2">Sistema</option>
         <option value="3">Industrial</option>
       </select>
-      <!-- Ideally use p-dropdown here, but select is simpler for fixed values without array in TS -->
     </div>
 
     <div class="flex justify-content-end gap-2 mt-4">
@@ -183,4 +184,88 @@
     </div>
 
   </form>
+</p-dialog>
+
+
+<!-- ===== Chequeo Diario Config Modal ===== -->
+<p-dialog [header]="'Chequeo Diario — ' + (tipoSeleccionadoChequeo?.nombres || '')" [(visible)]="viewChequeoModal"
+  [modal]="true" [style]="{ width: '48rem' }" [breakpoints]="{ '991px': '90vw' }" styleClass="p-fluid">
+
+  <div class="flex flex-column gap-4 pt-2">
+
+    <!-- Toggle -->
+    <div class="flex align-items-center justify-content-between p-3 border-round surface-ground">
+      <div>
+        <p class="font-bold text-900 m-0">Incluir en chequeos diarios</p>
+        <small class="text-500">Activa una tarjeta para este tipo de equipo en el panel de chequeos.</small>
+      </div>
+      <p-inputSwitch
+        [ngModel]="configChequeo?.habilitado ?? false"
+        (onChange)="toggleHabilitarChequeo()"
+        [disabled]="savingConfig">
+      </p-inputSwitch>
+    </div>
+
+    <!-- Items section — only visible when habilitado -->
+    <ng-container *ngIf="configChequeo?.habilitado">
+
+      <div>
+        <p class="font-bold text-900 mb-2">Items del Chequeo</p>
+
+        <!-- Add item bar -->
+        <div class="flex gap-2 mb-3">
+          <input type="text" pInputText [(ngModel)]="nuevoItem"
+            placeholder="Ej. Voltaje de Salida, Temperatura..."
+            class="flex-grow-1"
+            (keyup.enter)="agregarItemChequeo()" />
+          <button pButton type="button" icon="pi pi-plus" label="Agregar"
+            (click)="agregarItemChequeo()" class="w-auto"
+            [disabled]="!nuevoItem.trim()"></button>
+        </div>
+
+        <!-- Items list -->
+        <p-table [value]="itemsChequeo" styleClass="p-datatable-sm" [rows]="10" [paginator]="itemsChequeo.length > 10">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>#</th>
+              <th>Item a verificar</th>
+              <th style="width: 80px; text-align: center;">Eliminar</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item let-i="rowIndex">
+            <tr>
+              <td class="text-500">{{ i + 1 }}</td>
+              <td class="font-medium">{{ item.nombreItem }}</td>
+              <td class="text-center">
+                <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
+                  (onClick)="eliminarItemChequeo(item.id)" pTooltip="Eliminar item">
+                </p-button>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="3" class="text-center text-500 p-4">
+                <i class="pi pi-info-circle mr-2"></i>Agrega los items que se verificarán en el chequeo.
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+    </ng-container>
+
+    <!-- Info when not enabled -->
+    <div *ngIf="!configChequeo?.habilitado" class="text-center text-500 p-4">
+      <i class="pi pi-toggle-off" style="font-size: 2rem;"></i>
+      <p class="mt-2">Activa el toggle para habilitar el chequeo diario y configurar sus items.</p>
+    </div>
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cerrar" icon="pi pi-times" [text]="true" (onClick)="viewChequeoModal = false"
+      severity="secondary"></p-button>
+  </ng-template>
+
 </p-dialog>

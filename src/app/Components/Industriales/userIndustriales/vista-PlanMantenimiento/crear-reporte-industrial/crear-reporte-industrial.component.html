@@ -82,7 +82,8 @@
 
                 <div class="form-item">
                     <label>Tipo de Falla</label>
-                    <p-select [options]="tiposFalla" formControlName="tipoFalla" placeholder="Seleccione"></p-select>
+                    <p-select *ngIf="tipoMantenimiento !== 'Correctivo'" [options]="tiposFalla" formControlName="tipoFalla" placeholder="Seleccione"></p-select>
+                    <input *ngIf="tipoMantenimiento === 'Correctivo'" pInputText formControlName="tipoFalla" />
                 </div>
 
                 <div class="form-item">

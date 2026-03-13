@@ -5,8 +5,13 @@
                 style="display: flex; justify-content: space-between; align-items: center; padding: 1rem;">
                 <span class="text-xl font-bold" style="font-size: 1.25rem; font-weight: 700;">Datos del Equipo
                     Industrial</span>
-                <button pButton label="Regresar" icon="pi pi-arrow-left" (click)="regresar()"></button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button pButton label="Descargar PDF" icon="pi pi-file-pdf" class="p-button-danger"
+                        (click)="generarPDF()"></button>
+                    <button pButton label="Regresar" icon="pi pi-arrow-left" (click)="regresar()"></button>
+                </div>
             </div>
+
         </ng-template>
 
         <div class="grid p-3" style="display: flex; flex-wrap: wrap;">
