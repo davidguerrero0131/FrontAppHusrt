@@ -193,7 +193,14 @@ export class HojaDeVidaIndustrialService {
 
     downloadDocument(id: number): any {
         return this.httpClient.get(`${this.baseUrl}/doc-ind/download/${id}`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('utoken')}` },
+            ...createHeaders(),
+            responseType: 'blob'
+        });
+    }
+
+    downloadHojaVidaPdf(idEquipo: number): any {
+        return this.httpClient.get(`${this.baseUrl}/hoja-vida/pdf/${idEquipo}`, {
+            ...createHeaders(),
             responseType: 'blob'
         });
     }

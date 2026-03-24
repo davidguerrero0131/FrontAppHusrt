@@ -55,6 +55,10 @@ export class VerReporteComponent implements OnInit {
     }
   }
 
+  descargarPdfMantenimiento(id: number) {
+    this.reporteServices.descargarPdfReporte(id);
+  }
+
   async ngOnInit() {
     this.idEquipo = this.route.snapshot.paramMap.get('id');
 

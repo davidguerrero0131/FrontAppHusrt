@@ -178,10 +178,9 @@ export class VerProgramacionComponent implements OnInit {
 
             this.loading = true;
             try {
-                // Fetch ALL plans (active and inactive) to show what is scheduled vs pending
                 const allPlans = await this.planService.getPlanesByPeriodo(this.anio, this.mes);
-                // Filter to show ALL plans (Programmed, Not Programmed, Completed)
-                this.equiposPlanPreventivoMes = allPlans;
+                // Mostrar SOLO los planes No Programados (estado === 0)
+                this.equiposPlanPreventivoMes = allPlans.filter((p: any) => p.estado === 0);
                 this.loading = false;
             } catch (error) {
                 this.loading = false;
@@ -225,11 +224,18 @@ export class VerProgramacionComponent implements OnInit {
             return;
         }
 
+        const noProgramados = this.equiposPlanPreventivoMes.length;
+        if (noProgramados === 0) {
+            Swal.fire('Sin planes', 'No hay planes sin programar para este mes.', 'info');
+            return;
+        }
+
         const confirmacion = await Swal.fire({
-            title: '¿Está seguro?',
-            text: `Se activarán los planes de mantenimiento para ${this.nombreMes()} ${this.anio}.`,
+            title: '¿Programar mantenimientos?',
+            text: `Se programarán ${noProgramados} plan(es) para ${this.nombreMes()} ${this.anio}. Se creará un registro de reporte para cada uno.`,
             icon: 'question',
             showCancelButton: true,
+            confirmButtonColor: '#198754',
             confirmButtonText: 'Sí, programar',
             cancelButtonText: 'Cancelar'
         });
@@ -240,13 +246,14 @@ export class VerProgramacionComponent implements OnInit {
                 const res = await this.planService.programarPlanes(this.anio, this.mes);
                 this.loading = false;
 
+                const stubs = res.stubsReporteCreados ?? 0;
                 Swal.fire({
-                    title: 'Programación Exitosa',
-                    text: `Se han activado ${res.registrosActualizados} planes para ${this.nombreMes()} ${this.anio}`,
+                    title: '¡Programación Exitosa!',
+                    html: `<b>${res.registrosActualizados}</b> plan(es) programados para ${this.nombreMes()} ${this.anio}.<br>Se crearon <b>${stubs}</b> reporte(s) preliminares.`,
                     icon: 'success'
                 });
 
-                // Refresh the list to show newly activated plans
+                // Refrescar — la lista quedará vacía porque ya no hay estado=0
                 await this.setDate();
 
             } catch (error) {

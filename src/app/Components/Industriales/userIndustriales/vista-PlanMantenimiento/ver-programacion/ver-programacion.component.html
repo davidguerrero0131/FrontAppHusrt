@@ -65,7 +65,12 @@
             </div>
 
             <div style="text-align: center;">
-                <h6>Plan de mantenimiento del mes: {{nombreMes()}} </h6>
+                <h6>Planes <strong>No Programados</strong> del mes: {{nombreMes()}} {{anio}} 
+                    <span *ngIf="equiposPlanPreventivoMes.length > 0" class="badge bg-warning text-dark ms-2">
+                        {{equiposPlanPreventivoMes.length}} pendiente(s)
+                    </span>
+                </h6>
+                <small class="text-muted">Al hacer clic en "Programar Mantenimientos" se activarán todos los planes de este mes y se crearán sus reportes preliminares.</small>
             </div>
             <div style="text-align: right; margin-right: 5%;">
                 <button *ngIf="canProgram && userRole === 'INDUSTRIALESADMIN'" type="button" class="btn btn-success"
@@ -143,7 +148,10 @@
                     </ng-template>
                     <ng-template pTemplate="emptymessage">
                         <tr>
-                            <td colspan="7">No hay Programación.</td>
+                            <td colspan="7" class="text-center text-muted py-3">
+                                <i class="pi pi-check-circle me-2" style="color: green;"></i>
+                                No hay planes sin programar para este mes. Todos están programados o no existen planes.
+                            </td>
                         </tr>
                     </ng-template>
                 </p-table>

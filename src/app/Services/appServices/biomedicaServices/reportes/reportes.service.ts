@@ -17,6 +17,35 @@ export class ReportesService {
 
   }
 
+  // Note: The original instruction's "Code Edit" snippet contained `construc` which seems like a typo.
+  // Assuming the intention was to place the new method after the constructor.
+  // Also, the `createHeaders` and `baseUrl` used in `descargarPdfReporte` are not defined in the original context.
+  // I'm replacing `this.createHeaders()` with the globally imported `createHeaders()` function.
+  // And `this.baseUrl` with `API_URL`.
+
+  descargarPdfReporte(idReporte: number): void {
+    const headers = createHeaders(); // Using the imported createHeaders function
+    this.httpClient.get(`${API_URL}/pdf-preventivo/${idReporte}`, { headers: headers.headers, responseType: 'blob' }).subscribe({ // Accessing headers property
+      next: (blob) => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `ReportePreventivo_${idReporte}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      },
+      error: (err) => {
+        console.error('Error al descargar PDF:', err);
+        alert('No se pudo generar el PDF del reporte.');
+      }
+    });
+  }
+
+  getToken() {
+
+  }
+
   getReportesEquipo(idEquipo: any) {
     return firstValueFrom(
       this.httpClient.get<any>(`${API_URL}/reportes/equipo/${idEquipo}`, createHeaders())

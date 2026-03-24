@@ -161,6 +161,12 @@ export class HojavidaComponent implements OnInit {
     this.showCreate = true;
   }
 
+  descargarHojaVidaPdf() {
+    if (this.id) {
+        this.hojavidaService.descargarPdfHojaVida(parseInt(this.id, 10));
+    }
+  }
+
   datosTecnicosKeys(): string[] {
     return this.hojaVida?.datosTecnicos
       ? Object.keys(this.hojaVida.datosTecnicos).filter(k => !['id', 'createdAt', 'updatedAt'].includes(k))

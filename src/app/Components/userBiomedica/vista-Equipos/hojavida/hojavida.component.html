@@ -5,7 +5,10 @@
       <ng-template pTemplate="header">
         <div class="flex justify-content-between align-items-center p-3">
           <span class="text-xl font-bold">Datos del Equipo</span>
-          <p-button *ngIf="!isGuest()" label="Editar" icon="pi pi-pencil" (click)="onEdit()"></p-button>
+          <div>
+            <p-button label="Descargar PDF" icon="pi pi-file-pdf" severity="danger" class="mr-2" (onClick)="descargarHojaVidaPdf()"></p-button>
+            <p-button *ngIf="!isGuest()" label="Editar" icon="pi pi-pencil" (onClick)="onEdit()"></p-button>
+          </div>
         </div>
       </ng-template>
 

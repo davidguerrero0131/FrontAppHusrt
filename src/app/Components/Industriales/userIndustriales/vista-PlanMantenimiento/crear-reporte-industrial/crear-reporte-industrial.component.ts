@@ -26,6 +26,7 @@ import { UserService } from '../../../../../Services/appServices/userServices/us
 
 import { PlanMantenimientoIndustrialesService } from '../../../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
 import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
+import { ResponsableService } from '../../../../../Services/appServices/industrialesServices/responsable/responsable.service';
 
 @Component({
   selector: 'app-crear-reporte-industrial',
@@ -62,8 +63,11 @@ export class CrearReporteIndustrialComponent implements OnInit {
   userService = inject(UserService);
 
   planService = inject(PlanMantenimientoIndustrialesService); // Inject Plan Service
+  responsableService = inject(ResponsableService);
 
   planDetails: any = null; // Store plan details
+
+  responsables: any[] = [];
 
 
   tiposMantenimiento = [
@@ -127,7 +131,8 @@ export class CrearReporteIndustrialComponent implements OnInit {
       nombreRecibio: [''],
       cedulaRecibio: [''],
       observaciones: [''],
-      cumplimientoProtocolo: this.fb.array([])
+      cumplimientoProtocolo: this.fb.array([]),
+      responsableIdFk: [null]
     });
 
     this.reporteForm.valueChanges.subscribe(() => {
@@ -178,6 +183,14 @@ export class CrearReporteIndustrialComponent implements OnInit {
     if (typeId) {
       this.protocolos = await this.protocoloService.getProtocolosPorTipo(typeId);
       this.iniCumplimientoProtocolo();
+    }
+
+    // 5. Load Responsables
+    try {
+      const lista = await this.responsableService.getAllResponsables();
+      this.responsables = lista.map((r: any) => ({ label: r.nombres, value: r.id }));
+    } catch (e) {
+      console.warn('No se pudieron cargar los responsables', e);
     }
   }
 
@@ -299,6 +312,12 @@ export class CrearReporteIndustrialComponent implements OnInit {
     }
 
     uploadData.append('servicioIdFk', this.equipo.servicioIdFk);
+
+    // Adjuntar responsable si fue seleccionado
+    const responsableId = formData.responsableIdFk;
+    if (responsableId) {
+      uploadData.append('responsableIdFk', responsableId.toString());
+    }
 
     const planId = sessionStorage.getItem('idPlanMantenimientoIndustrial');
     if (planId) {

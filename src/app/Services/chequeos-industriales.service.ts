@@ -75,10 +75,33 @@ export class ChequeosIndustrialesService {
     toggleConfig(id: number): Observable<any> {
         return this.http.put<any>(`${this.apiUrl}/config/${id}/toggle`, {}, this.createHeaders());
     }
-    agregarItemConfig(configId: number, nombreItem: string): Observable<any> {
-        return this.http.post<any>(`${this.apiUrl}/config/${configId}/items`, { nombreItem }, this.createHeaders());
+    agregarItemConfig(configId: number, nombreItem: string, frecuencia: string): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/config/${configId}/items`, { nombreItem, frecuencia }, this.createHeaders());
+    }
+    actualizarFrecuenciaItemConfig(itemId: number, frecuencia: string): Observable<any> {
+        return this.http.put<any>(`${this.apiUrl}/config/items/${itemId}/frecuencia`, { frecuencia }, this.createHeaders());
     }
     eliminarItemConfig(itemId: number): Observable<any> {
         return this.http.delete<any>(`${this.apiUrl}/config/items/${itemId}`, this.createHeaders());
+    }
+
+    descargarPdfChecklist(tipoEquipoStr: string, equipoId: number, anio: number, mes: number): void {
+        const url = `${this.apiUrl}/pdf-checklist/${tipoEquipoStr}/${equipoId}/${anio}/${mes}`;
+        const headers = new HttpHeaders({ 'authorization': sessionStorage.getItem('utoken') || '' });
+        this.http.get(url, { headers, responseType: 'blob' }).subscribe({
+            next: (blob) => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `CheckList_${tipoEquipoStr}_${equipoId}_${mes}-${anio}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            },
+            error: (err) => {
+                console.error('Error al descargar PDF checklist:', err);
+                alert('No se pudo generar el PDF. Verifica que existan chequeos registrados para este mes.');
+            }
+        });
     }
 }

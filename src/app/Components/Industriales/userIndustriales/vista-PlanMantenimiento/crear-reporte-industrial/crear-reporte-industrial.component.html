@@ -111,6 +111,19 @@
                     <input pInputText formControlName="cedulaRecibio" />
                 </div>
 
+                <div class="form-item">
+                    <label>Responsable del mantenimiento</label>
+                    <p-select
+                        formControlName="responsableIdFk"
+                        [options]="responsables"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Seleccione un responsable"
+                        [showClear]="true"
+                        appendTo="body">
+                    </p-select>
+                </div>
+
             </div>
             <div style="margin-top: 3%;"></div>
             <div class="custom-grid">

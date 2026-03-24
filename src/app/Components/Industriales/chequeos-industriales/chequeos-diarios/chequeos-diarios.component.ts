@@ -105,6 +105,12 @@ export class ChequeosDiariosComponent implements OnInit {
         }
     }
 
+    verConsolidado(equipo: any) {
+        this.router.navigate(['/industriales/chequeos/diarios/consolidado'], {
+            queryParams: { tipo: this.tipoEquipoStr, equipoId: equipo.id, nombre: equipo.nombres }
+        });
+    }
+
     regresar() {
         this.router.navigate(['/industriales/chequeos']);
     }

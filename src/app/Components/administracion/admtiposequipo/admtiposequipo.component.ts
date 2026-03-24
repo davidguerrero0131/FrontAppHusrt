@@ -55,6 +55,7 @@ export class AdmtiposequipoComponent implements OnInit {
   configChequeo: any = null;
   itemsChequeo: any[] = [];
   nuevoItem: string = '';
+  nuevaFrecuencia: string = 'Diario'; // Default frequency
   savingConfig: boolean = false;
 
   constructor() {
@@ -302,11 +303,25 @@ export class AdmtiposequipoComponent implements OnInit {
   async agregarItemChequeo() {
     if (!this.nuevoItem.trim() || !this.configChequeo) return;
     try {
-      const item = await this.chequeosService.agregarItemConfig(this.configChequeo.id, this.nuevoItem.trim()).toPromise();
+      const item = await this.chequeosService.agregarItemConfig(this.configChequeo.id, this.nuevoItem.trim(), this.nuevaFrecuencia).toPromise();
       this.itemsChequeo = [...this.itemsChequeo, item];
       this.nuevoItem = '';
+      this.nuevaFrecuencia = 'Diario'; // Reset to default
     } catch {
       Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo agregar el item.' });
+    }
+  }
+
+  async changeFrecuenciaItem(item: any, event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    const newFrecuencia = selectElement.value;
+    try {
+      await this.chequeosService.actualizarFrecuenciaItemConfig(item.id, newFrecuencia).toPromise();
+      item.frecuencia = newFrecuencia; // Optimistic update
+    } catch {
+      // Revert the UI on failure
+      selectElement.value = item.frecuencia; 
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo actualizar la frecuencia del item.' });
     }
   }
 
@@ -319,3 +334,4 @@ export class AdmtiposequipoComponent implements OnInit {
     }
   }
 }
+// Forzar actualización del Language Service de Angular

@@ -4,8 +4,6 @@ import { TableModule } from 'primeng/table';
 import { MessageService, MenuItem } from 'primeng/api';
 import Swal from 'sweetalert2';
 import { jwtDecode } from 'jwt-decode';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { MenuModule } from 'primeng/menu';
 import { AccordionModule } from 'primeng/accordion';
 import { CardModule } from 'primeng/card';
@@ -760,141 +758,27 @@ export class GestionEquiposIndustrialesComponent implements OnInit {
   }
 
   descargarHojaVidaPdf() {
-    if (!this.hvEquipoInfo || !this.hvHojaVida) {
-      Swal.fire('Error', 'No hay datos de Hoja de Vida para descargar.', 'error');
+    if (!this.hvEquipoInfo) {
+      Swal.fire('Error', 'No se ha seleccionado ningún equipo.', 'error');
       return;
     }
 
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    let y = 15;
-
-    // Title
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text('HOJA DE VIDA DEL EQUIPO', pageWidth / 2, y, { align: 'center' });
-    y += 8;
-    doc.setFontSize(12);
-    doc.text(this.hvEquipoInfo?.nombres || '', pageWidth / 2, y, { align: 'center' });
-    y += 10;
-
-    // Helper to format dates
-    const formatDate = (d: any) => {
-      if (!d) return 'N/A';
-      try {
-        const date = new Date(d);
-        return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-      } catch { return 'N/A'; }
-    };
-
-    // Section helper using autoTable
-    const addSection = (title: string, data: [string, string][]) => {
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
-      doc.text(title, 14, y);
-      y += 2;
-
-      autoTable(doc, {
-        startY: y,
-        head: [],
-        body: data,
-        theme: 'grid',
-        styles: { fontSize: 9, cellPadding: 3 },
-        columnStyles: {
-          0: { fontStyle: 'bold', cellWidth: 55, fillColor: [240, 240, 240] },
-          1: { cellWidth: 'auto' }
-        },
-        margin: { left: 14, right: 14 },
-        didDrawPage: () => { }
-      });
-
-      y = (doc as any).lastAutoTable.finalY + 8;
-    };
-
-    // 1. Datos Generales
-    addSection('DATOS GENERALES', [
-      ['Nombre', this.hvEquipoInfo?.nombres || 'N/A'],
-      ['Marca', this.hvEquipoInfo?.marca || 'N/A'],
-      ['Modelo', this.hvEquipoInfo?.modelo || 'N/A'],
-      ['Serie', this.hvEquipoInfo?.serie || 'N/A'],
-      ['Placa', this.hvEquipoInfo?.placa || 'N/A'],
-      ['Tipo Equipo', this.hvEquipoInfo?.tipoEquipoInd?.nombres || 'N/A'],
-      ['Servicio', this.hvEquipoInfo?.servicioInd?.nombres || 'N/A'],
-      ['Sede', this.hvEquipoInfo?.sedeInd?.nombres || 'N/A'],
-      ['Ubicación', this.hvEquipoInfo?.ubicacionEspecifica || 'N/A'],
-      ['Responsable', this.hvEquipoInfo?.responsableInd?.nombres || 'N/A'],
-    ]);
-
-    // 2. Adquisición y Garantía
-    addSection('ADQUISICIÓN Y GARANTÍA', [
-      ['Forma Adquisición', this.hvHojaVida?.adquisicion || 'N/A'],
-      ['Fecha Compra', formatDate(this.hvHojaVida?.fechaCompra)],
-      ['Fecha Instalación', formatDate(this.hvHojaVida?.fechaInstalacion)],
-      ['Inicio Operación', formatDate(this.hvHojaVida?.fechaInicioOperacion)],
-      ['Vencimiento Garantía', formatDate(this.hvHojaVida?.vencimientoGarantia)],
-      ['Referencia', this.hvHojaVida?.referencia || 'N/A'],
-      ['Fabricación', this.hvHojaVida?.fabricacion || 'N/A'],
-    ]);
-
-    // 3. Proveedor
-    if (this.hvProveedor) {
-      addSection('INFORMACIÓN DE PROVEEDOR', [
-        ['Código Equipo', this.hvProveedor?.codigoEquipo || 'N/A'],
-        ['Código Internacional', this.hvProveedor?.codigoInternacional || 'N/A'],
-        ['Fabricante', this.hvProveedor?.fabricante || 'N/A'],
-        ['Ciudad Fabricante', this.hvProveedor?.ciudadFabricante || 'N/A'],
-        ['Representante', this.hvProveedor?.representante || 'N/A'],
-        ['Tel. Representante', this.hvProveedor?.telefonoRepresentante || 'N/A'],
-        ['Distribuidor', this.hvProveedor?.distribuidor || 'N/A'],
-        ['Tel. Distribuidor', this.hvProveedor?.telefonoDistribuidor || 'N/A'],
-      ]);
-    }
-
-    // 4. Datos Técnicos
-    if (this.hvDatosTecnicos) {
-      const datosRows: [string, string][] = [
-        ['Voltaje', `${this.hvDatosTecnicos?.volMaxOperacion || ''} - ${this.hvDatosTecnicos?.volMinOperacion || ''}`],
-        ['Corriente', `${this.hvDatosTecnicos?.corrienteMaxOperacion || ''} - ${this.hvDatosTecnicos?.corrienteMinOperacion || ''}`],
-        ['Potencia', this.hvDatosTecnicos?.potenciaConsumida || 'N/A'],
-        ['Frecuencia', this.hvDatosTecnicos?.frecuencia || 'N/A'],
-        ['Presión', this.hvDatosTecnicos?.presion || 'N/A'],
-        ['Velocidad', this.hvDatosTecnicos?.velocidad || 'N/A'],
-        ['Temperatura', this.hvDatosTecnicos?.temperatura || 'N/A'],
-        ['Peso', this.hvDatosTecnicos?.peso || 'N/A'],
-        ['Capacidad', this.hvDatosTecnicos?.capacidad || 'N/A'],
-      ];
-      if (this.hvDatosTecnicos?.accesorios) {
-        datosRows.push(['Accesorios', `${this.hvDatosTecnicos.accesorios} (${this.hvDatosTecnicos.marcaAccesorio || ''} - ${this.hvDatosTecnicos.modeloSerieAccesorio || ''})`]);
+    this.hojaVidaService.downloadHojaVidaPdf(this.hvEquipoInfo.id).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Hoja_de_Vida_${this.hvEquipoInfo.placa || this.hvEquipoInfo.id}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error: any) => {
+        console.error('Error al descargar PDF:', error);
+        Swal.fire('Error', 'No se pudo generar el PDF de la hoja de vida.', 'error');
       }
-      addSection('DATOS TÉCNICOS', datosRows);
-    }
-
-    // 5. Registro de Apoyo
-    if (this.hvRegistroApoyo) {
-      addSection('REGISTRO DE APOYO', [
-        ['Manual Usuario', this.hvRegistroApoyo?.manualUsuario ? 'Sí' : 'No'],
-        ['Manual Técnico', this.hvRegistroApoyo?.manualTecnico ? 'Sí' : 'No'],
-        ['Equipo Fijo', this.hvRegistroApoyo?.equipoFijo ? 'Sí' : 'No'],
-        ['Uso', this.hvRegistroApoyo?.uso || 'N/A'],
-        ['Riesgo', this.hvRegistroApoyo?.riesgo || 'N/A'],
-        ['Tecnología Predominante', this.hvRegistroApoyo?.tecnologiaPredominante || 'N/A'],
-        ['Clasificación', this.hvRegistroApoyo?.clasificacion || 'N/A'],
-        ['Estado Físico', this.hvRegistroApoyo?.estado || 'N/A'],
-      ]);
-    }
-
-    // Footer
-    const pageCount = doc.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Página ${i} de ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
-      doc.text(`Generado: ${new Date().toLocaleDateString('es-CO')}`, pageWidth - 14, doc.internal.pageSize.getHeight() - 10, { align: 'right' });
-    }
-
-    const filename = `Hoja_de_Vida_${(this.hvEquipoInfo?.nombres || 'Equipo').replace(/\s+/g, '_')}.pdf`;
-    doc.save(filename);
+    });
   }
 
   editarPlanMantenimientoAction(id: number) {

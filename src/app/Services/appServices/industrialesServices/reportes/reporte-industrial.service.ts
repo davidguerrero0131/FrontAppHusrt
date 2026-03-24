@@ -84,4 +84,30 @@ export class ReporteIndustrialService {
             this.httpClient.post<any>(`${API_URL}/api/industriales/reportes/buscar/correctivo`, { idCorrectivo }, createHeaders())
         )
     }
+
+    descargarReportePDF(idReporte: number) {
+        return firstValueFrom(
+            this.httpClient.get(`${API_URL}/api/industriales/reportes/pdf/${idReporte}`, {
+                ...createHeaders(),
+                responseType: 'blob'
+            })
+        );
+    }
+
+    subirInformeFirmado(idReporte: number, file: File) {
+        const formData = new FormData();
+        formData.append('informeFirmado', file);
+        return firstValueFrom(
+            this.httpClient.put<any>(`${API_URL}/api/industriales/reportes/informefirmado/${idReporte}`, formData, createHeaders())
+        );
+    }
+
+    descargarInformeFirmado(idReporte: number) {
+        return firstValueFrom(
+            this.httpClient.get(`${API_URL}/api/industriales/reportes/informefirmado/${idReporte}`, {
+                ...createHeaders(),
+                responseType: 'blob'
+            })
+        );
+    }
 }

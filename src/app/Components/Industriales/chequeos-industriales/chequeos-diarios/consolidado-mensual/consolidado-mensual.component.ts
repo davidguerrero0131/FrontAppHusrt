@@ -2,8 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChequeosIndustrialesService } from '../../../../../Services/chequeos-industriales.service';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 
 @Component({
     selector: 'app-consolidado-mensual',
@@ -90,6 +88,16 @@ export class ConsolidadoMensualComponent implements OnInit {
             this.matrizChequeos[param] = {};
         }
 
+        // Pre-llenar NO APLICA para variables semanales (ej. Lunes) en días que no corresponden
+        if (this.tipoEquipoStr === 'PLANTAS_ELECTRICAS') {
+            for (const dia of this.diasDelMes) {
+                const fechaIterada = new Date(this.anioActual, this.mesActual - 1, dia);
+                if (fechaIterada.getDay() !== 1) { // 1 = Lunes
+                    this.matrizChequeos['Encendido Normativo'][dia] = 'NO APLICA';
+                }
+            }
+        }
+
         // Llenar matriz basado en datos
         for (const chequeo of this.chequeosMes) {
             // chequeo.fecha viene como YYYY-MM-DD
@@ -157,28 +165,11 @@ export class ConsolidadoMensualComponent implements OnInit {
     }
 
     descargarPDF() {
-        const doc = new jsPDF('l', 'mm', 'a4'); // 'l' para landscape (horizontal), ideal para tablas anchas
-
-        doc.setFontSize(16);
-        doc.text(`Consolidado Mensual: ${this.tipoEquipoStr}`, 14, 15);
-        doc.setFontSize(12);
-        doc.text(`Equipo: ${this.equipoNombre}`, 14, 25);
-        doc.text(`Mes/Año: ${this.mesActual}/${this.anioActual}`, 14, 32);
-
-        autoTable(doc, {
-            html: '#tablaConsolidado',
-            startY: 40,
-            theme: 'grid',
-            styles: { fontSize: 8, cellPadding: 1, halign: 'center', valign: 'middle' },
-            headStyles: { fillColor: [240, 240, 240], textColor: 20, fontStyle: 'bold' },
-            columnStyles: {
-                0: { halign: 'left', fontStyle: 'bold', cellWidth: 35 } // Primera columna con los parámetros
-            }
-        });
-
-        const fechaStr = `${this.mesActual}-${this.anioActual}`;
-        const nombreArchivo = `Consolidado_${this.tipoEquipoStr}_${this.equipoNombre}_${fechaStr}.pdf`;
-
-        doc.save(nombreArchivo);
+        this.chequeosService.descargarPdfChecklist(
+            this.tipoEquipoStr,
+            this.equipoId,
+            this.anioActual,
+            this.mesActual
+        );
     }
 }

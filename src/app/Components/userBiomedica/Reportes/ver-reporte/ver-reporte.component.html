@@ -183,7 +183,7 @@
               <div class="col-12 md:col-4">
                 <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
                   *ngIf="reportSelected?.rutaPdf">Ver Reporte</button>
-                <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
+                <button type="button" class="btn btn-dark" (click)="descargarPdfMantenimiento(reportSelected?.id)"
                   *ngIf="!reportSelected?.rutaPdf">Generar Formato</button>
               </div>
 

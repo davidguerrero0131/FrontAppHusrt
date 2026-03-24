@@ -53,6 +53,25 @@ export class HojavidaService {
     )
   }
 
+  descargarPdfHojaVida(equipoId: number): void {
+    const headers = this.createHeaders();
+    this.httpClient.get(`${this.baseUrl}/pdf-hojavida/${equipoId}`, { headers, responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `HojaDeVida_${equipoId}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      },
+      error: (err) => {
+        console.error('Error al descargar PDF Hoja de Vida:', err);
+        alert('No se pudo generar el PDF. Verifica que el equipo tenga una hoja de vida registrada.');
+      }
+    });
+  }
+
   getToken() {
     return sessionStorage.getItem('utoken');
   }

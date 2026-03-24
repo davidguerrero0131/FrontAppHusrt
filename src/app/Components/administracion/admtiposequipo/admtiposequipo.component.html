@@ -213,11 +213,15 @@
         <p class="font-bold text-900 mb-2">Items del Chequeo</p>
 
         <!-- Add item bar -->
-        <div class="flex gap-2 mb-3">
+        <div class="flex gap-2 mb-3 align-items-center">
           <input type="text" pInputText [(ngModel)]="nuevoItem"
             placeholder="Ej. Voltaje de Salida, Temperatura..."
             class="flex-grow-1"
             (keyup.enter)="agregarItemChequeo()" />
+          <select class="p-inputtext" [(ngModel)]="nuevaFrecuencia" style="width: 130px;">
+            <option value="Diario">Diario</option>
+            <option value="Semanal">Semanal</option>
+          </select>
           <button pButton type="button" icon="pi pi-plus" label="Agregar"
             (click)="agregarItemChequeo()" class="w-auto"
             [disabled]="!nuevoItem.trim()"></button>
@@ -229,13 +233,22 @@
             <tr>
               <th>#</th>
               <th>Item a verificar</th>
-              <th style="width: 80px; text-align: center;">Eliminar</th>
+              <th style="width: 140px; text-align: center;">Frecuencia</th>
+              <th style="width: 80px; text-align: center;">Acción</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-item let-i="rowIndex">
             <tr>
               <td class="text-500">{{ i + 1 }}</td>
               <td class="font-medium">{{ item.nombreItem }}</td>
+              <td class="text-center">
+                <select class="p-inputtext p-inputtext-sm w-full" 
+                        [ngModel]="item.frecuencia" 
+                        (change)="changeFrecuenciaItem(item, $event)">
+                  <option value="Diario">Diario</option>
+                  <option value="Semanal">Semanal</option>
+                </select>
+              </td>
               <td class="text-center">
                 <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
                   (onClick)="eliminarItemChequeo(item.id)" pTooltip="Eliminar item">
@@ -245,7 +258,7 @@
           </ng-template>
           <ng-template pTemplate="emptymessage">
             <tr>
-              <td colspan="3" class="text-center text-500 p-4">
+              <td colspan="4" class="text-center text-500 p-4">
                 <i class="pi pi-info-circle mr-2"></i>Agrega los items que se verificarán en el chequeo.
               </td>
             </tr>

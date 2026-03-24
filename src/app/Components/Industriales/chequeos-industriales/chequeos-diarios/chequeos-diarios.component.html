@@ -33,13 +33,19 @@
                     <p class="card-text text-muted small mb-1"><strong>Marca:</strong> {{ equipo.marca || 'N/A' }}</p>
                     <p class="card-text text-muted small mb-3"><strong>Serie:</strong> {{ equipo.serie || 'N/A' }}</p>
 
-                    <button class="btn w-100 d-flex align-items-center justify-content-center"
+                    <button class="btn w-100 d-flex align-items-center justify-content-center mb-2"
                         [ngClass]="equipo.revisadoHoy ? 'btn-success' : 'btn-warning text-dark'"
                         (click)="accionEquipo(equipo)">
 
                         <i class="pi me-2"
                             [ngClass]="equipo.revisadoHoy ? 'pi-check-circle' : 'pi-exclamation-circle'"></i>
                         {{ equipo.revisadoHoy ? 'Revisado Hoy (Ver Mes)' : 'Pendiente (Registrar)' }}
+                    </button>
+
+                    <button class="btn btn-outline-info w-100 d-flex align-items-center justify-content-center"
+                        (click)="verConsolidado(equipo)">
+                        <i class="pi pi-calendar me-2"></i>
+                        Ver Consolidado Mensual
                     </button>
                 </div>
             </div>

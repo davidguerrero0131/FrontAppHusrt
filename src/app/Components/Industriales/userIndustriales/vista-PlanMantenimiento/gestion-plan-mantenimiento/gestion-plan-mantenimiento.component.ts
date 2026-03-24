@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TableModule, Table } from 'primeng/table';
@@ -10,6 +10,7 @@ import { DropdownModule } from 'primeng/dropdown'; // Added DropdownModule
 import { DialogModule } from 'primeng/dialog'; // Added DialogModule
 import { ButtonModule } from 'primeng/button'; // Added ButtonModule
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
 import Swal from 'sweetalert2';
 import { jwtDecode } from 'jwt-decode';
@@ -17,7 +18,7 @@ import { PlanMantenimientoIndustrialesService } from '../../../../../Services/ap
 import { ReporteIndustrialService } from '../../../../../Services/appServices/industrialesServices/reportes/reporte-industrial.service';
 import { ProtocoloIndustrialService } from '../../../../../Services/appServices/industrialesServices/protocolo/protocolo-industrial.service';
 import { API_URL } from '../../../../../constantes';
-import { generarReporteMantenimientoPDF } from './pdf-reporte.util';
+// import { generarReporteMantenimientoPDF } from './pdf-reporte.util';
 
 
 @Component({
@@ -35,7 +36,8 @@ import { generarReporteMantenimientoPDF } from './pdf-reporte.util';
     DropdownModule,
     DialogModule,
     ButtonModule,
-    TagModule
+    TagModule,
+    TooltipModule
   ],
   templateUrl: './gestion-plan-mantenimiento.component.html',
   styleUrls: ['./gestion-plan-mantenimiento.component.css']
@@ -45,6 +47,7 @@ export class GestionPlanMantenimientoComponent implements OnInit {
   protected readonly API_URL = API_URL;
 
   @ViewChild('dt') dt!: Table;
+  @ViewChild('inputPdfFirmado') inputPdfFirmado!: ElementRef<HTMLInputElement>;
 
   planes: any[] = [];
   preventivos: any[] = []; // Alias for planes to match Bio structure
@@ -92,6 +95,7 @@ export class GestionPlanMantenimientoComponent implements OnInit {
   // Modal Properties
   displayReporteDialog: boolean = false;
   reporteSeleccionado: any = null;
+  planSeleccionado: any = null;
   equipoReporteSeleccionado: any = null;
   rutina: any[] = [];
 
@@ -152,8 +156,7 @@ export class GestionPlanMantenimientoComponent implements OnInit {
         this.planes = await this.planMantenimientoService.getPlanesByRango(this.anio, this.mesInicio, this.mesFin);
       }
 
-      // Filtrar planes no programados (estado false o 0)
-      this.planes = this.planes.filter(p => p.estado);
+      // Show ALL plans including estado=0 (No Programado)
 
       // Try to fetch Correctivos
       try {
@@ -228,7 +231,7 @@ export class GestionPlanMantenimientoComponent implements OnInit {
   }
 
   irAReporte(plan: any) {
-    // estado 2 = Realizado, 3 = Completado → show report summary
+    // estado 2 = Realizado (sin informe firmado), 3 = Completado (con informe) → show report summary
     if (plan.estado === 2 || plan.estado === 3) {
       this.verResumenReporte(plan);
     } else if (plan.estado === 1 || plan.estado === 4) {
@@ -250,6 +253,7 @@ export class GestionPlanMantenimientoComponent implements OnInit {
     }
 
     try {
+      this.planSeleccionado = plan;
       this.reporteSeleccionado = await this.reporteService.getReporteByPlanDetails(plan.equipo.id, plan.mes, plan.ano, plan.id);
       this.equipoReporteSeleccionado = plan.equipo || null;
 
@@ -276,12 +280,10 @@ export class GestionPlanMantenimientoComponent implements OnInit {
     }
     
     try {
+        this.planSeleccionado = null; // los correctivos no tienen plan
         this.reporteSeleccionado = await this.reporteService.getReporteByCorrectivoId(correctivo.id);
         this.equipoReporteSeleccionado = correctivo.equipo || null;
-        
-        // Correctives don't strictly use protocols like preventives do, but we ensure array is empty
         this.rutina = []; 
-        
         this.displayReporteDialog = true;
     } catch(error) {
         console.error(error);
@@ -416,18 +418,113 @@ export class GestionPlanMantenimientoComponent implements OnInit {
     this.router.navigate(['/adminindustriales']);
   }
 
-  imprimirReporte() {
-    if (!this.reporteSeleccionado) {
+  async imprimirReporte() {
+    if (!this.reporteSeleccionado || !this.reporteSeleccionado.id) {
       Swal.fire('Info', 'No hay un reporte seleccionado para imprimir.', 'info');
       return;
     }
-    const doc = generarReporteMantenimientoPDF(
-      this.reporteSeleccionado,
-      this.equipoReporteSeleccionado,
-      this.rutina
-    );
-    const tipo = this.reporteSeleccionado.tipoMantenimiento ?? 'mantenimiento';
-    const fecha = this.reporteSeleccionado.fechaRealizado ?? 'reporte';
-    doc.save(`Reporte_${tipo}_${fecha}.pdf`);
+
+    try {
+      Swal.fire({
+        title: 'Generando PDF...',
+        text: 'Por favor espere',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      const blob: any = await this.reporteService.descargarReportePDF(this.reporteSeleccionado.id);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Reporte_Mantenimiento_${this.reporteSeleccionado.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      Swal.close();
+    } catch (error) {
+      console.error('Error al descargar PDF:', error);
+      Swal.fire('Error', 'No se pudo descargar el PDF del reporte.', 'error');
+    }
+  }
+
+  abrirSelectorPDF() {
+    if (this.inputPdfFirmado?.nativeElement) {
+      this.inputPdfFirmado.nativeElement.value = '';
+      this.inputPdfFirmado.nativeElement.click();
+    }
+  }
+
+  async onPdfFirmadoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+
+    const result = await Swal.fire({
+      title: '¿Subir informe firmado?',
+      text: `Se subirá el archivo "${file.name}" como informe firmado de este reporte.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#0d7377',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Subir',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      Swal.fire({
+        title: 'Subiendo PDF...',
+        text: 'Por favor espere',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      const respuesta = await this.reporteService.subirInformeFirmado(this.reporteSeleccionado.id, file);
+      this.reporteSeleccionado.rutaInformeFirmado = respuesta.rutaInformeFirmado;
+
+      // Actualizar el plan en memoria a estado 3 (Completado)
+      if (this.planSeleccionado) {
+        this.planSeleccionado.estado = 3;
+        // También actualizar en la lista de planes
+        const idx = this.planes.findIndex((p: any) => p.id === this.planSeleccionado.id);
+        if (idx !== -1) this.planes[idx].estado = 3;
+        const idx2 = this.preventivos.findIndex((p: any) => p.id === this.planSeleccionado.id);
+        if (idx2 !== -1) this.preventivos[idx2].estado = 3;
+      }
+
+      Swal.fire({
+        title: '¡Informe subido!',
+        text: 'El informe firmado fue cargado. El plan cambió a estado Completado.',
+        icon: 'success',
+        timer: 2500,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('Error subiendo informe firmado:', error);
+      Swal.fire('Error', 'No se pudo subir el informe firmado.', 'error');
+    }
+  }
+
+  async verInformeFirmado() {
+    if (!this.reporteSeleccionado?.id) return;
+    try {
+      Swal.fire({
+        title: 'Cargando informe...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+      const blob: any = await this.reporteService.descargarInformeFirmado(this.reporteSeleccionado.id);
+      const url = window.URL.createObjectURL(blob);
+      Swal.close();
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error('Error al ver informe firmado:', error);
+      Swal.fire('Error', 'No se pudo cargar el informe firmado.', 'error');
+    }
   }
 }
