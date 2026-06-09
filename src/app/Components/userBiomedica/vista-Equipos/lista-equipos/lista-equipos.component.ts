@@ -1,5 +1,6 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, ViewChild, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { BiomedicausernavbarComponent } from '../../../navbars/biomedicausernavbar/biomedicausernavbar.component';
 import { SplitButtonModule } from 'primeng/splitbutton';
@@ -11,6 +12,7 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
+import { TableStateService } from '../../../../Services/appServices/shared/table-state.service';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -18,17 +20,18 @@ import { TagModule } from 'primeng/tag';
 import { PermissionsService } from '../../../../Services/auth/permissions.service';
 import { DialogModule } from 'primeng/dialog';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { FormsModule } from '@angular/forms';
 import { obtenerNombreMes } from '../../../../utilidades';
+
 
 @Component({
     selector: 'app-lista-equipos',
     standalone: true,
     imports: [TableModule, CommonModule, IconFieldModule,
         InputIconModule, InputTextModule, SplitButtonModule, ButtonModule, TooltipModule, ToolbarModule, TagModule,
-        DialogModule, MultiSelectModule, FormsModule, DropdownModule, InputNumberModule],
+        DialogModule, MultiSelectModule, FormsModule, SelectModule, InputNumberModule, RouterModule],
     templateUrl: './lista-equipos.component.html',
     styleUrl: './lista-equipos.component.css'
 })
@@ -39,14 +42,32 @@ export class ListaEquiposComponent implements OnInit {
     loading: boolean = false;
     equipoServices = inject(EquiposService);
     permissionsService = inject(PermissionsService);
+    platformId = inject(PLATFORM_ID);
+    stateService = inject(TableStateService);
+    isBrowser: boolean = false;
+
+    first: number = 0;
+    searchText: string = '';
 
     // Variables para el modal de edición de plan
     displayPlanDialog: boolean = false;
     currentEquipo: any = null;
     selectedMonths: any[] = [];
-    periodicidad: number = 0;
+    selectedPlans: any[] = []; // Array of objects { mes, ano }
+    periodicidad: number = 0; // Legacy field
+    intervencionesAnuales: number = 1;
     mesInicio: number = 1;
+    anioInicio: number = new Date().getFullYear();
     calculatedMonthsText: string = '';
+
+    intervencionOptions = [
+        { name: '1 vez al año (Anual)', value: 1 },
+        { name: '2 veces al año (Semestral)', value: 2 },
+        { name: '3 veces al año (Cuatrimestral)', value: 3 },
+        { name: '4 veces al año (Trimestral)', value: 4 }
+    ];
+
+    anioOptions = Array.from({ length: 11 }, (_, i) => ({ name: (new Date().getFullYear() + i).toString(), value: new Date().getFullYear() + i }));
 
     monthOptions: any[] = [
         { name: 'Enero', value: 1 },
@@ -65,10 +86,21 @@ export class ListaEquiposComponent implements OnInit {
 
     constructor(
         private router: Router,
-    ) { }
+    ) {
+        this.isBrowser = isPlatformBrowser(this.platformId);
+    }
 
     async ngOnInit() {
-        this.cargarEquipos();
+        await this.cargarEquipos();
+
+        // Load state
+        const savedState = this.stateService.getState('lista-equipos');
+        this.first = savedState.first || 0;
+        this.searchText = savedState.globalFilter || '';
+
+        if (this.searchText && this.dt2) {
+            this.dt2.filterGlobal(this.searchText, 'contains');
+        }
     }
 
     async cargarEquipos() {
@@ -87,7 +119,7 @@ export class ListaEquiposComponent implements OnInit {
                     opciones.push({
                         label: 'Editar',
                         icon: 'pi pi-pencil',
-                        command: () => this.editarEquipo(equipo.id)
+                        routerLink: ['/biomedica/adminequipos/edit/', equipo.id]
                     },
                         {
                             label: 'Editar Plan Mantenimiento',
@@ -109,12 +141,12 @@ export class ListaEquiposComponent implements OnInit {
                     {
                         label: 'Ver Hoja de Vida',
                         icon: 'pi pi-eye',
-                        command: () => this.verHojaVida(equipo.id)
+                        routerLink: ['/biomedica/hojavidaequipo', equipo.id]
                     },
                     {
                         label: 'Reportes',
                         icon: 'pi pi-external-link',
-                        command: () => this.verReportes(equipo.id)
+                        routerLink: ['/biomedica/reportesequipo/', equipo.id]
                     },
                     {
                         label: 'Nuevo reporte',
@@ -138,12 +170,19 @@ export class ListaEquiposComponent implements OnInit {
     onGlobalFilter(event: Event): void {
         const target = event.target as HTMLInputElement | null;
         if (target) {
-            this.dt2.filterGlobal(target.value, 'contains');
+            this.searchText = target.value;
+            this.dt2.filterGlobal(this.searchText, 'contains');
+            this.stateService.setState('lista-equipos', { globalFilter: this.searchText });
         }
     }
 
+    onPageChange(event: any) {
+        this.first = event.first;
+        this.stateService.setState('lista-equipos', { first: this.first });
+    }
+
     editarEquipo(id: number) {
-        this.router.navigate(['biomedica/equipos/edit/', id]);
+        this.router.navigate(['biomedica/adminequipos/edit/', id]);
     }
 
     async desactivarEquipo(equipo: any) {
@@ -178,7 +217,7 @@ export class ListaEquiposComponent implements OnInit {
     }
 
     verHojaVida(id: number) {
-        this.router.navigate(['biomedica/hojavidaequipo/', id]);
+        this.router.navigate(['biomedica/hojavidaequipo', id]);
     }
 
     verReportes(id: number) {
@@ -186,7 +225,10 @@ export class ListaEquiposComponent implements OnInit {
     }
 
     nuevoReporte(id: number) {
-        sessionStorage.setItem('TipoMantenimiento', 'C');
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('TipoMantenimiento', 'C');
+            localStorage.removeItem('idReporte');
+        }
         this.router.navigate(['biomedica/nuevoreporte/', id]);
     }
 
@@ -194,60 +236,58 @@ export class ListaEquiposComponent implements OnInit {
         this.currentEquipo = equipo;
         this.displayPlanDialog = true;
 
-        // Inicializar periodicidad
-        this.periodicidad = equipo.periodicidadM || 0;
-
-        // Determinar mes de inicio basado en el plan existente o defecto
         if (equipo.planesMantenimiento && equipo.planesMantenimiento.length > 0) {
-            // Ordenar para encontrar el primero
-            const meses = equipo.planesMantenimiento.map((p: any) => (typeof p === 'object' && p.mes ? p.mes : p)).sort((a: any, b: any) => a - b);
-            this.mesInicio = meses[0];
-            this.selectedMonths = meses;
+            const firstPlan = equipo.planesMantenimiento[0];
+            this.mesInicio = firstPlan.mes || 1;
+            this.anioInicio = firstPlan.ano || new Date().getFullYear();
+            this.intervencionesAnuales = equipo.periodicidadM || 1;
+            this.selectedPlans = equipo.planesMantenimiento;
         } else {
-            this.mesInicio = 1; // Enero por defecto
-            this.selectedMonths = [];
+            this.mesInicio = new Date().getMonth() + 1;
+            this.anioInicio = new Date().getFullYear();
+            this.intervencionesAnuales = 1;
+            this.selectedPlans = [];
         }
 
-        // Calcular texto inicial
-        this.calcularFechas(false); // false para no sobrescribir immediately si se abre con datos existentes, pero la UI debe reflejar la periodicidad
-        // Si hay periodicidad valida, recalcular para asegurar consistencia
-        if (this.periodicidad > 0) {
-            this.calcularFechas();
-        } else {
-            this.updateCalculatedText();
-        }
+        this.calcularFechas();
     }
 
-    calcularFechas(overwrite: boolean = true) {
-        if (!this.periodicidad || this.periodicidad <= 0) {
-            this.calculatedMonthsText = 'Periodicidad no válida';
+    calcularFechas() {
+        if (!this.intervencionesAnuales || this.intervencionesAnuales <= 0) {
+            this.calculatedMonthsText = 'Intervenciones no válidas';
             return;
         }
 
-        if (overwrite) {
-            const nuevosMeses = [];
-            let mesActual = this.mesInicio;
+        const interval = 12 / this.intervencionesAnuales;
+        const nuevosPlanes = [];
+        let m = this.mesInicio;
+        let y = this.anioInicio;
 
-            while (mesActual <= 12) {
-                nuevosMeses.push(mesActual);
-                mesActual += this.periodicidad;
-            }
-            this.selectedMonths = nuevosMeses;
+        for (let i = 0; i < this.intervencionesAnuales; i++) {
+            let calcMonth = m + (i * interval);
+            let calcYear = y + Math.floor((calcMonth - 1) / 12);
+            calcMonth = ((calcMonth - 1) % 12) + 1;
+
+            nuevosPlanes.push({ mes: Math.floor(calcMonth), ano: calcYear });
         }
 
+        this.selectedPlans = nuevosPlanes;
         this.updateCalculatedText();
     }
 
     updateCalculatedText() {
-        if (!this.selectedMonths || this.selectedMonths.length === 0) {
+        if (!this.selectedPlans || this.selectedPlans.length === 0) {
             this.calculatedMonthsText = 'Sin fechas seleccionadas';
             return;
         }
-        const textMeses = this.selectedMonths.sort((a, b) => a - b).map(m => {
-            const op = this.monthOptions.find(o => o.value === m);
-            return op ? op.name : m;
-        }).join(', ');
-        this.calculatedMonthsText = `Fechas programadas: ${textMeses}`;
+
+        const meses = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+
+        const textPlanes = this.selectedPlans.map(p => `${meses[p.mes - 1]} ${p.ano}`).join(', ');
+        this.calculatedMonthsText = `Ciclo calculado: ${textPlanes}`;
     }
 
     async savePlan() {
@@ -255,14 +295,11 @@ export class ListaEquiposComponent implements OnInit {
 
         try {
             // Reconstruimos el array de planes basados en selectedMonths
-            const nuevosPlanes = this.selectedMonths.map(mes => ({
-                mes: mes
-            }));
 
             const equipoUpdate = {
                 ...this.currentEquipo,
-                periodicidadM: this.periodicidad, // Guardar tambien la periodicidad
-                planesMantenimiento: nuevosPlanes
+                periodicidadM: this.intervencionesAnuales,
+                planesMantenimiento: this.selectedPlans
             };
 
             await this.equipoServices.updateEquipo(this.currentEquipo.id, equipoUpdate);
@@ -282,6 +319,24 @@ export class ListaEquiposComponent implements OnInit {
                 'Hubo un problema al actualizar el plan.',
                 'error'
             );
+        }
+    }
+
+    async descargarInventario() {
+        this.loading = true;
+        try {
+            const blob = await this.equipoServices.exportarInventario();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Inventario_Equipos.xlsx';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error descargando inventario:', error);
+            Swal.fire('Error', 'No se pudo descargar el inventario.', 'error');
+        } finally {
+            this.loading = false;
         }
     }
 }

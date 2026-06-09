@@ -1,0 +1,108 @@
+<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+
+<div class="fade-in-animation p-4">
+    <div class="hero-section" style="margin-bottom: 3rem;">
+        <div class="hero-content">
+            <h1>INDICADORES ÁREAS FÍSICAS</h1>
+        </div>
+    </div>
+    
+    <p-button icon="pi pi-arrow-left" label="Volver a Gestión Operativa"
+        styleClass="p-button-secondary bg-gray-800 border-none shadow-2 px-4 py-2 border-round-lg hover:bg-gray-900 transition-all font-bold mb-4"
+        (click)="goBack()" pTooltip="Volver" tooltipPosition="bottom"></p-button>
+
+    <div class="grid">
+        <!-- Tarjetas de Resumen -->
+        <div class="col-12 md:col-6 lg:col-3 mb-4">
+            <div class="card shadow-2 border-round-xl p-4 border-left-3 border-blue-500">
+                <span class="text-600 font-medium mb-3 block">Total Inspecciones Més</span>
+                <div class="text-900 font-bold text-4xl">{{totalInspeccionesMes}}</div>
+            </div>
+        </div>
+        <div class="col-12 md:col-6 lg:col-3 mb-4">
+            <div class="card shadow-2 border-round-xl p-4 border-left-3 border-green-500">
+                <span class="text-600 font-medium mb-3 block">Mantenimientos Preventivos</span>
+                <div class="text-900 font-bold text-4xl">{{mantenimientosPreventivos}}</div>
+            </div>
+        </div>
+        <div class="col-12 md:col-6 lg:col-3 mb-4">
+            <div class="card shadow-2 border-round-xl p-4 border-left-3 border-orange-500">
+                <span class="text-600 font-medium mb-3 block">Mantenimientos Correctivos</span>
+                <div class="text-900 font-bold text-4xl">{{mantenimientosCorrectivos}}</div>
+            </div>
+        </div>
+        <div class="col-12 md:col-6 lg:col-3 mb-4">
+            <div class="card shadow-2 border-round-xl p-4 border-left-3 border-red-500">
+                <span class="text-600 font-medium mb-3 block">Tareas Pendientes</span>
+                <div class="text-900 font-bold text-4xl">{{tareasPendientes}}</div>
+            </div>
+        </div>
+
+        <!-- Área Principal Gráficas -->
+        <div class="col-12 lg:col-6 mb-4">
+            <div class="card shadow-2 border-round-xl p-4 h-full flex flex-column align-items-center justify-content-center bg-gray-50 border-1 border-gray-200" style="min-height: 400px;">
+                <h3 class="text-700 m-0 mb-4">Estado de Infraestructura</h3>
+                <ng-container *ngIf="totalInspeccionesMes > 0; else noData">
+                   <p-chart type="pie" [data]="estadoData" [options]="estadoOptions" [style]="{'width': '50%'}"></p-chart>
+                </ng-container>
+                <ng-template #noData>
+                    <div class="text-center text-500 mt-2">
+                        <i class="pi pi-inbox text-6xl mb-3"></i>
+                        <p>No hay inspecciones registradas este mes.</p>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+        
+        <div class="col-12 lg:col-6 mb-4">
+            <div class="card shadow-2 border-round-xl p-4 h-full flex flex-column bg-gray-50 border-1 border-gray-200" style="min-height: 400px;">
+                <h3 class="text-700 m-0 mb-4 text-center">Top 5 Áreas con más Reportes</h3>
+                <ng-container *ngIf="topAreasData && topAreasData.datasets[0].data.length > 0; else noTopAreas">
+                    <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%;">
+                        <p-chart type="bar" [data]="topAreasData" [options]="barOptions" style="width: 100%;"></p-chart>
+                    </div>
+                </ng-container>
+                <ng-template #noTopAreas>
+                    <div class="text-center text-500 m-auto">
+                        <i class="pi pi-map-marker text-6xl mb-3"></i>
+                        <p>No hay áreas con fallas reportadas.</p>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+
+        <div class="col-12 lg:col-6 mb-4">
+            <div class="card shadow-2 border-round-xl p-4 h-full flex flex-column bg-gray-50 border-1 border-gray-200" style="min-height: 400px;">
+                <h3 class="text-700 m-0 mb-4 text-center">Elementos Físicos con más Fallas</h3>
+                <ng-container *ngIf="topElementosData && topElementosData.datasets[0].data.length > 0; else noTopElems">
+                    <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%;">
+                        <p-chart type="bar" [data]="topElementosData" [options]="barOptions" style="width: 100%;"></p-chart>
+                    </div>
+                </ng-container>
+                <ng-template #noTopElems>
+                    <div class="text-center text-500 m-auto">
+                        <i class="pi pi-box text-6xl mb-3"></i>
+                        <p>No hay elementos con fallas registradas.</p>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+
+        <div class="col-12 lg:col-12 mb-4">
+            <div class="card shadow-2 border-round-xl p-4 h-full flex flex-column bg-gray-50 border-1 border-gray-200">
+                <h3 class="text-700 m-0 mb-4 text-center">Tendencia Anual de Mantenimientos</h3>
+                <ng-container *ngIf="tendenciaMensualData; else noTendencia">
+                    <div style="width: 100%; height: 350px;">
+                        <p-chart type="line" [data]="tendenciaMensualData" [options]="lineOptions" height="350px"></p-chart>
+                    </div>
+                </ng-container>
+                <ng-template #noTendencia>
+                    <div class="text-center text-500 my-6">
+                        <i class="pi pi-chart-line text-6xl mb-3"></i>
+                        <p>No hay datos suficientes de mantenimientos anuales.</p>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</div>

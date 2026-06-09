@@ -3,11 +3,15 @@ import { ResponsableService } from '../../../Services/appServices/biomedicaServi
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TableModule } from 'primeng/table'; // Added for TableModule
+import { ButtonModule } from 'primeng/button'; // Added for ButtonModule
+
+import { UppercaseDirective } from '../../../Directives/uppercase.directive';
 
 @Component({
     selector: 'app-clasificacion-responsables',
     standalone: true,
-    imports: [FormsModule, CommonModule],
+    imports: [CommonModule, TableModule, ButtonModule, FormsModule, UppercaseDirective],
     templateUrl: './clasificacion-responsables.component.html',
     styleUrl: './clasificacion-responsables.component.css'
 })
@@ -53,7 +57,7 @@ export class ClasificacionResponsablesComponent implements OnInit {
     }
 
     viewEquiposResponsable(idResponsable: any) {
-        sessionStorage.setItem("idResponsable", idResponsable);
+        localStorage.setItem("idResponsable", idResponsable);
         this.router.navigate(['biomedica/equiposresponsable']);
     }
 }

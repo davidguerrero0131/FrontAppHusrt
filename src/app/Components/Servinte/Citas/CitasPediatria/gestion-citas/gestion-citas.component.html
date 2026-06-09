@@ -1,0 +1,370 @@
+<div style="margin-top: 5%; margin-left: 5%; margin-right: 5%;">
+    <div class="card p-4 shadow-2 border-round">
+        <div class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+            <div>
+                <h2 class="text-900 font-bold mb-1">Gestión de Citas Madre Canguro</h2>
+                <p class="text-500 m-0">Administre y valide las citas programadas localmente.</p>
+            </div>
+            <div class="mt-3 md:mt-0 flex flex-wrap gap-2">
+                <p-button label="Crear Cita" icon="pi pi-calendar-plus" severity="success" (click)="goToCreacion()"></p-button>
+                <p-button label="Gestión Médicos" icon="pi pi-users" severity="secondary" (click)="openMedicosModal()"></p-button>
+                <p-button label="Estadísticas" icon="pi pi-chart-bar" severity="primary" (click)="goToDashboard()"></p-button>
+                <p-button label="Descargar Reporte" icon="pi pi-download" severity="help"
+                    (click)="exportDialog = true"></p-button>
+                <p-button label="Actualizar" icon="pi pi-refresh" [loading]="loading"
+                    (click)="loadAppointments()"></p-button>
+            </div>
+        </div>
+
+        <!-- Modal de Exportación -->
+        <p-dialog [(visible)]="exportDialog" [modal]="true" header="Descargar Reporte de Citas"
+            [style]="{width: '450px'}" [draggable]="false" [resizable]="false">
+            <div class="flex flex-column gap-4 p-2">
+                <p class="m-0 text-500">Seleccione el periodo de tiempo que desea exportar a Excel.</p>
+
+                <div class="flex flex-column gap-2">
+                    <label class="font-bold">Fecha Inicio</label>
+                    <p-datepicker [(ngModel)]="startDateExport" [showIcon]="true" placeholder="Desde" appendTo="body"
+                        class="w-full"></p-datepicker>
+                </div>
+
+                <div class="flex flex-column gap-2">
+                    <label class="font-bold">Fecha Fin</label>
+                    <p-datepicker [(ngModel)]="endDateExport" [showIcon]="true" placeholder="Hasta" appendTo="body"
+                        class="w-full"></p-datepicker>
+                </div>
+            </div>
+
+            <ng-template pTemplate="footer">
+                <p-button label="Cancelar" icon="pi pi-times" severity="secondary" (click)="exportDialog = false"
+                    [disabled]="loading"></p-button>
+                <p-button label="Generar Excel" icon="pi pi-file-excel" severity="success" (click)="downloadExcel()"
+                    [loading]="loading"></p-button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Filtros Externos -->
+        <div class="grid mb-3 align-items-end">
+            <div class="col-12 md:col-4">
+                <label class="block font-bold mb-2">Buscar Paciente</label>
+                <p-iconField iconPosition="left">
+                    <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+                    <input pInputText type="text" [(ngModel)]="filterGlobalText" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                        placeholder="Nombre o Identificación..." class="w-full" />
+                </p-iconField>
+            </div>
+            <div class="col-12 md:col-3">
+                <label class="block font-bold mb-2">Filtrar por Validación</label>
+                <p-select [(ngModel)]="filterValidacion" (onChange)="dt.filter($event.value, 'validada', 'equals')"
+                    placeholder="Todas" [showClear]="true" class="w-full">
+                    <ng-template pTemplate="item" let-option>
+                        <span
+                            [class]="option.value ? 'text-green-500 font-bold' : 'text-orange-500 font-bold'">{{option.label}}</span>
+                    </ng-template>
+                </p-select>
+            </div>
+            <div class="col-12 md:col-3">
+                <label class="block font-bold mb-2">Filtrar por Fecha</label>
+                <p-datepicker [(ngModel)]="filterFecha" (onSelect)="dt.filter(formatDate($event), 'fechaCita', 'contains')"
+                    placeholder="Seleccionar Fecha" [showIcon]="true" class="w-full"></p-datepicker>
+            </div>
+            <div class="col-12 md:col-2">
+                <p-button label="Limpiar Filtros" icon="pi pi-filter-slash" severity="secondary"
+                    (click)="clearFilters(dt)"
+                    styleClass="w-full"></p-button>
+            </div>
+        </div>
+
+        <div class="grid mb-3 align-items-end">
+            <div class="col-12 md:col-4">
+                <label class="block font-bold mb-2">Estado de Cita</label>
+                <p-select [(ngModel)]="filterEstado" [options]="appointmentStatuses" (onChange)="dt.filter($event.value, 'estadoCita', 'equals')"
+                    placeholder="Todos los estados" [showClear]="true" class="w-full" optionLabel="label" optionValue="value" appendTo="body"></p-select>
+            </div>
+            <div class="col-12 md:col-4">
+                <label class="block font-bold mb-2">Médico Asignado</label>
+                <p-select [(ngModel)]="filterMedico" [options]="medicosFilterOptions" (onChange)="dt.filter($event.value, 'medicoNombreCompleto', 'equals')"
+                    placeholder="Todos los médicos" [showClear]="true" class="w-full" optionLabel="label" optionValue="value" appendTo="body"></p-select>
+            </div>
+            <div class="col-12 md:col-4">
+                <label class="block font-bold mb-2">Control / Etapa</label>
+                <p-select [(ngModel)]="filterControl" [options]="stages" (onChange)="dt.filter($event.value, 'control', 'equals')"
+                    placeholder="Todas las etapas" [showClear]="true" class="w-full" optionLabel="label" optionValue="value" appendTo="body"></p-select>
+            </div>
+        </div>
+
+        <p-card>
+            <p-table #dt [value]="appointments" [loading]="loading" [paginator]="true" [rows]="10"
+                [rowsPerPageOptions]="[10, 25, 100, 1000]" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+                styleClass="p-datatable-striped" responsiveLayout="stack" [breakpoint]="'960px'"
+                [globalFilterFields]="['paciente.nombre', 'paciente.apellido1', 'paciente.numeroId']">
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="paciente.nombre" style="min-width: 15rem">
+                            Paciente <p-sortIcon field="paciente.nombre"></p-sortIcon>
+                        </th>
+                        <th style="min-width: 10rem">Identificación</th>
+                        <th style="min-width: 10rem">Fecha de Cita</th>
+                        <th style="min-width: 12rem">Control / Etapa</th>
+                        <th style="min-width: 12rem">Médico</th>
+                        <th class="text-center" style="min-width: 10rem">Estado Cita</th>
+                        <th class="text-center" style="min-width: 10rem">Validación Servinte</th>
+                        <th class="text-center" style="min-width: 12rem">Opciones</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-appointment>
+                    <tr>
+                        <td>
+                            <div
+                                class="font-bold border-bottom-1 border-primary-500 pb-1 mb-1 md:border-none md:pb-0 md:mb-0">
+                                <a href="javascript:void(0)" (click)="viewPatient(appointment.paciente)"
+                                    class="text-primary hover:underline">
+                                    {{appointment.paciente?.nombre}} {{appointment.paciente?.apellido1}}
+                                    {{appointment.paciente?.apellido2}}
+                                </a>
+                            </div>
+                        </td>
+                        <td>
+                            {{appointment.paciente?.tipoId}} {{appointment.paciente?.numeroId}}
+                        </td>
+                        <td>
+                            {{appointment.fechaCita | date:'dd/MM/yyyy'}}
+                        </td>
+                        <td>
+                            {{appointment.control}}
+                        </td>
+                        <td>
+                            {{appointment.medicoNombreCompleto}}
+                        </td>
+                        <td class="text-center">
+                            <p-tag [value]="appointment.estadoCita"
+                                [severity]="getSeverity(appointment.estadoCita)"></p-tag>
+                        </td>
+                        <td class="text-center">
+                            <span
+                                [class]="appointment.validada ? 'text-green-500 font-bold' : 'text-orange-500 font-bold'">
+                                {{appointment.validada ? 'Validada' : 'Pendiente'}}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="flex gap-2 justify-content-center">
+                                <p-button *ngIf="!appointment.validada" icon="pi pi-pencil" severity="secondary"
+                                    (click)="openEdit(appointment)" [loading]="loading"
+                                    pTooltip="Editar Cita"></p-button>
+                                <p-button *ngIf="!appointment.validada" label="Validar" icon="pi pi-check"
+                                    severity="info" (click)="validateAppointment(appointment)"
+                                    [loading]="loading"></p-button>
+                            </div>
+                            <div class="flex flex-column gap-1 align-items-center mt-1">
+                                <span *ngIf="appointment.validada" class="text-green-600 font-bold block"
+                                    style="font-size: 0.8rem;">
+                                    <i class="pi pi-check-circle mr-1"></i> Cargada en Servinte
+                                </span>
+                                <p-button *ngIf="appointment.validada" icon="pi pi-tag" severity="secondary"
+                                    [rounded]="true" [text]="true" (click)="openEditStatus(appointment)"
+                                    pTooltip="Cambiar Estado" size="small"></p-button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center p-4">No se encontraron citas programadas.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card>
+
+        <!-- Modal de Edición -->
+        <p-dialog [(visible)]="editDialog" [modal]="true" header="Editar Cita" [style]="{width: '500px'}"
+            [draggable]="false" [resizable]="false">
+            <div class="flex flex-column gap-4 p-2" *ngIf="editingCita">
+                <div class="flex flex-column gap-1">
+                    <label class="font-bold text-700">Paciente</label>
+                    <div class="p-3 bg-gray-100 border-round font-semibold">
+                        {{editingCita.paciente?.nombre}} {{editingCita.paciente?.apellido1}}
+                    </div>
+                </div>
+
+                <div class="flex flex-column gap-2">
+                    <label class="font-bold">Fecha de Cita</label>
+                    <p-datepicker [(ngModel)]="editingCita.fechaCita" [showIcon]="true" appendTo="body"
+                        class="w-full"></p-datepicker>
+                </div>
+
+                <div class="flex flex-column gap-2">
+                    <label class="font-bold">Etapa / Control</label>
+                    <p-select [options]="stages" [(ngModel)]="editingCita.control" optionLabel="label"
+                        optionValue="value" placeholder="Seleccione Etapa" appendTo="body" class="w-full"></p-select>
+                </div>
+
+                <div class="flex flex-column gap-2">
+                    <label class="font-bold">Estado de la Cita</label>
+                    <p-select [options]="appointmentStatuses" [(ngModel)]="editingCita.estadoCita" optionLabel="label"
+                        optionValue="value" placeholder="Seleccione Estado" appendTo="body" class="w-full"></p-select>
+                </div>
+
+            </div>
+
+            <ng-template pTemplate="footer">
+                <p-button label="Cancelar" icon="pi pi-times" severity="secondary" (click)="editDialog = false"
+                    [disabled]="loading"></p-button>
+                <p-button label="Guardar Cambios" icon="pi pi-save" severity="primary" (click)="saveEdit()"
+                    [loading]="loading"></p-button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Modal de Edición de Estado (Para ya validadas) -->
+        <p-dialog [(visible)]="editStatusDialog" [modal]="true" header="Actualizar Estado de Cita"
+            [style]="{width: '400px'}" [draggable]="false" [resizable]="false">
+            <div class="flex flex-column gap-4 p-2" *ngIf="editingCita">
+                <div class="p-3 bg-blue-50 border-round border-left-3 border-blue-500">
+                    <div class="text-700 font-bold mb-1">Paciente:</div>
+                    <div class="text-900 font-semibold">{{editingCita.paciente?.nombre}}
+                        {{editingCita.paciente?.apellido1}}</div>
+                </div>
+
+                <div class="flex flex-column gap-2">
+                    <label class="font-bold text-900">Estado</label>
+                    <p-select [options]="appointmentStatuses" [(ngModel)]="editingCita.estadoCita" optionLabel="label"
+                        optionValue="value" placeholder="Seleccione Estado" appendTo="body" class="w-full"></p-select>
+                    <small class="text-500 italic">Solo se permite modificar el estado una vez validada.</small>
+                </div>
+
+                <!-- Campos adicionales si el estado es Cancelada, No Asistio o Reprogramada -->
+                <div class="flex flex-column gap-2" *ngIf="['Cancelada', 'No Asistio', 'Reprogramada'].includes(editingCita.estadoCita)">
+                    <label class="font-bold text-900">Observaciones (Motivo)</label>
+                    <textarea pInputTextarea [(ngModel)]="editingCita.observaciones" rows="3" class="w-full" placeholder="Ingrese el motivo o la justificación"></textarea>
+                </div>
+
+                <div class="flex flex-column gap-2" *ngIf="editingCita.estadoCita === 'Reprogramada'">
+                    <label class="font-bold text-900">Fecha de Reprogramación</label>
+                    <p-datepicker [(ngModel)]="editingCita.fechaReprogramacion" [showIcon]="true" appendTo="body" class="w-full" placeholder="Seleccione nueva fecha"></p-datepicker>
+                </div>
+            </div>
+
+            <ng-template pTemplate="footer">
+                <p-button label="Cancelar" icon="pi pi-times" severity="secondary" (click)="editStatusDialog = false"
+                    [disabled]="loading" [text]="true"></p-button>
+                <p-button label="Actualizar Estado" icon="pi pi-save" severity="primary" (click)="saveEditStatus()"
+                    [loading]="loading"></p-button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Modal de Detalle de Paciente -->
+        <p-dialog [(visible)]="patientDialog" [modal]="true" header="Información del Paciente"
+            [style]="{width: '500px'}" [draggable]="false" [resizable]="false">
+            <div class="p-2" *ngIf="selectedPatient">
+                <div class="grid">
+                    <div class="col-12 mb-3">
+                        <div class="text-500 font-medium mb-1">Nombre Completo</div>
+                        <div class="text-900 font-bold text-xl">{{selectedPatient.nombre}} {{selectedPatient.apellido1}}
+                            {{selectedPatient.apellido2}}</div>
+                    </div>
+
+                    <div class="col-6 mb-3">
+                        <div class="text-500 font-medium mb-1">Identificación</div>
+                        <div class="text-900">{{selectedPatient.tipoId}} {{selectedPatient.numeroId}}</div>
+                    </div>
+
+                    <div class="col-6 mb-3">
+                        <div class="text-500 font-medium mb-1">Género</div>
+                        <div class="text-900">{{selectedPatient.sexo === 'M' ? 'Masculino' : (selectedPatient.sexo ===
+                            'F' ? 'Femenino' : selectedPatient.sexo)}}</div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="surface-border border-top-1 opacity-50 mb-3"></div>
+                        <h3 class="text-900 font-bold mb-3"><i class="pi pi-phone mr-2"></i>Contactos</h3>
+                    </div>
+
+                    <div class="col-6 mb-3">
+                        <div class="text-500 font-medium mb-1">Teléfono Fijo</div>
+                        <div class="text-900">{{selectedPatient.telefono || 'No registrado'}}</div>
+                    </div>
+
+                    <div class="col-6 mb-3">
+                        <div class="text-500 font-medium mb-1">Celular</div>
+                        <div class="text-900 font-bold text-primary">{{selectedPatient.celular || 'No registrado'}}
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-2" *ngIf="selectedPatient.idUnicoServinte">
+                        <div class="text-500 font-medium mb-1">ID Único Servinte</div>
+                        <div class="text-900">{{selectedPatient.idUnicoServinte}}</div>
+                    </div>
+                </div>
+            </div>
+            <ng-template pTemplate="footer">
+                <p-button label="Cerrar" icon="pi pi-check" (click)="patientDialog = false"></p-button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Modal Gestión de Médicos -->
+        <p-dialog [(visible)]="medicosDialog" [modal]="true" header="Gestión de Médicos - Madre Canguro"
+            [style]="{width: '700px'}" [draggable]="false" [resizable]="false">
+            
+            <div class="flex flex-column gap-3 mt-2">
+                <!-- Formulario para crear médico -->
+                <p-card header="Nuevo Médico" styleClass="bg-gray-50 mb-3">
+                    <div class="grid">
+                        <div class="col-12 md:col-6 mb-2">
+                            <label class="block font-bold mb-1">Nombre</label>
+                            <input type="text" pInputText [(ngModel)]="newMedico.nombre" class="w-full" placeholder="Nombre" />
+                        </div>
+                        <div class="col-12 md:col-6 mb-2">
+                            <label class="block font-bold mb-1">Apellido</label>
+                            <input type="text" pInputText [(ngModel)]="newMedico.apellido" class="w-full" placeholder="Apellido" />
+                        </div>
+                        <div class="col-12 md:col-6 mb-2">
+                            <label class="block font-bold mb-1">Teléfono</label>
+                            <input type="text" pInputText [(ngModel)]="newMedico.telefono" class="w-full" placeholder="Teléfono" />
+                        </div>
+                        <div class="col-12 md:col-6 mb-2 flex align-items-end justify-content-end">
+                            <p-button label="Guardar Médico" icon="pi pi-save" severity="success" (click)="saveMedico()" [loading]="loadingMedicos"></p-button>
+                        </div>
+                    </div>
+                </p-card>
+
+                <!-- Tabla de médicos -->
+                <p-table [value]="medicosList" [loading]="loadingMedicos" [paginator]="true" [rows]="5" styleClass="p-datatable-sm">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Nombre Completo</th>
+                            <th>Teléfono</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Acción</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-medico>
+                        <tr>
+                            <td>{{medico.nombre}} {{medico.apellido}}</td>
+                            <td>{{medico.telefono || 'N/A'}}</td>
+                            <td class="text-center">
+                                <p-tag [value]="medico.estadoActivo ? 'Activo' : 'Inactivo'" [severity]="medico.estadoActivo ? 'success' : 'danger'"></p-tag>
+                            </td>
+                            <td class="text-center">
+                                <p-button [icon]="medico.estadoActivo ? 'pi pi-ban' : 'pi pi-check-circle'" 
+                                          [severity]="medico.estadoActivo ? 'danger' : 'success'" 
+                                          [text]="true" [rounded]="true"
+                                          pTooltip="Cambiar estado"
+                                          (click)="toggleEstadoMedico(medico)"></p-button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr><td colspan="4" class="text-center">No hay médicos registrados.</td></tr>
+                    </ng-template>
+                </p-table>
+            </div>
+            
+            <ng-template pTemplate="footer">
+                <p-button label="Cerrar" icon="pi pi-times" severity="secondary" (click)="medicosDialog = false"></p-button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

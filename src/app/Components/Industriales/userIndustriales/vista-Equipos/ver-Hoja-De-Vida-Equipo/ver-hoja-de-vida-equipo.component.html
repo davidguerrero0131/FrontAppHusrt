@@ -1,0 +1,210 @@
+<app-industriales-navbar></app-industriales-navbar>
+<div style="width: 90%; margin-left: 5%; margin-right: 5%; margin-top: 2%;">
+    <p-card *ngIf="hojaVida" class="mb-4">
+        <ng-template pTemplate="header">
+            <div class="flex justify-content-between align-items-center p-3"
+                style="display: flex; justify-content: space-between; align-items: center; padding: 1rem;">
+                <span class="text-xl font-bold" style="font-size: 1.25rem; font-weight: 700;">Datos del Equipo
+                    Industrial</span>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button pButton label="Descargar PDF" icon="pi pi-file-pdf" class="p-button-danger"
+                        (click)="generarPDF()"></button>
+                    <button pButton label="Regresar" icon="pi pi-arrow-left" (click)="regresar()"></button>
+                </div>
+            </div>
+
+        </ng-template>
+
+        <div class="grid p-3" style="display: flex; flex-wrap: wrap;">
+
+            <!-- Columna izquierda: Imagen (Placeholder por ahora) -->
+            <div class="col-12 md:col-4 flex justify-content-center align-items-center"
+                style="width: 33%; display: flex; justify-content: center; align-items: center;">
+                <p-image *ngIf="imagenUrl" [src]="imagenUrl" [alt]="equipoInfo?.nombres" width="250" preview>
+                    <ng-template pTemplate="indicator">
+                        <i class="pi pi-image text-4xl"></i>
+                    </ng-template>
+                </p-image>
+                <div *ngIf="!imagenUrl" style="width: 250px; height: 200px; display: flex; align-items: center; justify-content: center; background: #f0f0f0; border-radius: 8px; color: #aaa;">
+                    <i class="pi pi-image" style="font-size: 3rem;"></i>
+                </div>
+            </div>
+
+            <!-- Columna derecha: Datos generales -->
+            <div class="col-12 md:col-8" style="width: 66%;">
+                <div class="grid" style="display: flex; flex-wrap: wrap;">
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Nombre:</strong> {{ equipoInfo?.nombres }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Marca:</strong> {{ equipoInfo?.marca }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Modelo:</strong> {{ equipoInfo?.modelo }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Serie:</strong> {{ equipoInfo?.serie }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Placa:</strong> {{ equipoInfo?.placa }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Tipo Equipo:</strong> {{
+                        equipoInfo?.tipoEquipoInd?.nombres }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Servicio:</strong> {{
+                        equipoInfo?.servicioInd?.nombres }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Sede:</strong> {{ equipoInfo?.sedeInd?.nombres
+                        }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Ubicación:</strong> {{
+                        equipoInfo?.ubicacionEspecifica }}
+                    </div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Responsable:</strong> {{
+                        equipoInfo?.responsableInd?.nombres }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;">
+                        <strong>Estado:</strong>
+                        <span [class]="!equipoInfo?.estadoBaja ? 'badge bg-success' : 'badge bg-danger'"
+                            style="margin-left: 5px; padding: 0.2rem 0.5rem; color: white; border-radius: 4px;">
+                            {{ !equipoInfo?.estadoBaja ? 'Activo' : 'Inactivo (De Baja)' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p-divider></p-divider>
+
+        <!-- Accordion para secciones adicionales -->
+        <p-accordion [multiple]="true" [activeIndex]="[0,1,2,3,4]">
+
+            <!-- Adquisición -->
+            <p-accordionTab header="Adquisición y Garantía">
+                <div class="grid" style="display: flex; flex-wrap: wrap;">
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Forma Adquisición:</strong> {{
+                        hojaVida.adquisicion }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Fecha Compra:</strong> {{ hojaVida.fechaCompra |
+                        date:'dd/MM/yyyy' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Fecha Instalación:</strong> {{
+                        hojaVida.fechaInstalacion | date:'dd/MM/yyyy' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Inicio Operación:</strong> {{
+                        hojaVida.fechaInicioOperacion | date:'dd/MM/yyyy' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Vencimiento Garantía:</strong> {{
+                        hojaVida.vencimientoGarantia | date:'dd/MM/yyyy' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Referencia:</strong> {{ hojaVida.referencia }}
+                    </div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Fabricación:</strong> {{ hojaVida.fabricacion }}
+                    </div>
+                </div>
+            </p-accordionTab>
+
+            <!-- Proveedor -->
+            <p-accordionTab header="Información de Proveedor">
+                <div *ngIf="proveedor; else noProv" class="grid" style="display: flex; flex-wrap: wrap;">
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Proveedor (Código):</strong> {{
+                        proveedor.codigoEquipo }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Código Int.:</strong> {{
+                        proveedor.codigoInternacional }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Fabricante:</strong> {{ proveedor.fabricante }}
+                    </div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Ciudad Fab.:</strong> {{
+                        proveedor.ciudadFabricante }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Representante:</strong> {{
+                        proveedor.representante }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Tel. Representante:</strong> {{
+                        proveedor.telefonoRepresentante }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Distribuidor:</strong> {{ proveedor.distribuidor
+                        }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Tel. Distribuidor:</strong> {{
+                        proveedor.telefonoDistribuidor }}</div>
+                </div>
+                <ng-template #noProv>
+                    <div class="text-center font-italic text-500">Sin información de proveedor asignado.</div>
+                </ng-template>
+            </p-accordionTab>
+
+            <!-- Datos Técnicos -->
+            <p-accordionTab header="Datos Técnicos">
+                <div *ngIf="datosTecnicos; else noDatos" class="grid" style="display: flex; flex-wrap: wrap;">
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Voltaje:</strong> {{
+                        datosTecnicos.volMaxOperacion }} - {{ datosTecnicos.volMinOperacion }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Corriente:</strong> {{
+                        datosTecnicos.corrienteMaxOperacion }} - {{ datosTecnicos.corrienteMinOperacion }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Potencia:</strong> {{
+                        datosTecnicos.potenciaConsumida }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Frecuencia:</strong> {{ datosTecnicos.frecuencia
+                        }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Presión:</strong> {{ datosTecnicos.presion }}
+                    </div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Velocidad:</strong> {{ datosTecnicos.velocidad
+                        }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Temperatura:</strong> {{
+                        datosTecnicos.temperatura }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Peso:</strong> {{ datosTecnicos.peso }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Capacidad:</strong> {{ datosTecnicos.capacidad
+                        }}</div>
+                    <div class="col-12 mb-2"
+                        style="width: 100%; border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px;"
+                        *ngIf="datosTecnicos.accesorios">
+                        <strong>Accesorios:</strong> {{ datosTecnicos.accesorios }} ({{ datosTecnicos.marcaAccesorio }}
+                        - {{ datosTecnicos.modeloSerieAccesorio }})
+                    </div>
+                </div>
+                <ng-template #noDatos>
+                    <div class="text-center font-italic text-500">Sin datos técnicos registrados.</div>
+                </ng-template>
+            </p-accordionTab>
+
+            <!-- Registro de Apoyo -->
+            <p-accordionTab header="Registro de Apoyo">
+                <div *ngIf="registroApoyo; else noApoyo" class="grid" style="display: flex; flex-wrap: wrap;">
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Manual Usuario:</strong> {{
+                        registroApoyo.manualUsuario ? 'Si' : 'No' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Manual Técnico:</strong> {{
+                        registroApoyo.manualTecnico ? 'Si' : 'No' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Equipo Fijo:</strong> {{
+                        registroApoyo.equipoFijo ? 'Si' : 'No' }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Uso:</strong> {{ registroApoyo.uso }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Tecnología:</strong> {{
+                        registroApoyo.tecnologiaPredominante }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Clasificación:</strong> {{
+                        registroApoyo.clasificacion }}</div>
+                    <div class="col-6 mb-2" style="width: 50%;"><strong>Estado Físico:</strong> {{ registroApoyo.estado
+                        }}</div>
+                </div>
+                <ng-template #noApoyo>
+                    <div class="text-center font-italic text-500">Sin registro de apoyo.</div>
+                </ng-template>
+            </p-accordionTab>
+
+            <!-- Documentos Anexos -->
+            <p-accordionTab header="Documentos Anexos">
+                <div class="mb-3 d-flex align-items-center" *ngIf="userRole === 'ADMINMANTENIMIENTO' || userRole === 'USERMANTENIMIENTO'">
+                    <label for="fileUpload" class="p-button p-component p-button-sm mr-2" style="cursor: pointer;">
+                        <i class="pi pi-upload mr-2"></i> {{ uploading ? 'Subiendo...' : 'Subir Documento' }}
+                    </label>
+                    <input type="file" id="fileUpload" class="d-none" (change)="onFileSelected($event)"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png" style="display: none;">
+                </div>
+
+                <p-table [value]="documentos" [rows]="5" [paginator]="true" responsiveLayout="scroll">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Nombre Archivo</th>
+                            <th>Fecha Carga</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-doc>
+                        <tr>
+                            <td><i class="pi pi-file mr-2"></i>{{ doc.nombreOriginal }}</td>
+                            <td>{{ doc.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                            <td>
+                                <button pButton icon="pi pi-eye" class="p-button-rounded p-button-success mr-2"
+                                    (click)="visualizarDocumento(doc.id)" pTooltip="Visualizar"></button>
+                                <button pButton icon="pi pi-download" class="p-button-rounded p-button-info mr-2"
+                                    (click)="descargarDocumento(doc.id, doc.nombreOriginal)" pTooltip="Descargar"></button>
+                                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                                    (click)="eliminarDocumento(doc.id)" pTooltip="Eliminar"
+                                    *ngIf="userRole === 'ADMINMANTENIMIENTO' || userRole === 'USERMANTENIMIENTO'"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="3" class="text-center">No hay documentos anexos.</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-accordionTab>
+
+        </p-accordion>
+    </p-card>
+</div>

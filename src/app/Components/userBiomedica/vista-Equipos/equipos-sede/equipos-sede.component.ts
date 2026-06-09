@@ -18,15 +18,18 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { HistorialEquiposComponent } from '../historial-equipos/historial-equipos.component';
 import { DialogModule } from 'primeng/dialog';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
+import Swal from 'sweetalert2';
+
+import { UppercaseDirective } from '../../../../Directives/uppercase.directive';
 
 @Component({
     selector: 'app-equipos-sede',
     standalone: true,
     imports: [FormsModule, CommonModule, TableModule,
-        SplitButtonModule, SpeedDialModule, IconFieldModule, InputIconModule, InputTextModule, DialogModule, MultiSelectModule, DropdownModule, InputNumberModule, ButtonModule],
+        SplitButtonModule, SpeedDialModule, IconFieldModule, InputIconModule, InputTextModule, DialogModule, MultiSelectModule, SelectModule, InputNumberModule, ButtonModule, UppercaseDirective],
     providers: [DialogService],
     templateUrl: './equipos-sede.component.html',
     styleUrl: './equipos-sede.component.css'
@@ -43,9 +46,21 @@ export class EquiposSedeComponent implements OnInit {
     displayPlanDialog: boolean = false;
     currentEquipo: any = null;
     selectedMonths: any[] = [];
-    periodicidad: number = 0;
+    selectedPlans: any[] = []; // Array of objects { mes, ano }
+    periodicidad: number = 0; // Legacy field
+    intervencionesAnuales: number = 1;
     mesInicio: number = 1;
+    anioInicio: number = new Date().getFullYear();
     calculatedMonthsText: string = '';
+
+    intervencionOptions = [
+        { name: '1 vez al año (Anual)', value: 1 },
+        { name: '2 veces al año (Semestral)', value: 2 },
+        { name: '3 veces al año (Cuatrimestral)', value: 3 },
+        { name: '4 veces al año (Trimestral)', value: 4 }
+    ];
+
+    anioOptions = Array.from({ length: 11 }, (_, i) => ({ name: (new Date().getFullYear() + i).toString(), value: new Date().getFullYear() + i }));
 
     monthOptions: any[] = [
         { name: 'Enero', value: 1 },
@@ -71,57 +86,57 @@ export class EquiposSedeComponent implements OnInit {
     ) { }
 
     async ngOnInit() {
-        const idSede = sessionStorage.getItem('idSede');
+        if (typeof localStorage === 'undefined') return;
+        const idSede = localStorage.getItem('idSede');
         if (idSede) {
             this.loading = true;
             try {
                 const equiposData = await this.equipoServices.getAllEquiposSede(idSede);
                 this.sede = await this.sedeServices.getSedeById(idSede);
 
-                this.equipos = equiposData.map((equipo: any) => ({
-                    ...equipo,
-                    opcionesHV: [
-                        {
-                            label: 'Editar',
-                            icon: 'pi pi-pencil',
-                            command: () => this.editarEquipo(equipo.id),
-                            visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
-                        },
-                        {
-                            label: 'Editar Plan Mantenimiento',
-                            icon: 'pi pi-calendar',
-                            command: () => this.openPlanDialog(equipo),
-                            visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
-                        },
-                        {
-                            label: 'Ver Hoja de Vida',
-                            icon: 'pi pi-eye',
-                            command: () => this.verHojaVida(equipo.id)
-                        },
-                        {
-                            label: 'Reportes',
-                            icon: 'pi pi-external-link',
-                            command: () => this.verReportes(equipo.id)
-                        },
-                        {
-                            label: 'Nuevo reporte',
-                            icon: 'pi pi-upload',
-                            command: () => this.nuevoReporte(equipo.id),
-                            visible: getDecodedAccessToken().rol !== 'INVITADO'
-                        },
-                        {
-                            label: 'Historial',
-                            icon: 'pi pi-history',
-                            command: () => this.verHistorial(equipo.id)
-                        }
-                    ]
-                }));
+                this.equipos = this.mapEquipos(equiposData);
             } catch (error) {
                 console.error(error);
             } finally {
                 this.loading = false;
             }
         }
+    }
+
+    mapEquipos(datos: any[]): any[] {
+        return datos.map((equipo: any) => ({
+            ...equipo,
+            opcionesHV: [
+                {
+                    label: 'Editar',
+                    icon: 'pi pi-pencil',
+                    command: () => this.editarEquipo(equipo.id),
+                    visible: ['BIOMEDICAADMIN', 'SUPERADMIN', 'BIOMEDICAUSER'].includes(getDecodedAccessToken().rol)
+                },
+                {
+                    label: 'Editar Plan Mantenimiento',
+                    icon: 'pi pi-calendar',
+                    command: () => this.openPlanDialog(equipo),
+                    visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
+                },
+                {
+                    label: 'Ver Hoja de Vida',
+                    icon: 'pi pi-eye',
+                    command: () => this.verHojaVida(equipo.id)
+                },
+                {
+                    label: 'Reportes',
+                    icon: 'pi pi-external-link',
+                    command: () => this.verReportes(equipo.id)
+                },
+                {
+                    label: 'Nuevo reporte',
+                    icon: 'pi pi-upload',
+                    command: () => this.nuevoReporte(equipo.id),
+                    visible: ['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN', 'BIOMEDICATECNICO'].includes(getDecodedAccessToken().rol)
+                }
+            ]
+        }));
     }
 
     onGlobalFilter(event: Event): void {
@@ -132,7 +147,7 @@ export class EquiposSedeComponent implements OnInit {
     }
 
     verHojaVida(id: number) {
-        this.router.navigate(['biomedica/hojavidaequipo/', id]);
+        this.router.navigate(['biomedica/hojavidaequipo', id]);
     }
 
     editarEquipo(id: number) {
@@ -140,7 +155,7 @@ export class EquiposSedeComponent implements OnInit {
     }
 
     nuevoReporte(id: number) {
-        sessionStorage.setItem('TipoMantenimiento', 'C');
+        if (typeof localStorage !== 'undefined') localStorage.setItem('TipoMantenimiento', 'C');
         this.router.navigate(['biomedica/nuevoreporte/', id]);
     }
 
@@ -163,7 +178,7 @@ export class EquiposSedeComponent implements OnInit {
 
     obtenerMesesTexto(planes: any[]): string {
         if (!planes || planes.length === 0) {
-            return 'Sin programación';
+            return 'No Aplica';
         }
         const meses = [
             'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -172,7 +187,56 @@ export class EquiposSedeComponent implements OnInit {
         // Filter duplicates and sort
         const uniqueMeses = [...new Set(planes.map(p => p.mes))].sort((a: any, b: any) => a - b);
 
-        return uniqueMeses.map((m: any) => meses[m]).join(', ');
+        return uniqueMeses.map((m: any) => meses[m - 1]).join(', ');
+    }
+
+    obtenerMesesConCumplimiento(equipo: any): any[] {
+        const planes = equipo.planesMantenimiento || [];
+        const reportes = equipo.reporte || [];
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1;
+        const currentYear = now.getFullYear();
+
+        const meses = [
+            'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+            'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+        ];
+
+        return planes.map((p: any) => {
+            const m = typeof p === 'object' ? p.mes : p;
+            const y = typeof p === 'object' ? p.ano : currentYear;
+
+            const reporte = reportes.find((r: any) => r.mesProgramado === m && (r.añoProgramado === y || !r.añoProgramado));
+            let color = '';
+
+            if (reporte) {
+                if (reporte.realizado) {
+                    color = '#2ecc71'; // Verde (Realizado)
+                } else {
+                    if (currentYear > y || (currentYear === y && currentMonth > m)) {
+                        color = '#e74c3c'; // Rojo (Vencido)
+                    } else {
+                        color = '#f1c40f'; // Amarillo (Pendiente)
+                    }
+                }
+            } else {
+                if (currentYear > y || (currentYear === y && currentMonth > m)) {
+                    color = '#e74c3c'; // Rojo (Vencido)
+                } else if (currentYear === y && currentMonth === m) {
+                    color = '#f1c40f'; // Amarillo (Este mes)
+                } else {
+                    color = '#3498db'; // Azul (Futuro)
+                }
+            }
+
+            const mesNombre = meses[m - 1];
+            const mostrarAnio = y !== currentYear;
+
+            return {
+                mes: mostrarAnio ? `${mesNombre} ${y}` : mesNombre,
+                color: color
+            };
+        });
     }
 
     obtenerColorRiesgo(riesgo: string): string {
@@ -189,59 +253,58 @@ export class EquiposSedeComponent implements OnInit {
         this.currentEquipo = equipo;
         this.displayPlanDialog = true;
 
-        // Inicializar periodicidad
-        this.periodicidad = equipo.periodicidadM || 0;
-
-        // Determinar mes de inicio basado en el plan existente o defecto
         if (equipo.planesMantenimiento && equipo.planesMantenimiento.length > 0) {
-            // Ordenar para encontrar el primero
-            const meses = equipo.planesMantenimiento.map((p: any) => (typeof p === 'object' && p.mes ? p.mes : p)).sort((a: any, b: any) => a - b);
-            this.mesInicio = meses[0];
-            this.selectedMonths = meses;
+            const firstPlan = equipo.planesMantenimiento[0];
+            this.mesInicio = firstPlan.mes || 1;
+            this.anioInicio = firstPlan.ano || new Date().getFullYear();
+            this.intervencionesAnuales = equipo.periodicidadM || 1;
+            this.selectedPlans = equipo.planesMantenimiento;
         } else {
-            this.mesInicio = 1; // Enero por defecto
-            this.selectedMonths = [];
+            this.mesInicio = new Date().getMonth() + 1;
+            this.anioInicio = new Date().getFullYear();
+            this.intervencionesAnuales = 1;
+            this.selectedPlans = [];
         }
 
-        // Calcular texto inicial
-        this.calcularFechas(false); // false para no sobrescribir immediately
-        if (this.periodicidad > 0) {
-            this.calcularFechas();
-        } else {
-            this.updateCalculatedText();
-        }
+        this.calcularFechas();
     }
 
-    calcularFechas(overwrite: boolean = true) {
-        if (!this.periodicidad || this.periodicidad <= 0) {
-            this.calculatedMonthsText = 'Periodicidad no válida';
+    calcularFechas() {
+        if (!this.intervencionesAnuales || this.intervencionesAnuales <= 0) {
+            this.calculatedMonthsText = 'Intervenciones no válidas';
             return;
         }
 
-        if (overwrite) {
-            const nuevosMeses = [];
-            let mesActual = this.mesInicio;
+        const interval = 12 / this.intervencionesAnuales;
+        const nuevosPlanes = [];
+        let m = this.mesInicio;
+        let y = this.anioInicio;
 
-            while (mesActual <= 12) {
-                nuevosMeses.push(mesActual);
-                mesActual += this.periodicidad;
-            }
-            this.selectedMonths = nuevosMeses;
+        for (let i = 0; i < this.intervencionesAnuales; i++) {
+            let calcMonth = m + (i * interval);
+            let calcYear = y + Math.floor((calcMonth - 1) / 12);
+            calcMonth = ((calcMonth - 1) % 12) + 1;
+
+            nuevosPlanes.push({ mes: Math.floor(calcMonth), ano: calcYear });
         }
 
+        this.selectedPlans = nuevosPlanes;
         this.updateCalculatedText();
     }
 
     updateCalculatedText() {
-        if (!this.selectedMonths || this.selectedMonths.length === 0) {
+        if (!this.selectedPlans || this.selectedPlans.length === 0) {
             this.calculatedMonthsText = 'Sin fechas seleccionadas';
             return;
         }
-        const textMeses = this.selectedMonths.sort((a, b) => a - b).map(m => {
-            const op = this.monthOptions.find(o => o.value === m);
-            return op ? op.name : m;
-        }).join(', ');
-        this.calculatedMonthsText = `Fechas programadas: ${textMeses}`;
+
+        const meses = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+
+        const textPlanes = this.selectedPlans.map(p => `${meses[p.mes - 1]} ${p.ano}`).join(', ');
+        this.calculatedMonthsText = `Ciclo calculado: ${textPlanes}`;
     }
 
     async savePlan() {
@@ -249,19 +312,15 @@ export class EquiposSedeComponent implements OnInit {
 
         try {
             // Reconstruimos el array de planes basados en selectedMonths
-            const nuevosPlanes = this.selectedMonths.map(mes => ({
-                mes: mes
-            }));
 
             const equipoUpdate = {
                 ...this.currentEquipo,
-                periodicidadM: this.periodicidad, // Guardar tambien la periodicidad
-                planesMantenimiento: nuevosPlanes
+                periodicidadM: this.intervencionesAnuales,
+                planesMantenimiento: this.selectedPlans
             };
 
             await this.equipoServices.updateEquipo(this.currentEquipo.id, equipoUpdate);
 
-            const Swal = require('sweetalert2');
             Swal.fire(
                 'Actualizado!',
                 'El plan de mantenimiento ha sido actualizado.',
@@ -270,51 +329,13 @@ export class EquiposSedeComponent implements OnInit {
 
             this.displayPlanDialog = false;
             // Recargar equipos para mostrar cambios
-            const idSede = sessionStorage.getItem('idSede');
+            const idSede = localStorage.getItem('idSede');
             if (idSede) {
                 const equiposData = await this.equipoServices.getAllEquiposSede(idSede);
-                this.equipos = equiposData.map((equipo: any) => ({
-                    ...equipo,
-                    opcionesHV: [
-                        {
-                            label: 'Editar',
-                            icon: 'pi pi-pencil',
-                            command: () => this.editarEquipo(equipo.id),
-                            visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
-                        },
-                        {
-                            label: 'Editar Plan Mantenimiento',
-                            icon: 'pi pi-calendar',
-                            command: () => this.openPlanDialog(equipo),
-                            visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
-                        },
-                        {
-                            label: 'Ver Hoja de Vida',
-                            icon: 'pi pi-eye',
-                            command: () => this.verHojaVida(equipo.id)
-                        },
-                        {
-                            label: 'Reportes',
-                            icon: 'pi pi-external-link',
-                            command: () => this.verReportes(equipo.id)
-                        },
-                        {
-                            label: 'Nuevo reporte',
-                            icon: 'pi pi-upload',
-                            command: () => this.nuevoReporte(equipo.id),
-                            visible: getDecodedAccessToken().rol !== 'INVITADO'
-                        },
-                        {
-                            label: 'Historial',
-                            icon: 'pi pi-history',
-                            command: () => this.verHistorial(equipo.id)
-                        }
-                    ]
-                }));
+                this.equipos = this.mapEquipos(equiposData);
             }
         } catch (error) {
             console.error(error);
-            const Swal = require('sweetalert2');
             Swal.fire(
                 'Error!',
                 'Hubo un problema al actualizar el plan.',

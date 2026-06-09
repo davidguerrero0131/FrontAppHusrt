@@ -3,7 +3,7 @@
         <ng-template pTemplate="left">
             <div class="flex align-items-center gap-2">
                 <i class="pi pi-box text-2xl text-primary"></i>
-                <h2 class="m-0 font-bold text-900">Gestión de Fabricantes</h2>
+                <h2 class="m-0 font-bold text-900">Gesti&oacute;n de Fabricantes</h2>
             </div>
         </ng-template>
 
@@ -32,7 +32,7 @@
             <tr>
                 <th pSortableColumn="nombres" style="min-width:15rem">Nombres <p-sortIcon field="nombres"></p-sortIcon>
                 </th>
-                <th pSortableColumn="pais" style="min-width:10rem">País <p-sortIcon field="pais"></p-sortIcon></th>
+                <th pSortableColumn="pais" style="min-width:10rem">Pa&iacute;s <p-sortIcon field="pais"></p-sortIcon></th>
                 <th pSortableColumn="estado" style="min-width:10rem">Estado <p-sortIcon field="estado"></p-sortIcon>
                 </th>
                 <th style="min-width:10rem">Acciones</th>
@@ -78,16 +78,17 @@
                 <div class="field">
                     <label for="nombres">Nombre</label>
                     <input type="text" pInputText id="nombres" formControlName="nombres" required autofocus
-                        class="w-full" />
+                        class="w-full" appUppercase />
                     <small class="p-error"
                         *ngIf="formGroup.controls['nombres'].invalid && formGroup.controls['nombres'].touched">Nombre es
                         requerido.</small>
                 </div>
                 <div class="field">
-                    <label for="pais">País</label>
-                    <input type="text" pInputText id="pais" formControlName="pais" required class="w-full" />
+                    <label for="pais">Pa&iacute;s</label>
+                    <input type="text" pInputText id="pais" formControlName="pais" required class="w-full"
+                        appUppercase />
                     <small class="p-error"
-                        *ngIf="formGroup.controls['pais'].invalid && formGroup.controls['pais'].touched">País es
+                        *ngIf="formGroup.controls['pais'].invalid && formGroup.controls['pais'].touched">Pa&iacute;s es
                         requerido.</small>
                 </div>
             </div>

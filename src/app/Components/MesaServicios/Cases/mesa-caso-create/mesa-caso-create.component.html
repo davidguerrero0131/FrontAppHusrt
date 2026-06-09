@@ -1,0 +1,226 @@
+<div class="dashboard-container max-w-60rem mx-auto pb-6">
+    <p-toast></p-toast>
+
+    <!-- Header Module -->
+    <div class="hero-section mb-4">
+        <div class="hero-content flex align-items-center gap-4">
+            <div class="header-icon-box hover-scale">
+                <i class="pi pi-receipt text-4xl text-white"></i>
+            </div>
+            <div>
+                <h1 class="m-0 mb-1">Radicar Caso</h1>
+                <p class="m-0 text-blue-100">Diligencie su requerimiento o reporte de incidencia</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 1: Ubicación -->
+    <div class="glass-focus-area">
+        <div class="flex align-items-center gap-3 mb-4 border-bottom-1 border-200 pb-3">
+            <div class="border-circle bg-blue-100 text-blue-600 font-bold w-2rem h-2rem flex align-items-center justify-content-center">1</div>
+            <h2 class="m-0 text-xl text-800">Clasificación y Ubicación</h2>
+        </div>
+
+        <div class="grid p-fluid">
+            <!-- Servicio Destino (Intuitivo) -->
+            <div class="col-12 md:col-6">
+                <label class="form-field-label"><i class="pi pi-building mr-2 text-blue-500"></i>Entorno Destino (Servicio)</label>
+                <p-select [options]="servicios" [(ngModel)]="selectedServicio" optionLabel="nombres"
+                    placeholder="¿A qué servicio va dirigido?" (onChange)="onServicioChange()" [filter]="true" filterBy="nombres"
+                    styleClass="w-full shadow-1 border-round-xl p-inputtext-lg" [showClear]="true">
+                    
+                    <ng-template pTemplate="selectedItem" let-servicio>
+                        <div class="flex align-items-center gap-3 font-bold" *ngIf="servicio">
+                            <i class="pi pi-building text-blue-500 text-xl"></i>
+                            <div>
+                                <div class="text-800">{{ servicio.nombres }}</div>
+                                <div class="text-500 text-xs font-normal">Destinatario del caso</div>
+                            </div>
+                        </div>
+                    </ng-template>
+
+                    <ng-template let-servicio pTemplate="item">
+                        <div class="flex align-items-center gap-3 p-2 w-full">
+                            <div class="bg-gray-100 p-2 border-round text-blue-500">
+                                <i class="pi pi-building text-xl"></i>
+                            </div>
+                            <div class="flex flex-column">
+                                <span class="font-bold text-700">{{ servicio.nombres }}</span>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-select>
+            </div>
+
+            <!-- Promesa SUMERCE -->
+            <div class="col-12 md:col-6">
+                <label class="form-field-label"><i class="pi pi-star mr-2 text-yellow-500"></i>Promesa de Valor</label>
+                <p-select [options]="sumerceOptions" [(ngModel)]="selectedSumerce" optionLabel="label"
+                    placeholder="Elige una promesa (SUMERCE)" styleClass="w-full shadow-1 border-round-xl p-inputtext-lg">
+                    <ng-template let-promesa pTemplate="item">
+                        <div class="flex align-items-center gap-2">
+                            <p-tag value="{{promesa.label.charAt(0)}}" severity="warning"></p-tag>
+                            <span>{{ promesa.label.substring(3) }}</span>
+                        </div>
+                    </ng-template>
+                </p-select>
+            </div>
+
+            <!-- Categoria -->
+            <div class="col-12 md:col-6">
+                <label class="form-field-label"><i class="pi pi-tags mr-2 text-indigo-400"></i>Categoría</label>
+                <p-select [options]="categorias" [(ngModel)]="selectedCategoria" optionLabel="nombre"
+                    placeholder="Seleccione Categoría" (onChange)="onCategoriaChange()" [filter]="true" filterBy="nombre"
+                    [disabled]="!selectedServicio" emptyMessage="Seleccione primero un servicio" styleClass="w-full shadow-1 border-round-xl p-inputtext-lg">
+                    <ng-template pTemplate="selectedItem" let-selected>
+                        <div class="flex align-items-center gap-2" *ngIf="selected">
+                            <span class="font-bold">{{selected.nombre}}</span>
+                        </div>
+                    </ng-template>
+                    <ng-template let-cat pTemplate="item">
+                        <div class="flex flex-column w-full">
+                            <span class="font-bold border-bottom-1 border-100 pb-1 mb-1">{{ cat.nombre }}</span>
+                            <span class="text-500 text-xs line-height-2">{{ cat.descripcion || 'Ninguna descripción adicional disponible para esta categoría.' }}</span>
+                        </div>
+                    </ng-template>    
+                </p-select>
+            </div>
+
+            <!-- Subcategoria -->
+            <div class="col-12 md:col-6">
+                <label class="form-field-label"><i class="pi pi-tag mr-2 text-indigo-300"></i>Subcategoría</label>
+                <p-select [options]="subcategorias" [(ngModel)]="selectedSubcategoria" optionLabel="nombre" (onChange)="onSubcategoriaChange()"
+                    placeholder="Sub-tipo de caso" [disabled]="!selectedCategoria" [filter]="true" filterBy="nombre"
+                    emptyMessage="Seleccione primero una categoría" styleClass="w-full shadow-1 border-round-xl p-inputtext-lg">
+                    <ng-template pTemplate="selectedItem" let-selected>
+                        <div class="flex align-items-center gap-2" *ngIf="selected">
+                            <span class="font-bold">{{selected.nombre}}</span>
+                        </div>
+                    </ng-template>
+                    <ng-template let-sub pTemplate="item">
+                        <div class="flex flex-column w-full">
+                            <span class="font-bold border-bottom-1 border-100 pb-1 mb-1">{{ sub.nombre }}</span>
+                            <span class="text-500 text-xs line-height-2">{{ sub.descripcion || 'Ninguna aclaración especial' }}</span>
+                        </div>
+                    </ng-template>
+                </p-select>
+            </div>
+            <!-- Equipo (Condicional) -->
+            <div class="col-12 mt-3 p-3 surface-ground border-round-xl border-1 surface-border" *ngIf="requiereEquipo">
+                <h3 class="m-0 mb-3 text-lg text-800"><i class="pi pi-desktop mr-2 text-indigo-400"></i>Relacionar Equipo (Opcional/Requerido)</h3>
+                <div class="grid p-fluid">
+                    <div class="col-12 md:col-6">
+                        <label class="form-field-label">Tipo de Equipo</label>
+                        <p-select [options]="tiposEquipos" [(ngModel)]="selectedTipoEquipo" optionLabel="nombres"
+                            placeholder="Filtrar por tipo" (onChange)="onTipoEquipoChange()" [filter]="true" filterBy="nombres"
+                            [showClear]="true" styleClass="w-full shadow-1 border-round-xl">
+                        </p-select>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <label class="form-field-label">Equipo Específico</label>
+                        <p-select [options]="filteredEquipos" [(ngModel)]="selectedEquipo" optionLabel="nombres"
+                            placeholder="Seleccione el equipo" [filter]="true" filterBy="nombres,serie,placaInvima" [showClear]="true" [disabled]="!selectedTipoEquipo" emptyMessage="Seleccione primero un tipo de equipo" styleClass="w-full shadow-1 border-round-xl">
+                            <ng-template pTemplate="selectedItem" let-selected>
+                                <div class="flex align-items-center gap-2" *ngIf="selected">
+                                    <span class="font-bold">{{selected.nombres}}</span>
+                                </div>
+                            </ng-template>
+                            <ng-template let-eq pTemplate="item">
+                                <div class="flex flex-column w-full">
+                                    <span class="font-bold border-bottom-1 border-100 pb-1 mb-1">{{ eq.nombres }}</span>
+                                    <span class="text-500 text-xs line-height-2">Serie: {{ eq.serie || 'N/A' }} | Placa: {{ eq.placaInvima || 'N/A' }}</span>
+                                </div>
+                            </ng-template>
+                        </p-select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Step 2: Detalles del caso -->
+    <div class="premium-card">
+        <div class="flex align-items-center gap-3 mb-4 border-bottom-1 border-200 pb-3">
+            <div class="border-circle bg-blue-100 text-blue-600 font-bold w-2rem h-2rem flex align-items-center justify-content-center">2</div>
+            <h2 class="m-0 text-xl text-800">Detalles del Incidente o Solicitud</h2>
+        </div>
+
+        <div class="grid p-fluid">
+            <!-- Tipo y Prioridad -->
+            <div class="col-12 md:col-6">
+                <label class="form-field-label"><i class="pi pi-info-circle mr-2 text-blue-500"></i>Tipo de Caso</label>
+                <p-select [options]="tipos" [(ngModel)]="caso.tipo" optionLabel="label" optionValue="value" styleClass="w-full shadow-1 border-round-xl">
+                    <ng-template pTemplate="selectedItem" let-selected>
+                        <div class="flex align-items-center gap-2">
+                            <i [class]="selected.value === 'INCIDENCIA' ? 'pi pi-exclamation-circle text-orange-500' : 'pi pi-plus-circle text-blue-500'"></i>
+                            {{ selected.label }}
+                        </div>
+                    </ng-template>
+                    <ng-template let-tipo pTemplate="item">
+                        <div class="flex align-items-center gap-2">
+                            <i [class]="tipo.value === 'INCIDENCIA' ? 'pi pi-exclamation-circle text-orange-500' : 'pi pi-plus-circle text-blue-500'"></i>
+                            {{ tipo.label }}
+                        </div>
+                    </ng-template>
+                </p-select>
+            </div>
+            
+            <div class="col-12 md:col-6">
+                <label class="form-field-label"><i class="pi pi-stopwatch mr-2 text-red-500"></i>Nivel de Urgencia</label>
+                <p-select [options]="prioridades" [(ngModel)]="caso.prioridad" optionLabel="label" optionValue="value" styleClass="w-full shadow-1 border-round-xl">
+                    <ng-template pTemplate="selectedItem" let-selected>
+                        <p-tag [value]="selected.label" [severity]="getPrioridadSeverity(selected.value)"></p-tag>
+                    </ng-template>
+                    <ng-template let-prio pTemplate="item">
+                        <p-tag [value]="prio.label" [severity]="getPrioridadSeverity(prio.value)"></p-tag>
+                    </ng-template>
+                </p-select>
+            </div>
+
+            <!-- Titulo y descripcion -->
+            <div class="col-12 mt-3">
+                <label class="form-field-label">Título Breve</label>
+                <p-iconfield position="left" class="w-full">
+                    <p-inputicon styleClass="pi pi-comment" />
+                    <input type="text" pInputText [(ngModel)]="caso.titulo" placeholder="Ej: No funciona el aire acondicionado en zona 3"
+                        class="w-full shadow-1 border-round-xl p-inputtext-lg" appUppercase />
+                </p-iconfield>
+            </div>
+
+            <div class="col-12 mt-3">
+                <label class="form-field-label">Descripción Detallada</label>
+                <p-editor [(ngModel)]="caso.descripcion"
+                    placeholder="Explica qué está sucediendo, desde cuándo, y cualquier contexto de valor..."></p-editor>
+            </div>
+
+            <div class="col-12 mt-4">
+                <label class="form-field-label"><i class="pi pi-paperclip mr-2 text-gray-500"></i>Adjuntar Archivos (Opcional)</label>
+                <p-fileupload mode="advanced" [multiple]="true" accept="image/*,application/pdf"
+                    [maxFileSize]="5000000" (onSelect)="onUpload($event)" [auto]="false" chooseLabel="Explorar Archivos"
+                    uploadLabel="Cargar" cancelLabel="Cancelar" [showUploadButton]="false"
+                    [showCancelButton]="false" styleClass="shadow-1 border-round-xl">
+                    <ng-template pTemplate="content">
+                        <ul *ngIf="uploadedFiles.length" class="list-none p-0 m-0">
+                            <li *ngFor="let file of uploadedFiles" class="flex align-items-center p-2 surface-ground border-round-lg mb-2">
+                                <i class="pi pi-file mr-3 text-2xl text-blue-500"></i>
+                                <div class="flex flex-column">
+                                    <span class="font-bold">{{file.name}}</span>
+                                    <span class="text-sm text-500">{{file.size}} bytes</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </ng-template>
+                </p-fileupload>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="footer-actions flex justify-content-between md:justify-content-end gap-3 shadow-3">
+        <button pButton label="Cancelar" icon="pi pi-times" class="p-button-outlined p-button-secondary border-round-xl font-bold px-4 md:w-auto w-full"
+            routerLink="/adminmesaservicios/casos"></button>
+        <button pButton label="Radicar Caso" icon="pi pi-send" class="p-button-primary border-round-xl font-bold px-5 shadow-2 md:w-auto w-full" (click)="submit()"></button>
+    </div>
+
+</div>

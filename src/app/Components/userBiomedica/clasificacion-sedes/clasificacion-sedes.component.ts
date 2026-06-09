@@ -5,10 +5,14 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
+import { UppercaseDirective } from '../../../Directives/uppercase.directive';
+import { TableModule } from 'primeng/table'; // Assuming this is where TableModule comes from
+import { ButtonModule } from 'primeng/button'; // Assuming this is where ButtonModule comes from
+
 @Component({
     selector: 'app-clasificacion-sedes',
     standalone: true,
-    imports: [FormsModule, CommonModule],
+    imports: [CommonModule, TableModule, ButtonModule, FormsModule, UppercaseDirective],
     templateUrl: './clasificacion-sedes.component.html',
     styleUrl: './clasificacion-sedes.component.css'
 })
@@ -36,7 +40,7 @@ export class ClasificacionSedesComponent implements OnInit {
     }
 
     viewServiciosSede(idSede: any) {
-        sessionStorage.setItem("idSede", idSede);
+        localStorage.setItem("idSede", idSede);
         this.router.navigate(['biomedica/serviciossede']);
     }
 }

@@ -1,5 +1,7 @@
 import { MetrologiaService } from './../../../Services/appServices/biomedicaServices/metrologia/metrologia.service';
+import { ArchivosService } from './../../../Services/appServices/general/archivos/archivos.service';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
 import { TabsModule } from 'primeng/tabs';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
@@ -22,7 +24,7 @@ import { API_URL } from '../../../constantes';
   selector: 'app-actividades-metrologicas',
   standalone: true,
   imports: [CommonModule, TabsModule, DatePicker, FormsModule,
-    TableModule, IconFieldModule, InputIconModule, InputTextModule, CalendarModule, Dialog],
+    TableModule, IconFieldModule, InputIconModule, InputTextModule, CalendarModule, Dialog, ButtonModule],
   templateUrl: './actividades-metrologicas.component.html',
   styleUrl: './actividades-metrologicas.component.css'
 })
@@ -31,6 +33,7 @@ export class ActividadesMetrologicasComponent implements OnInit {
   @ViewChild('dt2') dt2!: Table;
   date: Date | undefined;
   metrologiaServices = inject(MetrologiaService);
+  archivosServices = inject(ArchivosService);
   loading: boolean = false;
   fechaActual = new Date();
   mes = this.fechaActual.getMonth() + 1;
@@ -44,6 +47,8 @@ export class ActividadesMetrologicasComponent implements OnInit {
 
   actividadesMetrologicas: any[] = [];
 
+
+
   panelActividadesMetrologicas: boolean = true;
   panelMetas: boolean = false;
 
@@ -53,6 +58,7 @@ export class ActividadesMetrologicasComponent implements OnInit {
   constructor(private location: Location) { }
 
   async ngOnInit() {
+    this.date = new Date();
     try {
       this.actividadesMetrologicas = await this.metrologiaServices.getReportesActividadesMesAño({ mes: this.mes, anio: this.anio });
     } catch (error) {
@@ -141,6 +147,7 @@ export class ActividadesMetrologicasComponent implements OnInit {
   errorMaximoIdentificado: number | null = null;
   observaciones: string = '';
   selectedFile: File | null = null;
+  selectedFileConfirmacion: File | null = null;
 
   opcionesResultado: any[] = [
     { label: 'Cumple', value: 'Cumple' },
@@ -157,6 +164,10 @@ export class ActividadesMetrologicasComponent implements OnInit {
 
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
+  }
+
+  onFileSelectedConfirmacion(event: any) {
+    this.selectedFileConfirmacion = event.target.files[0];
   }
 
   async registrarActividad() {
@@ -180,6 +191,10 @@ export class ActividadesMetrologicasComponent implements OnInit {
       formData.append('rutaReporte', this.selectedFile);
     }
 
+    if (this.selectedFileConfirmacion) {
+      formData.append('confirmacionMetrologica', this.selectedFileConfirmacion);
+    }
+
     try {
       await this.metrologiaServices.updateActividadMetrologica(this.actividadMetrologicaSelected.id, formData);
       Swal.fire('Éxito', 'Actividad metrológica registrada correctamente.', 'success');
@@ -197,13 +212,14 @@ export class ActividadesMetrologicasComponent implements OnInit {
     this.modalAddActividadMetrologica = true;
     this.actividadMetrologicaSelected = actividad;
     // Reset form
-    this.tipoActividad = '';
+    this.tipoActividad = actividad.tipoActividad;
     this.empresa = '';
     this.fechaRealizadoActividad = undefined;
     this.resultado = '';
     this.errorMaximoIdentificado = null;
     this.observaciones = '';
     this.selectedFile = null;
+    this.selectedFileConfirmacion = null;
 
   }
 
@@ -220,6 +236,26 @@ export class ActividadesMetrologicasComponent implements OnInit {
       window.open(url, '_blank');
     } else {
       Swal.fire('Info', 'Este registro no tiene un certificado cargado.', 'info');
+    }
+  }
+
+  async verConfirmacion() {
+    if (this.actividadMetrologicaSelected && this.actividadMetrologicaSelected.confirmacionMetrologica) {
+      try {
+        const blob = await this.archivosServices.getArchivo(this.actividadMetrologicaSelected.confirmacionMetrologica);
+        if (blob.type === 'application/pdf') {
+          const objectUrl = URL.createObjectURL(blob);
+          window.open(objectUrl, '_blank');
+        } else {
+          console.error('El archivo recibido no es un PDF');
+          Swal.fire('Error', 'El archivo no es un PDF válido.', 'error');
+        }
+      } catch (error) {
+        console.error('Error al obtener la confirmación:', error);
+        Swal.fire('Error', 'No se pudo abrir el archivo de confirmación.', 'error');
+      }
+    } else {
+      Swal.fire('Info', 'Este registro no tiene una confirmación metrológica cargada.', 'info');
     }
   }
 }

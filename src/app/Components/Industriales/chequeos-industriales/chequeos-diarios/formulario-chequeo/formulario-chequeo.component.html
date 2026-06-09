@@ -1,0 +1,431 @@
+<app-industriales-navbar></app-industriales-navbar>
+<div class="dashboard-container p-4">
+    <div class="card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Chequeo Diario: {{ tipoEquipoStr }}</h2>
+            <button class="btn btn-secondary" (click)="regresar()">Regresar</button>
+        </div>
+
+        <h4 class="text-muted mb-4">Equipo: {{ equipoNombre }}</h4>
+
+        <form (ngSubmit)="guardarChequeo()" #form="ngForm">
+
+            <!--================= UPS =================-->
+            <div *ngIf="tipoEquipoStr === 'UPS'">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label>Voltaje de Salida</label>
+                        <select class="form-select" name="voltajeSalida" [(ngModel)]="formData.voltajeSalida" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Carga UPS %</label>
+                        <select class="form-select" name="cargaUpsPorcentaje" [(ngModel)]="formData.cargaUpsPorcentaje"
+                            required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label>Estado Batería</label>
+                        <select class="form-select" name="estadoBateria" [(ngModel)]="formData.estadoBateria" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Bypass Activo (Indicador Verde)</label>
+                        <select class="form-select" name="bypassActivo" [(ngModel)]="formData.bypassActivo" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Funcionamiento en General</label>
+                        <select class="form-select" name="estadoGeneral" [(ngModel)]="formData.estadoGeneral" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!--================= PLANTAS_ELECTRICAS =================-->
+            <div *ngIf="tipoEquipoStr === 'PLANTAS_ELECTRICAS'">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label>Voltaje Baterías</label>
+                        <select class="form-select" name="voltajeBaterias" [(ngModel)]="formData.voltajeBaterias"
+                            required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Estado Cargador</label>
+                        <select class="form-select" name="estadoCargador" [(ngModel)]="formData.estadoCargador"
+                            required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Nivel de Combustible</label>
+                        <select class="form-select" name="nivelCombustible" [(ngModel)]="formData.nivelCombustible"
+                            required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label>Nivel de Aceite</label>
+                        <select class="form-select" name="nivelAceite" [(ngModel)]="formData.nivelAceite" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Nivel de Refrigerante</label>
+                        <select class="form-select" name="nivelRefrigerante" [(ngModel)]="formData.nivelRefrigerante"
+                            required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3" *ngIf="esDiaSemanal">
+                    <label>Encendido Normativo (Semanal)</label>
+                    <select class="form-select" name="encendidoNormativo" [(ngModel)]="formData.encendidoNormativo"
+                        required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+            </div>
+
+            <!--================= CALDERAS =================-->
+            <div *ngIf="tipoEquipoStr === 'CALDERAS'" class="row">
+                <div class="col-md-6 mb-2">
+                    <label>Presión Vapor en rango</label>
+                    <select class="form-select" name="presionVapor" [(ngModel)]="formData.presionVapor" required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Nivel visible correcto en columna</label>
+                    <select class="form-select" name="nivelVisible" [(ngModel)]="formData.nivelVisible" required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Ciclo encendido normal</label>
+                    <select class="form-select" name="cicloEncendido" [(ngModel)]="formData.cicloEncendido" required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Bomba alimentación operativa</label>
+                    <select class="form-select" name="bombaAlimentacion" [(ngModel)]="formData.bombaAlimentacion"
+                        required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Sin fugas</label>
+                    <select class="form-select" name="sinFugas" [(ngModel)]="formData.sinFugas" required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Sin alarmas activas</label>
+                    <select class="form-select" name="sinAlarmas" [(ngModel)]="formData.sinAlarmas" required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Purga de fondo</label>
+                    <select class="form-select" name="purgaFondo" [(ngModel)]="formData.purgaFondo" required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Purga columna de nivel</label>
+                    <select class="form-select" name="purgaColumna" [(ngModel)]="formData.purgaColumna" required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Purga control de nivel</label>
+                    <select class="form-select" name="purgaControl" [(ngModel)]="formData.purgaControl" required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Nivel tanque condensado</label>
+                    <select class="form-select" name="nivelTanqueCondensado"
+                        [(ngModel)]="formData.nivelTanqueCondensado">
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Sistema tratamiento activo</label>
+                    <select class="form-select" name="sistemaTratamiento" [(ngModel)]="formData.sistemaTratamiento"
+                        required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+            </div>
+
+            <!--================= TRANSFERENCIAS =================-->
+            <div *ngIf="tipoEquipoStr === 'TRANSFERENCIAS'">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label>Selector en Automático</label>
+                        <select class="form-select" name="selectorAuto" [(ngModel)]="formData.selectorAuto" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label>Red Normal Presente</label>
+                        <select class="form-select" name="redNormal" [(ngModel)]="formData.redNormal" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label>Sin Alarmas Activas</label>
+                        <select class="form-select" name="sinAlarmas" [(ngModel)]="formData.sinAlarmas" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label>Breakers en Posición Correcta</label>
+                        <select class="form-select" name="breakersPosicion" [(ngModel)]="formData.breakersPosicion"
+                            required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3 mt-2">
+                    <label>Voltaje</label>
+                    <select class="form-select" name="voltaje" [(ngModel)]="formData.voltaje" required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+            </div>
+
+            <!--================= TRANSFORMADORES =================-->
+            <div *ngIf="tipoEquipoStr === 'TRANSFORMADORES'">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label>Voltaje F-F</label>
+                        <select class="form-select" name="voltajeFF" [(ngModel)]="formData.voltajeFF" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Voltaje F-N</label>
+                        <select class="form-select" name="voltajeFN" [(ngModel)]="formData.voltajeFN" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <label>Sin Alarmas Activas</label>
+                        <select class="form-select" name="sinAlarmas" [(ngModel)]="formData.sinAlarmas" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label>Energizado</label>
+                        <select class="form-select" name="energizado" [(ngModel)]="formData.energizado" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label>Sin Sobrecalentamiento</label>
+                        <select class="form-select" name="sinSobrecalentamiento"
+                            [(ngModel)]="formData.sinSobrecalentamiento">
+                            <option [ngValue]="true">Cumple</option>
+                            <option [ngValue]="false">No Cumple</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!--================= BOMBAS_AGUA =================-->
+            <div *ngIf="tipoEquipoStr === 'BOMBAS_AGUA'">
+                <div class="row mb-3">
+                    <div class="col-md-3 mb-2">
+                        <label>Sistema Energizado</label>
+                        <select class="form-select" name="sistemaEnergizado" [(ngModel)]="formData.sistemaEnergizado"
+                            required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label>Modo Auto (ON)</label>
+                        <select class="form-select" name="modoAuto" [(ngModel)]="formData.modoAuto" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label>Sin Alarmas Activas</label>
+                        <select class="form-select" name="sinAlarmas" [(ngModel)]="formData.sinAlarmas" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label>Alternancia (ON)</label>
+                        <select class="form-select" name="alternancia" [(ngModel)]="formData.alternancia" required>
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="CUMPLE">Cumple</option>
+                            <option value="NO CUMPLE">No Cumple</option>
+                            <option value="NO APLICA">No Aplica</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label>Nivel del Tanque</label>
+                    <select class="form-select" name="nivelTanque" [(ngModel)]="formData.nivelTanque" required>
+                        <option value="" disabled selected>Seleccione estado</option>
+                        <option value="CUMPLE">Cumple</option>
+                        <option value="NO CUMPLE">No Cumple</option>
+                        <option value="NO APLICA">No Aplica</option>
+                    </select>
+                </div>
+                <hr>
+                <h5>Firmas Bombas</h5>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label>Firma Bomba 1</label>
+                        <input type="text" class="form-control mb-2" placeholder="Firma Bomba 1" name="firmaBomba1"
+                            [(ngModel)]="formData.firmaBomba1">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Firma Bomba 2</label>
+                        <input type="text" class="form-control mb-2" placeholder="Firma Bomba 2" name="firmaBomba2"
+                            [(ngModel)]="formData.firmaBomba2">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Firma Bomba 3</label>
+                        <input type="text" class="form-control mb-2" placeholder="Firma Bomba 3" name="firmaBomba3"
+                            [(ngModel)]="formData.firmaBomba3">
+                    </div>
+                    <div class="col-md-3">
+                        <label>Firma Bomba Incendios</label>
+                        <input type="text" class="form-control mb-2" placeholder="Firma Bomba Incendios"
+                            name="firmaBombaIncendios" [(ngModel)]="formData.firmaBombaIncendios">
+                    </div>
+                </div>
+            </div>
+
+            <!--================= COMUNES =================-->
+            <hr>
+            <div class="mb-3">
+                <label>Observaciones</label>
+                <textarea class="form-control" name="observaciones" [(ngModel)]="formData.observaciones"
+                    rows="3"></textarea>
+            </div>
+
+
+            <button type="submit" class="btn btn-primary w-100" [disabled]="!form.valid">Guardar Chequeo Diario</button>
+        </form>
+    </div>
+</div>

@@ -13,7 +13,9 @@
 
                     <!-- Si es objeto (diferencias) -->
                     <div *ngIf="isObject(event.detalles); else textDetails">
-                        <p-table [value]="objectKeys(event.detalles)" styleClass="p-datatable-sm p-datatable-gridlines">
+                        <p-table [value]="objectKeys(event.detalles)" styleClass="p-datatable-sm p-datatable-gridlines"
+                            [showCurrentPageReport]="true"
+                            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
                             <ng-template pTemplate="header">
                                 <tr>
                                     <th>Campo</th>

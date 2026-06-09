@@ -17,62 +17,23 @@ export function obtenerNombreMes(numeroMes: number): string {
 }
 
 // Funcion para verificar si el usuario tiene un token valido
-export function validateToken(token: string): boolean {
-  const router = inject(Router);
-  if (isTokenExpired()) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Sesion Expirada',
-      text: 'Ha llegado al límite de tiempo de sesión activa.'
-    })
-    router.navigate(['/login']);
-    sessionStorage.setItem('utoken', '');
-    return true;
-  } else {
-    return false;
-  }
-}
-
 export function isTokenExpired(): boolean {
-  const token = sessionStorage?.getItem('utoken')!;
   if (typeof sessionStorage === 'undefined') {
-    return true;
+    return false; // On server, we assume it's NOT expired to avoid premature redirect flash
   }
   const token = sessionStorage.getItem('utoken');
   if (!token) {
-    return true; // Si no hay token, se considera expirado
+    return true; // No token in browser = expired
   }
   const decodedToken = getDecodedAccessToken();
+  if (!decodedToken || !decodedToken.exp) {
+    return true;
+  }
   const currentTime = Math.floor(Date.now() / 1000);
 
   return decodedToken.exp < currentTime;
 }
 
-export function createHeaders() {
-  return {
-    headers: new HttpHeaders({
-      'authorization': sessionStorage.getItem('utoken')!
-    })
-  }
-}
-
-export function getDecodedAccessToken(): any {
-  const token = sessionStorage.getItem('utoken')!;
-  try {
-    return jwtDecode(token);
-  } catch (Error) {
-    return null;
-  }
-  if (typeof sessionStorage === 'undefined') {
-    return { headers: new HttpHeaders() };
-  }
-  return {
-    headers: new HttpHeaders({
-      'authorization': sessionStorage.getItem('utoken') || ''
-    })
-  }
-}
-
 export function getDecodedAccessToken(): any {
   if (typeof sessionStorage === 'undefined') {
     return null;
@@ -88,3 +49,4 @@ export function getDecodedAccessToken(): any {
   }
 }
 
+export function createHeaders(): { headers: HttpHeaders } { return { headers: new HttpHeaders({ 'authorization': sessionStorage.getItem('utoken')! }) } }

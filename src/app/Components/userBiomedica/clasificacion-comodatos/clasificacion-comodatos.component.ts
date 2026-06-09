@@ -52,7 +52,7 @@ export class ClasificacionComodatosComponent {
   }
 
   viewEquiposComodatos(idServicio: any) {
-    sessionStorage.setItem("idResponsable", idServicio);
+    localStorage.setItem("idResponsable", idServicio);
     this.router.navigate(['biomedica/equiposcomodatos']);
   }
 }

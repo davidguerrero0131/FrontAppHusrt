@@ -10,7 +10,7 @@ describe('EditarUsuarioComponent', () => {
     await TestBed.configureTestingModule({
       imports: [EditarUsuarioComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(EditarUsuarioComponent);
     component = fixture.componentInstance;

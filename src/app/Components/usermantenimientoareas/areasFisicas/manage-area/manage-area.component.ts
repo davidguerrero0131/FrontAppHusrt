@@ -3,18 +3,19 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, ActivatedRoute } from '@angular/router';
 import { AreasService } from '../../../../Services/appServices/areasFisicas/areas.service';
 import { ServicioService } from '../../../../Services/appServices/general/servicio/servicio.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextarea } from 'primeng/inputtextarea';
-import { DropdownModule } from 'primeng/dropdown';
+import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
 import { DialogModule } from 'primeng/dialog';
+import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
 import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-manage-area',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, InputTextarea, DropdownModule, DialogModule],
+    imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, TextareaModule, SelectModule, DialogModule, MantenimientoadminnavbarComponent],
     templateUrl: './manage-area.component.html',
     styleUrls: ['./manage-area.component.css']
 })
@@ -40,7 +41,7 @@ export class ManageAreaComponent implements OnInit {
     ) {
         this.areaForm = this.fb.group({
             nombre: ['', Validators.required],
-            ubicacion: ['', Validators.required],
+            ubicacion: ['Torre 1', Validators.required],
             descripcion: ['', Validators.required],
             servicioIdFk: [null, Validators.required],
             estado: [true]
@@ -56,6 +57,14 @@ export class ManageAreaComponent implements OnInit {
                 this.isEditMode = true;
                 this.areaId = +id;
                 this.loadArea(this.areaId);
+            } else {
+                // If we are creating a new area, check if a default servicioId was passed
+                const servicioId = this.route.snapshot.queryParams['servicioId'];
+                if (servicioId) {
+                    this.areaForm.patchValue({
+                        servicioIdFk: +servicioId
+                    });
+                }
             }
         });
     }
@@ -83,7 +92,7 @@ export class ManageAreaComponent implements OnInit {
         } catch (error) {
             console.error('Error cargando área', error);
             Swal.fire('Error', 'No se pudo cargar la información del área', 'error');
-            this.router.navigate(['/areas/listado']);
+            this.router.navigate(['/adminmantenimiento/gestion-operativa']);
         }
     }
 
@@ -107,11 +116,15 @@ export class ManageAreaComponent implements OnInit {
                     Swal.fire('Éxito', 'Área creada correctamente', 'success');
                 });
             }
-            // Navigate back to the service's area list
-            if (areaData.servicioIdFk) {
+
+            // Navigate back
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+            if (returnUrl) {
+                this.router.navigateByUrl(returnUrl);
+            } else if (areaData.servicioIdFk) {
                 this.router.navigate(['/adminmantenimiento/areas-por-servicio', areaData.servicioIdFk]);
             } else {
-                this.router.navigate(['/areas/listado']);
+                this.router.navigate(['/adminmantenimiento/gestion-operativa']);
             }
 
         } catch (error) {
@@ -120,12 +133,19 @@ export class ManageAreaComponent implements OnInit {
         }
     }
 
-    cancelar() {
-        const servicioId = this.areaForm.get('servicioIdFk')?.value;
-        if (servicioId) {
-            this.router.navigate(['/adminmantenimiento/areas-por-servicio', servicioId]);
+    location = inject(Location);
+
+    backToDashboard() {
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
         } else {
-            this.router.navigate(['/areas/listado']);
+            const servicioId = this.areaForm.get('servicioIdFk')?.value;
+            if (servicioId) {
+                this.router.navigate(['/adminmantenimiento/areas-por-servicio', servicioId]);
+            } else {
+                this.router.navigate(['/adminmantenimiento/gestion-operativa']);
+            }
         }
     }
 }

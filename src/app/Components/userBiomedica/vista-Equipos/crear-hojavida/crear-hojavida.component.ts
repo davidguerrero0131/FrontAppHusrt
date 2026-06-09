@@ -5,20 +5,26 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
 import { FieldsetModule } from 'primeng/fieldset';
 import { TabViewModule } from 'primeng/tabview';
+import { PanelModule } from 'primeng/panel';
+import { TooltipModule } from 'primeng/tooltip';
 import { HojavidaService } from './../../../../Services/appServices/biomedicaServices/hojavida/hojavida.service';
 import { ProveedorService } from './../../../../Services/appServices/biomedicaServices/proveedor/proveedor.service';
 import { FabricanteService } from './../../../../Services/appServices/biomedicaServices/fabricante/fabricante.service';
 import { DatosTecnicosService } from '../../../../Services/appServices/biomedicaServices/datosTecnicos/datos-tecnicos.service';
+import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import Swal from 'sweetalert2';
+
 
 @Component({
   selector: 'app-crear-hojavida',
@@ -30,7 +36,7 @@ import Swal from 'sweetalert2';
     ButtonModule,
     InputTextModule,
     InputNumberModule,
-    DropdownModule,
+    SelectModule,
     CalendarModule,
     CardModule,
     ToastModule,
@@ -38,7 +44,11 @@ import Swal from 'sweetalert2';
     DividerModule,
     FieldsetModule,
     RouterModule,
-    TabViewModule
+    TabViewModule,
+    PanelModule,
+    TooltipModule,
+    IconFieldModule,
+    InputIconModule
   ],
   providers: [MessageService],
   templateUrl: './crear-hojavida.component.html',
@@ -49,13 +59,21 @@ export class CrearHojavidaComponent implements OnInit {
   @Input() equipoId: string | null = null;
   @Input() hojaVidaData: any | null = null;
   @Output() hojaVidaCreated = new EventEmitter<void>();
+  @Output() onCancel = new EventEmitter<void>();
 
   hojaVidaForm: FormGroup;
   hojaVidaService = inject(HojavidaService);
   proveedorService = inject(ProveedorService);
   fabricanteService = inject(FabricanteService);
   datosTecnicosService = inject(DatosTecnicosService);
+  equipoServices = inject(EquiposService);
   messageService = inject(MessageService);
+
+  equipo: any;
+  selectedFile: File | null = null;
+  accesorios: any[] = [];
+
+
 
   proveedores: any[] = [];
   fabricantes: any[] = [];
@@ -117,14 +135,13 @@ export class CrearHojavidaComponent implements OnInit {
   ];
 
   opcionesBinarias = [
-    { label: 'Sí', value: true },
-    { label: 'No', value: false }
+    { label: 'Activo', value: true },
+    { label: 'Inactivo', value: false }
   ];
 
   constructor(private fb: FormBuilder) {
     this.hojaVidaForm = this.fb.group({
       codigoInternacional: [''],
-      anoIngreso: [null],
       contrato: [''],
       proveedorIdFk: [null],
       fabricanteIdFk: [null],
@@ -156,15 +173,35 @@ export class CrearHojavidaComponent implements OnInit {
     });
   }
 
+  onFileSelect(event: any) {
+    if (event.target.files.length > 0) {
+      this.selectedFile = event.target.files[0];
+    }
+  }
+
   ngOnInit(): void {
     if (!this.equipoId && !this.hojaVidaData) {
       console.error("Equipo ID no proporcionado a CrearHojavidaComponent");
+    }
+
+    if (this.equipoId) {
+      this.cargarEquipo();
     }
 
     this.cargarListas();
 
     if (this.hojaVidaData) {
       this.cargarDatosEdicion();
+    }
+  }
+
+  async cargarEquipo() {
+    try {
+      if (this.equipoId) {
+        this.equipo = await this.equipoServices.getEquipoById(this.equipoId);
+      }
+    } catch (error) {
+      console.error("Error al cargar datos del equipo", error);
     }
   }
 
@@ -207,7 +244,24 @@ export class CrearHojavidaComponent implements OnInit {
         peso: this.hojaVidaData.datosTecnicos?.peso,
         capacidad: this.hojaVidaData.datosTecnicos?.capacidad
       });
+
+      if (this.hojaVidaData.accesorios) {
+        this.accesorios = this.hojaVidaData.accesorios.map((acc: any) => ({
+          id: acc.id,
+          nombre: acc.nombre,
+          cantidad: acc.cantidad || 1,
+          estado: acc.estado
+        }));
+      }
     }
+  }
+
+  addAccesorio() {
+    this.accesorios.push({ nombre: '', cantidad: 1, estado: true });
+  }
+
+  toggleAccesorioState(index: number) {
+    this.accesorios[index].estado = !this.accesorios[index].estado;
   }
 
   async onSubmit() {
@@ -231,7 +285,7 @@ export class CrearHojavidaComponent implements OnInit {
 
         let datosTecnicosId = this.hojaVidaData?.datosTecnicos?.id;
 
-        // Manejo de Datos TÃ©cnicos
+
         if (this.hojaVidaData && datosTecnicosId) {
           // Actualizar existentes
           await this.datosTecnicosService.updateDatosTecnicos(datosTecnicosId, datosTecnicosPayload);
@@ -241,7 +295,7 @@ export class CrearHojavidaComponent implements OnInit {
           datosTecnicosId = newDatos.id;
         }
 
-        // Si hay hojaVidaData, es una ediciÃ³n
+
         if (this.hojaVidaData) {
           const payload = {
             ...formValue,
@@ -249,26 +303,55 @@ export class CrearHojavidaComponent implements OnInit {
             datosTecnicosIdFk: datosTecnicosId
           };
 
-          await this.hojaVidaService.updateHojaVida(this.hojaVidaData.id, payload);
+          const formData = new FormData();
+          for (const key of Object.keys(payload)) {
+            const value = payload[key];
+            if (value !== null && value !== undefined) {
+              formData.append(key, value);
+            }
+          }
+          if (this.selectedFile) {
+            formData.append('foto', this.selectedFile);
+          }
+
+          if (this.accesorios) {
+            formData.append('accesorios', JSON.stringify(this.accesorios));
+          }
+
+          await this.hojaVidaService.updateHojaVida(this.hojaVidaData.id, formData);
           Swal.fire({
             icon: 'success',
             title: 'Hoja de Vida Actualizada',
-            text: 'La hoja de vida y sus datos tÃ©cnicos se han actualizado correctamente.'
+            text: 'La hoja de vida y sus datos técnicos se han actualizado correctamente.'
           });
         } else {
-          // CreaciÃ³n nueva
+
           const payload = {
             ...formValue,
             equipoIdFk: this.equipoId,
             datosTecnicosIdFk: datosTecnicosId
           };
 
-          await this.hojaVidaService.addHojaVida(payload);
+          const formData = new FormData();
+          for (const key of Object.keys(payload)) {
+            const value = payload[key];
+            if (value !== null && value !== undefined) {
+              formData.append(key, value);
+            }
+          }
+          if (this.selectedFile) {
+            formData.append('foto', this.selectedFile);
+          }
+          if (this.accesorios.length > 0) {
+            formData.append('accesorios', JSON.stringify(this.accesorios));
+          }
+
+          await this.hojaVidaService.addHojaVida(formData);
 
           Swal.fire({
             icon: 'success',
             title: 'Hoja de Vida Creada',
-            text: 'La hoja de vida y sus datos tÃ©cnicos se han creado correctamente.'
+            text: 'La hoja de vida y sus datos técnicos se han creado correctamente.'
           });
         }
 
@@ -289,5 +372,9 @@ export class CrearHojavidaComponent implements OnInit {
         text: 'Por favor revise los campos del formulario.'
       });
     }
+  }
+
+  cancelar() {
+    this.onCancel.emit();
   }
 }

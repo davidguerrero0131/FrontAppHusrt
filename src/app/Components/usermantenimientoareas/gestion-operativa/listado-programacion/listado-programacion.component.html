@@ -1,0 +1,140 @@
+<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+<div class="calendario-container">
+  
+  <div style="margin-bottom: 2%; text-align: center;">
+    <button class="btn btn-outline-secondary mt-3" (click)="goBack()" pTooltip="Volver al Dashboard">
+      <i class="pi pi-arrow-left"></i> Volver al panel
+    </button>
+  </div>
+
+  <div class="header-container text-center mt-3" style="margin-bottom: 2%;">
+    <h2 class="titulo text-blue-800"><i class="pi pi-building mr-2"></i>Calendario de Mantenimientos Áreas Físicas</h2>
+
+    <!-- Filtros de fecha y acciones -->
+    <div class="filtros-card">
+      <div class="filtros-row">
+        <div class="filtro-group">
+          <label>Mes</label>
+          <p-select [options]="meses" [(ngModel)]="mesSeleccionado" optionLabel="label" optionValue="value"
+            placeholder="Mes" styleClass="w-full" (onChange)="filtrarPorFecha()"></p-select>
+        </div>
+        <div class="filtro-group">
+          <label>Año</label>
+          <p-select [options]="anios" [(ngModel)]="anioSeleccionado" optionLabel="label" optionValue="value" placeholder="Año" styleClass="w-full" (onChange)="filtrarPorFecha()"></p-select>
+        </div>
+        <div class="filtro-actions">
+          <button pButton icon="pi pi-search" label="Consultar" class="p-button-outlined" (click)="filtrarPorFecha()"></button>
+          <button pButton icon="pi pi-calendar-plus" label="Programar Mes"
+            class="p-button-success" [disabled]="planesSinProgramar.length === 0"
+            (click)="programarMesActual()">
+          </button>
+          <!-- Botón de antigua funcionalidad -->
+          <button type="button" class="btn btn-primary ml-2" (click)="generarProgramacion()">
+              <i class="pi pi-plus"></i> Generar Programación (Automatizada)
+          </button>
+        </div>
+      </div>
+
+      <!-- Resumen rápido Areas Físicas -->
+      <div class="resumen-row" *ngIf="!loading">
+        <div class="resumen-item sin-programar">
+          <span class="count">{{ planesSinProgramar.length }}</span>
+          <span class="label">Sin Programar</span>
+        </div>
+        <div class="resumen-item programados" style="background-color: #d1ecf1; color: #0c5460;">
+          <span class="count">{{ planesProgramados.length }}</span>
+          <span class="label">Programados / En Proceso</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Areas Físicas -->
+  <div class="tabs-row">
+    <button class="tab-btn" [class.active]="panelActivo === 'noProgramados'" (click)="panelActivo = 'noProgramados'">
+      <i class="pi pi-clock mr-1"></i> Sin Programar ({{ planesSinProgramar.length }})
+    </button>
+    <button class="tab-btn" [class.active]="panelActivo === 'programados'" (click)="panelActivo = 'programados'">
+      <i class="pi pi-check-circle mr-1"></i> Programados ({{ planesProgramados.length }})
+    </button>
+  </div>
+
+  <!-- Tabla Sin Programar Areas Físicas -->
+  <div *ngIf="panelActivo === 'noProgramados'">
+    <div class="alert-info" *ngIf="planesSinProgramar.length === 0 && !loading">
+      <i class="pi pi-info-circle mr-2"></i>No hay mantenimientos sin programar para el mes y año seleccionados.
+    </div>
+    <p-table #dtAreasNo [value]="planesSinProgramar" [loading]="loading" [paginator]="true" [rows]="15"
+      [globalFilterFields]="['area.nombre']"
+      styleClass="p-datatable-sm p-datatable-gridlines" *ngIf="planesSinProgramar.length > 0">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>#</th>
+          <th>Área</th>
+          <th>Mes</th>
+          <th>Responsable</th>
+          <th>Rango (días)</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-plan let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td class="font-medium">{{ plan.area?.nombre || '—' }}</td>
+          <td>{{ getNombreMes(plan.mes) }} {{ plan.anio }}</td>
+          <td>
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-user text-primary" *ngIf="plan.plan?.tecnico"></i>
+              <span>{{ plan.plan?.tecnico ? (plan.plan.tecnico.nombres + ' ' + plan.plan.tecnico.apellidos) : (plan.plan?.responsable || plan.responsable) }}</span>
+            </div>
+          </td>
+          <td>Del {{ plan.diaRangoInicio }} al {{ plan.diaRangoFin }}</td>
+          <td><p-tag [value]="getEstadoLabel(plan.estado)" [severity]="getEstadoSeverity(plan.estado)"></p-tag></td>
+          <td>
+             <button pButton pRipple icon="pi pi-calendar-plus" label="Programar" class="p-button-sm p-button-success" (click)="programarPlan(plan)" pTooltip="Programar unicamente este mantenimiento"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Tabla Programados Areas Físicas -->
+  <div *ngIf="panelActivo === 'programados'">
+    <div class="alert-info" *ngIf="planesProgramados.length === 0 && !loading">
+      <i class="pi pi-info-circle mr-2"></i>No hay mantenimientos programados para el mes y año seleccionados.
+    </div>
+    <p-table #dtAreasSi [value]="planesProgramados" [loading]="loading" [paginator]="true" [rows]="15"
+      [globalFilterFields]="['area.nombre']"
+      styleClass="p-datatable-sm p-datatable-gridlines" *ngIf="planesProgramados.length > 0">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>#</th>
+          <th>Área</th>
+          <th>Mes</th>
+          <th>Responsable</th>
+          <th>Rango (días)</th>
+          <th>Actividad</th>
+          <th>Estado</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-plan let-i="rowIndex">
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td class="font-medium">{{ plan.area?.nombre || '—' }}</td>
+          <td>{{ getNombreMes(plan.mes) }} {{ plan.anio }}</td>
+          <td>
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-user text-primary" *ngIf="plan.plan?.tecnico"></i>
+              <span>{{ plan.plan?.tecnico ? (plan.plan.tecnico.nombres + ' ' + plan.plan.tecnico.apellidos) : (plan.plan?.responsable || plan.responsable) }}</span>
+            </div>
+          </td>
+          <td>Del {{ plan.diaRangoInicio }} al {{ plan.diaRangoFin }}</td>
+          <td>{{ plan.actividad }}</td>
+          <td><p-tag [value]="getEstadoLabel(plan.estado)" [severity]="getEstadoSeverity(plan.estado)"></p-tag></td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+</div>

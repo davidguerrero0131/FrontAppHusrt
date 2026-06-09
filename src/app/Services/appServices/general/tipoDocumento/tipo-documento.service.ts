@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { API_URL } from '../../../../constantes';
-import { createHeaders } from '../../../../utilidades';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -14,25 +13,25 @@ export class TipoDocumentoService {
 
     getAllTiposDocumento() {
         return firstValueFrom(
-            this.httpClient.get<any[]>(`${API_URL}/tiposdocumento`, createHeaders())
+            this.httpClient.get<any[]>(`${API_URL}/tiposdocumento`)
         );
     }
 
     addTipoDocumento(tipoDocumento: any) {
         return firstValueFrom(
-            this.httpClient.post<any>(`${API_URL}/addtiposdocumento`, tipoDocumento, createHeaders())
+            this.httpClient.post<any>(`${API_URL}/addtiposdocumento`, tipoDocumento)
         );
     }
 
     updateTipoDocumento(id: any, tipoDocumento: any) {
         return firstValueFrom(
-            this.httpClient.put<any>(`${API_URL}/tiposdocumento/${id}`, tipoDocumento, createHeaders())
+            this.httpClient.put<any>(`${API_URL}/tiposdocumento/${id}`, tipoDocumento)
         );
     }
 
     deleteTipoDocumento(id: any) {
         return firstValueFrom(
-            this.httpClient.delete<any>(`${API_URL}/tiposdocumento/${id}`, createHeaders())
+            this.httpClient.delete<any>(`${API_URL}/tiposdocumento/${id}`)
         );
     }
 }

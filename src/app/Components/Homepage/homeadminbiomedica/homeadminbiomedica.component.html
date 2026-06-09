@@ -2,34 +2,34 @@
 
   <div class="hero-section" style="margin-bottom: 3rem;">
     <div class="hero-content">
-      <h1>Panel de Administración Biomédica</h1>
+      <h1>Panel de Administración Biom&eacute;dica</h1>
       <p>Bienvenido al sistema de gestión de activos y parámetros.</p>
     </div>
   </div>
 
-  <div class="cards-grid" style="justify-content: center; max-width: 900px; margin: 0 auto;">
+  <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, 384px); justify-content: center; gap: 3rem; margin-top: 2rem;">
     <!-- Gestion Operativa -->
-    <div class="dashboard-card" (click)="showViewGestionOperativa()">
+    <a [routerLink]="['/gestion-operativa']" class="dashboard-card nav-link-container">
       <div class="card-icon-container gradient-blue">
-        <i class="pi pi-briefcase" style="font-size: 4rem;"></i>
+        <i class="pi pi-briefcase"></i>
       </div>
       <div class="card-content">
-        <h3>Gestión Operativa</h3>
+        <h3>Gesti&oacute;n Operativa</h3>
         <p>Inventarios, mantenimientos, semaforización y reportes.</p>
         <span class="card-action">Acceder <i class="pi pi-arrow-right"></i></span>
       </div>
-    </div>
+    </a>
 
     <!-- Parametrizacion -->
-    <div class="dashboard-card" (click)="showViewParametrizacion()">
+    <a [routerLink]="['/parametrizacion']" class="dashboard-card nav-link-container">
       <div class="card-icon-container gradient-orange">
-        <i class="pi pi-cog" style="font-size: 4rem;"></i>
+        <i class="pi pi-cog"></i>
       </div>
       <div class="card-content">
         <h3>Parametrización</h3>
         <p>Configuración de equipos, fabricantes, proveedores y tablas maestras.</p>
         <span class="card-action">Acceder <i class="pi pi-arrow-right"></i></span>
       </div>
-    </div>
+    </a>
   </div>
 </div>

@@ -1,5 +1,5 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, ViewChild, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { TableModule, Table } from 'primeng/table';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -11,7 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ReportesService } from '../../../Services/appServices/biomedicaServices/reportes/reportes.service';
 import { ArchivosService } from '../../../Services/appServices/general/archivos/archivos.service';
 import { ProtocolosService } from '../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
@@ -34,7 +34,7 @@ import Swal from 'sweetalert2';
         TagModule,
         FormsModule,
         DatePickerModule,
-        TagModule
+        RouterModule
     ],
     templateUrl: './pendientes-tecnico.component.html',
     styleUrl: './pendientes-tecnico.component.css'
@@ -47,6 +47,8 @@ export class PendientesTecnicoComponent implements OnInit {
     archivosServices = inject(ArchivosService);
     protocolosServices = inject(ProtocolosService);
     router = inject(Router);
+    platformId = inject(PLATFORM_ID);
+    isBrowser: boolean = false;
 
     pendientes: any[] = [];
     allPendientes: any[] = [];
@@ -57,7 +59,9 @@ export class PendientesTecnicoComponent implements OnInit {
     rutina!: any[];
     modalReport: boolean = false;
 
-    constructor() { }
+    constructor() {
+        this.isBrowser = isPlatformBrowser(this.platformId);
+    }
 
     async ngOnInit() {
         await this.cargarPendientes();
@@ -122,8 +126,12 @@ export class PendientesTecnicoComponent implements OnInit {
     }
 
     realizarReporte(idEquipo: number, idReporte: number) {
-        sessionStorage.setItem('TipoMantenimiento', 'P');
-        sessionStorage.setItem('idReporte', idReporte.toString());
+        localStorage.setItem('TipoMantenimiento', 'P');
+        if (idReporte && idReporte > 0) {
+            localStorage.setItem('idReporte', idReporte.toString());
+        } else {
+            localStorage.removeItem('idReporte');
+        }
         this.router.navigate(['biomedica/nuevoreporte/', idEquipo]);
     }
 

@@ -2,81 +2,205 @@
 
 
 <!-- Contenedor principal -->
-<div class="p-mx-5 p-mt-4 p-p-4 bg-white shadow-2 border-round">
+<!-- Contenedor principal -->
+<div class="w-full md:w-11 m-auto mt-4 p-3 md:p-4 bg-white shadow-2 border-round">
 
   <!-- Títulos -->
-  <div class="text-center mb-4" style="margin-top: 2%;">
-    <h1>REPORTES DEL EQUIPO: {{ equipo?.nombres }}</h1>
-    <h3>{{ equipo?.marca }} {{equipo?.modelo}}</h3>
-    <h6>Serie {{ equipo?.serie }}</h6>
+  <div class="text-center mb-4">
+    <h1 class="text-xl md:text-3xl font-bold">REPORTES DEL EQUIPO: {{ equipo?.nombres }}</h1>
+    <h3 class="text-lg md:text-xl">{{ equipo?.marca }} {{equipo?.modelo}}</h3>
+    <h6 class="text-sm md:text-base text-500">Serie {{ equipo?.serie }}</h6>
   </div>
 
-  <!-- Tabla -->
-  <div class="card" style="margin-top: 3%; width: 94%; margin-left: 3%; margin-right: 3%;">
-    <p-table #dt2 [value]="reportes" dataKey="id" [paginator]="true" [rows]="10"
-      [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
-      [globalFilterFields]="['tipoMantenimiento', 'tipoFalla', 'nombreRecibio']"
-      [tableStyle]="{ 'min-width': '10rem' }">
-
-      <!-- Filtro -->
-      <ng-template #caption>
-        <div class="flex justify-content-end">
-          <p-iconfield iconPosition="left">
-            <p-inputicon>
-              <i class="pi pi-search"></i>
-            </p-inputicon>
-            <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda General" />
-          </p-iconfield>
-        </div>
-      </ng-template>
-
-      <!-- Cabecera -->
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width:5%">Numero</th>
-          <th>Fecha</th>
-          <th>Total Horas</th>
-          <th>Tipo Mantenimiento</th>
-          <th>Tipo Falla</th>
-          <th>Realizo</th>
-          <th>Recibio</th>
-          <th>Observaciones</th>
-          <th>Opciones</th>
-        </tr>
-      </ng-template>
-
-      <!-- Cuerpo -->
-      <ng-template pTemplate="body" let-reportes>
-        <tr>
-          <td>{{ reportes.id }}</td>
-          <td>{{ reportes.fechaRealizado }}</td>
-          <td>{{ reportes.horaTotal }}</td>
-          <td>{{ reportes.tipoMantenimiento }}</td>
-          <td>{{ reportes.tipoFalla }}</td>
-          <td>{{ reportes.usuario?.nombres }} {{reportes.usuario?.apellidos}}</td>
-          <td>{{ reportes.nombreRecibio }}</td>
-          <td>{{ reportes.observaciones }}</td>
-          <td style="text-align: center;" *ngIf=" reportes.tipoMantenimiento === 'Correctivo' ||  reportes.realizado">
-            <button type="button" class="btn btn-dark btn-sm" style="margin: 2%;"
-              (click)="viewModalReport(reportes)">Ver</button>
-            <button type="button" class="btn btn-secondary btn-sm"
-              (click)="editarReporte(reportes.id, reportes.equipoIdFk)"
-              *ngIf="!reportes.rutaPdf && !isGuest()">Editar</button>
-          </td>
-          <td style="text-align: center;" *ngIf="!reportes.realizado && reportes.tipoMantenimiento !== 'Correctivo'">
-            <button type="button" class="btn btn-warning btn-sm" (click)="viewModalReport(reportes)">Pendiente</button>
-          </td>
-        </tr>
-      </ng-template>
-
-
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="10" class="text-center">No hay Registros de Reportes.</td>
-        </tr>
-      </ng-template>
-    </p-table>
+  <!-- Botones Superiores -->
+  <div class="flex justify-content-end mb-3">
+    <p-button label="Ver Hoja de Vida" icon="pi pi-file" (onClick)="verHojaVida()"></p-button>
   </div>
+
+  <p-tabView styleClass="w-full" *ngIf="isBrowser">
+    <p-tabPanel header="Reportes de Mantenimiento">
+      <p-table #dt2 [value]="reportes" dataKey="id" [paginator]="true" [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
+        [globalFilterFields]="['id', 'fechaRealizado', 'horaTotal', 'tipoMantenimiento', 'tipoFalla', 'usuario.nombres', 'usuario.apellidos', 'nombreRecibio', 'observaciones']"
+        [tableStyle]="{ 'min-width': '50rem' }" responsiveLayout="scroll" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
+
+        <!-- Filtro -->
+        <ng-template pTemplate="caption">
+          <div class="flex justify-content-end">
+            <p-iconfield iconPosition="left">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="B&uacute;squeda General" />
+            </p-iconfield>
+          </div>
+        </ng-template>
+
+        <!-- Cabecera -->
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="id" style="width:5%">Numero <p-sortIcon field="id"></p-sortIcon></th>
+            <th pSortableColumn="fechaRealizado">Fecha <p-sortIcon field="fechaRealizado"></p-sortIcon></th>
+            <th pSortableColumn="horaTotal">Total Horas <p-sortIcon field="horaTotal"></p-sortIcon></th>
+            <th pSortableColumn="tipoMantenimiento">Tipo Mantenimiento <p-sortIcon
+                field="tipoMantenimiento"></p-sortIcon></th>
+            <th pSortableColumn="tipoFalla">Tipo Falla <p-sortIcon field="tipoFalla"></p-sortIcon></th>
+            <th pSortableColumn="usuario.nombres">Realizo <p-sortIcon field="usuario.nombres"></p-sortIcon></th>
+            <th pSortableColumn="nombreRecibio">Recibio <p-sortIcon field="nombreRecibio"></p-sortIcon></th>
+            <th>Observaciones</th>
+            <th>Opciones</th>
+          </tr>
+        </ng-template>
+
+        <!-- Cuerpo -->
+        <ng-template pTemplate="body" let-reportes>
+          <tr>
+            <td>{{ reportes.id }}</td>
+            <td>{{ reportes.fechaRealizado }}</td>
+            <td>{{ reportes.horaTotal }}</td>
+            <td>{{ reportes.tipoMantenimiento }}</td>
+            <td>{{ reportes.tipoFalla }}</td>
+            <td>{{ reportes.usuario?.nombres }} {{reportes.usuario?.apellidos}}</td>
+            <td>{{ reportes.nombreRecibio }}</td>
+            <td>{{ reportes.observaciones }}</td>
+            <td style="text-align: center;" *ngIf=" reportes.tipoMantenimiento === 'Correctivo' ||  reportes.realizado">
+              <button type="button" class="btn btn-dark btn-sm" style="margin: 2%;"
+                (click)="viewModalReport(reportes)">Ver</button>
+              <button type="button" class="btn btn-secondary btn-sm"
+                (click)="editarReporte(reportes, reportes.equipoIdFk)"
+                *ngIf="!reportes.rutaPdf && !isGuest() && reportes.usuarioIdFk === userId">Editar</button>
+            </td>
+            <td style="text-align: center;" *ngIf="!reportes.realizado && reportes.tipoMantenimiento !== 'Correctivo'">
+              <button type="button" class="btn btn-warning btn-sm"
+                (click)="viewModalReport(reportes)">Pendiente</button>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="10" class="text-center">No hay Registros de Reportes.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+
+    <p-tabPanel header="Actividades Metrol&oacute;gicas">
+      <p-table #dt3 [value]="metrologiaReportes" [paginator]="true" [rows]="10" [styleClass]="'p-datatable-sm'"
+        [globalFilterFields]="['fechaRealizado', 'tipoActividad', 'empresa', 'resultado', 'errorMaximoIdentificado', 'observaciones']"
+        responsiveLayout="scroll" [tableStyle]="{ 'min-width': '50rem' }" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
+
+        <!-- Filtro -->
+        <ng-template pTemplate="caption">
+          <div class="flex justify-content-end">
+            <p-iconfield iconPosition="left">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input pInputText type="text" (input)="onGlobalFilterMetrologia($event)"
+                placeholder="B&uacute;squeda General" />
+            </p-iconfield>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="fechaRealizado">Fecha Realizado <p-sortIcon field="fechaRealizado"></p-sortIcon></th>
+            <th pSortableColumn="tipoActividad">Tipo Actividad <p-sortIcon field="tipoActividad"></p-sortIcon></th>
+            <th pSortableColumn="empresa">Empresa <p-sortIcon field="empresa"></p-sortIcon></th>
+            <th pSortableColumn="resultado">Resultado <p-sortIcon field="resultado"></p-sortIcon></th>
+            <th pSortableColumn="errorMaximoIdentificado">Error Máx. <p-sortIcon
+                field="errorMaximoIdentificado"></p-sortIcon></th>
+            <th>Observaciones</th>
+            <th>Reporte</th>
+            <th>Confirmación</th>
+            <th>Opciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>{{ item.fechaRealizado | date:'dd/MM/yyyy' }}</td>
+            <td>{{ item.tipoActividad }}</td>
+            <td>{{ item.empresa }}</td>
+            <td>
+              <p-tag [value]="item.resultado" [severity]="item.resultado === 'Cumple' ? 'success' : 'danger'"></p-tag>
+            </td>
+            <td>{{ item.errorMaximoIdentificado }}</td>
+            <td>{{ item.observaciones }}</td>
+            <td>
+              <button pButton icon="pi pi-file-pdf" class="p-button-rounded p-button-danger p-button-text"
+                (click)="viewPdf(item.rutaReporte)" *ngIf="item.rutaReporte" pTooltip="Ver Reporte"></button>
+            </td>
+            <td>
+              <button pButton icon="pi pi-file-pdf" class="p-button-rounded p-button-help p-button-text"
+                (click)="viewPdf(item.confirmacionMetrologica)" *ngIf="item.confirmacionMetrologica"
+                pTooltip="Ver Confirmación"></button>
+            </td>
+            <td>
+              <button type="button" class="btn btn-dark btn-sm" (click)="viewModalMetrologia(item)">Ver</button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center">No hay actividades metrológicas registradas.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+
+    <p-tabPanel header="Traslados">
+      <p-table #dt4 [value]="traslados" [paginator]="true" [rows]="10" [styleClass]="'p-datatable-sm'"
+        [globalFilterFields]="['createdAt', 'servicioDestino.nombres', 'nombreReceptor', 'cargoReceptor', 'observaciones', 'usuario.nombres']"
+        responsiveLayout="scroll" [tableStyle]="{ 'min-width': '50rem' }" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
+
+        <ng-template pTemplate="caption">
+          <div class="flex justify-content-end">
+            <p-iconfield iconPosition="left">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input pInputText type="text" (input)="onGlobalFilterTraslados($event)" placeholder="B&uacute;squeda General" />
+            </p-iconfield>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="createdAt">Fecha <p-sortIcon field="createdAt"></p-sortIcon></th>
+            <th pSortableColumn="servicioDestino.nombres">Servicio Destino <p-sortIcon field="servicioDestino.nombres"></p-sortIcon></th>
+            <th pSortableColumn="nombreReceptor">Receptor <p-sortIcon field="nombreReceptor"></p-sortIcon></th>
+            <th pSortableColumn="cargoReceptor">Cargo <p-sortIcon field="cargoReceptor"></p-sortIcon></th>
+            <th pSortableColumn="usuario.nombres">Registrado Por <p-sortIcon field="usuario.nombres"></p-sortIcon></th>
+            <th>Observaciones</th>
+            <th>Acta</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item>
+          <tr (click)="viewModalTraslado(item)" style="cursor: pointer;" class="hover:surface-100 transition-colors transition-duration-150">
+            <td>{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ item.servicioDestino?.nombres || 'N/A' }}</td>
+            <td>{{ item.nombreReceptor }}</td>
+            <td>{{ item.cargoReceptor }}</td>
+            <td>{{ item.usuario?.nombres }} {{ item.usuario?.apellidos }}</td>
+            <td>{{ item.observaciones }}</td>
+            <td class="text-center">
+              <i *ngIf="item.archivoActa" class="pi pi-file-pdf text-red-500 text-xl" title="Acta Firmada Adjunta"></i>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center">No hay traslados registrados.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+  </p-tabView>
 </div>
 
 
@@ -88,10 +212,10 @@
     styleClass="standard-modal modal-xl" [baseZIndex]="10000">
     <div class="p-fluid p-3">
 
-      <!-- 1. Línea: Información del Equipo -->
+      <!-- 1. Línea: Informaci&oacute;n del Equipo -->
       <div class="grid">
         <div class="col-12">
-          <p-card header="Información del Equipo">
+          <p-card header="Informaci&oacute;n del Equipo">
             <div class="p-text-sm grid">
               <div class="col-12 md:col-4">
                 <p><strong>Nombre:</strong> {{ reportSelected?.equipo.nombres }}</p>
@@ -101,12 +225,12 @@
               <div class="col-12 md:col-4">
                 <p><strong>Serie:</strong> {{ reportSelected?.equipo.serie }}</p>
                 <p><strong>Placa:</strong> {{ reportSelected?.equipo.placa }}</p>
-                <p><strong>Activo:</strong> {{ reportSelected?.equipo.activo ? 'Sí' : 'No' }}</p>
+                <p><strong>Activo:</strong> {{ reportSelected?.equipo.activo ? 'S&iacute;' : 'No' }}</p>
               </div>
               <div class="col-12 md:col-4">
                 <p><strong>Servicio:</strong> {{ reportSelected?.servicio.nombres }}</p>
-                <p><strong>Ubicación:</strong> {{ reportSelected?.equipo.ubicacion }}</p>
-                <p><strong>Ubicación Específica:</strong> {{ reportSelected?.equipo.ubicacionEspecifica }}</p>
+                <p><strong>Ubicaci&oacute;n:</strong> {{ reportSelected?.equipo.ubicacion }}</p>
+                <p><strong>Ubicaci&oacute;n Específica:</strong> {{ reportSelected?.equipo.ubicacionEspecifica }}</p>
               </div>
             </div>
           </p-card>
@@ -130,14 +254,98 @@
                 <p><strong>Hora Total:</strong> {{ reportSelected?.horaTotal }}</p>
                 <p><strong>Tipo Mantenimiento:</strong> {{ reportSelected?.tipoMantenimiento }}</p>
                 <p><strong>Tipo Falla:</strong> {{ reportSelected?.tipoFalla }}</p>
+                <p><strong>Estado Operativo:</strong> {{ reportSelected?.estadoOperativo }}</p>
                 <p><strong>Observaciones:</strong> {{ reportSelected?.observaciones }}</p>
               </div>
               <div class="col-12 md:col-4">
                 <p><strong>Motivo:</strong> {{ reportSelected?.motivo }}</p>
-                <p><strong>Calificación:</strong> {{ reportSelected?.calificacion }}</p>
-                <p><strong>Mantenimiento Propio:</strong> {{ reportSelected?.mantenimientoPropio ? 'Sí' : 'No' }}</p>
-                <p><strong>Realizado:</strong> {{ reportSelected?.realizado ? 'Sí' : 'No' }}</p>
+                <p><strong>Calificaci&oacute;n:</strong> {{ reportSelected?.calificacion }}</p>
+                <p><strong>Mantenimiento Propio:</strong> {{ reportSelected?.mantenimientoPropio ? 'S&iacute;' : 'No' }}
+                </p>
+                <p><strong>Realizado:</strong> {{ reportSelected?.realizado ? 'S&iacute;' : 'No' }}</p>
 
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+
+      <!-- Equipo Patrón Section -->
+      <div class="grid" *ngIf="reportSelected?.equipoPatronIdFk">
+        <div class="col-12">
+          <p-card header="Informaci&oacute;n del Equipo Patrón">
+            <div class="p-text-sm grid">
+              <div class="col-12 md:col-4">
+                <p><strong>Nombre:</strong> {{ reportSelected?.equipoPatron?.nombres }}</p>
+                <p><strong>Marca:</strong> {{ reportSelected?.equipoPatron?.marca }}</p>
+              </div>
+              <div class="col-12 md:col-4">
+                <p><strong>Modelo:</strong> {{ reportSelected?.equipoPatron?.modelo }}</p>
+                <p><strong>Serie:</strong> {{ reportSelected?.equipoPatron?.serie }}</p>
+              </div>
+              <div class="col-12 md:col-4">
+                <p><strong>Placa/Código:</strong> {{ reportSelected?.equipoPatron?.placa }}</p>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+
+      <div class="grid" *ngIf="reportSelected?.cumplimientoCondicionesIniciales?.length > 0">
+        <div class="col-12">
+          <p-card header="Condiciones Iniciales">
+            <div class="p-text-sm grid">
+              <div class="col-12">
+                <table class="table table-striped table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Condición</th>
+                      <th>Cumplimiento</th>
+                      <th>Observaciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of reportSelected.cumplimientoCondicionesIniciales">
+                      <td>{{ item.condicionInicial?.descripcion }}</td>
+                      <td>{{ item.cumple === 'CUMPLE' ? 'Cumple' : (item.cumple === 'NO_CUMPLE' ? 'No Cumple' :
+                        (item.cumple === 'NO_APLICA' ? 'No Aplica' : 'No')) }}</td>
+                      <td>{{ item.observacion }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+
+      <div class="grid" *ngIf="reportSelected?.valoresMediciones?.length > 0">
+        <div class="col-12">
+          <p-card header="Mediciones Específicas">
+            <div class="p-text-sm grid">
+              <div class="col-12">
+                <table class="table table-striped table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Medición</th>
+                      <th>Estándar</th>
+                      <th>Valor</th>
+                      <th>Unidad Reg.</th>
+                      <th>Criterio Aceptación</th>
+                      <th>Conforme</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let val of reportSelected.valoresMediciones">
+                      <td>{{ val.medicion?.nombre }} ({{ val.medicion?.unidad }})</td>
+                      <td>{{ val.medicion?.valorEstandar || 'N/A' }}</td>
+                      <td>{{ val.valor }}</td>
+                      <td>{{ val.unidadRegistrada || val.medicion?.unidad }}</td>
+                      <td>{{ val.medicion?.criterioAceptacion || 'N/A' }}</td>
+                      <td>{{ val.conforme ? 'S&iacute;' : 'No' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </p-card>
@@ -151,20 +359,50 @@
               <table class="table table-striped table-bordered">
                 <thead>
                   <tr>
-                    <th>Descripción</th>
+                    <th>Descripci&oacute;n</th>
                     <th>Cumplimiento</th>
+                    <th>Observaciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let item of rutina">
                     <td>{{ item.protocolo.paso }}</td>
-                    <td>{{ item.cumple ? 'Sí' : 'No' }}</td>
+                    <td>{{ item.cumple === 'CUMPLE' ? 'Cumple' : (item.cumple === 'NO_CUMPLE' ? 'No Cumple' :
+                      (item.cumple === 'NO_APLICA' ? 'No Aplica' : 'No')) }}</td>
+                    <td>{{ item.observaciones }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
         </p-card>
+      </div>
+
+      <div class="grid" *ngIf="reportSelected?.repuestos?.length > 0">
+        <div class="col-12">
+          <p-card header="Insumos / Repuestos Utilizados">
+            <div class="p-text-sm grid">
+              <div class="col-12">
+                <table class="table table-striped table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Nombre Insumo</th>
+                      <th>Cantidad</th>
+                      <th>Comprobante</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let rep of reportSelected.repuestos">
+                      <td>{{ rep.nombreInsumo }}</td>
+                      <td>{{ rep.cantidad }}</td>
+                      <td>{{ rep.comprobanteEgreso || 'N/A' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </p-card>
+        </div>
       </div>
 
       <div style="margin-top: 1%;"></div>
@@ -183,8 +421,30 @@
               <div class="col-12 md:col-4">
                 <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
                   *ngIf="reportSelected?.rutaPdf">Ver Reporte</button>
-                <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
-                  *ngIf="!reportSelected?.rutaPdf">Generar Formato</button>
+                <div *ngIf="!reportSelected?.rutaPdf" class="flex flex-column gap-2">
+                  <div *ngIf="!isGuest()">
+                    <button type="button" class="btn btn-dark mb-2 w-full" (click)="descargarFormato()"
+                      *ngIf="reportSelected?.realizado">Generar Formato (Sin Firmar)</button>
+                    <button type="button" class="btn btn-secondary mb-2 w-full"
+                      (click)="editarReporte(reportSelected.id, reportSelected.equipoIdFk)"
+                      *ngIf="reportSelected?.usuarioIdFk === userId">Editar Reporte</button>
+                    <div *ngIf="reportSelected?.realizado">
+                      <hr>
+                      <button type="button" class="btn btn-primary mb-2 w-full" (click)="abrirModalFirma()">
+                        <i class="pi pi-pencil mr-2"></i> Firmar y Finalizar Digitalmente
+                      </button>
+                      <hr>
+                      <label class="font-bold">O Cargar Reporte Firmado Manualmente (PDF):</label>
+                      <input type="file" (change)="onFileSelected($event)" accept=".pdf" class="form-control mb-2">
+                      <button type="button" class="btn btn-primary w-full" [disabled]="!selectedFile" (click)="subirPdf()">
+                        <i class="pi pi-upload mr-1"></i> Guardar PDF
+                      </button>
+                    </div>
+                  </div>
+                  <div *ngIf="isGuest()" class="text-center p-3 surface-100 border-round">
+                    <p class="text-500 italic m-0">Reporte pendiente de carga por personal autorizado.</p>
+                  </div>
+                </div>
               </div>
 
             </div>
@@ -194,5 +454,332 @@
     </div>
   </p-dialog>
 
+  <!-- Modal para ver el detalle de Traslado -->
+  <p-dialog header="Detalle de Traslado" [(visible)]="modalTraslado" [modal]="true" [responsive]="true"
+    [style]="{width: '90vw', maxWidth: '900px'}" styleClass="standard-modal modal-lg" [baseZIndex]="10000">
+    <div class="p-fluid p-3" *ngIf="trasladoSelected">
+      
+      <!-- Información del Equipo -->
+      <div class="surface-section border-round p-3 mb-3 shadow-2 border-left-3 border-blue-500">
+          <h5 class="text-blue-500 mt-0 mb-3"><i class="pi pi-desktop mr-2"></i>Equipo Trasladado</h5>
+          <div class="grid text-sm">
+              <div class="col-12 md:col-4">
+                  <span class="text-500 block mb-1">Nombre</span>
+                  <span class="font-medium text-800">{{ equipo?.nombres }}</span>
+              </div>
+              <div class="col-12 md:col-4">
+                  <span class="text-500 block mb-1">Marca / Modelo</span>
+                  <span class="font-medium text-800">{{ equipo?.marca }} {{ equipo?.modelo ? '- ' + equipo?.modelo : '' }}</span>
+              </div>
+              <div class="col-12 md:col-4">
+                  <span class="text-500 block mb-1">Serie / Placa</span>
+                  <span class="font-medium text-800">{{ equipo?.serie }} <span *ngIf="equipo?.placa">({{ equipo?.placa }})</span></span>
+              </div>
+          </div>
+      </div>
 
+      <!-- Datos del Traslado -->
+      <div class="grid">
+          <!-- Origen -->
+          <div class="col-12 md:col-6 p-2">
+              <div class="surface-card p-3 h-full border-round shadow-1 border-left-3 border-red-500">
+                  <h6 class="text-red-500 mt-0 mb-3 text-lg"><i class="pi pi-sign-out mr-2"></i>De: Origen</h6>
+                  <div class="mb-3">
+                      <span class="text-500 text-sm block mb-1">Servicio</span>
+                      <span class="font-medium text-800">{{ trasladoSelected.servicioOrigen?.nombres || 'N/A' }}</span>
+                  </div>
+                  <div class="mb-3">
+                      <span class="text-500 text-sm block mb-1">Ubicación</span>
+                      <span class="font-medium text-800">{{ trasladoSelected.ubicacionOrigen || 'N/A' }}</span>
+                  </div>
+                  <div class="mb-0">
+                      <span class="text-500 text-sm block mb-1">Ubicación Específica</span>
+                      <span class="font-medium text-800">{{ trasladoSelected.ubicacionEspecificaOrigen || 'N/A' }}</span>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Destino -->
+          <div class="col-12 md:col-6 p-2">
+              <div class="surface-card p-3 h-full border-round shadow-1 border-left-3 border-green-500">
+                  <h6 class="text-green-500 mt-0 mb-3 text-lg"><i class="pi pi-sign-in mr-2"></i>Hacia: Destino</h6>
+                  <div class="mb-3">
+                      <span class="text-500 text-sm block mb-1">Servicio</span>
+                      <span class="font-medium text-800">{{ trasladoSelected.servicioDestino?.nombres || 'N/A' }}</span>
+                  </div>
+                  <div class="mb-3">
+                      <span class="text-500 text-sm block mb-1">Ubicación</span>
+                      <span class="font-medium text-800">{{ trasladoSelected.ubicacionDestino || 'N/A' }}</span>
+                  </div>
+                  <div class="mb-0">
+                      <span class="text-500 text-sm block mb-1">Ubicación Específica</span>
+                      <span class="font-medium text-800">{{ trasladoSelected.ubicacionEspecificaDestino || 'N/A' }}</span>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Quien Entrega -->
+          <div class="col-12 md:col-6 p-2">
+              <div class="surface-card p-3 h-full border-round shadow-1 border-left-3 border-orange-500">
+                  <h6 class="text-orange-500 mt-0 mb-3 text-lg"><i class="pi pi-user-minus mr-2"></i>Entregado Por</h6>
+                  <div class="mb-3">
+                      <span class="text-500 text-sm block mb-1">Nombre</span>
+                      <span class="font-medium text-800">{{ trasladoSelected.entregadoPor || 'N/A' }}</span>
+                  </div>
+                  <div class="mb-3">
+                      <span class="text-500 text-sm block mb-1">Cargo</span>
+                      <span class="font-medium text-800">{{ trasladoSelected.cargoEntrega || 'N/A' }}</span>
+                  </div>
+                  <div class="mb-0">
+                      <span class="text-500 text-sm block mb-1">Cédula</span>
+                      <span class="font-medium text-800">{{ trasladoSelected.cedulaEntrega || 'N/A' }}</span>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Quien Recibe -->
+          <div class="col-12 md:col-6 p-2">
+              <div class="surface-card p-3 h-full border-round shadow-1 border-left-3 border-teal-500">
+                  <h6 class="text-teal-500 mt-0 mb-3 text-lg"><i class="pi pi-user-plus mr-2"></i>Recibido Por</h6>
+                  <div class="mb-3">
+                      <span class="text-500 text-sm block mb-1">Nombre</span>
+                      <span class="font-medium text-800">{{ trasladoSelected.nombreReceptor || 'N/A' }}</span>
+                  </div>
+                  <div class="mb-3">
+                      <span class="text-500 text-sm block mb-1">Cargo</span>
+                      <span class="font-medium text-800">{{ trasladoSelected.cargoReceptor || 'N/A' }}</span>
+                  </div>
+                  <div class="mb-0">
+                      <span class="text-500 text-sm block mb-1">Cédula</span>
+                      <span class="font-medium text-800">{{ trasladoSelected.cedulaRecibe || 'N/A' }}</span>
+                  </div>
+              </div>
+          </div>
+          
+          <!-- Información General y Observaciones -->
+          <div class="col-12 p-2">
+              <div class="surface-card p-3 border-round shadow-1 border-left-3 border-purple-500">
+                  <h6 class="text-purple-500 mt-0 mb-3 text-lg"><i class="pi pi-info-circle mr-2"></i>Información General y Observaciones</h6>
+                  <div class="grid">
+                      <div class="col-12 md:col-5">
+                          <div class="mb-3">
+                              <span class="text-500 text-sm block mb-1">Fecha del Traslado</span>
+                              <span class="font-medium text-800"><i class="pi pi-calendar mr-2 text-500"></i>{{ trasladoSelected.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                          </div>
+                          <div>
+                              <span class="text-500 text-sm block mb-1">Registrado Por</span>
+                              <span class="font-medium text-800"><i class="pi pi-user mr-2 text-500"></i>{{ trasladoSelected.usuario?.nombres }} {{ trasladoSelected.usuario?.apellidos }}</span>
+                          </div>
+                      </div>
+                      <div class="col-12 md:col-7">
+                          <span class="text-500 text-sm block mb-1">Observaciones</span>
+                          <div class="font-medium text-700 surface-100 p-3 border-round min-h-full line-height-3 text-sm">
+                              {{ trasladoSelected.observaciones || 'Sin observaciones' }}
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="mt-4 border-top-1 surface-border pt-4">
+        <div *ngIf="trasladoSelected.archivoActa" class="flex justify-content-end">
+          <button pButton type="button" label="Visualizar Acta PDF" icon="pi pi-eye" class="p-button-danger" (click)="visualizarActaTraslado(trasladoSelected.archivoActa)"></button>
+        </div>
+        
+        <div *ngIf="!trasladoSelected.archivoActa" class="grid align-items-center">
+            <!-- Izquierda: Cargar PDF -->
+            <div class="col-12 md:col-6">
+                <div class="p-3 surface-100 border-round border-1 surface-border flex flex-column gap-2">
+                    <span class="font-bold text-700 block"><i class="pi pi-paperclip mr-2"></i>Adjuntar Acta Escaneada (Opcional)</span>
+                    <div class="p-inputgroup">
+                        <input type="file" (change)="onFileTrasladoSelected($event)" accept=".pdf" class="p-inputtext p-component p-element p-inputtext-sm w-full">
+                        <button pButton type="button" icon="pi pi-upload" class="p-button-primary" [disabled]="!fileToUploadTraslado" (click)="uploadActaTraslado()" pTooltip="Subir PDF" tooltipPosition="top"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Derecha: Botones de Acción -->
+            <div class="col-12 md:col-6">
+                <div class="flex flex-column gap-3 justify-content-end h-full p-2">
+                    <button pButton type="button" label="Generar Acta PDF (Sin Firmas)" icon="pi pi-file-pdf" class="p-button-outlined p-button-danger w-full" (click)="descargarActaTraslado()"></button>
+                    <button pButton type="button" label="Firmar Digitalmente en Pantalla" icon="pi pi-pencil" class="p-button-warning w-full font-bold" (click)="abrirModalFirmaTraslado(trasladoSelected)"></button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+    </div>
+  </p-dialog>
+
+  <p-dialog header="Detalle de Actividad Metrológica" [(visible)]="modalMetrologia" [modal]="true" [responsive]="true"
+    styleClass="standard-modal modal-lg" [baseZIndex]="10000">
+    <div class="p-fluid p-3" *ngIf="metrologiaSelected">
+
+      <!-- Información del Equipo -->
+      <div class="grid">
+        <div class="col-12">
+          <p-card header="Informaci&oacute;n del Equipo">
+            <div class="p-text-sm grid">
+              <div class="col-12 md:col-6">
+                <p><strong>Nombre:</strong> {{ equipo?.nombres }}</p>
+                <p><strong>Marca:</strong> {{ equipo?.marca }}</p>
+                <p><strong>Modelo:</strong> {{ equipo?.modelo }}</p>
+                <p><strong>Serie:</strong> {{ equipo?.serie }}</p>
+              </div>
+              <div class="col-12 md:col-6">
+                <p><strong>Placa:</strong> {{ equipo?.placa }}</p>
+                <p><strong>Servicio:</strong> {{ equipo?.servicios?.nombres }}</p>
+                <p><strong>Ubicaci&oacute;n:</strong> {{ equipo?.ubicacion }}</p>
+                <p><strong>Ubicaci&oacute;n Específica:</strong> {{ equipo?.ubicacionEspecifica }}</p>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+      
+      <!-- Información Básica -->
+      <div class="grid mt-2">
+        <div class="col-12">
+          <p-card header="Datos de la Actividad">
+            <div class="p-text-sm grid">
+              <div class="col-12 md:col-6">
+                <p><strong>Tipo de Actividad:</strong> {{ metrologiaSelected.tipoActividad }}</p>
+                <p><strong>Fecha Realizado:</strong> {{ metrologiaSelected.fechaRealizado | date:'dd/MM/yyyy' }}</p>
+                <p><strong>Empresa:</strong> {{ metrologiaSelected.empresa }}</p>
+                <p><strong>Resultado:</strong> 
+                  <p-tag [value]="metrologiaSelected.resultado" [severity]="metrologiaSelected.resultado === 'Cumple' ? 'success' : 'danger'"></p-tag>
+                </p>
+              </div>
+              <div class="col-12 md:col-6">
+                <p><strong>Error Máximo Identificado:</strong> {{ metrologiaSelected.errorMaximoIdentificado }} {{ metrologiaSelected.unidadMedicion }}</p>
+                <p><strong>Registrado por:</strong> {{ metrologiaSelected.usuarioAprobo?.nombres }} {{ metrologiaSelected.usuarioAprobo?.apellidos }}</p>
+              </div>
+            </div>
+            <div class="p-text-sm grid mt-2">
+              <div class="col-12">
+                <p><strong>Observaciones:</strong><br/> {{ metrologiaSelected.observaciones }}</p>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+
+      <!-- Gestión de Archivos -->
+      <div class="grid mt-3">
+        <div class="col-12">
+          <p-card header="Documentación Adjunta">
+            
+            <!-- Reporte -->
+            <div class="flex align-items-center justify-content-between p-2 border-bottom-1 border-300">
+              <div class="flex align-items-center gap-2">
+                <i class="pi pi-file-pdf text-red-500 text-xl"></i>
+                <span class="font-bold">Reporte de Actividad:</span>
+                <span *ngIf="!metrologiaSelected.rutaReporte" class="text-500 italic">No cargado</span>
+                <button *ngIf="metrologiaSelected.rutaReporte" pButton icon="pi pi-eye" label="Ver PDF" class="p-button-text p-button-sm" (click)="viewPdf(metrologiaSelected.rutaReporte)"></button>
+              </div>
+              <div *ngIf="!metrologiaSelected.rutaReporte && !isGuest()" class="flex align-items-center gap-2">
+                <input type="file" (change)="onFileMetrologiaReporteSelected($event)" accept=".pdf" class="p-inputtext p-component p-element p-inputtext-sm" style="max-width: 200px;">
+              </div>
+            </div>
+
+            <!-- Confirmación -->
+            <div class="flex align-items-center justify-content-between p-2 mt-2">
+              <div class="flex align-items-center gap-2">
+                <i class="pi pi-file-pdf text-blue-500 text-xl"></i>
+                <span class="font-bold">Confirmación Metrológica:</span>
+                <span *ngIf="!metrologiaSelected.confirmacionMetrologica" class="text-500 italic">No cargada</span>
+                <button *ngIf="metrologiaSelected.confirmacionMetrologica" pButton icon="pi pi-eye" label="Ver PDF" class="p-button-text p-button-sm" (click)="viewPdf(metrologiaSelected.confirmacionMetrologica)"></button>
+              </div>
+              <div *ngIf="!metrologiaSelected.confirmacionMetrologica && !isGuest()" class="flex align-items-center gap-2">
+                <input type="file" (change)="onFileMetrologiaConfirmacionSelected($event)" accept=".pdf" class="p-inputtext p-component p-element p-inputtext-sm" style="max-width: 200px;">
+              </div>
+            </div>
+
+            <!-- Botón Guardar -->
+            <div class="flex justify-content-end mt-4" *ngIf="(!metrologiaSelected.rutaReporte || !metrologiaSelected.confirmacionMetrologica) && !isGuest()">
+              <button pButton label="Guardar Archivos Seleccionados" icon="pi pi-upload" class="p-button-primary" 
+                [disabled]="!selectedFileMetrologiaReporte && !selectedFileMetrologiaConfirmacion" (click)="uploadMetrologiaFiles()"></button>
+            </div>
+
+          </p-card>
+        </div>
+      </div>
+
+    </div>
+  </p-dialog>
+
+  <p-dialog header="Firmar Reporte" [(visible)]="modalFirma" [modal]="true" [style]="{width: '90vw', maxWidth: '500px'}" [draggable]="false" [resizable]="false" (onHide)="limpiarFirma()">
+      <div class="flex flex-column gap-3 pt-2">
+          <div class="p-field">
+              <label class="font-bold block mb-1">Nombre de quien recibe</label>
+              <input type="text" pInputText [(ngModel)]="nombreFirma" class="w-full" placeholder="Ej. Juan Pérez" />
+          </div>
+          <div class="p-field">
+              <label class="font-bold block mb-1">Cédula de quien recibe (Opcional)</label>
+              <input type="text" pInputText [(ngModel)]="cedulaFirma" class="w-full" placeholder="Ej. 123456789" />
+          </div>
+          
+          <div class="p-field flex flex-column mt-3">
+              <label class="font-bold block mb-1 text-center">Firma Digital (Dibuje aquí su firma)</label>
+              <div class="border-2 border-solid border-300 border-round bg-white overflow-hidden relative" style="height: 200px; touch-action: none;">
+                  <canvas #signatureCanvas class="w-full h-full cursor-crosshair absolute top-0 left-0"></canvas>
+              </div>
+              <div class="flex justify-content-end mt-2">
+                  <button pButton type="button" label="Limpiar" icon="pi pi-eraser" class="p-button-text p-button-sm p-button-danger" (click)="limpiarFirma()"></button>
+              </div>
+          </div>
+      </div>
+      
+      <ng-template pTemplate="footer">
+          <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="modalFirma = false"></button>
+          <button pButton type="button" label="Guardar Firma y Finalizar" icon="pi pi-check" class="p-button-primary" (click)="guardarFirmaYGenerar()"></button>
+      </ng-template>
+  </p-dialog>
+
+
+
+  <p-dialog header="Firmar Acta de Traslado" [(visible)]="modalFirmaTraslado" [modal]="true" [style]="{width: '90vw', maxWidth: '850px'}" [draggable]="false" [resizable]="false" (onHide)="cerrarModalFirmaTraslado()">
+        
+        <div class="mb-4 text-center mt-3">
+            <i class="pi pi-pencil text-4xl text-primary mb-2"></i>
+            <p class="m-0 text-600">Por favor, registre ambas firmas en los recuadros a continuación para validar el traslado.</p>
+        </div>
+
+        <div class="grid pt-2">
+            <!-- Firma Entrega -->
+            <div class="col-12 md:col-6 p-2 md:p-3">
+                <div class="surface-card p-3 shadow-2 border-round border-1 border-primary-50">
+                    <h5 class="text-center font-semibold text-primary m-0 mb-3"><i class="pi pi-sign-out mr-2"></i>Firma Quien Entrega</h5>
+                    <div class="border-2 border-dashed border-400 border-round overflow-hidden relative" style="height: 220px; touch-action: none; background: #fafafa;">
+                        <canvas #signatureCanvasEntregaTraslado class="w-full h-full cursor-crosshair absolute top-0 left-0"></canvas>
+                    </div>
+                    <div class="flex justify-content-center mt-3">
+                        <button pButton type="button" label="Limpiar Lienzo" icon="pi pi-eraser" class="p-button-outlined p-button-danger p-button-sm w-full" (click)="limpiarFirmaEntregaTraslado()"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Firma Recibe -->
+            <div class="col-12 md:col-6 p-2 md:p-3">
+                <div class="surface-card p-3 shadow-2 border-round border-1 border-primary-50">
+                    <h5 class="text-center font-semibold text-primary m-0 mb-3"><i class="pi pi-sign-in mr-2"></i>Firma Quien Recibe</h5>
+                    <div class="border-2 border-dashed border-400 border-round overflow-hidden relative" style="height: 220px; touch-action: none; background: #fafafa;">
+                        <canvas #signatureCanvasRecibeTraslado class="w-full h-full cursor-crosshair absolute top-0 left-0"></canvas>
+                    </div>
+                    <div class="flex justify-content-center mt-3">
+                        <button pButton type="button" label="Limpiar Lienzo" icon="pi pi-eraser" class="p-button-outlined p-button-danger p-button-sm w-full" (click)="limpiarFirmaRecibeTraslado()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <ng-template pTemplate="footer">
+            <div class="flex justify-content-between w-full mt-3">
+                <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="cerrarModalFirmaTraslado()"></button>
+                <button pButton type="button" label="Guardar Firmas y Finalizar" icon="pi pi-check" class="p-button-primary" (click)="subirActaTraslado()"></button>
+            </div>
+        </ng-template>
+  </p-dialog>
 </div>

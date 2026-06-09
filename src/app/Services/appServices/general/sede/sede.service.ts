@@ -1,12 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http'
-import { Observable } from 'rxjs'
+import { HttpClient } from '@angular/common/http'
 import { firstValueFrom } from 'rxjs';
-import { jwtDecode } from 'jwt-decode';
-import Swal from 'sweetalert2';
-import { createHeaders } from '../../../../utilidades';
-
 import { API_URL } from '../../../../constantes';
 
 @Injectable({
@@ -21,13 +16,13 @@ export class SedeService {
 
   getAllSedes() {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${API_URL}/sedes`, createHeaders())
+      this.httpClient.get<any[]>(`${API_URL}/sedes`)
     )
   }
 
   getSedeById(id: any) {
     return firstValueFrom(
-      this.httpClient.get<any>(`${API_URL}/sedes/${id}`, createHeaders())
+      this.httpClient.get<any>(`${API_URL}/sedes/${id}`)
     )
   }
 

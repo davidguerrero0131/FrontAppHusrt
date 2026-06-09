@@ -1,16 +1,14 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 
-
-
 @Component({
   selector: 'app-homesuperadmin',
   standalone: true,
-  imports: [CommonModule, CardModule, ButtonModule, TooltipModule],
+  imports: [CommonModule, CardModule, ButtonModule, TooltipModule, RouterModule],
   templateUrl: './homesuperadmin.component.html',
   styleUrl: './homesuperadmin.component.css'
 })
@@ -21,11 +19,15 @@ export class HomesuperadminComponent {
   ) { }
 
   viewParametrizacion() {
-    this.router.navigate(['/biomedica/parametrizacion']);
+    this.router.navigate(['/parametrizacion']);
   }
 
   viewGestionBiomedica() {
-    this.router.navigate(['/biomedica/gestion-operativa']);
+    this.router.navigate(['/gestion-operativa']);
+  }
+
+  viewMesaServicios() {
+    this.router.navigate(['/adminmesaservicios']);
   }
 
   // Futuros metodos para Sistemas y Mantenimiento
@@ -35,5 +37,9 @@ export class HomesuperadminComponent {
 
   viewGestionMantenimiento() {
     // Ejemplo: this.router.navigate(['/mantenimiento/home']);
+  }
+
+  viewPersonalizacion() {
+    this.router.navigate(['/personalizacion']);
   }
 }

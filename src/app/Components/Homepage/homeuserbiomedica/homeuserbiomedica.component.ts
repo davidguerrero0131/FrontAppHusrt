@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Route, Router } from '@angular/router';
+import { Route, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -10,7 +10,7 @@ import { jwtDecode } from 'jwt-decode';
 @Component({
   selector: 'app-homeuserbiomedica',
   standalone: true,
-  imports: [CommonModule, CardModule, ButtonModule, TooltipModule],
+  imports: [CommonModule, CardModule, ButtonModule, TooltipModule, RouterModule],
   templateUrl: './homeuserbiomedica.component.html',
   styleUrl: './homeuserbiomedica.component.css'
 })
@@ -63,5 +63,9 @@ export class HomeuserbiomedicaComponent {
 
   showViewActividadesMetrologicasBio() {
     this.router.navigate(['/biomedica/actividadesmetrologicas']);
+  }
+
+  showViewEquiposBajaBio() {
+    this.router.navigate(['/biomedica/equiposbaja']);
   }
 }

@@ -1,0 +1,72 @@
+<app-industriales-navbar></app-industriales-navbar>
+<div class="dashboard-container p-4">
+    <!-- Hero Section -->
+    <div class="hero-section mb-4"
+        style="background: linear-gradient(135deg, #0d7377 0%, #14a085 100%); color: white; padding: 2rem; border-radius: 10px;">
+        <div class="hero-content">
+            <h1 class="mb-2">Chequeos Diarios: {{ tipoEquipoStr.replace('_', ' ') }}</h1>
+            <p class="mb-0">Lista de equipos para el chequeo diario. Haga clic en un equipo para registrar o ver su
+                estado.</p>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mb-4">
+        <button class="btn btn-outline-secondary" (click)="regresar()">
+            <i class="pi pi-arrow-left me-2"></i> Regresar
+        </button>
+    </div>
+
+    <div *ngIf="cargando" class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2 text-muted">Cargando equipos y estados...</p>
+    </div>
+
+    <!-- Contenedor de equipos -->
+    <div *ngIf="!cargando && equipos.length > 0" class="row">
+        <div class="col-md-6 col-lg-4 mb-4" *ngFor="let equipo of equipos">
+            <!-- Tarjeta clickeable, el color del botón define el estado -->
+            <div class="card h-100 shadow-sm transition-hover">
+                <div class="card-body">
+                    <h5 class="card-title text-truncate" title="{{ equipo.nombres }}">{{ equipo.nombres }}</h5>
+                    <p class="card-text text-muted small mb-1"><strong>Marca:</strong> {{ equipo.marca || 'N/A' }}</p>
+                    <p class="card-text text-muted small mb-3"><strong>Serie:</strong> {{ equipo.serie || 'N/A' }}</p>
+
+                    <button class="btn w-100 d-flex align-items-center justify-content-center mb-2"
+                        [ngClass]="equipo.revisadoHoy ? 'btn-success' : 'btn-warning text-dark'"
+                        (click)="accionEquipo(equipo)">
+
+                        <i class="pi me-2"
+                            [ngClass]="equipo.revisadoHoy ? 'pi-check-circle' : 'pi-exclamation-circle'"></i>
+                        {{ equipo.revisadoHoy ? 'Revisado Hoy (Ver Mes)' : 'Pendiente (Registrar)' }}
+                    </button>
+
+                    <button class="btn btn-outline-info w-100 d-flex align-items-center justify-content-center"
+                        (click)="verConsolidado(equipo)">
+                        <i class="pi pi-calendar me-2"></i>
+                        Ver Consolidado Mensual
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!cargando && equipos.length === 0" class="alert alert-info text-center shadow-sm">
+        <i class="pi pi-info-circle fs-3 mb-2 d-block"></i>
+        No se encontraron equipos activos del tipo seleccionado ({{ tipoEquipoStr }}).
+    </div>
+</div>
+
+<style>
+    .transition-hover {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .transition-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+    }
+</style>

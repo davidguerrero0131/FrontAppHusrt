@@ -1,0 +1,83 @@
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <p-card header="Consulta de Pacientes - Madre Canguro">
+                <div class="flex flex-column gap-3">
+                    <label for="patientId" class="font-bold">Buscar Paciente (Documento, PMC Único o ID Servinte)</label>
+                    <div class="flex gap-2">
+                        <input id="patientId" type="text" pInputText [(ngModel)]="patientId" placeholder="Ingrese Identificador"
+                            class="flex-1" (keyup.enter)="searchPatient()" />
+                        <p-button label="Buscar" icon="pi pi-search" [loading]="loading"
+                            (click)="searchPatient()"></p-button>
+                    </div>
+                </div>
+
+                <div *ngIf="patientData" class="mt-5 border-top pt-4">
+                    <h3 class="mb-4 text-primary">Datos del Paciente</h3>
+                    <div class="grid">
+                        <div class="col-12 md:col-6 mb-3">
+                            <span class="block text-500 font-medium mb-1">Nombre Completo</span>
+                            <div class="text-900 font-bold uppercase">{{patientData.nombre}} {{patientData.apellido1}} {{patientData.apellido2}}</div>
+                        </div>
+                        <div class="col-12 md:col-6 mb-3">
+                            <span class="block text-500 font-medium mb-1">Identificaci&oacute;n</span>
+                            <div class="text-900 font-bold">{{patientData.tipoId}} - {{patientData.numeroId}}</div>
+                        </div>
+                        <div class="col-12 md:col-6 mb-3">
+                            <span class="block text-500 font-medium mb-1">Sexo</span>
+                            <div class="text-900 font-bold">{{patientData.sexo === 'M' ? 'Masculino' : 'Femenino'}}</div>
+                        </div>
+                        <div class="col-12 md:col-6 mb-3">
+                            <span class="block text-500 font-medium mb-1">ID &Uacute;nico (Servinte)</span>
+                            <div class="text-900 font-bold">{{patientData.idUnico}}</div>
+                        </div>
+                        <div class="col-12 md:col-6 mb-3" *ngIf="patientData.telefono1">
+                            <span class="block text-500 font-medium mb-1">Tel&eacute;fono</span>
+                            <div class="text-900 font-bold">{{patientData.telefono1}}</div>
+                        </div>
+                        <div class="col-12 md:col-6 mb-3" *ngIf="patientData.celular1">
+                            <span class="block text-500 font-medium mb-1">Celular</span>
+                            <div class="text-900 font-bold">{{patientData.celular1}}</div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="pmcUnico" class="block text-500 font-medium mb-2">PMC &Uacute;nico</label>
+                            <input id="pmcUnico" type="text" pInputText [(ngModel)]="pmcUnico" placeholder="Ingrese PMC &Uacute;nico" class="w-full" />
+                            <small class="text-500">Este campo es obligatorio para Madre Canguro.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="patientData" class="mt-5 border-top pt-4">
+                    <h3 class="mb-4 text-primary">Detalles de la Cita</h3>
+                    <div class="grid">
+                        <div class="col-12 md:col-6 mb-3">
+                            <label for="date" class="block text-500 font-medium mb-2">Fecha de la Cita</label>
+                            <p-datepicker id="date" [(ngModel)]="appointmentDate" [showIcon]="true" appendTo="body"
+                                placeholder="Seleccione fecha" styleClass="w-full"></p-datepicker>
+                        </div>
+                        <div class="col-12 md:col-6 mb-3">
+                            <label for="stage" class="block text-500 font-medium mb-2">Etapa / Control</label>
+                            <p-select id="stage" [options]="stages" [(ngModel)]="selectedStage" optionLabel="label"
+                                placeholder="Seleccione Etapa" styleClass="w-full" appendTo="body"></p-select>
+                        </div>
+                        <div class="col-12 md:col-6 mb-3">
+                            <label for="medico" class="block text-500 font-medium mb-2">Médico Asignado</label>
+                            <p-select id="medico" [options]="medicosList" [(ngModel)]="selectedMedico" optionLabel="label"
+                                placeholder="Seleccione Médico" styleClass="w-full" appendTo="body" [showClear]="true"></p-select>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="patientData" class="mt-4 flex justify-content-end">
+                    <p-button label="Crear Cita" icon="pi pi-calendar-plus" severity="success" [loading]="loading"
+                        (click) ="saveAppointment()"></p-button>
+                </div>
+
+                <div *ngIf="!patientData && !loading" class="mt-5 text-center text-500 italic">
+                    <i class="pi pi-info-circle mr-2"></i>
+                    Ingrese un documento, PMC Único o ID Servinte para comenzar la búsqueda.
+                </div>
+            </p-card>
+        </div>
+    </div>
+</div>

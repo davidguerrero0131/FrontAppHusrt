@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { API_URL } from '../../../../constantes';
-import { createHeaders } from '../../../../utilidades';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -22,19 +21,27 @@ export class TrasladosService {
         usuarioId: number
     }) {
         return firstValueFrom(
-            this.http.post(`${this.baseUrl}/traslados`, data, createHeaders())
+            this.http.post(`${this.baseUrl}/traslados`, data)
         );
     }
 
     getHistorialTraslados(equipoId: number) {
         return firstValueFrom(
-            this.http.get<any[]>(`${this.baseUrl}/traslados/equipo/${equipoId}`, createHeaders())
+            this.http.get<any[]>(`${this.baseUrl}/traslados/equipo/${equipoId}`)
         );
     }
 
     getHistorialCompleto(equipoId: number) {
         return firstValueFrom(
-            this.http.get<any[]>(`${this.baseUrl}/historial/equipo/${equipoId}`, createHeaders())
+            this.http.get<any[]>(`${this.baseUrl}/historial/equipo/${equipoId}`)
+        );
+    }
+
+    uploadActaTraslado(id: number, file: File) {
+        const formData = new FormData();
+        formData.append('file', file);
+        return firstValueFrom(
+            this.http.post<any>(`${this.baseUrl}/traslados/upload/${id}`, formData)
         );
     }
 }

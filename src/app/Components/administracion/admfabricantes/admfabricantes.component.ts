@@ -15,13 +15,15 @@ import { getDecodedAccessToken } from '../../../utilidades';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 
+import { UppercaseDirective } from '../../../Directives/uppercase.directive';
+
 @Component({
     selector: 'app-admfabricantes',
     standalone: true,
     imports: [
         CommonModule, ReactiveFormsModule, FormsModule,
         TableModule, InputTextModule, ButtonModule, DialogModule, ToolbarModule, TooltipModule, TagModule,
-        IconFieldModule, InputIconModule
+        IconFieldModule, InputIconModule, UppercaseDirective
     ],
     templateUrl: './admfabricantes.component.html',
     styleUrl: './admfabricantes.component.css'

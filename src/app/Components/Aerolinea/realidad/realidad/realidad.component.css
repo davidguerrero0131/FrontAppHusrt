@@ -1,0 +1,591 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:host {
+    display: block;
+    min-height: 100vh;
+    padding: 20px;
+
+    background:
+        radial-gradient(circle at top,
+            #6B63D9 0%,
+            #4B3FAF 35%,
+            #2E247F 70%,
+            #241B63 100%);
+
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+}
+
+/* CONTENEDOR */
+
+.container {
+    width: 100%;
+    max-width: 1400px;
+    margin: auto;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+}
+
+/* TITULO */
+
+h1 {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    text-align: center;
+    font-weight: 900;
+
+    text-shadow:
+        0 4px 12px rgba(0, 0, 0, .25);
+}
+
+/* BARRA SUPERIOR */
+
+.top-bar {
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.score-box {
+
+    background:
+        linear-gradient(135deg,
+            rgba(255, 255, 255, .12),
+            rgba(255, 255, 255, .05));
+
+    border: 1px solid rgba(107, 99, 217, .45);
+
+    backdrop-filter: blur(12px);
+
+    padding: 14px 25px;
+
+    border-radius: 20px;
+
+    font-weight: bold;
+
+    font-size: 1.1rem;
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, .18);
+}
+
+/* AREA PRINCIPAL */
+
+.game-area {
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+
+    flex-wrap: wrap;
+}
+
+/* RULETA */
+
+.wheel-section {
+    width: min(92vw, 520px);
+    aspect-ratio: 1/1;
+    position: relative;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+
+    background: white;
+
+    box-shadow:
+        0 0 40px rgba(0, 0, 0, .35),
+        0 0 80px rgba(255, 255, 255, .08);
+}
+
+/* FLECHA */
+
+.pointer {
+    position: absolute;
+
+    top: -8px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    width: 0;
+    height: 0;
+
+    border-left: 22px solid transparent;
+    border-right: 22px solid transparent;
+    border-top: 42px solid #1BB8B5;
+
+    z-index: 10;
+
+    filter:
+        drop-shadow(0 0 10px rgba(24, 198, 195, .5));
+}
+
+/* PANEL */
+
+.panel {
+    flex: 1;
+
+    min-width: 300px;
+    max-width: 650px;
+
+    background:
+        linear-gradient(135deg,
+            rgba(75, 63, 175, .22),
+            rgba(46, 36, 127, .28));
+
+    border: 1px solid rgba(107, 99, 217, .35);
+
+    backdrop-filter: blur(12px);
+
+    border-radius: 30px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, .25);
+}
+
+/* PREGUNTA */
+
+.question {
+    font-size: clamp(1.2rem, 2vw, 1.7rem);
+
+    color: #18C6C3;
+
+    font-weight: 800;
+
+    margin-bottom: 25px;
+
+    line-height: 1.4;
+}
+
+/* OPCIONES */
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* BOTONES OPCIONES */
+
+.option-btn {
+    width: 100%;
+
+    border: none;
+
+    padding: 18px 20px;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(135deg,
+            rgba(255, 255, 255, .12),
+            rgba(255, 255, 255, .06));
+
+    border: 1px solid rgba(255, 255, 255, .12);
+
+    color: white;
+
+    font-size: 1rem;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: .25s ease;
+
+    text-align: left;
+
+    backdrop-filter: blur(10px);
+
+    box-shadow:
+        0 6px 15px rgba(0, 0, 0, .18);
+}
+
+.option-btn:hover {
+
+    transform:
+        translateY(-2px) scale(1.01);
+
+    background:
+        linear-gradient(135deg,
+            rgba(27, 184, 181, .35),
+            rgba(24, 198, 195, .18));
+
+    border-color: #18C6C3;
+
+    box-shadow:
+        0 10px 25px rgba(24, 198, 195, .25);
+
+}
+
+.option-btn.correct {
+
+    background:
+        linear-gradient(135deg,
+            #1BB8B5,
+            #18C6C3);
+
+    border: 1px solid #7ff7f4;
+
+    color: white;
+
+    transform: scale(1.02);
+
+}
+
+.option-btn.wrong {
+
+    background:
+        linear-gradient(135deg,
+            #ff4d6d,
+            #ff758f);
+
+    border: 1px solid #ffc2ce;
+
+    color: white;
+
+}
+
+.option-btn:disabled {
+    cursor: not-allowed;
+    opacity: .92;
+}
+
+/* CONTROLES */
+
+.controls {
+    display: flex;
+    justify-content: center;
+}
+
+/* BOTON RULETA */
+
+.spin-btn {
+
+    border: none;
+
+    padding: 16px 34px;
+
+    border-radius: 100px;
+
+    background:
+        linear-gradient(135deg,
+            #1BB8B5,
+            #18C6C3);
+
+    color: white;
+
+    font-size: 1.2rem;
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    transition: .3s;
+
+    box-shadow:
+        0 10px 25px rgba(0, 0, 0, .25);
+}
+
+.spin-btn:hover {
+
+    transform:
+        scale(1.05);
+
+    box-shadow:
+        0 14px 30px rgba(24, 198, 195, .3);
+}
+
+.spin-btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+/* MENSAJE */
+
+.message {
+    margin-top: 20px;
+
+    font-size: 1rem;
+
+    font-weight: bold;
+
+    min-height: 30px;
+}
+
+/* MODALES */
+
+.modal {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, .7);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 100;
+
+    padding: 20px;
+}
+
+/* CONTENIDO MODAL */
+
+.modal-content {
+
+    width: min(90vw, 520px);
+
+    background: white;
+
+    color: #333;
+
+    border-radius: 28px;
+
+    padding: 40px;
+
+    text-align: center;
+
+    animation: pop .35s ease;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, .35);
+}
+
+/* ANIMACION */
+
+@keyframes pop {
+
+    from {
+        transform:
+            scale(.7) translateY(20px);
+
+        opacity: 0;
+    }
+
+    to {
+        transform:
+            scale(1) translateY(0);
+
+        opacity: 1;
+    }
+
+}
+
+/* TITULO MODAL */
+
+.modal h2 {
+
+    font-size: 2rem;
+
+    margin-bottom: 15px;
+
+    color: #2E247F;
+}
+
+/* TEXTO MODAL */
+
+.modal p {
+
+    margin-bottom: 25px;
+
+    line-height: 1.7;
+
+    font-size: 1rem;
+}
+
+/* BOTON MODAL */
+
+.modal button {
+
+    border: none;
+
+    padding: 14px 28px;
+
+    border-radius: 100px;
+
+    background:
+        linear-gradient(135deg,
+            #4B3FAF,
+            #6B63D9);
+
+    color: white;
+
+    font-size: 1rem;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: .3s;
+}
+
+.modal button:hover {
+
+    transform: scale(1.05);
+}
+
+/* MODAL CORRECTO */
+
+.success-content {
+    position: relative;
+    overflow: hidden;
+}
+
+.celebration-icons {
+
+    font-size: 2rem;
+
+    margin-bottom: 20px;
+
+    animation:
+        floatIcons 1.2s infinite alternate ease-in-out;
+}
+
+.bottom-icons {
+    margin-top: 20px;
+    margin-bottom: 0;
+}
+
+@keyframes floatIcons {
+
+    from {
+        transform:
+            translateY(0px) scale(1);
+    }
+
+    to {
+        transform:
+            translateY(-8px) scale(1.08);
+    }
+
+}
+
+/* MODAL INCORRECTO */
+
+.lose-content {
+    position: relative;
+    overflow: hidden;
+}
+
+.lose-icons {
+
+    font-size: 2rem;
+
+    margin-bottom: 20px;
+
+    animation:
+        shakeIcons .8s infinite alternate ease-in-out;
+}
+
+.bottom-lose-icons {
+    margin-top: 20px;
+}
+
+@keyframes shakeIcons {
+
+    0% {
+        transform: translateX(-4px);
+    }
+
+    50% {
+        transform: translateX(4px);
+    }
+
+    100% {
+        transform: translateX(-4px);
+    }
+
+}
+
+/* MODAL INSTRUCCIONES */
+
+.instructions-content {
+    position: relative;
+    overflow: hidden;
+}
+
+.instructions-icons {
+
+    font-size: 2.3rem;
+
+    margin-bottom: 20px;
+
+    animation:
+        floatInstructions 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes floatInstructions {
+
+    from {
+        transform:
+            translateY(0px) scale(1);
+    }
+
+    to {
+        transform:
+            translateY(-6px) scale(1.06);
+    }
+
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px) {
+
+    .game-area {
+        flex-direction: column;
+    }
+
+    .panel {
+        width: 100%;
+    }
+
+    .modal-content {
+        padding: 30px 22px;
+    }
+
+    .question {
+        font-size: 1.2rem;
+    }
+
+    .option-btn {
+        font-size: .95rem;
+        padding: 16px;
+    }
+
+}
+
+@media(max-width:500px) {
+
+    h1 {
+        font-size: 1.6rem;
+    }
+
+    .score-box {
+        width: 100%;
+        text-align: center;
+    }
+
+    .spin-btn {
+        width: 100%;
+    }
+
+}

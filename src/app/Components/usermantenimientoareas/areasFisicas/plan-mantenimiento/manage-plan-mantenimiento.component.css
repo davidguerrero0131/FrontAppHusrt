@@ -1,5 +1,4 @@
-:host {
-    display: block;
+.container-plan {
     max-width: 900px;
-    margin: 2rem auto;
+    margin: 0 auto;
 }

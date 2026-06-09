@@ -1,0 +1,184 @@
+.dashboard-container {
+    padding: 1.5rem 2rem;
+    background-color: #f8fbff;
+    min-height: 100vh;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s;
+    border: 1px solid rgba(0,0,0,0.03);
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.stat-info .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a202c;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.stat-info .stat-label {
+    font-size: 0.875rem;
+    color: #718096;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+/* Gradients for icons */
+.bg-total { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.bg-open { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.bg-progress { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.bg-resolved { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+
+/* Refined Filter Bar */
+.filter-bar {
+    background: white;
+    border-radius: 1rem;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.search-container {
+    flex-grow: 1;
+}
+
+.search-container input {
+    background: transparent !important;
+    border: none !important;
+    font-size: 1rem;
+    padding-left: 2.5rem !important;
+}
+
+.search-container input:focus {
+    box-shadow: none !important;
+}
+
+/* Glassmorphic Advanced Filters */
+.advanced-filters-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
+    overflow: hidden;
+}
+
+.filter-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+/* Table Style Overrides */
+:host ::ng-template .p-datatable-header {
+    background: transparent;
+    padding: 0;
+}
+
+:host ::ng-template .p-datatable .p-datatable-thead > tr > th {
+    background-color: #f8fafc !important;
+    padding: 1rem;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b !important;
+    border: none;
+}
+
+:host ::ng-template .p-datatable .p-datatable-tbody > tr {
+    transition: background-color 0.2s;
+}
+
+:host ::ng-template .p-datatable .p-datatable-tbody > tr:hover {
+    background-color: #f1f5f9 !important;
+}
+
+:host ::ng-template .p-datatable .p-datatable-tbody > tr > td {
+    padding: 1rem;
+    border-color: #f1f5f9;
+}
+
+/* Tag/Badge pill style */
+:host ::ng-template .p-tag {
+    border-radius: 2rem;
+    padding: 0.25rem 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+}
+
+/* Custom Table Actions */
+.case-id-badge {
+    background: #e2e8f0;
+    color: #475569;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-family: monospace;
+    font-size: 0.875rem;
+}
+
+.priority-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.priority-CRITICA { background-color: #ef4444; }
+.priority-ALTA { background-color: #f59e0b; }
+.priority-MEDIA { background-color: #3b82f6; }
+.priority-BAJA { background-color: #10b981; }
+
+/* Responsive Filter Bar */
+@media (max-width: 768px) {
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+}

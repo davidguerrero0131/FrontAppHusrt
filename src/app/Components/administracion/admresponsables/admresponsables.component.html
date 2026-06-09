@@ -3,7 +3,7 @@
         <ng-template pTemplate="left">
             <div class="flex align-items-center gap-2">
                 <i class="pi pi-briefcase text-2xl text-primary"></i>
-                <h2 class="m-0 font-bold text-900">Gestión de Responsables</h2>
+                <h2 class="m-0 font-bold text-900">Gesti&oacute;n de Responsables</h2>
             </div>
         </ng-template>
 
@@ -31,10 +31,10 @@
         <ng-template pTemplate="header">
             <tr>
                 <th pSortableColumn="nombres">Nombres <p-sortIcon field="nombres"></p-sortIcon></th>
-                <th pSortableColumn="garantia">Garantía <p-sortIcon field="garantia"></p-sortIcon></th>
+                <th pSortableColumn="garantia">Garant&iacute;a <p-sortIcon field="garantia"></p-sortIcon></th>
                 <th pSortableColumn="externo">Externo <p-sortIcon field="externo"></p-sortIcon></th>
                 <th pSortableColumn="comodato">Comodato <p-sortIcon field="comodato"></p-sortIcon></th>
-                <th pSortableColumn="calificacion">Calificación <p-sortIcon field="calificacion"></p-sortIcon></th>
+                <th pSortableColumn="calificacion">Calificaci&oacute;n <p-sortIcon field="calificacion"></p-sortIcon></th>
                 <th pSortableColumn="estado">Estado <p-sortIcon field="estado"></p-sortIcon></th>
                 <th>Acciones</th>
             </tr>
@@ -44,15 +44,15 @@
             <tr>
                 <td>{{ responsable.nombres }}</td>
                 <td>
-                    <p-tag [value]="responsable.garantia ? 'Sí' : 'No'"
+                    <p-tag [value]="responsable.garantia ? 'S&iacute;' : 'No'"
                         [severity]="responsable.garantia ? 'success' : 'info'"></p-tag>
                 </td>
                 <td>
-                    <p-tag [value]="responsable.externo ? 'Sí' : 'No'"
+                    <p-tag [value]="responsable.externo ? 'S&iacute;' : 'No'"
                         [severity]="responsable.externo ? 'warning' : 'primary'"></p-tag>
                 </td>
                 <td>
-                    <p-tag [value]="responsable.comodato ? 'Sí' : 'No'"
+                    <p-tag [value]="responsable.comodato ? 'S&iacute;' : 'No'"
                         [severity]="responsable.comodato ? 'danger' : 'secondary'"></p-tag>
                 </td>
                 <td>{{ responsable.calificacion }}</td>
@@ -92,19 +92,19 @@
                 <div class="field" style="grid-column: 1 / -1;">
                     <label for="nombres">Nombre (Empresa/Responsable)</label>
                     <input type="text" pInputText id="nombres" formControlName="nombres" required autofocus
-                        class="w-full" />
+                        class="w-full" appUppercase />
                 </div>
             </div>
 
             <div class="field mt-3">
-                <label for="calificacion">Calificación</label>
+                <label for="calificacion">Calificaci&oacute;n</label>
                 <p-inputNumber formControlName="calificacion" [min]="0" [showButtons]="true"
                     styleClass="w-full"></p-inputNumber>
             </div>
 
             <div class="flex flex-wrap gap-4 mt-3 justify-content-center">
                 <div class="flex flex-column align-items-center gap-2">
-                    <label class="font-bold">Garantía</label>
+                    <label class="font-bold">Garant&iacute;a</label>
                     <p-inputSwitch formControlName="garantia"></p-inputSwitch>
                 </div>
                 <div class="flex flex-column align-items-center gap-2">

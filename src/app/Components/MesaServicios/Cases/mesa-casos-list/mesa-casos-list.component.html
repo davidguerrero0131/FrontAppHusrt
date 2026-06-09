@@ -1,0 +1,343 @@
+<p-toast></p-toast>
+<p-confirmdialog [style]="{width: '450px'}"></p-confirmdialog>
+
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="text-3xl font-extrabold m-0 text-900 line-height-1">Gestión de Casos</h1>
+            <p class="text-secondary mt-2 mb-0">Monitoreo y administración de la Mesa de Servicios.</p>
+        </div>
+        <div class="flex gap-2">
+            <button pButton pRipple label="Buscar Caso" icon="pi pi-search" class="p-button-info shadow-2"
+                (click)="openSearchDialog()" pTooltip="Buscar un caso por ID"></button>
+            <button pButton pRipple label="Nuevo Caso" icon="pi pi-plus" class="p-button-success shadow-2"
+                (click)="createNew()"></button>
+            <button pButton pRipple icon="pi pi-refresh" class="p-button-secondary p-button-outlined bg-white shadow-1"
+                (click)="loadCasos()" pTooltip="Recargar datos"></button>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon bg-total">
+                <i class="pi pi-briefcase"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">{{ stats.total }}</div>
+                <div class="stat-label">Total Casos</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon bg-open">
+                <i class="pi pi-plus-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value text-blue-500">{{ stats.abiertos }}</div>
+                <div class="stat-label">Nuevos</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon bg-progress">
+                <i class="pi pi-spin pi-spinner"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value text-orange-500">{{ stats.enCurso }}</div>
+                <div class="stat-label">En Curso</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon bg-resolved">
+                <i class="pi pi-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value text-green-500">{{ stats.resueltos }}</div>
+                <div class="stat-label">Resueltos</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refined Filter Bar -->
+    <div class="filter-bar shadow-1">
+        <div class="search-container">
+            <p-iconfield position="left">
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" (input)="onGlobalFilter($event)"
+                    placeholder="Buscar por ID, asunto, solicitante o categoría..." class="w-full" appUppercase />
+            </p-iconfield>
+        </div>
+        <div class="flex gap-2">
+            <button pButton [icon]="showFilters ? 'pi pi-filter-fill' : 'pi pi-filter'" 
+                [label]="showFilters ? 'Ocultar Filtros' : 'Filtros Avanzados'"
+                class="p-button-text p-button-secondary font-bold" (click)="showFilters = !showFilters"></button>
+            <button pButton label="Limpiar" icon="pi pi-filter-slash"
+                class="p-button-text p-button-danger font-bold" (click)="clearFilters()"></button>
+        </div>
+    </div>
+
+    <!-- Advanced Filters Drawer -->
+    <div *ngIf="showFilters" class="advanced-filters-panel" @fadeInOut>
+        <div class="grid p-fluid">
+            <div class="col-12 sm:col-6 md:col-1">
+                <span class="filter-label">ID Caso</span>
+                <input pInputText type="number" [(ngModel)]="selectedId" placeholder="#" (keyup.enter)="loadCasos()">
+            </div>
+            <div class="col-12 sm:col-6 md:col-3">
+                <span class="filter-label">Servicio Destino</span>
+                <p-select [options]="servicios" [(ngModel)]="selectedServicio" optionLabel="nombres"
+                    placeholder="Todos los servicios" (onChange)="loadCasos()" [showClear]="true" appendTo="body"
+                    [filter]="true" filterBy="nombres"></p-select>
+            </div>
+            <div class="col-12 sm:col-6 md:col-2">
+                <span class="filter-label">Estado</span>
+                <p-select [options]="estados" [(ngModel)]="selectedEstado" optionLabel="label" placeholder="Cualquier estado"
+                    (onChange)="loadCasos()" [showClear]="true" appendTo="body"></p-select>
+            </div>
+            <div class="col-12 sm:col-6 md:col-2">
+                <span class="filter-label">Tipo</span>
+                <p-select [options]="tipos" [(ngModel)]="selectedTipo" optionLabel="label" placeholder="Cualquier tipo"
+                    (onChange)="loadCasos()" [showClear]="true" appendTo="body"></p-select>
+            </div>
+            <div class="col-12 sm:col-6 md:col-4">
+                <span class="filter-label">Pilar SUMERCE</span>
+                <p-select [options]="sumerceOptions" [(ngModel)]="selectedSumerce" optionLabel="label"
+                    placeholder="Todos los pilares" (onChange)="loadCasos()" [showClear]="true" appendTo="body"></p-select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Table -->
+    <div class="card border-none shadow-1 p-0 overflow-hidden">
+        <p-table #dtCasos [value]="casos" [loading]="loading" [rows]="10" [paginator]="true"
+            styleClass="p-datatable-sm" [rowsPerPageOptions]="[10, 20, 50, 100]" [scrollable]="true"
+            [globalFilterFields]="['id', 'titulo', 'fechaCreacion', 'servicio.nombres', 'servicioSolicitante.nombres', 'categoria.nombre', 'sumerce', 'estado', 'prioridad']"
+            [tableStyle]="{ 'min-width': '100rem' }" responsiveLayout="scroll" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Carpeta de casos: {first} - {last} de {totalRecords}">
+            
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="id" style="width: 100px">ID <p-sortIcon field="id"></p-sortIcon></th>
+                    <th pSortableColumn="titulo" style="min-width: 250px">Asunto <p-sortIcon field="titulo"></p-sortIcon></th>
+                    <th pSortableColumn="fechaCreacion" style="width: 180px">Apertura <p-sortIcon field="fechaCreacion"></p-sortIcon></th>
+                    <th pSortableColumn="servicio.nombres" style="min-width: 200px">Servicio Destino <p-sortIcon field="servicio.nombres"></p-sortIcon></th>
+                    <th pSortableColumn="servicioSolicitante.nombres" style="min-width: 200px">Solicitante <p-sortIcon field="servicioSolicitante.nombres"></p-sortIcon></th>
+                    <th pSortableColumn="categoria.nombre" style="width: 180px">Categoría <p-sortIcon field="categoria.nombre"></p-sortIcon></th>
+                    <th pSortableColumn="estado" style="width: 150px">Estado <p-sortIcon field="estado"></p-sortIcon></th>
+                    <th pSortableColumn="prioridad" style="width: 150px">Prioridad <p-sortIcon field="prioridad"></p-sortIcon></th>
+                    <th style="width: 100px; text-align: center">Acciones</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-caso>
+                <tr [pSelectableRow]="caso">
+                    <td><span class="case-id-badge">#{{ caso.id }}</span></td>
+                    <td>
+                        <div class="font-bold text-900 cursor-pointer hover:text-primary transition-colors pr-3" (click)="viewCaso(caso.id)">
+                            {{ caso.titulo }}
+                        </div>
+                    </td>
+                    <td class="text-sm text-600">{{ caso.fechaCreacion | date:'dd MMM, yyyy · HH:mm' }}</td>
+                    <td>
+                        <div class="flex align-items-center gap-2">
+                            <i class="pi pi-map-marker text-blue-500"></i>
+                            <span class="text-sm font-medium">{{ caso.servicio?.nombres || 'N/A' }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex flex-column">
+                            <span class="text-sm font-semibold">{{ caso.servicioSolicitante?.nombres || caso.creador?.servicio?.nombres || 'N/A' }}</span>
+                            <small class="text-500">Generado por {{ caso.creador?.nombres }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex flex-column">
+                            <span class="text-xs font-bold uppercase text-700">{{ caso.categoria?.nombre }}</span>
+                            <small *ngIf="caso.subcategoria" class="text-500">{{ caso.subcategoria.nombre }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <p-tag [value]="caso.estado" [severity]="getSeverity(caso.estado)" styleClass="text-xs"></p-tag>
+                    </td>
+                    <td>
+                        <div class="flex align-items-center">
+                            <span class="priority-indicator" [ngClass]="'priority-' + caso.prioridad"></span>
+                            <span class="text-xs font-bold">{{ caso.prioridad }}</span>
+                        </div>
+                    </td>
+                    <td style="text-align: center">
+                        <div class="flex justify-content-center align-items-center">
+                            <button *ngIf="caso.estado === 'CERRADO' && !caso.calificacion && (caso.creadorId == userId || caso.creador?.id == userId)" 
+                                pButton pRipple icon="pi pi-star-fill" class="p-button-rounded p-button-warning p-button-text mr-2" 
+                                pTooltip="Calificar Servicio" tooltipPosition="left"
+                                (click)="openRatingDialog(caso)"></button>
+                            <div *ngIf="caso.calificacion" class="flex align-items-center justify-content-center bg-green-100 border-circle w-2rem h-2rem mr-2" pTooltip="Calificado: {{caso.calificacion.calificacion}}/5" tooltipPosition="left">
+                                <span class="text-green-600 font-bold text-xs">{{caso.calificacion.calificacion}}★</span>
+                            </div>
+                            <button pButton icon="pi pi-ellipsis-h"
+                            class="p-button-text p-button-secondary p-button-rounded"
+                            (click)="setMenuCase(caso); menu.toggle($event)"></button>
+                        </div>
+                        <p-menu #menu [popup]="true" [model]="menuItems" appendTo="body"></p-menu>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="9" class="text-center py-8">
+                        <div class="flex flex-column align-items-center">
+                            <div class="surface-100 border-circle p-4 mb-3">
+                                <i class="pi pi-search-minus text-400" style="font-size: 3rem"></i>
+                            </div>
+                            <h3 class="text-900 m-0">No se encontraron casos</h3>
+                            <p class="text-500 mt-2">Intenta ajustar los filtros de búsqueda.</p>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<!-- Admin Dialog - Modernized -->
+<p-dialog [header]="'Gesti&oacute;n Administrativa'" [(visible)]="displayAdminDialog"
+    [modal]="true" [style]="{width: '500px'}" styleClass="p-fluid shadow-lg">
+    <div class="p-4 pt-0">
+        <div class="surface-50 border-round-lg p-3 mb-4 flex align-items-center gap-3">
+            <div class="case-id-badge font-bold">#{{ editingCaso?.id }}</div>
+            <div class="font-bold text-900 line-height-2">{{ editingCaso?.titulo }}</div>
+        </div>
+
+        <div class="grid">
+            <div class="col-6 mb-3">
+                <label class="text-sm font-bold block mb-2 text-600">Nivel de Prioridad</label>
+                <p-select [options]="prioridades" [(ngModel)]="adminForm.prioridad" optionLabel="label"
+                    optionValue="value" appendTo="body"></p-select>
+            </div>
+            <div class="col-6 mb-3">
+                <label class="text-sm font-bold block mb-2 text-600">SUMERCE</label>
+                <p-select [options]="sumerceOptions" [(ngModel)]="adminForm.sumerce" optionLabel="label"
+                    optionValue="value" appendTo="body"></p-select>
+            </div>
+            <div class="col-12">
+                <label class="text-sm font-bold block mb-2 text-600">Reasignar Servicio Destino</label>
+                <p-select [options]="servicios" [(ngModel)]="adminForm.servicioId" optionLabel="nombres"
+                    optionValue="id" appendTo="body" [filter]="true" filterBy="nombres"
+                    placeholder="Cambiar servicio receptor"></p-select>
+            </div>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2 px-4 pb-4">
+            <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary"
+                (click)="displayAdminDialog = false"></button>
+            <button pButton label="Aplicar Cambios" icon="pi pi-check" class="px-4" (click)="saveAdminEdit()"></button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Assignment Dialog - Modernized -->
+<p-dialog [(visible)]="displayAssignDialog" [style]="{width: '450px'}" header="Asignar Responsables" [modal]="true"
+    class="p-fluid shadow-lg">
+    <div class="p-4 pt-0">
+        <p class="text-secondary mb-4">Seleccione uno o más funcionarios para asignar este requerimiento.</p>
+        <div class="field">
+            <p-autocomplete [(ngModel)]="selectedResolutor" [suggestions]="filteredUsers"
+                (completeMethod)="filterUsers($event)" field="nombres" [multiple]="true" [dropdown]="true"
+                placeholder="Escriba nombre del funcionario..." appendTo="body" styleClass="w-full" [inputStyle]="{'width':'100%'}">
+
+                <ng-template let-user pTemplate="item">
+                    <div class="flex align-items-center gap-3 py-1">
+                        <div class="flex align-items-center justify-content-center bg-primary-100 border-none border-circle w-2rem h-2rem text-primary font-bold text-xs">
+                            {{user.nombres.charAt(0)}}
+                        </div>
+                        <div class="flex flex-column">
+                            <span class="font-bold text-900 text-sm">{{user.nombres}} {{user.apellidos}}</span>
+                            <span class="text-xs text-secondary">{{user.mesaServicioRol?.nombre}}</span>
+                        </div>
+                    </div>
+                </ng-template>
+
+                <ng-template let-user pTemplate="selectedItem">
+                    <div class="flex align-items-center gap-2 border-round px-2 py-1" style="background: rgba(0,0,0,0.05)">
+                        <span class="text-xs font-bold">{{user.nombres}}</span>
+                    </div>
+                </ng-template>
+            </p-autocomplete>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2 px-4 pb-4">
+            <button pButton label="Cerrar" icon="pi pi-times" class="p-button-text p-button-secondary"
+                (click)="displayAssignDialog = false"></button>
+            <button pButton label="Asignar Funcionario" icon="pi pi-user-plus" class="px-4 p-button-success" (click)="confirmAssign()"></button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Search Dialog -->
+<p-dialog [(visible)]="displaySearchDialog" [style]="{width: '700px'}" header="Búsqueda Global de Casos" [modal]="true" class="p-fluid shadow-lg">
+    <div class="p-4 pt-0">
+        <p class="text-secondary mb-3">Busca casos directamente por su ID o parte de su asunto / título. (Ignora tu asignación actual)</p>
+        <div class="flex gap-2 mb-3">
+            <span class="p-input-icon-left w-full">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" [(ngModel)]="searchQuery" placeholder="Ej. 123 o 'Mantenimiento de equipo'" class="w-full" (keyup.enter)="searchSpecificCase()">
+            </span>
+            <button pButton label="Buscar" icon="pi pi-search" class="p-button-info" (click)="searchSpecificCase()" [loading]="loadingSearch" style="width: 140px"></button>
+        </div>
+
+        <div *ngIf="searchResults.length > 0">
+            <p-table [value]="searchResults" [paginator]="true" [rows]="5" styleClass="p-datatable-sm" responsiveLayout="scroll">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width:80px">ID</th>
+                        <th>Asunto</th>
+                        <th>Servicio</th>
+                        <th style="width:120px">Estado</th>
+                        <th style="width:80px; text-align: center">Ver</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-caso>
+                    <tr>
+                        <td><span class="font-bold">#{{caso.id}}</span></td>
+                        <td>{{caso.titulo}}</td>
+                        <td>{{caso.servicio?.nombres}}</td>
+                        <td><p-tag [value]="caso.estado" [severity]="getSeverity(caso.estado)" styleClass="text-xs"></p-tag></td>
+                        <td style="text-align: center">
+                            <button pButton icon="pi pi-eye" class="p-button-rounded p-button-info p-button-text p-button-sm" (click)="openDetailModal(caso.id)" pTooltip="Abrir Detalle"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</p-dialog>
+
+<!-- Rating Dialog -->
+<p-dialog header="Calificar Servicio" [(visible)]="displayRatingDialog" [modal]="true" [style]="{width: '450px'}" [closable]="true" [dismissableMask]="true">
+    <div class="flex flex-column align-items-center gap-4 py-4">
+        <h3 class="m-0 text-center text-700">¿Qué tan satisfecho está con la solución a su caso?</h3>
+        
+        <div class="flex justify-content-between w-full px-3">
+            <div *ngFor="let emoji of emojis" 
+                 class="flex flex-column align-items-center cursor-pointer transition-transform transition-duration-200"
+                 [class.scale-125]="ratingForm.calificacion === emoji.value"
+                 [style.opacity]="ratingForm.calificacion === 0 || ratingForm.calificacion === emoji.value ? '1' : '0.5'"
+                 (click)="selectRating(emoji.value)">
+                <span class="text-5xl hover:scale-110 mb-2">{{emoji.icon}}</span>
+                <span class="text-sm font-medium" [class.text-primary]="ratingForm.calificacion === emoji.value">{{emoji.label}}</span>
+            </div>
+        </div>
+
+        <div class="w-full mt-3">
+            <label class="block text-600 font-medium mb-2">Comentarios (Opcional)</label>
+            <textarea pInputTextarea [(ngModel)]="ratingForm.comentario" rows="3" class="w-full p-inputtext-sm" placeholder="Cuéntenos más sobre su experiencia..."></textarea>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayRatingDialog = false"></button>
+        <button pButton label="Enviar Calificación" icon="pi pi-send" class="p-button-primary" (click)="submitRating()" [disabled]="!ratingForm.calificacion"></button>
+    </ng-template>
+</p-dialog>

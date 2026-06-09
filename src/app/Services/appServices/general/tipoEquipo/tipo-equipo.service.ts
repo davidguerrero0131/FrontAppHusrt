@@ -5,6 +5,7 @@ import { Observable } from 'rxjs'
 import { firstValueFrom } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
+import { isTokenExpired } from '../../../../utilidades';
 
 import { API_URL } from '../../../../constantes';
 
@@ -24,94 +25,96 @@ export class TipoEquipoService {
 
   getAllTiposEquipos() {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipo`, this.createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipo`)
     )
   }
 
   activarTipoEquipo(idTipoEquipo: any) {
     return firstValueFrom(
-      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/activar/` + idTipoEquipo, {}, this.createHeaders())
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/activar/` + idTipoEquipo, {})
     )
   }
 
   desactivarTipoEquipo(idTipoEquipo: any) {
     return firstValueFrom(
-      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/desactivar/` + idTipoEquipo, {}, this.createHeaders())
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/desactivar/` + idTipoEquipo, {})
     )
   }
 
   getCantidadEquipos(idTipoEquipo: any) {
     return firstValueFrom(
-      this.httpClient.get<any>(`${this.baseUrl}/cantidadequipostipo/${idTipoEquipo}`, this.createHeaders())
+      this.httpClient.get<any>(`${this.baseUrl}/cantidadequipostipo/${idTipoEquipo}`)
     )
   }
 
   getAllTiposEquiposBiomedica() {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/alltiposequipoBio`, this.createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/alltiposequipoBio`)
     )
   }
 
   getTiposEquiposBiomedica() {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipoBio`, this.createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipoBio`)
     )
   }
 
   getTipoEquipo(idTipoEquipo: any) {
     return firstValueFrom(
-      this.httpClient.get<any>(`${this.baseUrl}/tiposequipo/${idTipoEquipo}`, this.createHeaders())
+      this.httpClient.get<any>(`${this.baseUrl}/tiposequipo/${idTipoEquipo}`)
     )
   }
 
   actualizarTipoEquipo(idTipoEquipo: any, data: any) {
     return firstValueFrom(
-      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/${idTipoEquipo}`, data, this.createHeaders())
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/${idTipoEquipo}`, data)
     )
   }
 
-  getToken() {
-    return sessionStorage.getItem('utoken');
+  crearTipoEquipo(data: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/addtiposequipo`, data)
+    )
   }
 
-  validateToken(token: string): boolean {
-    if (this.isTokenExpired(token)) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Sesion Expirada',
-        text: 'Ha llegado al límite de tiempo de sesión activa.'
-      })
-      this.router.navigate(['/login']);
-      sessionStorage.setItem('utoken', '');
-      return true;
-    } else {
-      return false;
-    }
+  // Mediciones específicas
+  getMediciones(idTipoEquipo: any) {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipo/${idTipoEquipo}/mediciones`)
+    )
   }
 
-  isTokenExpired(token: string): boolean {
-    if (!token) {
-      return true; // Si no hay token, se considera expirado
-    }
-    const decodedToken = this.getDecodedAccessToken(token);
-    const currentTime = Math.floor(Date.now() / 1000);
-
-    return decodedToken.exp < currentTime;
+  createMedicion(data: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/tiposequipo/mediciones`, data)
+    )
   }
 
-  createHeaders() {
-    return {
-      headers: new HttpHeaders({
-        'authorization': sessionStorage.getItem('utoken')!
-      })
-    }
+  updateMedicion(idMedicion: any, data: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/tiposequipo/mediciones/${idMedicion}`, data)
+    )
   }
 
-  getDecodedAccessToken(token: string): any {
-    try {
-      return jwtDecode(token);
-    } catch (Error) {
-      return null;
-    }
+  deleteMedicion(idMedicion: any) {
+    return firstValueFrom(
+      this.httpClient.delete<any>(`${this.baseUrl}/tiposequipo/mediciones/${idMedicion}`)
+    )
+  }
+
+  getTiposEquiposSistemas() {
+    return firstValueFrom(this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipos/sistemas`));
+  }
+
+  getTiposEquiposIndustrial() {
+    return firstValueFrom(this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipos/industrial`));
+  }
+
+  getCantidadEquiposSistemas(idTipoEquipo: any) {
+    return firstValueFrom(this.httpClient.get<any>(`${this.baseUrl}/cantidadequipostipo/sistemas/${idTipoEquipo}`));
+  }
+
+  createTipoEquipo(data: any) {
+    return this.crearTipoEquipo(data);
   }
 }

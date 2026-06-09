@@ -11,10 +11,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 
+import { UppercaseDirective } from '../../../Directives/uppercase.directive';
+
 @Component({
     selector: 'app-clasificacion-servicios-sede',
     standalone: true,
-    imports: [FormsModule, CommonModule, CardModule, ButtonModule, InputTextModule, IconFieldModule, InputIconModule],
+    imports: [FormsModule, CommonModule, CardModule, ButtonModule, InputTextModule, IconFieldModule, InputIconModule, UppercaseDirective],
     templateUrl: './clasificacion-servicios-sede.component.html',
     styleUrl: './clasificacion-servicios-sede.component.css'
 })
@@ -33,12 +35,13 @@ export class ClasificacionServiciosSedeComponent implements OnInit {
     }
 
     async ngOnInit() {
-        const idSede = sessionStorage.getItem('idSede');
+        const idSede = localStorage.getItem('idSede');
         if (idSede) {
             try {
                 this.loading = true;
                 this.sede = await this.sedeServices.getSedeById(idSede);
                 this.servicios = await this.servicioServices.getServiciosBySede(idSede);
+                localStorage.removeItem('idSede');
 
                 for (let servicio of this.servicios) {
                     this.obtenerCantidadEquipos(servicio.id);
@@ -63,12 +66,13 @@ export class ClasificacionServiciosSedeComponent implements OnInit {
     filteredServicios() {
         if (!this.servicios) return [];
         return this.servicios.filter(servicio =>
-            servicio.nombres.toLowerCase().includes(this.searchText.toLowerCase())
+            servicio.nombres.toLowerCase().includes(this.searchText.toLowerCase()) &&
+            (this.cantidadesEquipos[servicio.id] > 0)
         );
     }
 
     viewEquiposServicio(idServicio: any) {
-        sessionStorage.setItem("idServicio", idServicio);
+        localStorage.setItem("idServicio", idServicio);
         this.router.navigate(['biomedica/equiposservicio']);
     }
 }

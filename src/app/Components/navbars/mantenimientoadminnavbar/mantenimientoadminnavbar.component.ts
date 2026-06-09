@@ -1,39 +1,35 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { UserService } from '../../../Services/appServices/userServices/user.service';
 import { Router, RouterModule } from '@angular/router';
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { SidebarModule, Sidebar } from 'primeng/sidebar';
-import { PanelMenuModule } from 'primeng/panelmenu';
+import { BadgeModule } from 'primeng/badge';
+import { ThemeService } from '../../../Services/theme/theme.service';
+import { MesaService } from '../../../Services/mesa-servicios/mesa.service';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-mantenimientoadminnavbar',
   standalone: true,
-  imports: [
-    MenubarModule,
-    CommonModule,
-    AvatarModule,
-    ButtonModule,
-    TooltipModule,
-    SidebarModule,
-    PanelMenuModule,
-    RouterModule
-  ],
-  imports: [MenubarModule, CommonModule, AvatarModule, ButtonModule, TooltipModule],
+  imports: [MenubarModule, CommonModule, AvatarModule, ButtonModule, TooltipModule, RouterModule, BadgeModule, OverlayPanelModule],
   templateUrl: './mantenimientoadminnavbar.component.html',
   styleUrl: './mantenimientoadminnavbar.component.css'
 })
-export class MantenimientoadminnavbarComponent implements OnInit {
+export class MantenimientoadminnavbarComponent implements OnInit, OnDestroy {
+    userService = inject(UserService);
 
   items: MenuItem[] | undefined;
-  sidebarVisible: boolean = false;
-
-  @ViewChild('sidebarRef') sidebarRef!: Sidebar;
+  themeService = inject(ThemeService);
+  mesaService = inject(MesaService);
+  
+  pendingCasesCount: number = 0;
+  notificaciones: any[] = [];
+  private pollingSub?: Subscription;
 
   constructor(private router: Router) { }
 
@@ -48,66 +44,40 @@ export class MantenimientoadminnavbarComponent implements OnInit {
         label: 'Mesa de Servicios',
         icon: 'pi pi-briefcase',
         routerLink: '/adminmesaservicios/casos'
-      },
-      {
-        label: 'Gestión Operativa',
-        icon: 'pi pi-cog',
-        items: [
-          { label: 'Planes de Mantenimiento', icon: 'pi pi-calendar', routerLink: '/areas/planes/listado' },
-          { label: 'Inspecciones', icon: 'pi pi-check-square', routerLink: '/areas/inspecciones/listado' },
-          { label: 'Asignación de Elementos', icon: 'pi pi-link', routerLink: '/areas/asignar-elementos' }
-        ]
-      },
-      {
-        label: 'Parametrización',
-        icon: 'pi pi-box',
-        items: [
-          {
-            label: 'Áreas Físicas',
-            icon: 'pi pi-building',
-            items: [
-              { label: 'Listado', icon: 'pi pi-list', routerLink: '/areas/listado' },
-              { label: 'Crear Nueva', icon: 'pi pi-plus', routerLink: '/areas/crear' }
-            ]
-          },
-          {
-            label: 'Elementos',
-            icon: 'pi pi-box',
-            items: [
-              { label: 'Listado', icon: 'pi pi-list', routerLink: '/elementos/listado' },
-              { label: 'Crear Nuevo', icon: 'pi pi-plus', routerLink: '/elementos/crear' }
-            ]
-          },
-          { separator: true },
-          { label: 'Crear Plan', icon: 'pi pi-plus', routerLink: '/areas/planes/crear' },
-          { label: 'Nueva Inspección', icon: 'pi pi-plus', routerLink: '/areas/inspecciones/crear' }
-        ]
       }
     ];
+    this.mesaService.notificationsUpdated.subscribe(() => this.fetchPendingCount());
+        this.startPolling();
   }
 
-  logout() {
-    localStorage.removeItem('utoken');
-    this.router.navigate(['/login']);
+  ngOnDestroy() {
+    if (this.pollingSub) {
+      this.pollingSub.unsubscribe();
+    }
   }
 
-  viewUser() {
-    // Navigate to profile or show user details
-    // Assuming a route exists or just a placeholder for now as per previous version
-    console.log('View User Profile');
+  startPolling() {
+    this.fetchPendingCount();
+    this.pollingSub = interval(60000).subscribe(() => this.fetchPendingCount());
   }
 
-  closeCallback(e: any): void {
-    this.sidebarRef.close(e);
-        routerLink: '/adminmantenimineto'
-      }
-    ];
+  fetchPendingCount() {
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('utoken')) {
+      this.mesaService.getCasosNotificaciones().subscribe({
+        next: (res: any) => {
+          this.pendingCasesCount = res.count || 0;
+          this.notificaciones = res.notificaciones || [];
+        },
+        error: (err) => console.error('Notifications Error', err)
+      });
+    }
+  }
+
+  viewPendingCases() {
+    this.router.navigate(['/adminmesaservicios/casos']);
   }
 
   navigateToAbout() {
-    if (typeof sessionStorage !== 'undefined') {
-      sessionStorage.setItem('utoken', "");
+        this.userService.logout();
     }
-    this.router.navigate(['/login'])
-  }
 }

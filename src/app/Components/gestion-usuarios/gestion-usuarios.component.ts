@@ -1,8 +1,13 @@
 import { UserService } from './../../Services/appServices/userServices/user.service';
+import { CargosService } from './../../Services/appServices/general/cargos/cargos.service';
+import { ServicioService } from './../../Services/appServices/general/servicio/servicio.service';
+import { MesaService } from '../../Services/mesa-servicios/mesa.service';
+import { FirmaService } from '../../Services/appServices/biomedicaServices/firma/firma.service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'
+import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { Component, OnInit, inject } from '@angular/core';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { jwtDecode } from 'jwt-decode';
@@ -10,20 +15,24 @@ import { TableModule } from 'primeng/table';
 
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
+import { SplitButtonModule } from 'primeng/splitbutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TagModule } from 'primeng/tag';
+import { MenuModule } from 'primeng/menu';
 
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 
+import { UppercaseDirective } from '../../Directives/uppercase.directive';
+
 @Component({
   selector: 'app-gestion-usuarios',
   standalone: true,
-  imports: [TableModule, CommonModule, DialogModule, ReactiveFormsModule, InputTextModule, DropdownModule, ButtonModule, TooltipModule, ToolbarModule, TagModule,
-    IconFieldModule, InputIconModule
+  imports: [TableModule, CommonModule, DialogModule, ReactiveFormsModule, InputTextModule, SelectModule, ButtonModule, SplitButtonModule, TooltipModule, ToolbarModule, TagModule, MenuModule,
+    IconFieldModule, InputIconModule, UppercaseDirective
   ],
   providers: [MessageService],
   templateUrl: './gestion-usuarios.component.html',
@@ -33,6 +42,9 @@ export class GestionUsuariosComponent implements OnInit {
 
   usuarios!: any[];
   roles!: any[];
+  cargos: any[] = [];
+  servicios: any[] = [];
+  mesaRoles: any[] = [];
   loading: boolean = true;
 
   tipoIdOptions = [
@@ -44,14 +56,20 @@ export class GestionUsuariosComponent implements OnInit {
 
   formGroup!: FormGroup;
   visibleEditModal: boolean = false;
+  visibleViewModal: boolean = false;
   selectedUser: any;
+  firmaUrlSelected: any = null;
 
-  constructor(
-    private router: Router,
-    private formBuilder: FormBuilder,
-    private messageService: MessageService,
-    private userService: UserService
-  ) { }
+  private router = inject(Router);
+  private formBuilder = inject(FormBuilder);
+  private messageService = inject(MessageService);
+  private userService = inject(UserService);
+  private cargosService = inject(CargosService);
+  private servicioService = inject(ServicioService);
+  private mesaService = inject(MesaService);
+  private firmaService = inject(FirmaService);
+
+  constructor() { }
 
 
   passwordFormGroup!: FormGroup;
@@ -67,7 +85,10 @@ export class GestionUsuariosComponent implements OnInit {
       tipoId: ['', Validators.required],
       numeroId: ['', Validators.required],
       registroInvima: [''],
-      rolId: ['', Validators.required]
+      rolId: ['', Validators.required],
+      cargoId: ['', Validators.required],
+      servicioId: ['', Validators.required],
+      mesaServicioRolId: ['', Validators.required]
     });
 
     this.passwordFormGroup = this.formBuilder.group({
@@ -76,16 +97,29 @@ export class GestionUsuariosComponent implements OnInit {
     });
 
     try {
-      this.usuarios = await this.userService.getAllUsers();
-      this.roles = await this.userService.getAllRoles();
-      this.loading = false;
+      const [usuarios, roles, cargos, mesaRoles, servicios] = await Promise.all([
+        this.userService.getAllUsers(),
+        this.userService.getAllRoles(),
+        firstValueFrom(this.cargosService.getCargos()),
+        firstValueFrom(this.mesaService.getRoles()),
+        this.servicioService.getAllServicios()
+      ]);
 
-    } catch {
+      this.usuarios = usuarios;
+      this.roles = roles;
+      this.cargos = cargos;
+      this.mesaRoles = mesaRoles;
+      this.servicios = servicios;
+
+    } catch (error: any) {
+      console.error(error);
       Swal.fire({
         icon: 'warning',
         title: 'Inconsistencia en los datos',
-        text: 'No fue posible Cargar la informacion '
+        text: 'No fue posible Cargar la informacion: ' + (error.error?.error || error.message || error)
       })
+    } finally {
+      this.loading = false;
     }
   }
 
@@ -104,9 +138,33 @@ export class GestionUsuariosComponent implements OnInit {
       tipoId: user.tipoId,
       numeroId: user.numeroId,
       registroInvima: user.registroInvima,
-      rolId: user.rolId
+      rolId: user.rolId,
+      cargoId: user.cargoId,
+      servicioId: user.servicioId,
+      mesaServicioRolId: user.mesaServicioRolId
     });
     this.visibleEditModal = true;
+    this.visibleViewModal = false;
+  }
+
+  async openViewModal(user: any) {
+    this.selectedUser = user;
+    this.firmaUrlSelected = null;
+    this.visibleViewModal = true;
+    if (user.id) {
+      try {
+        const blob = await this.firmaService.getFirmaImage(user.id);
+        if (blob && blob.size > 0) {
+          this.firmaUrlSelected = URL.createObjectURL(blob);
+        }
+      } catch (error) {
+        console.error('Error al cargar firma:', error);
+      }
+    }
+  }
+
+  editFromView() {
+    this.openEditModal(this.selectedUser);
   }
 
   async saveUser() {
@@ -125,6 +183,7 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   openPasswordModal(user: any) {
+
     this.selectedUser = user;
     this.passwordFormGroup.reset();
     this.visiblePasswordModal = true;
@@ -139,7 +198,7 @@ export class GestionUsuariosComponent implements OnInit {
       }
 
       try {
-        await this.userService.update({ contraseña: newPassword }, this.selectedUser.id);
+        await this.userService.update({ contraseña: newPassword, contrasena: newPassword }, this.selectedUser.id);
         this.visiblePasswordModal = false;
         Swal.fire("Contraseña Actualizada!", "", "success");
       } catch (error) {
@@ -151,6 +210,7 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   async estadoUsuario(idUsuario: any, accion: string) {
+
     if (accion === 'A') {
       Swal.fire({
         title: "Desea activar el Usuario?",
@@ -193,4 +253,36 @@ export class GestionUsuariosComponent implements OnInit {
     }
   }
 
+  getMenuItems(user: any): MenuItem[] {
+    return [
+      {
+        label: 'Contraseña',
+        icon: 'pi pi-key',
+        command: () => this.openPasswordModal(user)
+      },
+      {
+        label: user.estado ? 'Desactivar' : 'Activar',
+        icon: user.estado ? 'pi pi-ban' : 'pi pi-check-circle',
+        command: () => this.estadoUsuario(user.id, user.estado ? 'D' : 'A')
+      }
+    ];
+  }
+
+  items: MenuItem[] = [];
+
+  showActions(event: any, user: any) {
+    this.selectedUser = user;
+    this.items = [
+      {
+        label: 'Cambiar Contraseña',
+        icon: 'pi pi-key',
+        command: () => this.openPasswordModal(user)
+      },
+      {
+        label: user.estado ? 'Desactivar Usuario' : 'Activar Usuario',
+        icon: user.estado ? 'pi pi-ban' : 'pi pi-check-circle',
+        command: () => this.estadoUsuario(user.id, user.estado ? 'D' : 'A')
+      }
+    ];
+  }
 }

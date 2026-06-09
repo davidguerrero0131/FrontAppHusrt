@@ -2,7 +2,7 @@
 
     <div class="text-center mb-5">
         <h1 class="text-3xl font-bold mb-2">Mis Mantenimientos</h1>
-        <p class="text-secondary text-lg">Gestión de tareas asignadas</p>
+        <p class="text-secondary text-lg">Gesti&oacute;n de tareas asignadas</p>
     </div>
 
     <!-- Navigation Pills/Tabs -->
@@ -22,7 +22,7 @@
     </ul>
 
     <!-- PANEL PREVENTIVOS -->
-    <div *ngIf="panelPreventivos">
+    <div *ngIf="panelPreventivos && isBrowser">
 
         <!-- Date Filter Card -->
         <div class="card border-0 shadow-sm border-round-xl surface-card p-4 mb-4">
@@ -30,7 +30,7 @@
                 <label class="font-bold text-lg text-700">Filtrar Preventivos (Programado):</label>
                 <div class="flex gap-2">
                     <p-datepicker [(ngModel)]="datePreventivo" view="month" dateFormat="mm/yy" [readonlyInput]="true"
-                        (onSelect)="filtrarPreventivos()" placeholder="Seleccione Mes/Año" [showIcon]="true"
+                        (onSelect)="filtrarPreventivos()" placeholder="Seleccione Mes/A&ntilde;o" [showIcon]="true"
                         inputStyleClass="p-inputtext-sm"></p-datepicker>
                     <button pButton icon="pi pi-refresh" (click)="cargarReportes()"
                         class="p-button-outlined p-button-secondary" pTooltip="Recargar"></button>
@@ -58,45 +58,64 @@
         <div class="card border-0 shadow-sm border-round-xl surface-card p-4" *ngIf="panelPendientes">
             <p-table #dtPendientes [value]="preventivosPendientes" dataKey="id" [paginator]="true" [rows]="10"
                 [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
-                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica', 'mesProgramado']"
+                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica', 'mesProgramado', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'servicio.nombres', 'equipo.id']"
                 styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true" [scrollable]="true"
-                scrollHeight="500px">
+                scrollHeight="500px" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
 
                 <ng-template pTemplate="caption">
                     <div class="flex justify-content-end">
-                        <span class="p-input-icon-left w-full sm:w-auto">
-                            <i class="pi pi-search"></i>
+                        <p-iconfield position="left">
+                            <p-inputicon styleClass="pi pi-search" />
                             <input pInputText type="text" (input)="onGlobalFilter($event, dtPendientes)"
                                 placeholder="Buscar Pendientes..." class="w-full sm:w-auto" />
-                        </span>
+                        </p-iconfield>
                     </div>
                 </ng-template>
 
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="min-width:200px">Equipo</th>
-                        <th style="min-width:120px">Placa</th>
-                        <th style="min-width:200px">Ubicación</th>
-                        <th style="min-width:150px">Fecha Programada</th>
-                        <th style="min-width:100px" class="text-center">Acción</th>
+                        <th style="min-width:200px" pSortableColumn="equipo.nombres">Equipo <p-sortIcon
+                                field="equipo.nombres"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.marca">Marca <p-sortIcon
+                                field="equipo.marca"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.modelo">Modelo <p-sortIcon
+                                field="equipo.modelo"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.serie">Serie <p-sortIcon
+                                field="equipo.serie"></p-sortIcon></th>
+                        <th style="min-width:120px" pSortableColumn="equipo.placa">Placa <p-sortIcon
+                                field="equipo.placa"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="servicio.nombres">Servicio <p-sortIcon
+                                field="servicio.nombres"></p-sortIcon></th>
+                        <th style="min-width:200px" pSortableColumn="equipo.ubicacionEspecifica">Ubicaci&oacute;n
+                            <p-sortIcon field="equipo.ubicacionEspecifica"></p-sortIcon>
+                        </th>
+                        <th style="min-width:150px" pSortableColumn="mesProgramado">Fecha Programada <p-sortIcon
+                                field="mesProgramado"></p-sortIcon></th>
+                        <th style="min-width:100px" class="text-center">Acci&oacute;n</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-report>
                     <tr>
                         <td><span class="font-bold">{{ report.equipo?.nombres || 'N/A' }}</span></td>
+                        <td>{{ report.equipo?.marca || 'N/A' }}</td>
+                        <td>{{ report.equipo?.modelo || 'N/A' }}</td>
+                        <td>{{ report.equipo?.serie || 'N/A' }}</td>
                         <td><p-tag [value]="report.equipo?.placa || 'N/A'" severity="secondary"></p-tag></td>
+                        <td>{{ report.servicio?.nombres || 'N/A' }}</td>
                         <td>{{ report.equipo?.ubicacionEspecifica || 'N/A' }}</td>
                         <td>{{ report.mesProgramado }}/{{ report['añoProgramado'] }}</td>
                         <td class="text-center">
-                            <button pButton icon="pi pi-play" class="p-button-success p-button-rounded p-button-sm"
-                                pTooltip="Realizar Mantenimiento" tooltipPosition="left"
-                                (click)="realizarReporte(report.equipo.id, report.id)"></button>
+                            <a class="nav-link-container" (click)="realizarReporte(report.equipo.id, report.id)">
+                                <button pButton icon="pi pi-play" class="p-button-success p-button-rounded p-button-sm"
+                                    pTooltip="Realizar Mantenimiento" tooltipPosition="left"></button>
+                            </a>
                         </td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="5" class="text-center p-4">
+                        <td colspan="9" class="text-center p-4">
                             <div class="flex flex-column align-items-center">
                                 <i class="pi pi-check-circle text-green-500 text-6xl mb-3"></i>
                                 <span class="text-xl text-500">¡Todo al día! No hay mantenimientos pendientes en el mes
@@ -112,49 +131,69 @@
         <div class="card border-0 shadow-sm border-round-xl surface-card p-4" *ngIf="panelEjecutados">
             <p-table #dtEjecutados [value]="preventivosEjecutados" dataKey="id" [paginator]="true" [rows]="10"
                 [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
-                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica', 'mesProgramado']"
+                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica', 'mesProgramado', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'servicio.nombres', 'equipo.id']"
                 styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true" [scrollable]="true"
-                scrollHeight="500px">
+                scrollHeight="500px" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
 
                 <ng-template pTemplate="caption">
                     <div class="flex justify-content-end">
-                        <span class="p-input-icon-left w-full sm:w-auto">
-                            <i class="pi pi-search"></i>
+                        <p-iconfield position="left">
+                            <p-inputicon styleClass="pi pi-search" />
                             <input pInputText type="text" (input)="onGlobalFilter($event, dtEjecutados)"
                                 placeholder="Buscar Ejecutados..." class="w-full sm:w-auto" />
-                        </span>
+                        </p-iconfield>
                     </div>
                 </ng-template>
 
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="min-width:200px">Equipo</th>
-                        <th style="min-width:120px">Placa</th>
-                        <th style="min-width:200px">Ubicación</th>
-                        <th style="min-width:150px">Fecha Programada</th>
+                        <th style="min-width:200px" pSortableColumn="equipo.nombres">Equipo <p-sortIcon
+                                field="equipo.nombres"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.marca">Marca <p-sortIcon
+                                field="equipo.marca"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.modelo">Modelo <p-sortIcon
+                                field="equipo.modelo"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.serie">Serie <p-sortIcon
+                                field="equipo.serie"></p-sortIcon></th>
+                        <th style="min-width:120px" pSortableColumn="equipo.placa">Placa <p-sortIcon
+                                field="equipo.placa"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="servicio.nombres">Servicio <p-sortIcon
+                                field="servicio.nombres"></p-sortIcon></th>
+                        <th style="min-width:200px" pSortableColumn="equipo.ubicacionEspecifica">Ubicaci&oacute;n
+                            <p-sortIcon field="equipo.ubicacionEspecifica"></p-sortIcon>
+                        </th>
+                        <th style="min-width:150px" pSortableColumn="mesProgramado">Fecha Programada <p-sortIcon
+                                field="mesProgramado"></p-sortIcon></th>
                         <th style="min-width:120px" class="text-center">Opciones</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-report>
                     <tr>
                         <td><span class="font-bold">{{ report.equipo?.nombres || 'N/A' }}</span></td>
+                        <td>{{ report.equipo?.marca || 'N/A' }}</td>
+                        <td>{{ report.equipo?.modelo || 'N/A' }}</td>
+                        <td>{{ report.equipo?.serie || 'N/A' }}</td>
                         <td><p-tag [value]="report.equipo?.placa || 'N/A'" severity="secondary"></p-tag></td>
+                        <td>{{ report.servicio?.nombres || 'N/A' }}</td>
                         <td>{{ report.equipo?.ubicacionEspecifica || 'N/A' }}</td>
                         <td>{{ report.mesProgramado }}/{{ report['añoProgramado'] }}</td>
                         <td class="text-center">
-                            <button pButton icon="pi pi-eye"
-                                class="p-button-info p-button-rounded p-button-outlined p-button-sm mr-2"
-                                pTooltip="Ver Detalles" tooltipPosition="left"
-                                (click)="viewModalReport(report)"></button>
-                            <button *ngIf="report.urlReporte" pButton icon="pi pi-file-pdf"
+                            <button *ngIf="report.rutaPdf || report.urlReporte" pButton label="Completado"
+                                class="p-button-success p-button-sm mr-2" (click)="viewModalReport(report)"></button>
+
+                            <button *ngIf="!(report.rutaPdf || report.urlReporte)" pButton label="Realizado"
+                                class="p-button-secondary p-button-sm mr-2" (click)="viewModalReport(report)"></button>
+
+                            <button *ngIf="report.rutaPdf || report.urlReporte" pButton icon="pi pi-file-pdf"
                                 class="p-button-danger p-button-rounded p-button-text p-button-sm" pTooltip="Ver PDF"
-                                tooltipPosition="left" (click)="viewPdf(report.urlReporte)"></button>
+                                tooltipPosition="left" (click)="viewPdf(report.rutaPdf || report.urlReporte)"></button>
                         </td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="5" class="text-center p-4">No hay mantenimientos preventivos ejecutados en el mes
+                        <td colspan="9" class="text-center p-4">No hay mantenimientos preventivos ejecutados en el mes
                             seleccionado.</td>
                     </tr>
                 </ng-template>
@@ -163,7 +202,7 @@
     </div>
 
     <!-- PANEL CORRECTIVOS -->
-    <div *ngIf="panelCorrectivos">
+    <div *ngIf="panelCorrectivos && isBrowser">
 
         <!-- Date Filter Card -->
         <div class="card border-0 shadow-sm border-round-xl surface-card p-4 mb-4">
@@ -171,7 +210,7 @@
                 <label class="font-bold text-lg text-700">Filtrar Correctivos (Realizado):</label>
                 <div class="flex gap-2">
                     <p-datepicker [(ngModel)]="dateCorrectivo" view="month" dateFormat="mm/yy" [readonlyInput]="true"
-                        (onSelect)="filtrarCorrectivos()" placeholder="Seleccione Mes/Año" [showIcon]="true"
+                        (onSelect)="filtrarCorrectivos()" placeholder="Seleccione Mes/A&ntilde;o" [showIcon]="true"
                         inputStyleClass="p-inputtext-sm"></p-datepicker>
                     <button pButton icon="pi pi-refresh" (click)="cargarReportes()"
                         class="p-button-outlined p-button-secondary" pTooltip="Recargar"></button>
@@ -182,26 +221,41 @@
         <div class="card border-0 shadow-sm border-round-xl surface-card p-4">
             <p-table #dtCorrectivos [value]="correctivos" dataKey="id" [paginator]="true" [rows]="10"
                 [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
-                [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica']"
+                [globalFilterFields]="['id', 'equipo.nombres', 'equipo.placa', 'equipo.ubicacionEspecifica', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'servicio.nombres', 'equipo.id']"
                 styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true" [scrollable]="true"
-                scrollHeight="500px">
+                scrollHeight="500px" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
 
                 <ng-template pTemplate="caption">
                     <div class="flex justify-content-end">
-                        <span class="p-input-icon-left w-full sm:w-auto">
-                            <i class="pi pi-search"></i>
+                        <p-iconfield position="left">
+                            <p-inputicon styleClass="pi pi-search" />
                             <input pInputText type="text" (input)="onGlobalFilter($event, dtCorrectivos)"
                                 placeholder="Buscar..." class="w-full sm:w-auto" />
-                        </span>
+                        </p-iconfield>
                     </div>
                 </ng-template>
 
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="min-width:100px">ID</th>
-                        <th style="min-width:200px">Equipo</th>
-                        <th style="min-width:120px">Placa</th>
-                        <th style="min-width:150px">Fecha Realización</th>
+                        <th style="min-width:100px" pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                        <th style="min-width:200px" pSortableColumn="equipo.nombres">Equipo <p-sortIcon
+                                field="equipo.nombres"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.marca">Marca <p-sortIcon
+                                field="equipo.marca"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.modelo">Modelo <p-sortIcon
+                                field="equipo.modelo"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="equipo.serie">Serie <p-sortIcon
+                                field="equipo.serie"></p-sortIcon></th>
+                        <th style="min-width:120px" pSortableColumn="equipo.placa">Placa <p-sortIcon
+                                field="equipo.placa"></p-sortIcon></th>
+                        <th style="min-width:150px" pSortableColumn="servicio.nombres">Servicio <p-sortIcon
+                                field="servicio.nombres"></p-sortIcon></th>
+                        <th style="min-width:200px" pSortableColumn="equipo.ubicacionEspecifica">Ubicaci&oacute;n
+                            <p-sortIcon field="equipo.ubicacionEspecifica"></p-sortIcon>
+                        </th>
+                        <th style="min-width:150px" pSortableColumn="fechaRealizado">Fecha Realización <p-sortIcon
+                                field="fechaRealizado"></p-sortIcon></th>
                         <th style="min-width:120px" class="text-center">Opciones</th>
                     </tr>
                 </ng-template>
@@ -209,21 +263,29 @@
                     <tr>
                         <td><span class="font-bold">#{{ report.id }}</span></td>
                         <td>{{ report.equipo?.nombres }}</td>
+                        <td>{{ report.equipo?.marca || 'N/A' }}</td>
+                        <td>{{ report.equipo?.modelo || 'N/A' }}</td>
+                        <td>{{ report.equipo?.serie || 'N/A' }}</td>
                         <td><p-tag [value]="report.equipo?.placa" severity="secondary"></p-tag></td>
+                        <td>{{ report.servicio?.nombres || 'N/A' }}</td>
+                        <td>{{ report.equipo?.ubicacionEspecifica || 'N/A' }}</td>
                         <td>{{ report.fechaRealizado }}</td>
                         <td class="text-center">
-                            <button pButton icon="pi pi-eye"
-                                class="p-button-info p-button-rounded p-button-outlined p-button-sm mr-2"
-                                pTooltip="Ver Detalles" (click)="viewModalReport(report)"></button>
-                            <button *ngIf="report.urlReporte" pButton icon="pi pi-file-pdf"
+                            <button *ngIf="report.rutaPdf || report.urlReporte" pButton label="Completado"
+                                class="p-button-success p-button-sm mr-2" (click)="viewModalReport(report)"></button>
+
+                            <button *ngIf="!(report.rutaPdf || report.urlReporte)" pButton label="Realizado"
+                                class="p-button-secondary p-button-sm mr-2" (click)="viewModalReport(report)"></button>
+
+                            <button *ngIf="report.rutaPdf || report.urlReporte" pButton icon="pi pi-file-pdf"
                                 class="p-button-danger p-button-rounded p-button-text p-button-sm" pTooltip="Ver PDF"
-                                (click)="viewPdf(report.urlReporte)"></button>
+                                (click)="viewPdf(report.rutaPdf || report.urlReporte)"></button>
                         </td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="5" class="text-center p-4">
+                        <td colspan="10" class="text-center p-4">
                             <div class="flex flex-column align-items-center">
                                 <i class="pi pi-inbox text-500 text-6xl mb-3"></i>
                                 <span class="text-xl text-500">No hay mantenimientos correctivos en el mes
@@ -243,10 +305,10 @@
     [breakpoints]="{ '960px': '90vw', '640px': '95vw' }">
     <div class="p-fluid p-3">
 
-        <!-- 1. Línea: Información del Equipo -->
+        <!-- 1. Línea: Informaci&oacute;n del Equipo -->
         <div class="grid">
             <div class="col-12">
-                <p-card header="Información del Equipo">
+                <p-card header="Informaci&oacute;n del Equipo">
                     <div class="p-text-sm grid">
                         <div class="col-12 md:col-4">
                             <p><strong>Nombre:</strong> {{ reportSelected?.equipo.nombres }}</p>
@@ -256,12 +318,13 @@
                         <div class="col-12 md:col-4">
                             <p><strong>Serie:</strong> {{ reportSelected?.equipo.serie }}</p>
                             <p><strong>Placa:</strong> {{ reportSelected?.equipo.placa }}</p>
-                            <p><strong>Activo:</strong> {{ reportSelected?.equipo.activo ? 'Sí' : 'No' }}</p>
+                            <p><strong>Activo:</strong> {{ reportSelected?.equipo.activo ? 'S&iacute;' : 'No' }}</p>
                         </div>
                         <div class="col-12 md:col-4">
                             <p><strong>Servicio:</strong> {{ reportSelected?.servicio.nombres }}</p>
-                            <p><strong>Ubicación:</strong> {{ reportSelected?.equipo.ubicacion }}</p>
-                            <p><strong>Ubicación Específica:</strong> {{ reportSelected?.equipo.ubicacionEspecifica }}
+                            <p><strong>Ubicaci&oacute;n:</strong> {{ reportSelected?.equipo.ubicacion }}</p>
+                            <p><strong>Ubicaci&oacute;n Específica:</strong> {{
+                                reportSelected?.equipo.ubicacionEspecifica }}
                             </p>
                         </div>
                     </div>
@@ -290,11 +353,63 @@
                         </div>
                         <div class="col-12 md:col-4">
                             <p><strong>Motivo:</strong> {{ reportSelected?.motivo }}</p>
-                            <p><strong>Calificación:</strong> {{ reportSelected?.calificacion }}</p>
-                            <p><strong>Mantenimiento Propio:</strong> {{ reportSelected?.mantenimientoPropio ? 'Sí' :
+                            <p><strong>Calificaci&oacute;n:</strong> {{ reportSelected?.calificacion }}</p>
+                            <p><strong>Mantenimiento Propio:</strong> {{ reportSelected?.mantenimientoPropio ?
+                                'S&iacute;' :
                                 'No' }}</p>
-                            <p><strong>Realizado:</strong> {{ reportSelected?.realizado ? 'Sí' : 'No' }}</p>
+                            <p><strong>Realizado:</strong> {{ reportSelected?.realizado ? 'S&iacute;' : 'No' }}</p>
 
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+        </div>
+
+        <!-- Equipo Patrón Section -->
+        <div class="grid" *ngIf="reportSelected?.equipoPatronIdFk">
+            <div class="col-12">
+                <p-card header="Informaci&oacute;n del Equipo Patrón">
+                    <div class="p-text-sm grid">
+                        <div class="col-12 md:col-4">
+                            <p><strong>Nombre:</strong> {{ reportSelected?.equipoPatron?.nombres }}</p>
+                            <p><strong>Marca:</strong> {{ reportSelected?.equipoPatron?.marca }}</p>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <p><strong>Modelo:</strong> {{ reportSelected?.equipoPatron?.modelo }}</p>
+                            <p><strong>Serie:</strong> {{ reportSelected?.equipoPatron?.serie }}</p>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <p><strong>Placa/Código:</strong> {{ reportSelected?.equipoPatron?.placa }}</p>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+        </div>
+
+        <!-- Condiciones Iniciales Section -->
+        <div class="grid" *ngIf="reportSelected?.cumplimientoCondicionesIniciales?.length > 0">
+            <div class="col-12">
+                <p-card header="Condiciones Iniciales">
+                    <div class="p-text-sm grid">
+                        <div class="col-12">
+                            <table class="table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Condición</th>
+                                        <th>Cumplimiento</th>
+                                        <th>Observaciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of reportSelected.cumplimientoCondicionesIniciales">
+                                        <td>{{ item.condicionInicial?.descripcion }}</td>
+                                        <td>{{ item.cumple === 'CUMPLE' ? 'Cumple' : (item.cumple === 'NO_CUMPLE' ? 'No
+                                            Cumple' :
+                                            (item.cumple === 'NO_APLICA' ? 'No Aplica' : 'No')) }}</td>
+                                        <td>{{ item.observacion }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </p-card>
@@ -308,14 +423,18 @@
                         <table class="table table-striped table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Descripción</th>
+                                    <th>Descripci&oacute;n</th>
                                     <th>Cumplimiento</th>
+                                    <th>Observaciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr *ngFor="let item of rutina">
                                     <td>{{ item.protocolo.paso }}</td>
-                                    <td>{{ item.cumple ? 'Sí' : 'No' }}</td>
+                                    <td>{{ item.cumple === 'CUMPLE' ? 'Cumple' : (item.cumple === 'NO_CUMPLE' ? 'No
+                                        Cumple' :
+                                        (item.cumple === 'NO_APLICA' ? 'No Aplica' : 'No')) }}</td>
+                                    <td>{{ item.observaciones }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -337,15 +456,69 @@
                             <p><strong>Email:</strong> {{ reportSelected?.usuario.email }}</p>
                             <p><strong>Registro Invima:</strong> {{ reportSelected?.usuario.registroInvima }}</p>
                         </div>
-                        <div class="col-12 md:col-4">
-                            <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
-                                *ngIf="reportSelected?.rutaPdf">Ver Reporte</button>
-                            <button type="button" class="btn btn-dark" (click)="viewPdf(reportSelected?.rutaPdf)"
-                                *ngIf="!reportSelected?.rutaPdf">Generar Formato</button>
+                        <div class="col-12 md:col-4 flex flex-column gap-2">
+                            <button type="button" class="btn btn-dark w-full" (click)="viewPdf(reportSelected?.rutaPdf)"
+                                *ngIf="reportSelected?.rutaPdf">
+                                <i class="pi pi-file-pdf mr-2"></i>Ver Reporte
+                            </button>
+
+                            <button type="button" class="btn btn-outline-primary w-full" (click)="descargarFormato()"
+                                *ngIf="reportSelected">
+                                <i class="pi pi-download mr-2"></i>Descargar Formato (Sin Firmar)
+                            </button>
+
+                            <a class="nav-link-container" (click)="editarReporte()" *ngIf="!reportSelected?.rutaPdf">
+                                <button type="button" class="btn btn-warning w-full">
+                                    <i class="pi pi-pencil mr-2"></i>Editar Reporte
+                                </button>
+                            </a>
+
+                            <div *ngIf="!reportSelected?.rutaPdf" class="flex flex-column gap-2 mt-2">
+                                <hr>
+                                <button type="button" class="btn btn-primary w-full" (click)="abrirModalFirma()">
+                                    <i class="pi pi-pencil mr-2"></i> Firmar y Finalizar Digitalmente
+                                </button>
+                                <hr>
+                                <label class="font-bold">O Cargar Reporte Firmado Manualmente (PDF):</label>
+                                <input type="file" (change)="onFileSelected($event)" accept=".pdf"
+                                    class="form-control mb-2">
+                                <button type="button" class="btn btn-primary" [disabled]="!selectedFile"
+                                    (click)="subirPdf()">
+                                    <i class="pi pi-upload mr-1"></i> Guardar PDF
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </p-card>
             </div>
         </div>
     </div>
+</p-dialog>
+
+<p-dialog header="Firmar Reporte" [(visible)]="modalFirma" [modal]="true" [style]="{width: '90vw', maxWidth: '500px'}" [draggable]="false" [resizable]="false" (onHide)="limpiarFirma()">
+    <div class="flex flex-column gap-3 pt-2">
+        <div class="p-field">
+            <label class="font-bold block mb-1">Nombre de quien recibe</label>
+            <input type="text" pInputText [(ngModel)]="nombreFirma" class="w-full" placeholder="Ej. Juan Pérez" />
+        </div>
+        <div class="p-field">
+            <label class="font-bold block mb-1">Cédula de quien recibe (Opcional)</label>
+            <input type="text" pInputText [(ngModel)]="cedulaFirma" class="w-full" placeholder="Ej. 123456789" />
+        </div>
+        
+        <div class="p-field flex flex-column mt-3">
+            <label class="font-bold block mb-1 text-center">Firma Digital (Dibuje aquí su firma)</label>
+            <div class="border-2 border-solid border-300 border-round bg-white overflow-hidden relative" style="height: 200px; touch-action: none;">
+                <canvas #signatureCanvas class="w-full h-full cursor-crosshair absolute top-0 left-0"></canvas>
+            </div>
+            <div class="flex justify-content-end mt-2">
+                <button pButton type="button" label="Limpiar" icon="pi pi-eraser" class="p-button-text p-button-sm p-button-danger" (click)="limpiarFirma()"></button>
+            </div>
+        </div>
+    </div>
+    
+    <ng-template pTemplate="footer">
+        <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="modalFirma = false"></button>
+        <button pButton type="button" label="Guardar Firma y Finalizar" icon="pi pi-check" class="p-button-primary" (click)="guardarFirmaYGenerar()"></button>
+    </ng-template>
 </p-dialog>

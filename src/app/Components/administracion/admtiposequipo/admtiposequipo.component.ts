@@ -1,7 +1,9 @@
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ProtocolosService } from './../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
+import { CondicionInicialService } from './../../../Services/appServices/biomedicaServices/condicionesIniciales/condicion-inicial.service';
 import { TipoEquipoService } from './../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ChangeDetectorRef, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { InputIconModule } from 'primeng/inputicon';
@@ -10,6 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { DialogModule } from "primeng/dialog";
 import { Table } from 'primeng/table';
+import { TableStateService } from '../../../Services/appServices/shared/table-state.service';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -18,11 +21,15 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import Swal from 'sweetalert2';
 
 import { getDecodedAccessToken } from '../../../utilidades';
+import { TabViewModule } from 'primeng/tabview';
+import { DragDropModule } from 'primeng/dragdrop';
+
+import { UppercaseDirective } from '../../../Directives/uppercase.directive';
 
 @Component({
   selector: 'app-admtiposequipo',
   standalone: true,
-  imports: [TableModule, TextareaModule, CommonModule, InputIconModule, IconFieldModule, InputTextModule, DialogModule, ReactiveFormsModule, ButtonModule, FormsModule, TooltipModule, ToolbarModule, TagModule, InputSwitchModule],
+  imports: [TableModule, TextareaModule, CommonModule, InputIconModule, IconFieldModule, InputTextModule, DialogModule, ReactiveFormsModule, ButtonModule, FormsModule, TooltipModule, ToolbarModule, TagModule, InputSwitchModule, UppercaseDirective, TabViewModule, DragDropModule],
   templateUrl: './admtiposequipo.component.html',
   styleUrl: './admtiposequipo.component.css'
 })
@@ -34,12 +41,23 @@ export class AdmtiposequipoComponent implements OnInit {
   @ViewChild('dt2') dt2!: Table;
   tipoequipoService = inject(TipoEquipoService);
   protocolosServices = inject(ProtocolosService);
+  condicionInicialService = inject(CondicionInicialService);
+  cd = inject(ChangeDetectorRef);
+  platformId = inject(PLATFORM_ID);
+  stateService = inject(TableStateService);
+  isBrowser: boolean = false;
+
+  first: number = 0;
+  searchText: string = '';
+
   tiposEquipos!: any[];
   loading: boolean = false;
   viewModalTipoEquipo: boolean = false;
   viewAddTipoEquipo: boolean = false;
   tipoEquipoSelected!: any;
   protocoloTipoEquipo!: any[];
+  protocolosActivos: any[] = [];
+  protocolosInactivos: any[] = [];
   isEditing: boolean = false;
   viewProtocolsModal: boolean = false;
   newProtocoloPaso: string = ''; // For the new protocol input
@@ -47,6 +65,7 @@ export class AdmtiposequipoComponent implements OnInit {
   isAdminBiomedica: boolean = false;
 
   constructor() {
+    this.isBrowser = isPlatformBrowser(this.platformId);
     this.formGroup = this.formBuilder.group({
       nombres: ['', [Validators.required]],
       materialConsumible: ['', [Validators.required]],
@@ -61,14 +80,29 @@ export class AdmtiposequipoComponent implements OnInit {
 
   async ngOnInit() {
     this.checkRole();
+    await this.loadTiposEquipos();
+
+    // Load state
+    const savedState = this.stateService.getState('adm-tipos-equipo');
+    this.first = savedState.first || 0;
+    this.searchText = savedState.globalFilter || '';
+
+    if (this.searchText && this.dt2) {
+      this.dt2.filterGlobal(this.searchText, 'contains');
+    }
+  }
+
+  async loadTiposEquipos() {
     const all = await this.tipoequipoService.getAllTiposEquipos();
 
-    if (this.isAdminBiomedica) {
-      // Filter only Type 1 (Biomedica)
-      this.tiposEquipos = all.filter(t => t.tipoR === 1);
-      // Pre-set the form control for tipoR and disable logic in HTML if needed, 
-      // though formGroup patchValue handled in modal open
+    const decoded = getDecodedAccessToken();
+    const isSuperAdmin = decoded?.rol === 'SUPERADMIN';
+
+    if (this.isAdminBiomedica && !isSuperAdmin) {
+      // Filter only Type 1 (Biomedica) for BIOMEDICAADMIN
+      this.tiposEquipos = all.filter(t => Number(t.tipoR) === 1);
     } else {
+      // SUPERADMIN or others see everything
       this.tiposEquipos = all;
     }
   }
@@ -77,7 +111,7 @@ export class AdmtiposequipoComponent implements OnInit {
     const token = sessionStorage.getItem('utoken');
     if (token) {
       const decoded = getDecodedAccessToken();
-      if (decoded?.rol === 'BIOMEDICAADMIN') {
+      if (decoded?.rol === 'BIOMEDICAADMIN' || decoded?.rol === 'SUPERADMIN') {
         this.isAdminBiomedica = true;
       }
     }
@@ -86,14 +120,44 @@ export class AdmtiposequipoComponent implements OnInit {
   onGlobalFilter(event: Event): void {
     const target = event.target as HTMLInputElement | null;
     if (target) {
-      this.dt2.filterGlobal(target.value, 'contains');
+      this.searchText = target.value;
+      this.dt2.filterGlobal(this.searchText, 'contains');
+      this.stateService.setState('adm-tipos-equipo', { globalFilter: this.searchText });
     }
+  }
+
+  onPageChange(event: any) {
+    this.first = event.first;
+    this.stateService.setState('adm-tipos-equipo', { first: this.first });
   }
 
   async viewTipoEquipo(tipoEquipo: any) {
     this.tipoEquipoSelected = tipoEquipo;
-    this.protocoloTipoEquipo = await this.protocolosServices.getProtocoloTipoEquipo(this.tipoEquipoSelected.id);
+    await this.refreshProtocolos();
     this.viewProtocolsModal = true;
+  }
+
+  async refreshProtocolos() {
+    this.protocoloTipoEquipo = await this.protocolosServices.getProtocoloTipoEquipo(this.tipoEquipoSelected.id);
+    this.protocolosActivos = this.protocoloTipoEquipo.filter((p: any) => p.estado).sort((a,b) => a.orden - b.orden);
+    this.protocolosInactivos = this.protocoloTipoEquipo.filter((p: any) => !p.estado);
+  }
+
+  async onRowReorder(event: any) {
+    // Cuando la fila se reordena en la lista de activos
+    // Actualizamos la propiedad orden para todos los activos
+    this.protocolosActivos.forEach((p, index) => {
+      p.orden = index;
+    });
+
+    try {
+      const payload = this.protocolosActivos.map(p => ({ id: p.id, orden: p.orden }));
+      await this.protocolosServices.reorderProtocolos(payload);
+      // No alert on dragging to be seamless, or a tiny toast
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "No se pudo actualizar el orden de los protocolos", "error");
+    }
   }
 
   viewModalAddTipoEquipo() {
@@ -127,7 +191,7 @@ export class AdmtiposequipoComponent implements OnInit {
         // Update
         try {
           await this.tipoequipoService.actualizarTipoEquipo(this.tipoEquipoSelected.id, this.formGroup.value);
-          this.tiposEquipos = await this.tipoequipoService.getAllTiposEquipos();
+          await this.loadTiposEquipos();
           this.viewAddTipoEquipo = false;
           Swal.fire("Tipo de Equipo actualizado!", "", "success");
         } catch (error) {
@@ -135,7 +199,23 @@ export class AdmtiposequipoComponent implements OnInit {
         }
       } else {
         // Create
-        Swal.fire("Funcionalidad en desarrollo", "La creación de equipos se habilitará pronto", "info");
+        try {
+          const payload = {
+            ...this.formGroup.value,
+            activo: true,
+            requiereMetrologia: !!this.formGroup.value.requiereMetrologia // Ensure boolean
+          };
+          if (payload.tipoR) payload.tipoR = Number(payload.tipoR);
+
+          await this.tipoequipoService.crearTipoEquipo(payload);
+          await this.loadTiposEquipos();
+          this.viewAddTipoEquipo = false;
+          Swal.fire("Tipo de Equipo creado!", "", "success");
+        } catch (error: any) {
+          console.error(error);
+          const detail = error.error?.detalle || error.message || "No se pudo crear el tipo de equipo";
+          Swal.fire("Error al crear", detail, "error");
+        }
       }
     } else {
       Swal.fire("Formulario inválido", "Completa los campos", "warning");
@@ -153,7 +233,7 @@ export class AdmtiposequipoComponent implements OnInit {
       }).then(async (result) => {
         if (result.isConfirmed) {
           const res = await this.tipoequipoService.activarTipoEquipo(idTipoEquipo);
-          this.tiposEquipos = await this.tipoequipoService.getAllTiposEquipos();
+          await this.loadTiposEquipos();
           Swal.fire("Tipo de equipo activo!", "", "success");
         } else if (result.isDenied) {
           Swal.fire("Se descarto la activacion del tipo de equipo", "", "info");
@@ -169,7 +249,7 @@ export class AdmtiposequipoComponent implements OnInit {
         if (result.isConfirmed) {
           try {
             const res = await this.tipoequipoService.desactivarTipoEquipo(idTipoEquipo);
-            this.tiposEquipos = await this.tipoequipoService.getAllTiposEquipos();
+            await this.loadTiposEquipos();
             Swal.fire("Tipo de equipo Inactivo!", "", "success");
           } catch {
             Swal.fire("El tipo de quipo tiene equipos activos relacionados", "", "error");
@@ -188,7 +268,7 @@ export class AdmtiposequipoComponent implements OnInit {
     try {
       await this.protocolosServices.updateProtocolo(protocolo.id, { estado: newStatus });
       // Refresh the list
-      this.protocoloTipoEquipo = await this.protocolosServices.getProtocoloTipoEquipo(this.tipoEquipoSelected.id);
+      await this.refreshProtocolos();
 
       const toastMsg = newStatus ? 'Protocolo habilitado' : 'Protocolo deshabilitado';
       const toastIcon = newStatus ? 'success' : 'info'; // SweetAlert icons
@@ -231,7 +311,7 @@ export class AdmtiposequipoComponent implements OnInit {
       await this.protocolosServices.createProtocolo(newProto);
       this.newProtocoloPaso = ''; // Reset input
       // Refresh list
-      this.protocoloTipoEquipo = await this.protocolosServices.getProtocoloTipoEquipo(this.tipoEquipoSelected.id);
+      await this.refreshProtocolos();
       Swal.fire({
         icon: 'success',
         title: 'Protocolo agregado',
@@ -245,4 +325,193 @@ export class AdmtiposequipoComponent implements OnInit {
       Swal.fire("Error", "No se pudo agregar el protocolo", "error");
     }
   }
+
+  // Mediciones Específicas Logic
+  viewMedicionesModal: boolean = false;
+  medicionesTipoEquipo: any[] = [];
+  newMedicionNombre: string = '';
+  newMedicionUnidad: string = '';
+  newMedicionValorEstandar: string = '';
+  newMedicionCriterioAceptacion: string = '';
+
+  async viewMediciones(tipoEquipo: any) {
+    try {
+      this.tipoEquipoSelected = tipoEquipo;
+      this.medicionesTipoEquipo = await this.tipoequipoService.getMediciones(this.tipoEquipoSelected.id);
+      this.viewMedicionesModal = true;
+    } catch (error) {
+      console.error('Error opening mediciones modal:', error);
+      Swal.fire("Error", "No se pudieron cargar las mediciones", "error");
+    }
+  }
+
+  async addMedicion() {
+    if (!this.newMedicionNombre.trim() || !this.newMedicionUnidad.trim()) {
+      Swal.fire("Atención", "Nombre y Unidad son requeridos", "warning");
+      return;
+    }
+
+    const newMed = {
+      nombre: this.newMedicionNombre,
+      unidad: this.newMedicionUnidad,
+      valorEstandar: this.newMedicionValorEstandar,
+      criterioAceptacion: this.newMedicionCriterioAceptacion,
+      tipoEquipoIdFk: this.tipoEquipoSelected.id
+    };
+
+    try {
+      await this.tipoequipoService.createMedicion(newMed);
+      this.newMedicionNombre = '';
+      this.newMedicionUnidad = '';
+      this.newMedicionValorEstandar = '';
+      this.newMedicionCriterioAceptacion = '';
+      this.medicionesTipoEquipo = await this.tipoequipoService.getMediciones(this.tipoEquipoSelected.id);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Medición agregada',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "No se pudo agregar la medición", "error");
+    }
+  }
+
+  async toggleMedicionEstado(medicion: any) {
+    const newStatus = !medicion.estado;
+    const action = newStatus ? 'activar' : 'desactivar';
+
+    try {
+      await this.tipoequipoService.updateMedicion(medicion.id, { estado: newStatus });
+      this.medicionesTipoEquipo = await this.tipoequipoService.getMediciones(this.tipoEquipoSelected.id);
+
+      Swal.fire({
+        icon: 'success',
+        title: `Medición ${newStatus ? 'activada' : 'desactivada'}`,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", `No se pudo ${action} la medición`, "error");
+    }
+  }
+
+  async deleteMedicion(idMedicion: any) {
+    this.viewMedicionesModal = false; // Hide modal temporarily
+    Swal.fire({
+      title: "¿Eliminar medición?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar"
+    }).then(async (result) => {
+      this.viewMedicionesModal = true; // Re-open modal
+      if (result.isConfirmed) {
+        try {
+          await this.tipoequipoService.deleteMedicion(idMedicion);
+          this.medicionesTipoEquipo = await this.tipoequipoService.getMediciones(this.tipoEquipoSelected.id);
+          Swal.fire("Eliminado", "", "success");
+        } catch (error) {
+          Swal.fire("Error", "No se pudo eliminar", "error");
+        }
+      }
+    });
+
+  }
+
+  // --- Condiciones Iniciales Logic (Global) ---
+  viewCondicionesInicialesModal: boolean = false;
+  condicionesIniciales: any[] = [];
+  newCondicionDescripcion: string = '';
+
+  async openCondicionesInicialesModal() {
+    try {
+      const allConditions = await this.condicionInicialService.getAll();
+      if (Array.isArray(allConditions)) {
+        this.condicionesIniciales = allConditions;
+      } else {
+        console.error('API did not return an array in open:', allConditions);
+        this.condicionesIniciales = [];
+      }
+      this.viewCondicionesInicialesModal = true;
+    } catch (error) {
+      console.error(error);
+      this.condicionesIniciales = [];
+      Swal.fire("Error", "No se pudieron cargar las condiciones iniciales", "error");
+    }
+  }
+
+  async addCondicionInicial() {
+    if (!this.newCondicionDescripcion.trim()) {
+      Swal.fire("Atención", "Escribe la descripción de la condición", "warning");
+      return;
+    }
+    try {
+
+      const created = await this.condicionInicialService.create({ descripcion: this.newCondicionDescripcion });
+
+
+      this.newCondicionDescripcion = '';
+
+      const allConditions = await this.condicionInicialService.getAll();
+
+
+      if (Array.isArray(allConditions)) {
+        this.condicionesIniciales = [...allConditions];
+      } else {
+        console.error('API did not return an array:', allConditions);
+        this.condicionesIniciales = [];
+      }
+
+      this.cd.detectChanges(); // Force update
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Condición agregada',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } catch (error) {
+      console.error('Error adding condition:', error);
+      Swal.fire("Error", "No se pudo agregar", "error");
+    }
+  }
+
+  async toggleCondicionInicialEstado(cond: any) {
+    const newStatus = !cond.activo;
+    try {
+      await this.condicionInicialService.update(cond.id, { activo: newStatus });
+      const allConditions = await this.condicionInicialService.getAll();
+
+      if (Array.isArray(allConditions)) {
+        this.condicionesIniciales = allConditions;
+      } else {
+        console.error('API did not return an array in toggle:', allConditions);
+        this.condicionesIniciales = [];
+      }
+      this.cd.detectChanges(); // Ensure table updates
+      Swal.fire({
+        icon: 'success',
+        title: `Condición ${newStatus ? 'activada' : 'desactivada'}`,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500
+      });
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "No se pudo actualizar el estado", "error");
+    }
+  }
+
 }

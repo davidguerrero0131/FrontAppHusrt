@@ -1,0 +1,13 @@
+.p-4 {
+    background-color: var(--surface-ground);
+    min-height: 100vh;
+}
+
+.card {
+    background: var(--surface-card);
+    border: 1px solid var(--surface-border);
+}
+
+h2 {
+    color: var(--text-color);
+}

@@ -1,0 +1,112 @@
+<app-industriales-navbar></app-industriales-navbar>
+<div class="container-fluid p-4">
+  <div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h3 class="mb-0 text-white">
+        <i class="bi bi-plus-circle me-2"></i>Crear Plan de Mantenimiento Industrial
+      </h3>
+      <button class="btn btn-outline-light btn-sm" (click)="regresar()">
+        <i class="bi bi-arrow-left me-2"></i>Volver
+      </button>
+    </div>
+
+    <div class="card-body">
+      <form [formGroup]="planForm" (ngSubmit)="guardar()">
+
+        <div class="row mb-4">
+          <div class="col-12">
+            <h5 class="text-primary border-bottom pb-2">
+              <i class="bi bi-info-circle me-2"></i>Información del Plan
+            </h5>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-12">
+            <label class="form-label">Equipo <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="idEquipo"
+              [class.is-invalid]="planForm.get('idEquipo')?.invalid && planForm.get('idEquipo')?.touched">
+              <option [value]="null">Seleccione un equipo</option>
+              <option *ngFor="let equipo of equipos" [value]="equipo.id">
+                {{ equipo.nombres }} - {{ equipo.serie }}
+              </option>
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar un equipo
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label">Periodicidad (Meses) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" formControlName="periodicidad" min="1"
+              placeholder="Ej: 1 (Mensual), 2 (Bimestral), 6 (Semestral)..."
+              [class.is-invalid]="planForm.get('periodicidad')?.invalid && planForm.get('periodicidad')?.touched">
+            <div class="invalid-feedback">
+              Ingrese la periodicidad en meses (mínimo 1)
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Mes <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="mes"
+              [class.is-invalid]="planForm.get('mes')?.invalid && planForm.get('mes')?.touched">
+              <option [value]="null">Seleccione un mes</option>
+              <option *ngFor="let mes of meses" [value]="mes.valor">
+                {{ mes.nombre }}
+              </option>
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar un mes
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Año <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="ano"
+              [class.is-invalid]="planForm.get('ano')?.invalid && planForm.get('ano')?.touched">
+              <option *ngFor="let ano of getAnosDisponibles()" [value]="ano">
+                {{ ano }}
+              </option>
+            </select>
+            <div class="invalid-feedback">
+              Debe seleccionar un año
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Día de Inicio (1-15) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" formControlName="rangoDeInicio" min="1" max="15"
+              [class.is-invalid]="planForm.get('rangoDeInicio')?.invalid && planForm.get('rangoDeInicio')?.touched">
+            <div class="invalid-feedback">
+              Ingrese un día válido entre 1 y 15
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Día de Fin (15-31) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" formControlName="rangoDeFin" min="15" max="31"
+              [class.is-invalid]="planForm.get('rangoDeFin')?.invalid && planForm.get('rangoDeFin')?.touched">
+            <div class="invalid-feedback">
+              Ingrese un día válido entre 15 y 31
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <hr>
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-secondary" (click)="regresar()">
+                <i class="bi bi-x-circle me-2"></i>Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary" [disabled]="planForm.invalid">
+                <i class="bi bi-save me-2"></i>Guardar Plan
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

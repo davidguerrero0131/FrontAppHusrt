@@ -1,0 +1,38 @@
+<div class="dashboard-container">
+
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>Panel de Administración Industrial</h1>
+      <p>Gestión de equipos industriales y parametrización.</p>
+    </div>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="cards-grid" style="justify-content: center; max-width: 900px; margin: 0 auto;">
+
+    <!-- Gestion Operativa -->
+    <div class="dashboard-card" (click)="showViewGestionOperativa()">
+      <div class="card-icon-container gradient-blue">
+        <i class="pi pi-briefcase" style="font-size: 4rem;"></i>
+      </div>
+      <div class="card-content">
+        <h3>Gestión Operativa</h3>
+        <p>Inventarios, mantenimientos, calendario y reportes.</p>
+        <span class="card-action">Acceder <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+    <!-- Parametrizacion -->
+    <div class="dashboard-card" (click)="showViewParametrizacion()">
+      <div class="card-icon-container gradient-orange">
+        <i class="pi pi-cog" style="font-size: 4rem;"></i>
+      </div>
+      <div class="card-content">
+        <h3>Parametrización</h3>
+        <p>Configuración de equipos, proveedores y tablas maestras.</p>
+        <span class="card-action">Acceder <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </div>
+
+  </div>
+</div>

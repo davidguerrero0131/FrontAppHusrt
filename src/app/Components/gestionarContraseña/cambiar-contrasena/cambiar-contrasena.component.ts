@@ -34,6 +34,7 @@ export class CambiarContrasenaComponent implements OnInit {
     private router: Router
   ) {
     this.form = this.fb.group({
+      codigo: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
       nuevaContrasena: ['', [Validators.required, Validators.minLength(8)]],
       nuevaContrasena2: ['', [Validators.required, Validators.minLength(8)]]
     },
@@ -65,12 +66,21 @@ export class CambiarContrasenaComponent implements OnInit {
       try {
         await this.userService.cambiarContrasena(this.form.value);
         this.mensaje = 'Contraseña actualizada con éxito. Serás redirigido al login.';
-        setTimeout(() => this.router.navigate(['/login']), 3005);
-      } catch (error) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Contraseña Actualizada',
+          text: 'Su contraseña ha sido restablecida exitosamente.'
+        });
+        setTimeout(() => this.router.navigate(['/login']), 1500);
+      } catch (error: any) {
+        let msg = 'Token inválido o expirado.';
+        if (error?.error?.error === 'Código de seguridad incorrecto') {
+           msg = 'El código ingresado es incorrecto.';
+        }
         Swal.fire({
           icon: 'warning',
-          title: 'No fue posible realizar el cambio de contraseña',
-          text: 'Token inválido o expirado.'
+          title: 'Error al actualizar',
+          text: msg
         })
       }
     }

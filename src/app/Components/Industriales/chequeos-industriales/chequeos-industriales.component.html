@@ -1,0 +1,117 @@
+<app-industriales-navbar></app-industriales-navbar>
+<div class="dashboard-container">
+
+    <!-- Hero Section -->
+    <div class="hero-section" style="background: linear-gradient(135deg, #0d7377 0%, #14a085 100%);">
+        <div class="hero-content">
+            <h1>Chequeos de Equipos Industriales</h1>
+            <p>Seleccione el tipo de chequeo a realizar.</p>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="d-flex justify-content-start my-4 px-4">
+        <button class="btn btn-outline-secondary px-4 py-2" (click)="regresar()" style="font-weight: 500;">
+            <i class="pi pi-arrow-left me-2"></i> Regresar
+        </button>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="cards-grid">
+
+        <!-- Chequeos Diarios UPS -->
+        <div class="dashboard-card" (click)="goToChequeoDiario('UPS', 1339)">
+            <div class="card-icon-container gradient-cyan">
+                <i class="pi pi-check-square"></i>
+            </div>
+            <div class="card-content">
+                <h3>Chequeos Diarios UPS</h3>
+                <p>Control y verificación de UPS.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <div class="dashboard-card" (click)="goToChequeoDiario('PLANTAS_ELECTRICAS', 1345)">
+            <div class="card-icon-container gradient-cyan">
+                <i class="pi pi-check-square"></i>
+            </div>
+            <div class="card-content">
+                <h3>Chequeos Diarios Plantas Eléctricas</h3>
+                <p>Control y verificación de Plantas Eléctricas.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <div class="dashboard-card" (click)="goToChequeoDiario('CALDERAS', 1344)">
+            <div class="card-icon-container gradient-cyan">
+                <i class="pi pi-check-square"></i>
+            </div>
+            <div class="card-content">
+                <h3>Chequeos Diarios Calderas</h3>
+                <p>Control y verificación de Calderas.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <div class="dashboard-card" (click)="goToChequeoDiario('TRANSFERENCIAS', 1341)">
+            <div class="card-icon-container gradient-cyan">
+                <i class="pi pi-check-square"></i>
+            </div>
+            <div class="card-content">
+                <h3>Chequeos Diarios Transferencias</h3>
+                <p>Control y verificación de Transferencias.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <div class="dashboard-card" (click)="goToChequeoDiario('BOMBAS_AGUA', 1343)">
+            <div class="card-icon-container gradient-cyan">
+                <i class="pi pi-check-square"></i>
+            </div>
+            <div class="card-content">
+                <h3>Chequeos Diarios Bombas de Agua</h3>
+                <p>Control y verificación de Bombas de Agua.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <div class="dashboard-card" (click)="goToChequeoDiario('TRANSFORMADORES', 1342)">
+            <div class="card-icon-container gradient-cyan">
+                <i class="pi pi-check-square"></i>
+            </div>
+            <div class="card-content">
+                <h3>Chequeos Diarios Transformadores</h3>
+                <p>Control y verificación de Transformadores.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+
+        <!-- Dynamic cards from DB configs -->
+        <div class="dashboard-card" *ngFor="let cfg of configuraciones"
+            (click)="goToChequeoDiario(cfg.identificadorString, cfg.tipoEquipoIdFk)">
+            <div class="card-icon-container gradient-cyan">
+                <i class="pi pi-check-square"></i>
+            </div>
+            <div class="card-content">
+                <h3>{{ cfg.label }}</h3>
+                <p>Chequeo diario de equipos tipo {{ cfg.label }}.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <!-- NEW: All Equipment Pending Check -->
+        <div class="dashboard-card" (click)="goToSinChequeo()" *ngIf="canViewSinChequeo()">
+            <div class="card-icon-container" style="background: linear-gradient(135deg, #7c3aed, #a855f7);">
+                <i class="pi pi-exclamation-triangle"></i>
+            </div>
+            <div class="card-content">
+                <h3>Equipos Sin Chequeo Hoy</h3>
+                <p>Ver listado de todos los equipos pendientes de chequeo diario.</p>
+                <span class="card-action">Ver Listado <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+    </div>
+
+</div>

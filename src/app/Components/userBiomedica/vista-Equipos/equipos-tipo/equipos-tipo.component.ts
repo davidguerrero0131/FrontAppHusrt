@@ -1,13 +1,14 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { TipoEquipoService } from '../../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
+import { MetrologiaService } from '../../../../Services/appServices/biomedicaServices/metrologia/metrologia.service';
 import { TrasladosService } from '../../../../Services/appServices/biomedicaServices/traslados/traslados.service';
 import { ServicioService } from '../../../../Services/appServices/general/servicio/servicio.service';
 import { MenuItem, MessageService } from 'primeng/api';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { SpeedDialModule } from 'primeng/speeddial';
@@ -15,8 +16,9 @@ import { Table } from 'primeng/table';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputTextarea } from 'primeng/inputtextarea';
+import { TableStateService } from '../../../../Services/appServices/shared/table-state.service';
 import { getDecodedAccessToken, obtenerNombreMes } from '../../../../utilidades';
-import { Console } from 'console';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { HistorialEquiposComponent } from '../historial-equipos/historial-equipos.component';
 import { DialogModule } from 'primeng/dialog';
@@ -25,12 +27,15 @@ import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
 import Swal from 'sweetalert2';
 import { TagModule } from 'primeng/tag';
+import { DatePickerModule } from 'primeng/datepicker';
+import { ReporteBajaModalComponent } from '../reporte-baja-modal/reporte-baja-modal.component';
+
 
 @Component({
   selector: 'app-equipos-tipo',
   standalone: true,
-  imports: [FormsModule, CommonModule, TableModule,
-    SplitButtonModule, SpeedDialModule, IconFieldModule, InputIconModule, InputTextModule, DialogModule, MultiSelectModule, SelectModule, InputNumberModule, ButtonModule, TagModule],
+  imports: [FormsModule, CommonModule, TableModule, RouterModule,
+    SplitButtonModule, SpeedDialModule, IconFieldModule, InputIconModule, InputTextModule, InputTextarea, DialogModule, MultiSelectModule, SelectModule, InputNumberModule, ButtonModule, TagModule, DatePickerModule],
   providers: [DialogService],
   templateUrl: './equipos-tipo.component.html',
   styleUrl: './equipos-tipo.component.css'
@@ -44,7 +49,11 @@ export class EquiposTipoComponent implements OnInit {
   tipoEquipoServices = inject(TipoEquipoService);
   trasladosService = inject(TrasladosService);
   servicioServices = inject(ServicioService);
+  platformId = inject(PLATFORM_ID);
+  stateService = inject(TableStateService);
+  isBrowser: boolean = false;
 
+  first: number = 0;
   searchText: string = '';
 
   loading: boolean = false;
@@ -54,9 +63,21 @@ export class EquiposTipoComponent implements OnInit {
   displayPlanDialog: boolean = false;
   currentEquipo: any = null;
   selectedMonths: any[] = [];
-  periodicidad: number = 0;
+  selectedPlans: any[] = []; // Array of objects { mes, ano }
+  periodicidad: number = 0; // Legacy field, might still be used or kept for compatibility
+  intervencionesAnuales: number = 1;
   mesInicio: number = 1;
+  anioInicio: number = new Date().getFullYear();
   calculatedMonthsText: string = '';
+
+  intervencionOptions = [
+    { name: '1 vez al año (Anual)', value: 1 },
+    { name: '2 veces al año (Semestral)', value: 2 },
+    { name: '3 veces al año (Cuatrimestral)', value: 3 },
+    { name: '4 veces al año (Trimestral)', value: 4 }
+  ];
+
+  anioOptions = Array.from({ length: 11 }, (_, i) => ({ name: (new Date().getFullYear() + i).toString(), value: new Date().getFullYear() + i }));
 
   // Variables para Traslados
   displayTrasladoDialog: boolean = false;
@@ -64,8 +85,14 @@ export class EquiposTipoComponent implements OnInit {
   historialUnificado: any[] = [];
   selectedEquipoTraslado: any = null;
   servicioDestinoId: number | null = null;
+  ubicacionDestino: string = '';
+  ubicacionEspecificaDestino: string = '';
   nombreReceptor: string = '';
   cargoReceptor: string = '';
+  entregadoPor: string = '';
+  cedulaEntrega: string = '';
+  cargoEntrega: string = '';
+  cedulaRecibe: string = '';
   observacionesTransferencia: string = '';
   serviciosList: any[] = [];
 
@@ -88,24 +115,42 @@ export class EquiposTipoComponent implements OnInit {
     private messageService: MessageService,
     private router: Router,
     public dialogService: DialogService
-  ) { }
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   async ngOnInit() {
-    const idTipo = sessionStorage.getItem('idTipoEquipo');
+    if (typeof localStorage === 'undefined') return;
+    const idTipo = localStorage.getItem('idTipoEquipo');
     const equiposData = await this.equipoServices.getAllEquiposTipo(idTipo);
 
     if (['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)) {
       this.serviciosList = await this.servicioServices.getAllServicios();
     }
 
-    this.equipos = equiposData.map((equipo: any) => ({
+    this.equipos = this.mapEquipos(equiposData);
+
+    this.tipoEquipo = await this.tipoEquipoServices.getTipoEquipo(idTipo);
+
+    // Load state
+    const savedState = this.stateService.getState('equipos-tipo');
+    this.first = savedState.first || 0;
+    this.searchText = savedState.globalFilter || '';
+
+    if (this.searchText && this.dt2) {
+      this.dt2.filterGlobal(this.searchText, 'contains');
+    }
+  }
+
+  mapEquipos(datos: any[]): any[] {
+    return datos.map((equipo: any) => ({
       ...equipo,
       opcionesHV: [
         {
           label: 'Editar',
           icon: 'pi pi-pencil',
           command: () => this.editarEquipo(equipo.id),
-          visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
+          visible: ['BIOMEDICAADMIN', 'SUPERADMIN', 'BIOMEDICAUSER'].includes(getDecodedAccessToken().rol)
         },
         {
           label: 'Editar Plan Mantenimiento',
@@ -114,10 +159,28 @@ export class EquiposTipoComponent implements OnInit {
           visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
         },
         {
+          label: 'Editar Plan Metrología',
+          icon: 'pi pi-cog',
+          command: () => this.openPlanMetrologiaDialog(equipo),
+          visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol) && equipo.tipoEquipos?.requiereMetrologia
+        },
+        {
+          label: 'Registrar Actividad Metrológica',
+          icon: 'pi pi-file-excel',
+          command: () => this.viewModalMetrologia(equipo),
+          visible: ['BIOMEDICAADMIN', 'SUPERADMIN', 'BIOMEDICAUSER'].includes(getDecodedAccessToken().rol)
+        },
+        {
+          label: 'Dar de Baja',
+          icon: 'pi pi-trash',
+          command: () => this.darDeBaja(equipo),
+          visible: ['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
+        },
+        {
           label: 'Registrar Traslado',
           icon: 'pi pi-send',
           command: () => this.abrirModalTraslado(equipo),
-          visible: ['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
+          visible: ['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN', 'BIOMEDICATECNICO'].includes(getDecodedAccessToken().rol)
         },
         {
           label: 'Historial Movimientos',
@@ -139,17 +202,10 @@ export class EquiposTipoComponent implements OnInit {
           label: 'Nuevo reporte',
           icon: 'pi pi-upload',
           command: () => this.nuevoReporte(equipo.id),
-          visible: getDecodedAccessToken().rol !== 'INVITADO'
-        },
-        {
-          label: 'Historial',
-          icon: 'pi pi-history',
-          command: () => this.verHistorial(equipo.id)
+          visible: ['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN', 'BIOMEDICATECNICO'].includes(getDecodedAccessToken().rol)
         }
       ]
     }));
-
-    this.tipoEquipo = await this.tipoEquipoServices.getTipoEquipo(idTipo);
   }
 
   // ... (existing methods remain unchanged until savePlan) ...
@@ -161,8 +217,14 @@ export class EquiposTipoComponent implements OnInit {
     this.displayTrasladoDialog = true;
     // Resetear formulario
     this.servicioDestinoId = null;
+    this.ubicacionDestino = '';
+    this.ubicacionEspecificaDestino = '';
     this.nombreReceptor = '';
     this.cargoReceptor = '';
+    this.entregadoPor = '';
+    this.cedulaEntrega = '';
+    this.cargoEntrega = '';
+    this.cedulaRecibe = '';
     this.observacionesTransferencia = '';
   }
 
@@ -180,7 +242,7 @@ export class EquiposTipoComponent implements OnInit {
   }
 
   async confirmarTraslado() {
-    if (!this.selectedEquipoTraslado || !this.servicioDestinoId || !this.nombreReceptor || !this.cargoReceptor) {
+    if (!this.selectedEquipoTraslado || !this.servicioDestinoId || !this.nombreReceptor || !this.cargoReceptor || !this.entregadoPor || !this.cedulaEntrega || !this.cargoEntrega || !this.cedulaRecibe) {
       this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: 'Por favor complete todos los campos requeridos.' });
       return;
     }
@@ -189,8 +251,14 @@ export class EquiposTipoComponent implements OnInit {
       const data = {
         equipoId: this.selectedEquipoTraslado.id,
         servicioDestinoId: this.servicioDestinoId!,
+        ubicacionDestino: this.ubicacionDestino,
+        ubicacionEspecificaDestino: this.ubicacionEspecificaDestino,
         nombreReceptor: this.nombreReceptor,
         cargoReceptor: this.cargoReceptor,
+        entregadoPor: this.entregadoPor,
+        cedulaEntrega: this.cedulaEntrega,
+        cargoEntrega: this.cargoEntrega,
+        cedulaRecibe: this.cedulaRecibe,
         observaciones: this.observacionesTransferencia,
         usuarioId: getDecodedAccessToken().id
       };
@@ -219,13 +287,20 @@ export class EquiposTipoComponent implements OnInit {
   onGlobalFilter(event: Event): void {
     const target = event.target as HTMLInputElement | null;
     if (target) {
-      this.dt2.filterGlobal(target.value, 'contains');
+      this.searchText = target.value;
+      this.dt2.filterGlobal(this.searchText, 'contains');
+      this.stateService.setState('equipos-tipo', { globalFilter: this.searchText });
     }
+  }
+
+  onPageChange(event: any) {
+    this.first = event.first;
+    this.stateService.setState('equipos-tipo', { first: this.first });
   }
 
   verHojaVida(id: number) {
 
-    this.router.navigate(['biomedica/hojavidaequipo/', id]);
+    this.router.navigate(['biomedica/hojavidaequipo', id]);
   }
 
   editarEquipo(id: number) {
@@ -234,13 +309,34 @@ export class EquiposTipoComponent implements OnInit {
 
   nuevoReporte(id: number) {
 
-    sessionStorage.setItem('TipoMantenimiento', 'C');
+    if (typeof localStorage !== 'undefined') localStorage.setItem('TipoMantenimiento', 'C');
     this.router.navigate(['biomedica/nuevoreporte/', id]);
   }
 
   verReportes(id: number) {
 
     this.router.navigate(['biomedica/reportesequipo/', id]);
+  }
+
+  darDeBaja(equipo: any) {
+    this.ref = this.dialogService.open(ReporteBajaModalComponent, {
+      header: `Reporte de Baja - ${equipo.nombres} (${equipo.serie})`,
+      width: '50vw',
+      breakpoints: {
+        '960px': '75vw',
+        '640px': '90vw'
+      },
+      contentStyle: { overflow: 'auto' },
+      baseZIndex: 10000,
+      data: { equipoId: equipo.id },
+      closable: true
+    });
+
+    this.ref.onClose.subscribe((result: any) => {
+      if (result) {
+        this.ngOnInit(); // Recargar la lista
+      }
+    });
   }
 
   verHistorial(id: number) {
@@ -258,7 +354,7 @@ export class EquiposTipoComponent implements OnInit {
 
   obtenerMesesTexto(planes: any[]): string {
     if (!planes || planes.length === 0) {
-      return 'Sin programación';
+      return 'No Aplica';
     }
     const meses = [
       'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -267,7 +363,72 @@ export class EquiposTipoComponent implements OnInit {
     // Filter duplicates and sort
     const uniqueMeses = [...new Set(planes.map(p => p.mes))].sort((a: any, b: any) => a - b);
 
-    return uniqueMeses.map((m: any) => meses[m]).join(', ');
+    return uniqueMeses.map((m: any) => meses[m - 1]).join(', ');
+  }
+
+  obtenerMesesConCumplimiento(equipo: any): any[] {
+    const planes = equipo.planesMantenimiento || [];
+    const reportes = equipo.reporte || [];
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+
+    const meses = [
+      'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+    ];
+
+    return planes.map((p: any) => {
+      const m = Number(typeof p === 'object' ? p.mes : p);
+      const y = Number(typeof p === 'object' ? p.ano : currentYear);
+
+      // Buscar reporte preventivo que coincida con mes y año programado
+      const reportePreventivo = reportes.find((r: any) => {
+        if (r.tipoMantenimiento !== 'Preventivo') return false;
+
+        const rMes = Number(r.mesProgramado);
+        if (rMes !== m) return false;
+
+        // Emparejamiento por año estricto
+        const rAnio = r.añoProgramado || r.anioProgramado;
+        if (rAnio) {
+          return Number(rAnio) === y;
+        }
+
+        if (r.fechaRealizado) {
+          // Extraer año de fechaRealizado (formato YYYY-MM-DD o similar)
+          const yearFromFecha = typeof r.fechaRealizado === 'string'
+            ? Number(r.fechaRealizado.split('-')[0])
+            : new Date(r.fechaRealizado).getFullYear();
+          return yearFromFecha === y;
+        }
+
+        return false; // Si no hay información de año, no se asume coincidencia
+      });
+
+      const realizado = !!(reportePreventivo && reportePreventivo.realizado !== false);
+
+      let color = '';
+
+      if (y < currentYear || (y === currentYear && m < currentMonth)) {
+        // PASADO: Verde si se realizó, Rojo si no
+        color = realizado ? '#2ecc71' : '#e74c3c';
+      } else if (y === currentYear && m === currentMonth) {
+        // ACTUAL: Verde si ya se realizó, Amarillo si está pendiente
+        color = realizado ? '#2ecc71' : '#f1c40f';
+      } else {
+        // FUTURO: Siempre Azul (según regla literal del usuario para meses mayores al actual)
+        color = '#3498db';
+      }
+
+      const mesNombre = meses[m - 1];
+      const mostrarAnio = y !== currentYear;
+
+      return {
+        mes: mostrarAnio ? `${mesNombre} ${y}` : mesNombre,
+        color: color
+      };
+    });
   }
 
   obtenerColorRiesgo(riesgo: string): string {
@@ -284,79 +445,79 @@ export class EquiposTipoComponent implements OnInit {
     this.currentEquipo = equipo;
     this.displayPlanDialog = true;
 
-    // Inicializar periodicidad
-    this.periodicidad = equipo.periodicidadM || 0;
-
-    // Determinar mes de inicio basado en el plan existente o defecto
+    // Inicializar valores basados en el primer plan si existe
     if (equipo.planesMantenimiento && equipo.planesMantenimiento.length > 0) {
-      // Ordenar para encontrar el primero
-      const meses = equipo.planesMantenimiento.map((p: any) => (typeof p === 'object' && p.mes ? p.mes : p)).sort((a: any, b: any) => a - b);
-      this.mesInicio = meses[0];
-      this.selectedMonths = meses;
+      const firstPlan = equipo.planesMantenimiento[0];
+      this.mesInicio = firstPlan.mes || 1;
+      this.anioInicio = firstPlan.ano || new Date().getFullYear();
+      this.intervencionesAnuales = equipo.periodicidadM || 1;
+      this.selectedPlans = equipo.planesMantenimiento;
     } else {
-      this.mesInicio = 1; // Enero por defecto
-      this.selectedMonths = [];
+      this.mesInicio = new Date().getMonth() + 1;
+      this.anioInicio = new Date().getFullYear();
+      this.intervencionesAnuales = 1;
+      this.selectedPlans = [];
     }
 
-    // Calcular texto inicial
-    this.calcularFechas(false); // false para no sobrescribir immediately
-    if (this.periodicidad > 0) {
-      this.calcularFechas();
-    } else {
-      this.updateCalculatedText();
-    }
+    this.calcularFechas();
   }
 
-  calcularFechas(overwrite: boolean = true) {
-    if (!this.periodicidad || this.periodicidad <= 0) {
-      this.calculatedMonthsText = 'Periodicidad no válida';
+  calcularFechas() {
+    if (!this.intervencionesAnuales || this.intervencionesAnuales <= 0) {
+      this.calculatedMonthsText = 'Intervenciones no válidas';
       return;
     }
 
-    if (overwrite) {
-      const nuevosMeses = [];
-      let mesActual = this.mesInicio;
+    const interval = 12 / this.intervencionesAnuales;
+    const nuevosPlanes = [];
+    let m = this.mesInicio;
+    let y = this.anioInicio;
 
-      while (mesActual <= 12) {
-        nuevosMeses.push(mesActual);
-        mesActual += this.periodicidad;
-      }
-      this.selectedMonths = nuevosMeses;
+    for (let i = 0; i < this.intervencionesAnuales; i++) {
+      // Calculate month and year with rollover
+      let calcMonth = m + (i * interval);
+      let calcYear = y + Math.floor((calcMonth - 1) / 12);
+      calcMonth = ((calcMonth - 1) % 12) + 1;
+
+      nuevosPlanes.push({ mes: Math.floor(calcMonth), ano: calcYear });
     }
 
+    this.selectedPlans = nuevosPlanes;
     this.updateCalculatedText();
   }
 
   updateCalculatedText() {
-    if (!this.selectedMonths || this.selectedMonths.length === 0) {
+    if (!this.selectedPlans || this.selectedPlans.length === 0) {
       this.calculatedMonthsText = 'Sin fechas seleccionadas';
       return;
     }
-    const textMeses = this.selectedMonths.sort((a, b) => a - b).map(m => {
-      const op = this.monthOptions.find(o => o.value === m);
-      return op ? op.name : m;
+
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
+    const textPlanes = this.selectedPlans.map(p => {
+      return `${meses[p.mes - 1]} ${p.ano}`;
     }).join(', ');
-    this.calculatedMonthsText = `Fechas programadas: ${textMeses}`;
+
+    this.calculatedMonthsText = `Ciclo calculado: ${textPlanes}`;
   }
+
 
   async savePlan() {
     if (!this.currentEquipo) return;
 
     try {
-      // Reconstruimos el array de planes basados en selectedMonths
-      const nuevosPlanes = this.selectedMonths.map(mes => ({
-        mes: mes
-      }));
 
       const equipoUpdate = {
         ...this.currentEquipo,
-        periodicidadM: this.periodicidad, // Guardar tambien la periodicidad
-        planesMantenimiento: nuevosPlanes
+        periodicidadM: this.intervencionesAnuales,
+        planesMantenimiento: this.selectedPlans
       };
 
       await this.equipoServices.updateEquipo(this.currentEquipo.id, equipoUpdate);
 
-      const Swal = require('sweetalert2');
       Swal.fire(
         'Actualizado!',
         'El plan de mantenimiento ha sido actualizado.',
@@ -365,49 +526,12 @@ export class EquiposTipoComponent implements OnInit {
 
       this.displayPlanDialog = false;
       // Recargar equipos para mostrar cambios
-      const idTipo = sessionStorage.getItem('idTipoEquipo');
+      if (typeof localStorage === 'undefined') return;
+      const idTipo = localStorage.getItem('idTipoEquipo');
       const equiposData = await this.equipoServices.getAllEquiposTipo(idTipo);
-      this.equipos = equiposData.map((equipo: any) => ({
-        ...equipo,
-        opcionesHV: [
-          {
-            label: 'Editar',
-            icon: 'pi pi-pencil',
-            command: () => this.editarEquipo(equipo.id),
-            visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
-          },
-          {
-            label: 'Editar Plan Mantenimiento',
-            icon: 'pi pi-calendar',
-            command: () => this.openPlanDialog(equipo),
-            visible: ['BIOMEDICAADMIN', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)
-          },
-          {
-            label: 'Ver Hoja de Vida',
-            icon: 'pi pi-eye',
-            command: () => this.verHojaVida(equipo.id)
-          },
-          {
-            label: 'Reportes',
-            icon: 'pi pi-external-link',
-            command: () => this.verReportes(equipo.id)
-          },
-          {
-            label: 'Nuevo reporte',
-            icon: 'pi pi-upload',
-            command: () => this.nuevoReporte(equipo.id),
-            visible: getDecodedAccessToken().rol !== 'INVITADO'
-          },
-          {
-            label: 'Historial',
-            icon: 'pi pi-history',
-            command: () => this.verHistorial(equipo.id)
-          }
-        ]
-      }));
+      this.equipos = this.mapEquipos(equiposData);
     } catch (error) {
       console.error(error);
-      const Swal = require('sweetalert2');
       Swal.fire(
         'Error!',
         'Hubo un problema al actualizar el plan.',
@@ -416,4 +540,220 @@ export class EquiposTipoComponent implements OnInit {
     }
   }
 
+  // --- VARIABLES PARA METROLOGIA ---
+  displayPlanMetrologiaDialog: boolean = false;
+  fechasCalibracion: any[] = [];
+  mesInicioMetrologia: number = 1;
+  selectedMonthsMetrologia: number[] = [];
+  calculatedMonthsMetrologiaText: string = '';
+  selectedTipoActividad: string = 'Calibración'; // Default
+
+  tipoActividadOptions: any[] = [
+    { label: 'Calibración', value: 'Calibración' },
+    { label: 'Calificación', value: 'Calificación' },
+    { label: 'Mantenimiento Correctivo', value: 'Mantenimiento Correctivo' },
+    { label: 'Inspección', value: 'Inspección' }
+  ];
+
+  openPlanMetrologiaDialog(equipo: any) {
+    this.currentEquipo = equipo;
+    this.displayPlanMetrologiaDialog = true;
+    this.fechasCalibracion = []; // Reset
+
+    // Check existing plans
+    if (equipo.planesActividadMetrologica && equipo.planesActividadMetrologica.length > 0) {
+      // Map existing plans to editable format
+      const currentYear = new Date().getFullYear();
+      this.fechasCalibracion = equipo.planesActividadMetrologica.map((p: any) => ({
+        fecha: new Date(currentYear, p.mes - 1, 1),
+        tipoActividad: p.tipoActividad || 'Calibración'
+      }));
+
+      // Update meses calculados for consistency if needed, though we use manual list now
+      this.selectedMonthsMetrologia = equipo.planesActividadMetrologica.map((p: any) => p.mes);
+    } else {
+      // Initialize based on frequency if available
+      this.mesInicioMetrologia = 1;
+      this.selectedMonthsMetrologia = [];
+      // Calculate initial Suggestions
+      this.calcularFechasMetrologia(true); // Auto-calc new
+    }
+  }
+
+  calcularFechasMetrologia(forceNew: boolean = false) {
+    if (!this.currentEquipo) return;
+
+    // Use periodicity from Equipo, similar to Maintenance but for Metrology (periodicidadC usually holds this?)
+    // In backend 'addequipo': const periodicidad = parseInt(equipo.periodicidadC) || 0;
+    // Let's check which field holds metrology frequency. In CrearEquipo it is 'periodicidadAM'. 
+    // In backend model verification, let's assume 'periodicidadAM' or 'periodicidadC' depending on legacy. 
+    // Looking at CrearEquipo html: formControlName="periodicidadAM".
+    // Looking at backend create: periodicidad = parseInt(equipo.periodicidadC). 
+    // Mismatch?? 
+    // Let's check 'Equipo' model or just use whatever property has the value.
+    // In CrearEquipoComponent.ts: 'periodicidadAM' form control.
+    // Let's assume the equipo object has 'periodicidadAM' or 'periodicidadC'.
+    // Actually, looking at previous context, create-equipo used 'periodicidadAM' in form, but backend uses 'periodicidadC' for Metrology?
+    // Let's accept 'periodicidadAM' if present, else 'periodicidadC'.
+
+    const period = this.currentEquipo.periodicidadAM || this.currentEquipo.periodicidadC || 0;
+
+    if (!period || period <= 0) {
+      if (forceNew) this.fechasCalibracion = [];
+      return;
+    }
+
+    // Only overwrite if forcing new or empty
+    if (forceNew || this.fechasCalibracion.length === 0) {
+      const interval = Math.floor(12 / period);
+      const nuevosMeses = [];
+      this.fechasCalibracion = [];
+
+      let mesActual = this.mesInicioMetrologia;
+      const currentYear = new Date().getFullYear();
+
+      while (mesActual <= 12) {
+        nuevosMeses.push(mesActual);
+        const fechaCalculada = new Date(currentYear, mesActual - 1, 1);
+        this.fechasCalibracion.push({
+          fecha: fechaCalculada,
+          tipoActividad: 'Calibración'
+        });
+        mesActual += interval;
+      }
+      this.selectedMonthsMetrologia = nuevosMeses;
+    }
+  }
+
+  async savePlanMetrologia() {
+    if (!this.currentEquipo) return;
+
+    try {
+      const planesActividadMetrologica = this.fechasCalibracion
+        .map(item => {
+          let mes = 0;
+          if (item.fecha) {
+            mes = item.fecha.getMonth() + 1;
+          }
+          return {
+            mes: mes,
+            tipoActividad: item.tipoActividad
+          };
+        })
+        .filter(p => p.mes > 0);
+
+      const equipoUpdate = {
+        ...this.currentEquipo,
+        planesActividadMetrologica: planesActividadMetrologica
+      };
+
+      await this.equipoServices.updateEquipo(this.currentEquipo.id, equipoUpdate);
+
+      Swal.fire(
+        'Actualizado!',
+        'El plan metrológico ha sido actualizado.',
+        'success'
+      );
+
+      this.displayPlanMetrologiaDialog = false;
+      this.ngOnInit(); // Reload
+    } catch (error) {
+      console.error(error);
+      Swal.fire(
+        'Error!',
+        'Hubo un problema al actualizar el plan metrológico.',
+        'error'
+      );
+    }
+  }
+
+  // --- VARIABLES PARA REGISTRO DE METROLOGIA (DESDE LISTA) ---
+  metrologiaService = inject(MetrologiaService); // Inject service
+  modalAddActividadMetrologica: boolean = false;
+
+  // Form Properties
+  tipoActividad: string = '';
+  empresa: string = '';
+  fechaRealizadoActividad: Date | undefined;
+  resultado: string = '';
+  errorMaximoIdentificado: number | null = null;
+  observaciones: string = '';
+  selectedFile: File | null = null;
+  selectedFileConfirmacion: File | null = null;
+  unidadMedicion: string = '';
+
+  opcionesResultado: any[] = [
+    { label: 'Cumple', value: 'Cumple' },
+    { label: 'No Cumple', value: 'No Cumple' },
+    { label: 'No Aplica', value: 'No Aplica' }
+  ];
+
+  opcionesTipoActividad: any[] = [
+    { label: 'Calibración', value: 'Calibración' },
+    { label: 'Calificación', value: 'Calificación' },
+    { label: 'Validación', value: 'Validación' }
+  ];
+
+  viewModalMetrologia(equipo: any) {
+    this.currentEquipo = equipo;
+    this.modalAddActividadMetrologica = true;
+
+    // Reset Form
+    this.tipoActividad = '';
+    this.empresa = '';
+    this.fechaRealizadoActividad = undefined;
+    this.resultado = '';
+    this.errorMaximoIdentificado = null;
+    this.observaciones = '';
+    this.observaciones = '';
+    this.selectedFile = null;
+    this.selectedFileConfirmacion = null;
+    this.unidadMedicion = '';
+  }
+
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+  }
+
+  onFileSelectedConfirmacion(event: any) {
+    this.selectedFileConfirmacion = event.target.files[0];
+  }
+
+  async registrarMetrologia() {
+    if (!this.currentEquipo) return;
+
+    if (!this.tipoActividad || !this.empresa || !this.fechaRealizadoActividad || !this.resultado || this.errorMaximoIdentificado === null || !this.selectedFile) {
+      Swal.fire('Error', 'Todos los campos son obligatorios, incluyendo el archivo.', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('equipoIdFk', this.currentEquipo.id.toString());
+    formData.append('tipoActividad', this.tipoActividad);
+    formData.append('empresa', this.empresa);
+    formData.append('fechaRealizado', this.fechaRealizadoActividad.toISOString());
+    formData.append('resultado', this.resultado);
+    formData.append('errorMaximoIdentificado', this.errorMaximoIdentificado.toString());
+    formData.append('unidadMedicion', this.unidadMedicion);
+    formData.append('observaciones', this.observaciones);
+    formData.append('usuarioIdFk', getDecodedAccessToken().id);
+    formData.append('rutaReporte', this.selectedFile);
+
+    if (this.selectedFileConfirmacion) {
+      formData.append('confirmacionMetrologica', this.selectedFileConfirmacion);
+    }
+
+    try {
+      await this.metrologiaService.registrarActividadConArchivo(formData);
+      Swal.fire('Éxito', 'Actividad metrológica registrada correctamente.', 'success');
+      this.modalAddActividadMetrologica = false;
+    } catch (error: any) {
+      console.error(error);
+      Swal.fire('Error', 'No se pudo registrar la actividad.', 'error');
+    }
+  }
+
+  trackByIndex(index: number, item: any): number {
+    return index;
+  }
 }

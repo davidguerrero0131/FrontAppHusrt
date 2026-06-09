@@ -3,7 +3,7 @@
         <ng-template pTemplate="left">
             <div class="flex align-items-center gap-2">
                 <i class="pi pi-briefcase text-2xl text-primary"></i>
-                <h2 class="m-0 font-bold text-900">Gestión de Proveedores</h2>
+                <h2 class="m-0 font-bold text-900">Gesti&oacute;n de Proveedores</h2>
             </div>
         </ng-template>
 
@@ -32,7 +32,7 @@
         <ng-template pTemplate="header">
             <tr>
                 <th pSortableColumn="nombres">Nombres <p-sortIcon field="nombres"></p-sortIcon></th>
-                <th pSortableColumn="telefono">Teléfono <p-sortIcon field="telefono"></p-sortIcon></th>
+                <th pSortableColumn="telefono">Tel&eacute;fono <p-sortIcon field="telefono"></p-sortIcon></th>
                 <th pSortableColumn="correo">Correo <p-sortIcon field="correo"></p-sortIcon></th>
                 <th pSortableColumn="ciudad">Ciudad <p-sortIcon field="ciudad"></p-sortIcon></th>
                 <th pSortableColumn="representante">Representante <p-sortIcon field="representante"></p-sortIcon></th>
@@ -86,32 +86,35 @@
                 <div class="field" style="grid-column: 1 / -1;">
                     <label for="nombres">Nombre</label>
                     <input type="text" pInputText id="nombres" formControlName="nombres" required autofocus
-                        class="w-full" />
+                        class="w-full" appUppercase />
                 </div>
 
                 <div class="field">
-                    <label for="telefono">Teléfono</label>
-                    <input type="text" pInputText id="telefono" formControlName="telefono" required class="w-full" />
+                    <label for="telefono">Tel&eacute;fono</label>
+                    <input type="text" pInputText id="telefono" formControlName="telefono" required class="w-full"
+                        appUppercase />
                 </div>
                 <div class="field">
                     <label for="ciudad">Ciudad</label>
-                    <input type="text" pInputText id="ciudad" formControlName="ciudad" required class="w-full" />
+                    <input type="text" pInputText id="ciudad" formControlName="ciudad" required class="w-full"
+                        appUppercase />
                 </div>
 
                 <div class="field" style="grid-column: 1 / -1;">
                     <label for="correo">Correo Electrónico</label>
-                    <input type="email" pInputText id="correo" formControlName="correo" required class="w-full" />
+                    <input type="email" pInputText id="correo" formControlName="correo" required class="w-full"
+                        appUppercase />
                 </div>
 
                 <div class="field">
                     <label for="representante">Representante</label>
                     <input type="text" pInputText id="representante" formControlName="representante" required
-                        class="w-full" />
+                        class="w-full" appUppercase />
                 </div>
                 <div class="field">
                     <label for="telRepresentante">Tel. Representante</label>
                     <input type="text" pInputText id="telRepresentante" formControlName="telRepresentante" required
-                        class="w-full" />
+                        class="w-full" appUppercase />
                 </div>
             </div>
         </form>

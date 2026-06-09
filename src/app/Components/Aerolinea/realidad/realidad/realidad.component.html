@@ -1,1 +1,181 @@
-<p>realidad works!</p>
+<!-- MODAL INSTRUCCIONES -->
+
+<div class="modal show" *ngIf="showInstructions">
+
+    <div class="modal-content instructions-content">
+
+        <div class="instructions-icons">
+            🎯 🎡 ⭐ 🏆
+        </div>
+
+        <h2>¿CÓMO JUGAR?</h2>
+
+        <p>
+            • Presiona el botón <strong>GIRAR RULETA</strong>.<br><br>
+
+            • Responde correctamente cada pregunta para ganar
+            <strong>5 puntos</strong>.<br><br>
+
+            • Cada pregunta correcta desaparece de la ruleta.<br><br>
+
+            • Si respondes incorrectamente, la partida termina.<br><br>
+
+            • El objetivo es conseguir la mayor cantidad de puntos posibles y completar todas las preguntas.
+        </p>
+
+        <button (click)="startGame()">
+            COMENZAR
+        </button>
+
+    </div>
+
+</div>
+
+<div class="container">
+
+    <h1 style="color: white;">Ruleta de Seguridad de la Información</h1>
+
+    <div class="top-bar">
+
+        <div class="score-box">
+            ⭐ Puntaje:
+            <span>{{ score }}</span>
+        </div>
+
+        <div class="score-box">
+            📝 Preguntas restantes:
+            <span>{{ questions.length }}</span>
+        </div>
+
+    </div>
+
+    <div class="game-area">
+
+        <div class="wheel-section">
+
+            <div class="pointer"></div>
+
+            <canvas #wheelCanvas></canvas>
+
+        </div>
+
+        <div class="panel">
+
+            <div class="question">
+                {{ questionText }}
+            </div>
+
+            <div class="options">
+
+                <button *ngFor="let option of currentOptions; let i = index" class="option-btn" [ngClass]="{
+            'correct': selectedAnswer === i && isCorrect,
+            'wrong': selectedAnswer === i && !isCorrect
+          }" [disabled]="answersDisabled" (click)="checkAnswer(i)">
+                    {{ option }}
+                </button>
+
+            </div>
+
+            <div class="message">
+                {{ message }}
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="controls">
+
+        <button class="spin-btn" [disabled]="spinning" (click)="spinWheel()">
+            GIRAR RULETA
+        </button>
+
+    </div>
+
+</div>
+
+<!-- MODAL CORRECTO -->
+
+<div class="modal show" *ngIf="showSuccessModal">
+
+    <div class="modal-content success-content">
+
+        <div class="celebration-icons">
+            🎉 ⭐ 🎊 ✨ 🏆
+        </div>
+
+        <h2>RESPUESTA CORRECTA</h2>
+
+        <p>
+            Has ganado 5 puntos.
+        </p>
+
+        <div class="celebration-icons bottom-icons">
+            ✨ 🎉 ⭐ 🎊
+        </div>
+
+    </div>
+
+</div>
+
+<!-- MODAL INCORRECTO -->
+
+<div class="modal show" *ngIf="showLoseModal">
+
+    <div class="modal-content lose-content">
+
+        <div class="lose-icons">
+            ❌ ⚠️ 💥 🚫
+        </div>
+
+        <h2>RESPUESTA INCORRECTA</h2>
+
+        <p>
+            Has perdido la partida.<br><br>
+
+            Puntaje final:
+            <strong>{{ score }}</strong>
+        </p>
+
+        <div class="lose-icons bottom-lose-icons">
+            🚫 ❌ ⚠️
+        </div>
+
+        <button (click)="restartGame()">
+            Jugar Nuevamente
+        </button>
+
+    </div>
+
+</div>
+
+<!-- MODAL GANADOR -->
+
+<div class="modal show" *ngIf="showWinModal">
+
+    <div class="modal-content success-content">
+
+        <div class="celebration-icons">
+            🏆 🎉 ⭐ 🎊 ✨
+        </div>
+
+        <h2>FELICIDADES</h2>
+
+        <p>
+            Has respondido correctamente todas las preguntas.<br><br>
+
+            Puntaje total:
+            <strong>{{ score }}</strong>
+        </p>
+
+        <div class="celebration-icons bottom-icons">
+            ✨ 🎉 🏆 ⭐
+        </div>
+
+        <button (click)="restartGame()">
+            Volver a jugar
+        </button>
+
+    </div>
+
+</div>

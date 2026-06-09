@@ -1,0 +1,116 @@
+<div class="chat-app-container">
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.open]="sidebarOpen">
+    <div class="sidebar-header">
+      <button class="icon-btn" (click)="toggleSidebar()">
+        <i class="pi pi-bars"></i>
+      </button>
+      <button class="new-chat-btn" (click)="startNewChat()">
+        <i class="pi pi-plus"></i>
+        <span *ngIf="sidebarOpen">Nuevo Chat</span>
+      </button>
+    </div>
+    
+    <div class="sidebar-content" *ngIf="sidebarOpen">
+      <p class="section-title">Hoy</p>
+      <div class="history-item active">
+        <i class="pi pi-message"></i>
+        <span>Chat actual</span>
+      </div>
+    </div>
+    
+    <div class="sidebar-footer" *ngIf="sidebarOpen">
+      <a routerLink="/interno" class="back-link">
+        <i class="pi pi-arrow-left"></i>
+        <span>Volver a Intranet</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Chat Area -->
+  <main class="main-chat-area">
+    <header class="chat-header">
+      <button class="icon-btn toggle-sidebar-mobile" (click)="toggleSidebar()" *ngIf="!sidebarOpen">
+        <i class="pi pi-bars"></i>
+      </button>
+      <div class="header-title">
+        <h2>Rafa <span>IA</span></h2>
+      </div>
+      <div class="header-actions">
+        <img src="rafa.png" alt="Avatar" class="avatar" />
+      </div>
+    </header>
+
+    <div class="chat-container">
+      <div class="messages-list" #scrollMe>
+        <div class="welcome-screen" *ngIf="chatMessages.length === 1">
+          <div class="greeting">
+            <h1>Hola, soy Rafa</h1>
+            <p>¿En qué puedo ayudarte hoy?</p>
+          </div>
+          
+          <!-- Bot message is technically the first one, let's just let the loop handle it, but maybe add some suggested prompts here if wanted -->
+          <div class="suggestions">
+            <button class="suggestion-card" (click)="userInput='Genera un reporte de ejemplo'; sendMessage()">
+              <i class="pi pi-file-excel text-teal"></i>
+              <p>Genera un reporte</p>
+            </button>
+            <button class="suggestion-card" (click)="userInput='Ayúdame a redactar un correo'; sendMessage()">
+              <i class="pi pi-envelope text-blue"></i>
+              <p>Redacta un correo</p>
+            </button>
+            <button class="suggestion-card" (click)="userInput='Explícame cómo funciona el sistema'; sendMessage()">
+              <i class="pi pi-question-circle text-orange"></i>
+              <p>Explicación del sistema</p>
+            </button>
+          </div>
+        </div>
+
+        <div *ngFor="let msg of chatMessages; let i = index">
+          <!-- Ignore the first greeting message if we are rendering the welcome screen, but actually let's just show it -->
+          <div class="message-wrapper" [ngClass]="msg.role === 'user' ? 'user-wrapper' : 'bot-wrapper'" *ngIf="!(i === 0 && chatMessages.length === 1)">
+            <div class="avatar-container" *ngIf="msg.role === 'assistant'">
+              <img src="rafa.png" alt="Rafa" />
+            </div>
+            <div class="message-content" [ngClass]="msg.role === 'user' ? 'user-message' : 'bot-message'">
+              <div class="message-text" [innerHTML]="msg.formattedContent"></div>
+              <button class="copy-btn" *ngIf="msg.role === 'assistant'" (click)="copyToClipboard(msg.content)" title="Copiar al portapapeles">
+                <i class="pi pi-copy"></i>
+              </button>
+            </div>
+            <div class="avatar-container user-avatar" *ngIf="msg.role === 'user'">
+              <i class="pi pi-user"></i>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div class="message-wrapper bot-wrapper" *ngIf="isChatLoading">
+          <div class="avatar-container">
+            <img src="rafa.png" alt="Rafa" />
+          </div>
+          <div class="message-content bot-message loading">
+            <div class="dot-flashing"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-area-container">
+      <div class="input-box">
+        <textarea 
+          placeholder="Pregúntale a Rafa... (Shift+Enter para nueva línea)" 
+          [(ngModel)]="userInput" 
+          (keydown)="onKeydown($event)"
+          (input)="autoResize($event)"
+          [disabled]="isChatLoading"
+          rows="1"></textarea>
+        <button class="send-btn" (click)="sendMessage()" [disabled]="!userInput.trim() || isChatLoading">
+          <i class="pi pi-send"></i>
+        </button>
+      </div>
+      <p class="disclaimer">Rafa puede cometer errores. Verifica la información importante.</p>
+    </div>
+  </main>
+</div>

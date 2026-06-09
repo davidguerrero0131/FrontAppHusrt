@@ -1,0 +1,185 @@
+<app-mantenimientoadminnavbar *ngIf="!isIframe"></app-mantenimientoadminnavbar>
+<div class="container-fluid mt-4 mb-5" style="max-width: 1200px;">
+  <div class="card shadow-2 border-round-xl p-4">
+    <!-- Encabezado con Boton de Volver -->
+    <div class="flex justify-content-between align-items-center mb-4">
+      <h2 class="m-0 text-900 font-bold">
+        Hoja de Vida Industrial <span *ngIf="hvEquipoInfo">- {{ hvEquipoInfo.nombres }}</span>
+      </h2>
+      <button pButton icon="pi pi-arrow-left" label="Volver" class="p-button-outlined p-button-secondary" (click)="goBack()"></button>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loadingHojaVida" class="flex justify-content-center align-items-center" style="min-height: 200px;">
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+      <span class="ml-2 text-600">Cargando hoja de vida...</span>
+    </div>
+
+    <!-- Contenido -->
+    <ng-container *ngIf="!loadingHojaVida && hvHojaVida">
+      <!-- Datos Generales del Equipo -->
+      <div class="grid p-3 align-items-center bg-gray-50 border-round mb-4">
+        <!-- Columna izquierda: Imagen -->
+        <div class="col-12 md:col-4 flex justify-content-center">
+          <img [src]="getImageUrl(hvHojaVida?.foto)" [alt]="hvEquipoInfo?.nombres" class="border-round shadow-2" style="max-width: 250px; max-height: 250px; object-fit: cover;">
+        </div>
+        <!-- Columna derecha: Datos generales -->
+        <div class="col-12 md:col-8">
+          <div class="grid">
+            <div class="col-12 sm:col-6 mb-2"><strong>Nombre:</strong> {{ hvEquipoInfo?.nombres }}</div>
+            <div class="col-12 sm:col-6 mb-2"><strong>Marca:</strong> {{ hvEquipoInfo?.marca }}</div>
+            <div class="col-12 sm:col-6 mb-2"><strong>Modelo:</strong> {{ hvEquipoInfo?.modelo }}</div>
+            <div class="col-12 sm:col-6 mb-2"><strong>Serie:</strong> {{ hvEquipoInfo?.serie }}</div>
+            <div class="col-12 sm:col-6 mb-2"><strong>Placa:</strong> {{ hvEquipoInfo?.placa }}</div>
+            <div class="col-12 sm:col-6 mb-2"><strong>Tipo Equipo:</strong> {{ hvEquipoInfo?.tipoEquipoInd?.nombres }}</div>
+            <div class="col-12 sm:col-6 mb-2"><strong>Servicio:</strong> {{ hvEquipoInfo?.servicioInd?.nombres }}</div>
+            <div class="col-12 sm:col-6 mb-2"><strong>Sede:</strong> {{ hvEquipoInfo?.sedeInd?.nombres }}</div>
+            <div class="col-12 sm:col-6 mb-2"><strong>Ubicación:</strong> {{ hvEquipoInfo?.ubicacionEspecifica }}</div>
+            <div class="col-12 sm:col-6 mb-2"><strong>Responsable:</strong> {{ hvEquipoInfo?.responsableInd?.nombres }}</div>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Secciones Detalladas -->
+      <div class="mt-4">
+        <h4 class="text-800 border-bottom-1 surface-border pb-2 mb-3">Adquisición y Garantía</h4>
+        <div class="grid p-3 bg-white">
+          <div class="col-12 md:col-4 mb-2"><strong>Forma Adquisición:</strong> {{ hvHojaVida.adquisicion }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Fecha Compra:</strong> {{ hvHojaVida.fechaCompra | date:'dd/MM/yyyy' }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Fecha Instalación:</strong> {{ hvHojaVida.fechaInstalacion | date:'dd/MM/yyyy' }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Inicio Operación:</strong> {{ hvHojaVida.fechaInicioOperacion | date:'dd/MM/yyyy' }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Vencimiento Garantía:</strong> {{ hvHojaVida.vencimientoGarantia | date:'dd/MM/yyyy' }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Referencia:</strong> {{ hvHojaVida.referencia }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Fabricación:</strong> {{ hvHojaVida.fabricacion }}</div>
+        </div>
+
+        <h4 class="text-800 border-bottom-1 surface-border pb-2 mb-3 mt-4">Información de Proveedor</h4>
+        <div class="grid p-3 bg-white" *ngIf="hvProveedor; else noProvHv">
+          <div class="col-12 md:col-4 mb-2"><strong>Proveedor (Código):</strong> {{ hvProveedor.codigoEquipo }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Código Int.:</strong> {{ hvProveedor.codigoInternacional }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Fabricante:</strong> {{ hvProveedor.fabricante }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Ciudad Fab.:</strong> {{ hvProveedor.ciudadFabricante }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Representante:</strong> {{ hvProveedor.representante }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Tel. Rep.:</strong> {{ hvProveedor.telefonoRepresentante }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Distribuidor:</strong> {{ hvProveedor.distribuidor }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Tel. Dist.:</strong> {{ hvProveedor.telefonoDistribuidor }}</div>
+        </div>
+        <ng-template #noProvHv>
+          <div class="text-center text-500 py-3">Sin información de proveedor asignado.</div>
+        </ng-template>
+
+        <h4 class="text-800 border-bottom-1 surface-border pb-2 mb-3 mt-4">Datos Técnicos</h4>
+        <div class="grid p-3 bg-white" *ngIf="hvDatosTecnicos; else noDatosHv">
+          <div class="col-12 md:col-4 mb-2"><strong>Voltaje:</strong> {{ hvDatosTecnicos.volMaxOperacion }} - {{ hvDatosTecnicos.volMinOperacion }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Corriente:</strong> {{ hvDatosTecnicos.corrienteMaxOperacion }} - {{ hvDatosTecnicos.corrienteMinOperacion }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Potencia:</strong> {{ hvDatosTecnicos.potenciaConsumida }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Frecuencia:</strong> {{ hvDatosTecnicos.frecuencia }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Presión:</strong> {{ hvDatosTecnicos.presion }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Velocidad:</strong> {{ hvDatosTecnicos.velocidad }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Temperatura:</strong> {{ hvDatosTecnicos.temperatura }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Peso:</strong> {{ hvDatosTecnicos.peso }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Capacidad:</strong> {{ hvDatosTecnicos.capacidad }}</div>
+          <div class="col-12 mb-2 p-3 surface-100 border-round" *ngIf="hvDatosTecnicos.accesorios">
+            <strong>Accesorios:</strong> {{ hvDatosTecnicos.accesorios }} <br>
+            <small class="text-500">Marca: {{ hvDatosTecnicos.marcaAccesorio }} - Mod/Ser: {{ hvDatosTecnicos.modeloSerieAccesorio }}</small>
+          </div>
+        </div>
+        <ng-template #noDatosHv>
+          <div class="text-center text-500 py-3">Sin datos técnicos registrados.</div>
+        </ng-template>
+
+        <h4 class="text-800 border-bottom-1 surface-border pb-2 mb-3 mt-4">Registro de Apoyo</h4>
+        <div class="grid p-3 bg-white" *ngIf="hvRegistroApoyo; else noApoyoHv">
+          <div class="col-12 md:col-4 mb-2"><strong>Manual Usuario:</strong> {{ hvRegistroApoyo.manualUsuario ? 'Si' : 'No' }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Manual Técnico:</strong> {{ hvRegistroApoyo.manualTecnico ? 'Si' : 'No' }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Equipo Fijo:</strong> {{ hvRegistroApoyo.equipoFijo ? 'Si' : 'No' }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Uso:</strong> {{ hvRegistroApoyo.uso }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Tecnología:</strong> {{ hvRegistroApoyo.tecnologiaPredominante }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Clasificación:</strong> {{ hvRegistroApoyo.clasificacion }}</div>
+          <div class="col-12 md:col-4 mb-2"><strong>Estado Físico:</strong> {{ hvRegistroApoyo.estado }}</div>
+        </div>
+        <ng-template #noApoyoHv>
+          <div class="text-center text-500 py-3">Sin registro de apoyo.</div>
+        </ng-template>
+
+        <h4 class="text-800 border-bottom-1 surface-border pb-2 mb-3 mt-4">Documentos Anexos</h4>
+        <div class="p-3 bg-white">
+          <div class="mb-3 d-flex align-items-center" *ngIf="canEditHV()">
+            <label for="hvFileUpload" class="p-button p-component p-button-sm mr-2" style="cursor: pointer;">
+              <i class="pi pi-upload mr-2"></i> {{ hvUploading ? 'Subiendo...' : 'Subir Documento' }}
+            </label>
+            <input type="file" id="hvFileUpload" class="d-none" (change)="hvOnFileSelected($event)" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png" style="display: none;">
+          </div>
+          <p-table [value]="hvDocumentos" [rows]="5" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Nombre Archivo</th>
+                <th>Fecha Carga</th>
+                <th style="width: 15rem; text-align: center;">Acciones</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-doc>
+              <tr>
+                <td><i class="pi pi-file text-primary mr-2"></i>{{ doc.nombreOriginal }}</td>
+                <td>{{ doc.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td class="text-center">
+                  <button pButton icon="pi pi-eye" class="p-button-rounded p-button-success p-button-text mr-2" (click)="hvVisualizarDocumento(doc.id)" title="Ver"></button>
+                  <button pButton icon="pi pi-download" class="p-button-rounded p-button-info p-button-text mr-2" (click)="hvDescargarDocumento(doc.id, doc.nombreOriginal)" title="Descargar"></button>
+                  <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text" (click)="hvEliminarDocumento(doc.id)" title="Eliminar" *ngIf="canEditHV()"></button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="3" class="text-center py-3 text-500">No hay documentos anexos.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+        <!-- HISTORIAL DE MANTENIMIENTOS -->
+        <h4 class="text-800 border-bottom-1 surface-border pb-2 mb-3 mt-4">Historial de Mantenimientos y Casos</h4>
+        <div class="p-4 bg-white border-round shadow-1">
+          <div *ngIf="hvHistorial.length === 0" class="text-center p-5 surface-50 border-round">
+            <i class="pi pi-calendar-times text-400 mb-3" style="font-size: 3rem;"></i>
+            <p class="text-600">No se ha registrado historial de mantenimientos para este equipo.</p>
+          </div>
+          
+          <p-timeline [value]="hvHistorial" align="alternate" styleClass="customized-timeline" *ngIf="hvHistorial.length > 0">
+            <ng-template pTemplate="marker" let-event>
+              <span class="custom-marker shadow-2" [style.backgroundColor]="event.color" style="display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 50%; color: white;">
+                <i [class]="event.icon"></i>
+              </span>
+            </ng-template>
+            <ng-template pTemplate="content" let-event>
+              <div class="p-3 border-round-lg shadow-1 surface-card mb-4 cursor-pointer hover:surface-hover transition-colors transition-duration-150" (click)="verDetalleHistorial(event)">
+                <div class="flex justify-content-between align-items-center mb-2">
+                  <span class="font-bold text-900">{{ event.status }}</span>
+                  <small class="text-500 font-medium bg-gray-100 px-2 py-1 border-round">
+                    <i class="pi pi-calendar mr-1"></i>{{ event.date | date:'dd/MM/yyyy' }}
+                  </small>
+                </div>
+                <p class="text-600 m-0 line-height-3">{{ event.description }}</p>
+              </div>
+            </ng-template>
+          </p-timeline>
+        </div>
+      </div>
+      
+      <!-- Footer Aciones -->
+      <div class="flex justify-content-end mt-4 pt-3 border-top-1 surface-border">
+          <button pButton icon="pi pi-file-pdf" (click)="descargarHojaVidaPdf()" label="Descargar PDF" class="p-button-success"></button>
+      </div>
+    </ng-container>
+
+    <!-- No tiene hoja de vida -->
+    <div *ngIf="!loadingHojaVida && !hvHojaVida" class="text-center p-5">
+      <i class="pi pi-info-circle text-400 mb-3" style="font-size: 3rem;"></i>
+      <h3 class="text-700 m-0">No se encontró información</h3>
+      <p class="mt-2 text-500">Este equipo no tiene una Hoja de Vida registrada.</p>
+      <button *ngIf="canCreateHV()" pButton icon="pi pi-plus" label="Crear Hoja de Vida" class="p-button-primary mt-3" (click)="crearHojaDeVida()"></button>
+    </div>
+  </div>
+</div>

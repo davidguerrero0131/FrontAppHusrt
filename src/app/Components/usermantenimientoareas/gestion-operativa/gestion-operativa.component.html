@@ -1,22 +1,16 @@
-<div class="card border-0 shadow-sm rounded-0 mb-4 bg-white">
-    <app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
-</div>
+<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
 
-<div class="fade-in-animation">
-    <div class="container-fluid px-5 mb-3">
-        <button pButton icon="pi pi-arrow-left" label="Volver al Panel Principal" (click)="backToDashboard()"
-            class="p-button-text"></button>
+<div class="fade-in-animation p-4">
+    <div class="hero-section" style="margin-bottom: 3rem;">
+        <div class="hero-content">
+            <h1>GESTION OPERATIVA ÁREAS FÍSICAS</h1>
+        </div>
     </div>
+    <p-button icon="pi pi-arrow-left" label="Volver"
+        styleClass="p-button-secondary bg-gray-800 border-none shadow-2 px-4 py-2 border-round-lg hover:bg-gray-900 transition-all font-bold"
+        (click)="backToDashboard()" pTooltip="Volver al Panel Principal" tooltipPosition="bottom"></p-button>
 
     <div class="dashboard-container">
-
-        <div class="hero-section">
-            <div class="hero-content">
-                <h1>Gestión Operativa</h1>
-                <p>Accede a inventarios, mantenimientos, indicadores y actividades metrológicas, todo en un solo lugar.
-                </p>
-            </div>
-        </div>
 
         <div class="cards-grid">
             <!-- Inventario -->
@@ -25,80 +19,57 @@
                     <i class="pi pi-box"></i>
                 </div>
                 <div class="card-content">
-                    <h3>Inventario</h3>
-                    <p>Gestiona el inventario de Áreas y Elementos.</p>
+                    <h3>Inventario Áreas Físicas</h3>
+                    <p>Gestiona el inventario de Áreas Fisicas.</p>
                     <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
                 </div>
             </div>
 
-            <!-- Mantenimiento -->
+            <!-- Mis Tareas / Tareas Pendientes -->
+            <div class="dashboard-card scale-transition" (click)="showMisTareas()">
+                <div class="card-icon-container gradient-orange" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);">
+                    <i class="pi pi-bell text-white"></i>
+                </div>
+                <div class="card-content">
+                    <h3 *ngIf="userRole !== 'Administrador'">Mis Tareas</h3>
+                    <h3 *ngIf="userRole === 'Administrador'">Tareas de Mantenimiento</h3>
+                    <p *ngIf="userRole !== 'Administrador'">Revisa y marca como completadas las observaciones de mantenimiento asignadas a ti.</p>
+                    <p *ngIf="userRole === 'Administrador'">Revisa y marca como completadas las observaciones de mantenimiento generales de la aplicación.</p>
+                    <div style="margin-top: 10px;" *ngIf="pendingTasksCount > 0">
+                        <span class="badge bg-danger shadow-sm px-3 py-2 border-round-2xl">
+                            <i class="pi pi-exclamation-circle mr-1"></i> {{pendingTasksCount}} Pendientes
+                        </span>
+                    </div>
+                    <div style="margin-top: 10px;" *ngIf="pendingTasksCount === 0">
+                        <span class="badge bg-success shadow-sm px-3 py-2 border-round-2xl">
+                            <i class="pi pi-check-circle mr-1"></i> Al día
+                        </span>
+                    </div>
+                    <span class="card-action mt-2">Ingresar <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Mantenimiento Áreas Físicas -->
             <div class="dashboard-card" (click)="showViewMantenimiento()">
                 <div class="card-icon-container gradient-indigo">
                     <i class="pi pi-wrench"></i>
                 </div>
                 <div class="card-content">
-                    <h3>Mantenimiento</h3>
+                    <h3>Mantenimiento Áreas Físicas</h3>
                     <p>Administra mantenimientos preventivos y correctivos.</p>
                     <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
                 </div>
             </div>
 
-            <!-- Inspecciones -->
-            <div class="dashboard-card" (click)="showViewInspecciones()">
-                <div class="card-icon-container gradient-purple">
-                    <i class="pi pi-check-square"></i>
-                </div>
-                <div class="card-content">
-                    <h3>Inspecciones</h3>
-                    <p>Visualiza el listado de inspecciones realizadas.</p>
-                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
-                </div>
-            </div>
 
-            <!-- Semaforización -->
-            <div class="dashboard-card" (click)="showViewSemaforizacion()">
-                <div class="card-icon-container gradient-orange">
-                    <i class="pi pi-circle-fill"></i>
-                </div>
-                <div class="card-content">
-                    <h3>Semaforización</h3>
-                    <p>Visualiza el estado de los equipos.</p>
-                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
-                </div>
-            </div>
-
-            <!-- Indicadores -->
-            <div class="dashboard-card" (click)="showViewIndicadores()">
-                <div class="card-icon-container gradient-green">
-                    <i class="pi pi-chart-bar"></i>
-                </div>
-                <div class="card-content">
-                    <h3>Indicadores</h3>
-                    <p>Analiza métricas e indicadores de gestión.</p>
-                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
-                </div>
-            </div>
-
-            <!-- Calendario -->
-            <div class="dashboard-card" (click)="showViewCalendario()">
-                <div class="card-icon-container gradient-cyan">
+            <!-- Calendario (Áreas Físicas) -->
+            <div *ngIf="userRole === 'Administrador'" class="dashboard-card" (click)="showViewProgramacion()">
+                <div class="card-icon-container gradient-teal">
                     <i class="pi pi-calendar"></i>
                 </div>
                 <div class="card-content">
-                    <h3>Calendario</h3>
-                    <p>Cronograma de actividades y mantenimientos.</p>
-                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
-                </div>
-            </div>
-
-            <!-- Actividades Metrologicas -->
-            <div class="dashboard-card" (click)="showViewActividadesMetrologicas()">
-                <div class="card-icon-container gradient-teal">
-                    <i class="pi pi-clock"></i>
-                </div>
-                <div class="card-content">
-                    <h3>Act. Metrológicas</h3>
-                    <p>Gestión de calibración y metrología.</p>
+                    <h3>Calendario Áreas Físicas</h3>
+                    <p>Visualiza y programa mantenimientos (Sin programar y Programados).</p>
                     <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
                 </div>
             </div>
@@ -109,8 +80,21 @@
                     <i class="pi pi-file"></i>
                 </div>
                 <div class="card-content">
-                    <h3>Reportes</h3>
-                    <p>Historial reportes</p>
+                    <h3>Reportes Áreas Físicas</h3>
+                    <p>Historial reportes de áreas físicas.</p>
+                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Indicadores Áreas Físicas -->
+            <div *ngIf="userRole === 'Administrador'" class="dashboard-card" (click)="goToIndicadoresAreasFisicas()">
+                <div class="card-icon-container"
+                    style="background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);">
+                    <i class="pi pi-chart-line text-white"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Indicadores Áreas Físicas</h3>
+                    <p>KPIs de infraestructura, inspecciones y tareas operativas.</p>
                     <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
                 </div>
             </div>

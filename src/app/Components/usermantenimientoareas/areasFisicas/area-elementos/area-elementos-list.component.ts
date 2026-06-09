@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -10,12 +10,14 @@ import { TagModule } from 'primeng/tag';
 import { BadgeModule } from 'primeng/badge';
 import { AreasService } from '../../../../Services/appServices/areasFisicas/areas.service';
 import { AreaElementoService } from '../../../../Services/appServices/areasFisicas/area-elemento.service';
+import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
 import Swal from 'sweetalert2';
+import { getDecodedAccessToken } from '../../../../utilidades';
 
 @Component({
     selector: 'app-area-elementos-list',
     standalone: true,
-    imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, TagModule, BadgeModule],
+    imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, TagModule, BadgeModule, MantenimientoadminnavbarComponent],
     templateUrl: './area-elementos-list.component.html',
     styleUrls: ['./area-elementos-list.component.css']
 })
@@ -27,6 +29,7 @@ export class AreaElementosListComponent implements OnInit {
     areasService = inject(AreasService);
     areaElementoService = inject(AreaElementoService);
     router = inject(Router);
+    route = inject(ActivatedRoute);
 
     async ngOnInit() {
         await this.loadData();
@@ -73,7 +76,7 @@ export class AreaElementosListComponent implements OnInit {
     }
 
     gestionar(id: number) {
-        this.router.navigate(['/areas/asignar-elementos/gestionar', id]);
+        this.router.navigate(['/areas/asignar-elementos/gestionar', id], { queryParams: { returnUrl: this.route.snapshot.queryParams['returnUrl'] } });
     }
 
     async eliminarAsignaciones(id: number) {
@@ -97,7 +100,19 @@ export class AreaElementosListComponent implements OnInit {
             }
         }
     }
+    location = inject(Location);
+
     backToDashboard() {
-        this.router.navigate(['/adminmantenimiento/inventario']);
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+        } else {
+            const tokenData = getDecodedAccessToken();
+            if (tokenData.rol === 'ADMINMANTENIMIENTO' || tokenData.rol === 'USERMANTENIMIENTO' || tokenData.rol === 'SUPERADMIN') {
+                this.router.navigate(['/adminmantenimiento']);
+            } else {
+                this.router.navigate(['/adminmantenimiento/gestion-operativa']);
+            }
+        }
     }
 }

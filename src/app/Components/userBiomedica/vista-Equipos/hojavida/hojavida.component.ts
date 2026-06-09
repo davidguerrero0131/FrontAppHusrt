@@ -1,11 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, Location, isPlatformBrowser } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { AccordionModule } from 'primeng/accordion';
 import { PanelModule } from 'primeng/panel';
 import { DividerModule } from 'primeng/divider';
 import { ButtonModule } from 'primeng/button';
 import { ImageModule } from 'primeng/image';
-import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 
@@ -25,8 +25,10 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
 import { API_URL } from '../../../../constantes';
 import Swal from 'sweetalert2';
+import { PdfGeneratorService } from '../../../../Services/appServices/biomedicaServices/pdf-generator/pdf-generator.service';
 
 @Component({
   selector: 'app-hojavida',
@@ -44,7 +46,8 @@ import Swal from 'sweetalert2';
     DialogModule,
     FormsModule,
     InputTextModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    TooltipModule
   ],
   providers: [ConfirmationService],
   templateUrl: './hojavida.component.html',
@@ -58,8 +61,16 @@ export class HojavidaComponent implements OnInit {
   planMantenimiento: any[] = [];
   planMetrologia: any[] = [];
   dataToEdit: any = null;
+  isGuestUser: boolean = true;
 
+  private pdfGeneratorService = inject(PdfGeneratorService);
   showCreate: boolean = false; // State to toggle create form
+
+  generatePdf() {
+    if (this.hojaVida) {
+      this.pdfGeneratorService.generateHojaVida(this.hojaVida, this.documentos, this.planMantenimiento, this.planMetrologia);
+    }
+  }
 
   hojavidaService = inject(HojavidaService);
   imagenesServices = inject(ImagenesService);
@@ -68,6 +79,8 @@ export class HojavidaComponent implements OnInit {
   documentosService = inject(DocumentosService);
   tipoDocumentoService = inject(TipoDocumentoService);
   confirmationService = inject(ConfirmationService);
+  platformId = inject(PLATFORM_ID);
+  isBrowser: boolean = false;
 
 
   // Documentos properties
@@ -81,16 +94,41 @@ export class HojavidaComponent implements OnInit {
   };
   loadingDocumentos: boolean = false;
 
-  constructor(private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer, private location: Location) { }
+  constructor(private route: ActivatedRoute, private router: Router, private sanitizer: DomSanitizer, private location: Location) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   async ngOnInit() {
     this.id = this.route.snapshot.paramMap.get('id');
+    this.isGuestUser = this.calculateIsGuest();
     await this.cargarHojaVida();
     await this.cargarTiposDocumento();
     await this.cargarDocumentos();
   }
 
+  private calculateIsGuest(): boolean {
+    if (typeof localStorage === 'undefined') return true;
+    const token = sessionStorage.getItem('utoken');
+    if (!token) return true;
+    const decoded = getDecodedAccessToken();
+    return decoded?.rol === 'INVITADO' || decoded?.rol === 'BIOMEDICATECNICO';
+  }
+
   async cargarHojaVida() {
+    if (!this.id || isNaN(Number(this.id))) {
+      console.error('ID de equipo no válido:', this.id);
+      this.showCreate = false;
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de navegación',
+        text: 'El ID del equipo no es válido.',
+        confirmButtonText: 'Volver'
+      }).then(() => {
+        this.location.back();
+      });
+      return;
+    }
+
     try {
       this.showCreate = false;
       this.hojaVida = await this.hojavidaService.getHojaVidaByIdEquipo(this.id);
@@ -99,19 +137,31 @@ export class HojavidaComponent implements OnInit {
       this.planMetrologia = await this.metrologiaServices.getPlanMetrologiaEquipo(this.id);
 
       if (this.hojaVida?.foto) {
-        const blob = await this.imagenesServices.getImagen(this.hojaVida.foto);
-
-        const objectUrl = URL.createObjectURL(blob);
-        this.imagenUrl = this.sanitizer.bypassSecurityTrustUrl(objectUrl);
+        try {
+          const blob = await this.imagenesServices.getImagen(this.hojaVida.foto);
+          const objectUrl = URL.createObjectURL(blob);
+          this.imagenUrl = this.sanitizer.bypassSecurityTrustUrl(objectUrl);
+        } catch (imgError) {
+          console.warn('Error cargando la imagen de la hoja de vida:', imgError);
+          this.imagenUrl = null;
+        }
       } else {
-        console.warn('No hay imagen en hoja de vida');
+        console.warn('No hay ruta de imagen en la hoja de vida');
+        this.imagenUrl = null;
       }
 
     } catch (error: any) {
       console.error('Error cargando hoja de vida o imagen:', error);
-      // Check if it's a 404 error
-      if (error?.status === 404 || error?.status === 400 || (error?.error?.error && error.error.error.includes('Hoja de vida no encontrada'))) {
-        if (this.isGuest()) {
+
+      // Check Specifically for 404 - Not Found
+      const isNotFound = error?.status === 404 ||
+        (error?.error?.error && (
+          error.error.error.includes('Hoja de vida no encontrada') ||
+          error.error.error.includes('no encontrada')
+        ));
+
+      if (isNotFound) {
+        if (this.isGuestUser) {
           this.showCreate = false;
           Swal.fire({
             icon: 'warning',
@@ -122,8 +172,32 @@ export class HojavidaComponent implements OnInit {
             this.location.back();
           });
         } else {
-          this.showCreate = true;
+          // Confirm with the user if they want to create it
+          Swal.fire({
+            title: 'Hoja de Vida no encontrada',
+            text: '¿Desea crear la hoja de vida para este equipo?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, crear',
+            cancelButtonText: 'No, volver'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.showCreate = true;
+            } else {
+              this.location.back();
+            }
+          });
         }
+      } else {
+        // Handle other errors (500, etc.)
+        Swal.fire({
+          icon: 'error',
+          title: 'Error del servidor',
+          text: 'Hubo un problema al cargar los datos de la hoja de vida.',
+          confirmButtonText: 'Cerrar'
+        });
       }
     }
   }
@@ -159,6 +233,15 @@ export class HojavidaComponent implements OnInit {
   onEdit() {
     this.dataToEdit = this.hojaVida;
     this.showCreate = true;
+  }
+
+  onCancelCreate() {
+    if (this.hojaVida) {
+      this.showCreate = false;
+      this.dataToEdit = null;
+    } else {
+      this.location.back();
+    }
   }
 
   datosTecnicosKeys(): string[] {
@@ -224,7 +307,9 @@ export class HojavidaComponent implements OnInit {
   }
 
   descargarDocumento(doc: any) {
+    if (typeof localStorage === 'undefined') return;
     const token = sessionStorage.getItem('utoken');
+    if (!token) return;
     const url = `${API_URL}/downloadDocumento/${doc.id}?token=${token}`;
     window.open(url, '_blank');
   }
@@ -245,11 +330,9 @@ export class HojavidaComponent implements OnInit {
       }
     });
   }
+
   isGuest(): boolean {
-    const token = sessionStorage.getItem('utoken');
-    if (!token) return true; // Assume guest if no token, though authGuard handles this
-    const decoded = getDecodedAccessToken();
-    return decoded?.rol === 'INVITADO' || decoded?.rol === 'BIOMEDICATECNICO';
+    return this.isGuestUser;
   }
 }
 

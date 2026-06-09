@@ -1,95 +1,129 @@
-<div class="card">
-    <div class="flex justify-content-between align-items-center mb-4">
-        <div class="flex align-items-center gap-2">
-            <button pButton icon="pi pi-arrow-left" (click)="backToDashboard()"
-                class="p-button-text p-button-rounded mr-2" pTooltip="Volver a Inventario"></button>
-            <h2 class="m-0 text-primary font-bold">Asignación de Elementos por Área</h2>
+<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+
+<div class="fade-in-animation p-4">
+    <div class="card shadow-2 border-round-xl p-0 overflow-hidden bg-white">
+        <!-- Header con gradiente -->
+        <div
+            class="bg-primary-reverse p-4 flex flex-column md:flex-row md:align-items-center justify-content-between gap-3 border-bottom-1 surface-border">
+            <div class="flex align-items-center gap-3">
+                <div class="bg-primary border-round-lg p-3 shadow-1">
+                    <i class="pi pi-link text-white text-2xl"></i>
+                </div>
+                <div class="flex flex-column">
+                    <span class="text-2xl font-bold text-900">Inventario por Áreas</span>
+                    <span class="text-500">Asignación y control de elementos físicos por ubicación.</span>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <p-button label="Volver" icon="pi pi-arrow-left"
+                    styleClass="p-button-secondary bg-gray-800 border-none shadow-1 px-4 py-2 border-round-lg hover:bg-gray-900 transition-all font-bold"
+                    (click)="backToDashboard()"></p-button>
+            </div>
         </div>
-    </div>
 
-    <!-- Filtros Globales -->
-    <div class="flex justify-content-end mb-3">
-        <span class="p-input-icon-left w-full md:w-auto">
-            <i class="pi pi-search"></i>
-            <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-                placeholder="Buscar área" class="w-full" />
-        </span>
-    </div>
+        <p-table #dt [value]="areas" [rows]="10" [paginator]="true" [loading]="loading"
+            [globalFilterFields]="['nombre', 'ubicacion']" responsiveLayout="scroll" styleClass="p-datatable-striped"
+            [rowHover]="true" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} áreas"
+            [showCurrentPageReport]="true">
 
-    <p-table #dt [value]="areas" [rows]="10" [paginator]="true" [loading]="loading"
-        [globalFilterFields]="['nombre', 'ubicacion']" responsiveLayout="scroll"
-        styleClass="p-datatable-striped p-datatable-sm shadow-1 border-round-lg" [rowHover]="true"
-        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} entradas"
-        [showCurrentPageReport]="true">
+            <ng-template pTemplate="caption">
+                <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3 p-2">
+                    <h3 class="m-0 font-bold text-900">Listado de Áreas y Asignaciones</h3>
 
-        <ng-template pTemplate="header">
-            <tr>
-                <th style="width: 3rem">#</th>
-                <th pSortableColumn="nombre">Área <p-sortIcon field="nombre"></p-sortIcon></th>
-                <th pSortableColumn="ubicacion">Ubicación <p-sortIcon field="ubicacion"></p-sortIcon></th>
-                <th>Elementos Asignados</th>
-                <th pSortableColumn="cantidadElementos">Cantidad <p-sortIcon field="cantidadElementos"></p-sortIcon>
-                </th>
-                <th style="width: 10rem">Acciones</th>
-            </tr>
-            <tr>
-                <th></th>
-                <th>
-                    <p-columnFilter type="text" field="nombre" placeholder="Filtrar Área"></p-columnFilter>
-                </th>
-                <th>
-                    <p-columnFilter type="text" field="ubicacion" placeholder="Filtrar Ubicación"></p-columnFilter>
-                </th>
-                <th></th>
-                <th></th>
-                <th></th>
-            </tr>
-        </ng-template>
-
-        <ng-template pTemplate="body" let-area let-rowIndex="rowIndex">
-            <tr>
-                <td class="font-bold">{{ rowIndex + 1 }}</td>
-                <td>
-                    <div class="font-bold text-lg mb-1">{{ area.nombre }}</div>
-                    <div class="text-500 text-sm">{{ area.descripcion || 'Sin descripción' }}</div>
-                </td>
-                <td>
-                    <span class="p-tag p-tag-rounded"
-                        [ngClass]="{'bg-cyan-500': area.ubicacion === 'Torre 1', 'bg-orange-500': area.ubicacion === 'Torre 2'}">
-                        {{ area.ubicacion || 'N/A' }}
+                    <span class="p-input-icon-left w-full md:w-25rem">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                            placeholder="Buscar área o ubicación..." class="w-full p-3 shadow-1 border-round-lg" />
                     </span>
-                </td>
-                <td>
-                    <div *ngIf="area.elementosAsignados && area.elementosAsignados.length > 0; else noElements">
-                        <p-tag *ngFor="let el of area.elementosAsignados" [value]="el" severity="secondary"
-                            styleClass="mr-1 mb-1"></p-tag>
-                    </div>
-                    <ng-template #noElements>
-                        <span class="text-500 font-italic">
-                            <i class="pi pi-info-circle mr-1"></i>Sin elementos asignados
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr class="surface-ground">
+                    <th style="width: 3rem">#</th>
+                    <th pSortableColumn="nombre" style="min-width: 14rem">
+                        <div class="flex align-items-center">
+                            Área <p-sortIcon field="nombre"></p-sortIcon>
+                        </div>
+                    </th>
+                    <th pSortableColumn="ubicacion" style="min-width: 10rem">
+                        <div class="flex align-items-center">
+                            Ubicación <p-sortIcon field="ubicacion"></p-sortIcon>
+                        </div>
+                    </th>
+                    <th style="min-width: 15rem">Elementos Asociados</th>
+                    <th pSortableColumn="cantidadElementos" style="text-align: center">
+                        <div class="flex align-items-center justify-content-center">
+                            Cantidad <p-sortIcon field="cantidadElementos"></p-sortIcon>
+                        </div>
+                    </th>
+                    <th style="width: 12rem; text-align: center">Operaciones</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-area let-rowIndex="rowIndex">
+                <tr class="hover:surface-50 transition-colors duration-200">
+                    <td class="text-500 font-medium">{{ rowIndex + 1 }}</td>
+                    <td>
+                        <div class="flex flex-column">
+                            <span class="font-bold text-900">{{ area.nombre }}</span>
+                            <small class="text-500">{{ area.descripcion || 'Sin descripción' }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="p-tag p-tag-rounded shadow-sm"
+                            [ngClass]="{'bg-cyan-500 text-white': area.ubicacion === 'Torre 1', 'bg-orange-500 text-white': area.ubicacion === 'Torre 2'}">
+                            <i class="pi pi-map-marker mr-1 text-xs"></i> {{ area.ubicacion || 'N/A' }}
                         </span>
-                    </ng-template>
-                </td>
-                <td>
-                    <span class="p-badge p-badge-lg"
-                        [ngClass]="{'p-badge-success': area.cantidadElementos > 0, 'p-badge-secondary': area.cantidadElementos === 0}">
-                        {{ area.cantidadElementos }}
-                    </span>
-                </td>
-                <td>
-                    <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info mr-1"
-                        (click)="gestionar(area.id)" pTooltip="Gestionar / Editar"></button>
-                    <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
-                        (click)="eliminarAsignaciones(area.id)" pTooltip="Limpiar Asignaciones"
-                        [disabled]="area.cantidadElementos === 0"></button>
-                </td>
-            </tr>
-        </ng-template>
+                    </td>
+                    <td>
+                        <div *ngIf="area.elementosAsignados && area.elementosAsignados.length > 0; else noElements"
+                            class="flex flex-wrap gap-1">
+                            <span *ngFor="let el of area.elementosAsignados"
+                                class="text-xs surface-200 text-700 px-2 py-1 border-round font-medium">
+                                {{ el }}
+                            </span>
+                        </div>
+                        <ng-template #noElements>
+                            <span class="text-400 font-italic text-sm">
+                                <i class="pi pi-info-circle mr-1"></i>Sin elementos
+                            </span>
+                        </ng-template>
+                    </td>
+                    <td style="text-align: center">
+                        <span
+                            class="inline-flex align-items-center justify-content-center border-round-circle bg-primary-reverse text-primary font-bold shadow-1"
+                            style="width: 30px; height: 30px;">
+                            {{ area.cantidadElementos }}
+                        </span>
+                    </td>
+                    <td style="text-align: center">
+                        <div class="flex justify-content-center gap-1">
+                            <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info"
+                                (click)="gestionar(area.id)" pTooltip="Gestionar Asignación"
+                                tooltipPosition="left"></button>
+                            <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
+                                (click)="eliminarAsignaciones(area.id)" pTooltip="Limpiar todo"
+                                [disabled]="area.cantidadElementos === 0"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
 
-        <ng-template pTemplate="emptymessage">
-            <tr>
-                <td colspan="4" class="text-center p-4">No se encontraron áreas.</td>
-            </tr>
-        </ng-template>
-    </p-table>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6" class="text-center p-8">
+                        <div class="flex flex-column align-items-center">
+                            <div class="bg-gray-100 border-round-circle p-4 mb-3">
+                                <i class="pi pi-search text-400" style="font-size: 3rem"></i>
+                            </div>
+                            <span class="text-600 font-bold text-xl mb-1">Área No Encontrada</span>
+                            <span class="text-500">No hay registros que coincidan con los criterios de búsqueda.</span>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
 </div>

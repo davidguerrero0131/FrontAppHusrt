@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, PLATFORM_ID, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -109,11 +110,17 @@ import { BiomedicaadminnavbarComponent } from './Components/navbars/biomedicaadm
 import { SuperadminnavbarComponent } from './Components/navbars/superadminnavbar/superadminnavbar.component';
 import { BiomedicausernavbarComponent } from './Components/navbars/biomedicausernavbar/biomedicausernavbar.component';
 import { BiomedicatecniconavbarComponent } from './Components/navbars/biomedicatecniconavbar/biomedicatecniconavbar.component';
+import { MantenimientoadminnavbarComponent } from './Components/navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+import { MesaadminnavbarComponent } from './Components/navbars/mesaadminnavbar/mesaadminnavbar.component';
+import { MesausernavbarComponent } from './Components/navbars/mesausernavbar/mesausernavbar.component';
+import { SistemasadminnavbarComponent } from './Components/navbars/sistemasadminnavbar/sistemasadminnavbar.component';
+import { UserService } from './Services/appServices/userServices/user.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { inject } from '@angular/core';
 import { getDecodedAccessToken } from './utilidades';
 import { filter } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
+import { ThemeService } from './Services/theme/theme.service';
+import { SessionSyncService } from './Services/auth/session-sync.service';
 
 @Component({
   selector: 'app-root',
@@ -210,35 +217,81 @@ import { CommonModule } from '@angular/common';
     FocusTrapModule,
     FloatLabelModule,
 
-    FloatLabelModule,
-    BiomedicaadminnavbarComponent,
-    SuperadminnavbarComponent,
-    BiomedicausernavbarComponent,
-    BiomedicausernavbarComponent, // Was already there? Duplicate?
-    // Wait, replace with:
     BiomedicaadminnavbarComponent,
     SuperadminnavbarComponent,
     BiomedicausernavbarComponent,
     BiomedicatecniconavbarComponent,
+    MantenimientoadminnavbarComponent,
+    MesaadminnavbarComponent,
+    MesausernavbarComponent,
+    SistemasadminnavbarComponent,
     CommonModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
-  title = 'FrontAppHusrt';
+export class AppComponent implements OnInit {
+  title = 'FrontApphusrt';
 
   router = inject(Router);
+  platformId = inject(PLATFORM_ID);
+  userService = inject(UserService);
+  sessionSyncService = inject(SessionSyncService);
   userRole: string = '';
   showNavbar: boolean = true;
+  themeService = inject(ThemeService);
+  isOffline: boolean = false;
 
   constructor() {
+    this.themeService.applyTheme();
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.checkUserRole();
       this.checkLoginRoute();
     });
+  }
+
+  async ngOnInit(): Promise<void> {
+    if (isPlatformBrowser(this.platformId)) {
+      // STEP 1: Si esta pestaña no tiene sesión (nueva pestaña abierta con right-click),
+      // solicitar sesión a otras pestañas abiertas via BroadcastChannel.
+      if (!sessionStorage.getItem('utoken')) {
+        await this.sessionSyncService.requestSessionFromOtherTabs();
+      }
+
+      // STEP 2: Verificar y configurar la sesión ahora que puede haberse recibido
+      this.checkUserRole();
+      this.checkLoginRoute();
+
+      // STEP 3: Si el token existe pero está expirado, limpiar y redirigir
+      if (sessionStorage.getItem('utoken') && !this.userService.isLoggedIn()) {
+        sessionStorage.removeItem('utoken');
+        sessionStorage.removeItem('idUser');
+        sessionStorage.removeItem('rol');
+        this.router.navigate(['/login']);
+      } else {
+        this.userService.setupSessionTimer();
+      }
+
+      // STEP 4: Connectivity Listeners
+      this.isOffline = !navigator.onLine;
+      window.addEventListener('online', () => {
+        this.isOffline = false;
+      });
+      window.addEventListener('offline', () => {
+        this.isOffline = true;
+      });
+
+      // STEP 5: Sincronización de Cierre de Sesión en otras pestañas
+      this.sessionSyncService.onBroadcastLogout(() => {
+        // Solo actuar si teníamos sesión (para que no redirija a alguien que recién entraba a login)
+        if (sessionStorage.getItem('utoken')) {
+          // Desloguea localmente usando false para NO causar un bucle infinito de broadcasts
+          this.userService.logout(false);
+        }
+      });
+    }
   }
 
   checkLoginRoute() {
@@ -259,18 +312,10 @@ export class AppComponent {
   }
 
   checkUserRole() {
-    if (typeof sessionStorage !== 'undefined') {
+    if (isPlatformBrowser(this.platformId)) {
       const token = sessionStorage.getItem('utoken');
       if (token) {
-        const decoded = getDecodedAccessToken(); // Using helper which reads from sessionStorage usually
-        // If helper needs token passed: getDecodedAccessToken(token) depends on implementation.
-        // Checking imports... it is from './utilidades'.
-        // Let's assume specific implementation. 
-        // Based on previous files, sometimes it takes no args (reads session storage inside) or takes token.
-        // I will check utilidades.ts next step to be sure, but standard fix for now.
-        // Actually, let's look at `UserbiomedicaComponent` consumption.
-        // It used `getDecodedAccessToken(token)` in one file and `getDecodedAccessToken()` in another. 
-        // I'll stick to what I wrote but fix the typo `const token`.
+        const decoded = getDecodedAccessToken();
         this.userRole = decoded?.rol || '';
       } else {
         this.userRole = '';

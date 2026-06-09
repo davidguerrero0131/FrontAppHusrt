@@ -1,0 +1,52 @@
+<app-industriales-navbar></app-industriales-navbar>
+<div class="dashboard-container p-4">
+    <div class="card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Consolidado Mensual: {{ tipoEquipoStr }}</h2>
+            <div>
+                <button class="btn btn-primary me-2" (click)="descargarPDF()" [disabled]="chequeosMes.length === 0">
+                    <i class="bi bi-file-earmark-pdf me-1"></i> Descargar PDF
+                </button>
+                <button class="btn btn-secondary" (click)="regresar()">Regresar</button>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <h4 class="text-muted">Equipo: {{ equipoNombre }}</h4>
+            </div>
+            <div class="col-md-6 text-end">
+                <h4>Mes/Año: {{ mesActual }}/{{ anioActual }}</h4>
+            </div>
+        </div>
+
+        <!-- Contenedor responsive para la tabla grande -->
+        <div class="table-responsive">
+            <table id="tablaConsolidado" class="table table-bordered table-sm text-center align-middle"
+                style="font-size: 0.85rem;">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" style="min-width: 150px;">DÍA DEL MES</th>
+                        <th *ngFor="let dia of diasDelMes">{{ dia }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Recorrer las filas correspondientes a los parámetros del equipo -->
+                    <tr *ngFor="let param of parametrosList">
+                        <td class="text-start fw-bold">{{ param }}</td>
+                        <td *ngFor="let dia of diasDelMes">
+                            <span *ngIf="matrizChequeos[param] && matrizChequeos[param][dia]">{{
+                                matrizChequeos[param][dia] }}</span>
+                            <span *ngIf="!matrizChequeos[param] || !matrizChequeos[param][dia]">-</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div *ngIf="chequeosMes.length === 0" class="alert alert-info mt-3">
+            No hay chequeos registrados para este equipo en el mes actual.
+        </div>
+
+    </div>
+</div>

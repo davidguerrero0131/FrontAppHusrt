@@ -17,15 +17,15 @@
 
         <p-table #dt [value]="tiposDocumento" [rows]="10" [paginator]="true" [globalFilterFields]="['nombres']"
             [rowHover]="true" dataKey="id"
-            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} entradas"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
             [showCurrentPageReport]="true" styleClass="p-datatable-striped p-datatable-sm">
             <ng-template pTemplate="caption">
                 <div class="flex align-items-center justify-content-between">
-                    <span class="p-input-icon-left">
-                        <i class="pi pi-search"></i>
-                        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-                            placeholder="Buscar..." />
-                    </span>
+                    <h5 class="m-0">Listado de Tipos de Documento</h5>
+                    <p-iconfield position="left">
+                        <p-inputicon styleClass="pi pi-search" />
+                        <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Buscar..." />
+                    </p-iconfield>
                 </div>
             </ng-template>
             <ng-template pTemplate="header">
@@ -62,7 +62,8 @@
     <ng-template pTemplate="content">
         <div class="field">
             <label for="nombres">Nombre</label>
-            <input type="text" pInputText id="nombres" [(ngModel)]="tipoDocumento.nombres" required autofocus />
+            <input type="text" pInputText id="nombres" [(ngModel)]="tipoDocumento.nombres" required autofocus
+                appUppercase />
             <small class="p-error" *ngIf="submitted && !tipoDocumento.nombres">El nombre es requerido.</small>
         </div>
     </ng-template>

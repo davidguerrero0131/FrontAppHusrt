@@ -5,10 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { BiomedicausernavbarComponent } from '../../navbars/biomedicausernavbar/biomedicausernavbar.component';
 import { CommonModule } from '@angular/common';
 
+import { UppercaseDirective } from '../../../Directives/uppercase.directive';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+
 @Component({
   selector: 'app-clasificacion-tipo-equipo',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [CommonModule, TableModule, ButtonModule, FormsModule, UppercaseDirective],
   templateUrl: './clasificacion-tipo-equipo.component.html',
   styleUrl: './clasificacion-tipo-equipo.component.css'
 })
@@ -51,7 +55,7 @@ export class ClasificacionTipoEquipoComponent implements OnInit {
   }
 
   viewEquiposTipos(idServicio: any) {
-    sessionStorage.setItem("idTipoEquipo", idServicio);
+    localStorage.setItem("idTipoEquipo", idServicio);
     this.router.navigate(['biomedica/equipostipo']);
   }
 

@@ -1,180 +1,249 @@
-<div class="card border-0 shadow-sm rounded-0 mb-4 bg-white">
-    <app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+
+<div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
 </div>
 
-<div class="fade-in-animation">
-    <div class="container-fluid px-5 mb-3 flex justify-content-between align-items-center">
-        <button pButton icon="pi pi-arrow-left" label="Volver a Gestión Operativa" (click)="backToDashboard()"
-            class="p-button-text"></button>
-        <button pButton icon="pi pi-plus" label="Agendar Mantenimiento" (click)="agendarMantenimiento()"
-            class="p-button-primary"></button>
+<div style="margin-bottom: 2%;">
+  <h1 style="text-align: center;">MANTENIMIENTOS DE ÁREAS FÍSICAS</h1>
+  <div class="text-center mt-3">
+    <button class="btn btn-outline-secondary" (click)="backToDashboard()" pTooltip="Volver a Gestión Operativa"
+      tooltipPosition="bottom">
+      <i class="pi pi-arrow-left"></i> Volver al panel
+    </button>
+  </div>
+</div>
+
+<div class="filtromes flex flex-wrap align-items-center justify-content-center gap-3" style="margin-bottom: 2%;">
+
+  <div class="flex align-items-center gap-2">
+    <label class="font-bold">Año:</label>
+    <input pInputText type="number" [(ngModel)]="anio" placeholder="YYYY" class="w-8rem" />
+  </div>
+
+  <div class="flex align-items-center gap-2">
+    <label class="font-bold">Inicio:</label>
+    <p-select [options]="meses" [(ngModel)]="mesInicio" optionLabel="label" optionValue="value" placeholder="Mes Inicio"
+      [style]="{'width':'10rem'}"></p-select>
+  </div>
+
+  <div class="flex align-items-center gap-2">
+    <label class="font-bold">Fin:</label>
+    <p-select [options]="meses" [(ngModel)]="mesFin" optionLabel="label" optionValue="value" placeholder="Mes Fin"
+      [style]="{'width':'10rem'}"></p-select>
+  </div>
+
+  <button type="button" class="btn btn-dark" (click)="setDate()">
+    Buscar
+  </button>
+</div>
+
+<div>
+  <h6 style="text-align: center;" *ngIf="mesInicio === mesFin">
+    Mantenimientos del mes de {{obtenerNombreMes(mesInicio)}} del año {{anio}}
+  </h6>
+  <h6 style="text-align: center;" *ngIf="mesInicio !== mesFin">
+    Mantenimientos de {{obtenerNombreMes(mesInicio)}} a {{obtenerNombreMes(mesFin)}} del año {{anio}}
+  </h6>
+</div>
+
+<div class="btn-group botonesMenu" role="group" aria-label="Basic example">
+  <button type="button" class="btn" [ngClass]="panelPreventivos ? 'btn-warning' : 'btn-dark'"
+    (click)="viewPreventivos()">
+    Preventivos
+  </button>
+
+  <button type="button" class="btn" [ngClass]="panelMetas ? 'btn-warning' : 'btn-dark'" (click)="viewMetas()">
+    Metas
+  </button>
+
+  <button type="button" class="btn" [ngClass]="panelCorrectivos ? 'btn-warning' : 'btn-dark'"
+    (click)="viewCorrectivos()">
+    Correctivos
+  </button>
+</div>
+
+<div style="margin-top: 1%;">
+
+  <div class="panelMantenimientos" *ngIf="panelPreventivos">
+    <div class="card">
+      <p-table #dt2 [value]="preventivos" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [loading]="loading" [paginator]="true" [tableStyle]="{ 'min-width': '10rem' }"
+        [globalFilterFields]="['actividad', 'area.nombre', 'responsable']">
+
+        <ng-template #caption>
+          <div class="flex">
+            <p-iconfield iconPosition="left" class="ml-auto">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <!-- Assuming we need global filter, the component might need onGlobalFilter from ts -->
+              <input pInputText type="text" (input)="dt2.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Búsqueda General" />
+            </p-iconfield>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width:25%; align-items: center; text-align: center">Actividad</th>
+            <th style="width:20%; align-items: center; text-align: center">Área</th>
+            <th style="width:20%; align-items: center; text-align: center">Responsable</th>
+            <th style="width:15%; align-items: center; text-align: center">Días Rango</th>
+            <th style="width:10%; align-items: center; text-align: center">Estado</th>
+            <th style="width:10%; align-items: center; text-align: center" *ngIf="userRole !== 'USERMANTENIMIENTO'">
+              Opciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-plan>
+          <tr>
+            <td style="text-align: center; align-items: center;">{{ plan.actividad }}</td>
+            <td style="text-align: center; align-items: center;">{{ plan.area?.nombre || 'N/A' }}</td>
+            <td style="text-align: center; align-items: center;">{{ plan.responsable }}</td>
+            <td style="text-align: center; align-items: center;">
+              <i class="pi pi-calendar mr-1"></i>
+              {{ plan.diaRangoInicio }} - {{ plan.diaRangoFin }}
+            </td>
+            <td style="text-align: center; align-items: center;">
+              <span
+                [class]="'badge ' + getBadgeClass(plan)">
+                {{ getEstadoLabel(plan.estado) }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center;" *ngIf="userRole !== 'USERMANTENIMIENTO'">
+              <button type="button" *ngIf="canRealizarInspeccion(plan)" class="btn btn-success ml-1"
+                (click)="realizarInspeccion(plan)" pTooltip="Realizar Inspección">
+                <i class="pi pi-check-circle"></i>
+              </button>
+              <button type="button" *ngIf="plan.estado === 3" class="btn btn-info ml-1"
+                (click)="verDetalleInspeccion(plan)" pTooltip="Ver Detalle">
+                <i class="pi pi-eye"></i>
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center">No hay preventivos registrados en este periodo.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <div class="panelMantenimientos" *ngIf="panelMetas">
+    <div class="card p-3">
+      <div class="grid">
+        <div class="col-12 md:col-3">
+          <div class="flex flex-column gap-2">
+            <button pButton label="Realizados" [outlined]="!panelRealizados" (click)="panelRealizadosView()"
+              class="w-full"></button>
+            <button pButton label="Pendientes" [outlined]="!panelPendientes" (click)="panelPendientesView()"
+              class="w-full p-button-danger"></button>
+          </div>
+        </div>
+        <div class="col-12 md:col-9">
+          <div *ngIf="panelRealizados">
+            <h5 class="mb-3 text-center">Mantenimientos Realizados (Completados)</h5>
+            <p-table [value]="preventivosRealizados" [rows]="10" [paginator]="true">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="text-align: center;">Actividad</th>
+                  <th style="text-align: center;">Área</th>
+                  <th style="text-align: center;">Responsable</th>
+                  <th style="text-align: center;">Estado</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-plan>
+                <tr>
+                  <td style="text-align: center;">{{ plan.actividad }}</td>
+                  <td style="text-align: center;">{{ plan.area?.nombre }}</td>
+                  <td style="text-align: center;">{{ plan.responsable }}</td>
+                  <td style="text-align: center;"><span class="text-green-500 font-bold">Completado</span></td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="4" class="text-center p-4">No hay mantenimientos completados.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+          <div *ngIf="panelPendientes">
+            <h5 class="mb-3 text-center">Mantenimientos Pendientes</h5>
+            <p-table [value]="preventivosPendientes" [rows]="10" [paginator]="true">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="text-align: center;">Actividad</th>
+                  <th style="text-align: center;">Área</th>
+                  <th style="text-align: center;">Responsable</th>
+                  <th style="text-align: center;">Estado</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-plan>
+                <tr>
+                  <td style="text-align: center;">{{ plan.actividad }}</td>
+                  <td style="text-align: center;">{{ plan.area?.nombre }}</td>
+                  <td style="text-align: center;">{{ plan.responsable }}</td>
+                  <td style="text-align: center;"><span class="text-orange-500 font-bold">Pendiente</span></td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="4" class="text-center p-4">No hay mantenimientos pendientes.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panelMantenimientos" style="background-color: white;" *ngIf="panelCorrectivos">
+
+    <div class="card">
+      <p-table #dt3 [value]="correctivos" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [loading]="loading" [paginator]="true" [tableStyle]="{ 'min-width': '10rem' }"
+        [globalFilterFields]="['areaElemento.areas.nombre', 'usuario.nombres', 'observaciones']">
+
+        <ng-template #caption>
+          <div class="flex">
+            <p-iconfield iconPosition="left" class="ml-auto">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input pInputText type="text" (input)="dt3.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Búsqueda General" />
+            </p-iconfield>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width:20%; align-items: center; text-align: center">Fecha</th>
+            <th style="width:25%; align-items: center; text-align: center">Área</th>
+            <th style="width:25%; align-items: center; text-align: center">Realizado Por</th>
+            <th style="width:30%; align-items: center; text-align: center">Observaciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-insp>
+          <tr>
+            <td style="text-align: center; align-items: center;">{{ insp.fecha | date:'dd/MM/yyyy' }}</td>
+            <td style="text-align: center; align-items: center;">{{ insp.areaElemento?.areas?.nombre || 'N/A' }}</td>
+            <td style="text-align: center; align-items: center;">{{ insp.usuario?.nombres || 'N/A' }}</td>
+            <td style="text-align: center; align-items: center;">{{ insp.observaciones }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="4" class="text-center">No hay inspecciones/correctivos registrados en este periodo.</td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
 
-    <div class="dashboard-container px-5">
-        <div class="text-center mb-4">
-            <h1 class="text-3xl font-bold">Mantenimiento Áreas Físicas</h1>
-            <p class="text-secondary">Dashboard de gestión operativa</p>
-        </div>
+  </div>
 
-        <!-- Filtro Mes -->
-        <div class="filtromes flex flex-column md:flex-row align-items-center gap-3 justify-content-center mb-4">
-            <h6 class="m-0">Seleccione un mes para visualizar:</h6>
-            <p-calendar [(ngModel)]="date" view="month" dateFormat="mm/yy" [readonlyInput]="true"
-                inputId="monthpicker"></p-calendar>
-            <button pButton label="Buscar" icon="pi pi-search" (click)="setDate()"></button>
-        </div>
 
-        <div class="text-center mb-4">
-            <h5 class="font-bold">Mantenimientos del mes de {{obtenerNombreMes(mes)}} del año {{anio}}</h5>
-        </div>
 
-        <!-- Botones Menu -->
-        <div class="flex justify-content-center gap-2 mb-4">
-            <button pButton [label]="'Preventivos'" [outlined]="!panelPreventivos" (click)="viewPreventivos()"
-                class="p-button-rounded"></button>
-            <button pButton [label]="'Metas'" [outlined]="!panelMetas" (click)="viewMetas()"
-                class="p-button-rounded p-button-warning"></button>
-            <button pButton [label]="'Correctivos'" [outlined]="!panelCorrectivos" (click)="viewCorrectivos()"
-                class="p-button-rounded p-button-danger"></button>
-        </div>
-
-        <!-- Panel Preventivos -->
-        <div *ngIf="panelPreventivos">
-            <p-table [value]="preventivos" [rows]="10" [paginator]="true" [loading]="loading"
-                styleClass="p-datatable-striped" responsiveLayout="scroll">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th>Actividad</th>
-                        <th>Área</th>
-                        <th>Responsable</th>
-                        <th>Días Rango</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-plan>
-                    <tr>
-                        <td>{{ plan.actividad }}</td>
-                        <td>{{ plan.area?.nombre || 'N/A' }}</td>
-                        <td>{{ plan.responsable }}</td>
-                        <td>{{ plan.diaRangoInicio }} - {{ plan.diaRangoFin }}</td>
-                        <td>
-                            <span [class]="'badge ' + getStatusClass(plan)">{{ getEstadoLabel(plan.estado) }}</span>
-                        </td>
-                        <td>
-                            <button *ngIf="canRealizarInspeccion(plan)" pButton label="Realizar" icon="pi pi-check"
-                                class="p-button-sm p-button-success" (click)="realizarInspeccion(plan)"></button>
-
-                            <span *ngIf="isFueraDeRango(plan)" class="text-danger font-bold">Fuera de Rango</span>
-
-                            <button *ngIf="plan.estado === 3" pButton label="Ver Detalle" icon="pi pi-eye"
-                                class="p-button-sm p-button-info" (click)="verDetalleInspeccion(plan)"></button>
-                        </td>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="emptymessage">
-                    <tr>
-                        <td colspan="5" class="text-center p-4">No hay preventivos registrados para este mes.</td>
-                    </tr>
-                </ng-template>
-            </p-table>
-        </div>
-
-        <!-- Panel Metas -->
-        <div *ngIf="panelMetas">
-            <div class="grid">
-                <div class="col-12 md:col-3">
-                    <div class="flex flex-column gap-2">
-                        <button pButton label="Realizados" [outlined]="!panelRealizados" (click)="panelRealizadosView()"
-                            class="w-full"></button>
-                        <button pButton label="Pendientes" [outlined]="!panelPendientes" (click)="panelPendientesView()"
-                            class="w-full p-button-danger"></button>
-                    </div>
-                </div>
-                <div class="col-12 md:col-9">
-                    <div *ngIf="panelRealizados">
-                        <h5 class="mb-3">Mantenimientos Realizados (Completados)</h5>
-                        <p-table [value]="preventivosRealizados" [rows]="10" [paginator]="true">
-                            <ng-template pTemplate="header">
-                                <tr>
-                                    <th>Actividad</th>
-                                    <th>Área</th>
-                                    <th>Responsable</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </ng-template>
-                            <ng-template pTemplate="body" let-plan>
-                                <tr>
-                                    <td>{{ plan.actividad }}</td>
-                                    <td>{{ plan.area?.nombre }}</td>
-                                    <td>{{ plan.responsable }}</td>
-                                    <td><span class="text-green-500 font-bold">Completado</span></td>
-                                </tr>
-                            </ng-template>
-                            <ng-template pTemplate="emptymessage">
-                                <tr>
-                                    <td colspan="4" class="text-center p-4">No hay mantenimientos completados.</td>
-                                </tr>
-                            </ng-template>
-                        </p-table>
-                    </div>
-                    <div *ngIf="panelPendientes">
-                        <h5 class="mb-3">Mantenimientos Pendientes</h5>
-                        <p-table [value]="preventivosPendientes" [rows]="10" [paginator]="true">
-                            <ng-template pTemplate="header">
-                                <tr>
-                                    <th>Actividad</th>
-                                    <th>Área</th>
-                                    <th>Responsable</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </ng-template>
-                            <ng-template pTemplate="body" let-plan>
-                                <tr>
-                                    <td>{{ plan.actividad }}</td>
-                                    <td>{{ plan.area?.nombre }}</td>
-                                    <td>{{ plan.responsable }}</td>
-                                    <td><span class="text-orange-500 font-bold">Pendiente</span></td>
-                                </tr>
-                            </ng-template>
-                            <ng-template pTemplate="emptymessage">
-                                <tr>
-                                    <td colspan="4" class="text-center p-4">No hay mantenimientos pendientes.</td>
-                                </tr>
-                            </ng-template>
-                        </p-table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Panel Correctivos (Inspecciones) -->
-        <div *ngIf="panelCorrectivos">
-            <h5 class="mb-3">Inspecciones / Correctivos</h5>
-            <p-table [value]="correctivos" [rows]="10" [paginator]="true" [loading]="loading">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Área</th>
-                        <th>Realizado Por</th>
-                        <th>Observaciones</th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-insp>
-                    <tr>
-                        <td>{{ insp.fecha | date:'dd/MM/yyyy' }}</td>
-                        <td>{{ insp.area?.nombre || 'N/A' }}</td>
-                        <td>{{ insp.realizadoPor || 'N/A' }}</td>
-                        <td>{{ insp.observaciones }}</td>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="emptymessage">
-                    <tr>
-                        <td colspan="4" class="text-center p-4">No hay inspecciones/correctivos registrados.</td>
-                    </tr>
-                </ng-template>
-            </p-table>
-        </div>
-
-    </div>
 </div>

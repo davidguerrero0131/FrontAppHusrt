@@ -17,13 +17,15 @@ import { getDecodedAccessToken } from '../../../utilidades';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 
+import { UppercaseDirective } from '../../../Directives/uppercase.directive';
+
 @Component({
     selector: 'app-admresponsables',
     standalone: true,
     imports: [
         CommonModule, ReactiveFormsModule, FormsModule,
         TableModule, InputTextModule, ButtonModule, DialogModule, ToolbarModule, TooltipModule, TagModule,
-        InputSwitchModule, InputNumberModule, IconFieldModule, InputIconModule
+        InputSwitchModule, InputNumberModule, IconFieldModule, InputIconModule, UppercaseDirective
     ],
     templateUrl: './admresponsables.component.html',
     styleUrl: './admresponsables.component.css'

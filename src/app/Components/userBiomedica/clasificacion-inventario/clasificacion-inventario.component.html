@@ -7,7 +7,7 @@
 
   <!-- Search Section -->
   <div class="busqueda-container">
-    <h3 class="mb-3 font-semibold text-xl">Búsqueda por Serie</h3>
+    <h3 class="mb-3 font-semibold text-xl">B&uacute;squeda por Serie</h3>
 
     <div class="flex flex-column md:flex-row justify-content-center gap-3 align-items-center">
       <p-select [options]="equipos" [(ngModel)]="selectedEquipo" optionLabel="serie" [filter]="true" filterBy="serie"
@@ -29,6 +29,8 @@
       <button pButton label="Buscar" icon="pi pi-search" (click)="buscarEquipo()" class="p-button-primary"></button>
       <button *ngIf="showCreateEquipmentButton" pButton label="Crear Equipo" icon="pi pi-plus"
         (click)="goToCreateEquipment()" class="p-button-success"></button>
+      <button *ngIf="showCreateEquipmentButton" pButton label="Descargar Inventario" icon="pi pi-file-excel"
+        (click)="descargarInventario()" class="p-button-success" [loading]="loading"></button>
     </div>
   </div>
 
@@ -36,7 +38,7 @@
   <div class="cards-grid mt-5">
 
     <!-- Tipo de Equipo -->
-    <div class="dashboard-card" (click)="showViewTiposEquipoBio()">
+    <a class="dashboard-card nav-link-container" [routerLink]="['/biomedica/tiposequipo']">
       <div class="card-icon-container gradient-purple">
         <i class="pi pi-cog"></i>
       </div>
@@ -45,22 +47,22 @@
         <p>Clasificación técnica de activos.</p>
         <span class="card-action">Ver Tipos <i class="pi pi-arrow-right"></i></span>
       </div>
-    </div>
+    </a>
 
     <!-- Servicio -->
-    <div class="dashboard-card" (click)="showViewServicios()">
+    <a class="dashboard-card nav-link-container" [routerLink]="['/biomedica/servicios']">
       <div class="card-icon-container gradient-blue">
         <i class="pi pi-briefcase"></i>
       </div>
       <div class="card-content">
         <h3>Servicio</h3>
-        <p>Ubicación funcional (UCI, Urgencias...).</p>
+        <p>Ubicaci&oacute;n funcional (UCI, Urgencias...).</p>
         <span class="card-action">Ver Servicios <i class="pi pi-arrow-right"></i></span>
       </div>
-    </div>
+    </a>
 
     <!-- Comodatos -->
-    <div class="dashboard-card" (click)="showViewEmpComodatos()">
+    <a class="dashboard-card nav-link-container" [routerLink]="['/biomedica/empComodatos']">
       <div class="card-icon-container gradient-orange">
         <i class="pi pi-file"></i>
       </div>
@@ -69,31 +71,31 @@
         <p>Equipos en modalidad de préstamo.</p>
         <span class="card-action">Ver Comodatos <i class="pi pi-arrow-right"></i></span>
       </div>
-    </div>
+    </a>
 
     <!-- Sede -->
-    <div class="dashboard-card" (click)="showViewSedes()">
+    <a class="dashboard-card nav-link-container" [routerLink]="['/biomedica/sedes']">
       <div class="card-icon-container gradient-teal">
         <i class="pi pi-building"></i>
       </div>
       <div class="card-content">
         <h3>Sede</h3>
-        <p>Ubicación física del equipo.</p>
+        <p>Ubicaci&oacute;n física del equipo.</p>
         <span class="card-action">Ver Sedes <i class="pi pi-arrow-right"></i></span>
       </div>
-    </div>
+    </a>
 
-    <!-- Responsables -->
-    <div class="dashboard-card" (click)="showViewResponsables()">
-      <div class="card-icon-container gradient-cyan">
-        <i class="pi pi-users"></i>
+    <!-- Riesgo -->
+    <a class="dashboard-card nav-link-container" [routerLink]="['/biomedica/riesgos']">
+      <div class="card-icon-container gradient-green">
+        <i class="pi pi-exclamation-triangle"></i>
       </div>
       <div class="card-content">
-        <h3>Responsables</h3>
-        <p>Personal a cargo de los equipos.</p>
-        <span class="card-action">Ver Responsables <i class="pi pi-arrow-right"></i></span>
+        <h3>Riesgo</h3>
+        <p>Clasificación por nivel de riesgo (I, IIA, IIB...).</p>
+        <span class="card-action">Ver Riesgos <i class="pi pi-arrow-right"></i></span>
       </div>
-    </div>
+    </a>
 
   </div>
 </div>

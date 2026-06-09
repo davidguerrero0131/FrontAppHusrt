@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
+import { TableModule, Table } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -9,8 +9,12 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { TipoDocumentoService } from '../../../Services/appServices/general/tipoDocumento/tipo-documento.service';
 import { getDecodedAccessToken } from '../../../utilidades';
+
+import { UppercaseDirective } from '../../../Directives/uppercase.directive';
 
 @Component({
     selector: 'app-admtiposdocumento',
@@ -25,6 +29,9 @@ import { getDecodedAccessToken } from '../../../utilidades';
         ConfirmDialogModule,
         ToastModule,
         ToolbarModule,
+        IconFieldModule,
+        InputIconModule,
+        UppercaseDirective
     ],
     providers: [ConfirmationService, MessageService],
     templateUrl: './admtiposdocumento.component.html',
@@ -32,12 +39,18 @@ import { getDecodedAccessToken } from '../../../utilidades';
 })
 export class AdmtiposdocumentoComponent implements OnInit {
 
+    @ViewChild('dt') dt!: Table;
     tiposDocumento: any[] = [];
     tipoDocumentoDialog: boolean = false;
     tipoDocumento: any = {};
     submitted: boolean = false;
     loading: boolean = false;
     isAdminBiomedica: boolean = false;
+
+    onGlobalFilter(event: Event) {
+        const input = event.target as HTMLInputElement;
+        this.dt.filterGlobal(input.value, 'contains');
+    }
 
     constructor(
         private tipoDocumentoService: TipoDocumentoService,

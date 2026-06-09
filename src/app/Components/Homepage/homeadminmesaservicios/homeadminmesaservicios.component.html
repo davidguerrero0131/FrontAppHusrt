@@ -1,1 +1,60 @@
-<p>homeadminmesaservicios works!</p>
+<div class="dashboard-container">
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1>Mesa de Servicios</h1>
+            <p>Administración global, gestión de tickets e indicadores de soporte.</p>
+        </div>
+    </div>
+
+    <div class="cards-grid">
+
+        <!-- Configuración Categor&iacute;as -->
+        <a class="dashboard-card nav-link-container" [routerLink]="['/adminmesaservicios/config/categorias']">
+            <div class="card-icon-container gradient-blue">
+                <i class="pi pi-tags"></i>
+            </div>
+            <div class="card-content">
+                <h3>Categor&iacute;as</h3>
+                <p>Gestione categorías y subcategorías por servicio.</p>
+                <span class="card-action">Parametrizar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <!-- Configuración Roles -->
+        <a class="dashboard-card nav-link-container" [routerLink]="['/adminmesaservicios/config/roles']">
+            <div class="card-icon-container gradient-blue">
+                <i class="pi pi-users"></i>
+            </div>
+            <div class="card-content">
+                <h3>Roles y Usuarios</h3>
+                <p>Asigne roles (Admin, Resolutor, Creador) a los usuarios.</p>
+                <span class="card-action">Gestionar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <!-- Gesti&oacute;n de Casos -->
+        <a class="dashboard-card nav-link-container" [routerLink]="['/adminmesaservicios/casos']">
+            <div class="card-icon-container gradient-blue">
+                <i class="pi pi-ticket"></i>
+            </div>
+            <div class="card-content">
+                <h3>Casos</h3>
+                <p>Cree, asigne y resuelva incidencias y requerimientos.</p>
+                <span class="card-action">Acceder <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <!-- Indicadores -->
+        <a class="dashboard-card nav-link-container" [routerLink]="['/adminmesaservicios/indicadores']">
+            <div class="card-icon-container gradient-blue">
+                <i class="pi pi-chart-bar"></i>
+            </div>
+            <div class="card-content">
+                <h3>Indicadores</h3>
+                <p>Visualice métricas de rendimiento y gestión.</p>
+                <span class="card-action">Analizar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </a>
+
+    </div>
+</div>

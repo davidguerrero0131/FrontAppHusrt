@@ -1,0 +1,87 @@
+<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+
+<div class="fade-in-animation p-4">
+    <div class="flex align-items-center gap-3 mb-4">
+        <p-button icon="pi pi-arrow-left" label="Volver"
+            styleClass="p-button-secondary bg-gray-800 border-none shadow-2 px-4 py-2 border-round-lg hover:bg-gray-900 transition-all font-bold"
+            (click)="backToDashboard()" pTooltip="Volver al Panel Principal" tooltipPosition="bottom"></p-button>
+    </div>
+
+<div class="dashboard-container">
+
+    <!-- Hero Section -->
+    <div class="hero-section" style="background: linear-gradient(135deg, #1a5f7a 0%, #159895 100%);">
+        <div class="hero-content">
+            <h1>Bienvenido a Industriales</h1>
+            <p>Gestión integral de equipos industriales, mantenimientos y reportes.</p>
+        </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="cards-grid">
+
+        <!-- Inventario -->
+        <div class="dashboard-card" (click)="showViewEquiposIndustriales()">
+            <div class="card-icon-container gradient-blue">
+                <i class="pi pi-box"></i>
+            </div>
+            <div class="card-content">
+                <h3>Inventario Equipos Industriales</h3>
+                <p>Gestión de equipos y activos.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <!-- Mantenimiento -->
+        <div class="dashboard-card" (click)="showViewMantenimientosIndustriales()">
+            <div class="card-icon-container gradient-indigo">
+                <i class="pi pi-wrench"></i>
+            </div>
+            <div class="card-content">
+                <h3>Mantenimiento</h3>
+                <p>Programación y ejecución técnica.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <!-- Calendario -->
+        <div class="dashboard-card" (click)="goToVerProgramacion()">
+            <div class="card-icon-container gradient-cyan">
+                <i class="pi pi-calendar"></i>
+            </div>
+            <div class="card-content">
+                <h3>Calendario</h3>
+                <p>Agenda de actividades y cronograma.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <!-- Chequeos de Equipos -->
+        <div class="dashboard-card" (click)="goToChequeos()">
+            <div class="card-icon-container gradient-teal">
+                <i class="pi pi-check-circle"></i>
+            </div>
+            <div class="card-content">
+                <h3>Chequeos de Equipos Industriales</h3>
+                <p>Control y verificación de equipos.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+        <!-- Indicadores -->
+        <div *ngIf="userRole === 'Administrador'" class="dashboard-card" (click)="goToIndicadores()">
+            <div class="card-icon-container gradient-orange">
+                <i class="pi pi-chart-bar"></i>
+            </div>
+            <div class="card-content">
+                <h3>Indicadores</h3>
+                <p>Métricas y estadísticas de mantenimiento.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+</div>

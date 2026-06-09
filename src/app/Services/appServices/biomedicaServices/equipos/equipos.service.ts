@@ -1,12 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http'
-import { Observable } from 'rxjs'
+import { HttpClient } from '@angular/common/http'
 import { firstValueFrom } from 'rxjs';
-import { jwtDecode } from 'jwt-decode';
-import Swal from 'sweetalert2';
-import { createHeaders } from '../../../../utilidades'
-
 import { API_URL } from '../../../../constantes'
 
 @Injectable({
@@ -24,80 +19,135 @@ export class EquiposService {
 
   addEquipo(equipo: any) {
     return firstValueFrom(
-      this.httpClient.post<any>(`${this.baseUrl}/addequipo`, equipo, createHeaders())
+      this.httpClient.post<any>(`${this.baseUrl}/addequipo`, equipo)
     );
   }
 
   updateEquipo(id: any, equipo: any) {
     return firstValueFrom(
-      this.httpClient.put<any>(`${this.baseUrl}/Actequipo/${id}`, equipo, createHeaders())
+      this.httpClient.put<any>(`${this.baseUrl}/Actequipo/${id}`, equipo)
     );
   }
 
   getAllEquipos() {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos`, createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos`)
     )
   }
 
   getAllEquiposSeries() {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/seriesequipos`, createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/seriesequipos`)
     )
   }
 
   getEquipoById(id: any) {
     return firstValueFrom(
-      this.httpClient.get<any>(`${this.baseUrl}/equipo/${id}`, createHeaders())
+      this.httpClient.get<any>(`${this.baseUrl}/equipo/${id}`)
     )
   }
 
   getAllEquiposBajas() {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/bajas`, createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/bajas`)
     )
   }
 
   getAllEquiposComodatos(idResponsable: any) {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/responsable/${idResponsable}`, createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/responsable/${idResponsable}`)
     )
   }
 
   getAllEquiposTipo(idTipoEquipo: any) {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/tipo/${idTipoEquipo}`, createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/tipo/${idTipoEquipo}`)
     )
   }
 
   getAllEquiposServicio(idServicio: any) {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/servicio/${idServicio}`, createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/servicio/${idServicio}`)
+    )
+  }
+
+  getAllEquiposServicioPublico(idServicio: any) {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/publico/equipos/servicio/${idServicio}`)
     )
   }
 
   getAllEquiposSede(idSede: any) {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/sede/${idSede}`, createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/sede/${idSede}`)
+    )
+  }
+
+  getAllEquiposRiesgo(riesgo: any) {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/riesgo/${riesgo}`)
+    )
+  }
+
+  getCantidadEquiposRiesgo(riesgo: string) {
+    return firstValueFrom(
+      this.httpClient.get<number>(`${this.baseUrl}/cantidadequiposriesgo/${riesgo}`)
     )
   }
 
   getTrazabilidadByEquipo(idEquipo: any) {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/trazabilidad/equipo/${idEquipo}`, createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/trazabilidad/equipo/${idEquipo}`)
     )
   }
 
   createTrazabilidad(trazabilidad: any) {
     return firstValueFrom(
-      this.httpClient.post<any>(`${this.baseUrl}/trazabilidad`, trazabilidad, createHeaders())
+      this.httpClient.post<any>(`${this.baseUrl}/trazabilidad`, trazabilidad)
     )
   }
 
   getHistorialUnificado(idEquipo: any) {
     return firstValueFrom(
-      this.httpClient.get<any[]>(`${this.baseUrl}/historial/equipo/${idEquipo}`, createHeaders())
+      this.httpClient.get<any[]>(`${this.baseUrl}/historial/equipo/${idEquipo}`)
     )
+  }
+
+  exportarInventario(): Promise<Blob> {
+    return firstValueFrom(
+      this.httpClient.get(`${this.baseUrl}/exportarInventario`, { responseType: 'blob' })
+    );
+  }
+
+  getEquiposPatron() {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/equipos/patron`)
+    )
+  }
+
+
+  addReporteBaja(reporte: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${this.baseUrl}/addreportebaja`, reporte)
+    );
+  }
+
+  getUnauthorizedBajas() {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/reportesbaja/unauthorized`)
+    );
+  }
+
+  authorizeBaja(id: any) {
+    return firstValueFrom(
+      this.httpClient.put<any>(`${this.baseUrl}/authorizebaja/${id}`, {})
+    );
+  }
+
+  getReporteBajaByEquipo(equipoId: any) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${this.baseUrl}/reportebaja/equipo/${equipoId}`)
+    );
   }
 
 }

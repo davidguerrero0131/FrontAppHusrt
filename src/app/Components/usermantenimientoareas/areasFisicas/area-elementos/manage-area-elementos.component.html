@@ -1,51 +1,96 @@
-<div class="card p-4">
-    <div class="flex align-items-center gap-2 mb-4">
-        <p-button icon="pi pi-arrow-left" label="Volver" styleClass="p-button-secondary p-button-text"
-            (click)="volver()" pTooltip="Volver al listado" tooltipPosition="bottom"></p-button>
-        <h2 class="m-0">Gestión de Asignación de Elementos</h2>
-    </div>
+<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
 
-    <div class="grid">
-        <div class="col-12 md:col-6 mb-4">
-            <label class="block font-bold mb-2">Seleccione Área</label>
-            <p-dropdown [options]="areas" [(ngModel)]="selectedArea" optionLabel="nombre" [filter]="true"
-                filterBy="nombre" placeholder="Seleccione un área" (onChange)="onAreaChange()" styleClass="w-full"
-                appendTo="body"></p-dropdown>
+<div class="dashboard-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <button class="btn btn-secondary me-2" (click)="backToDashboard()">
+                <i class="bi bi-arrow-left me-2"></i>Volver al Listado
+            </button>
         </div>
+        <h3 class="mb-0">
+            Gestión de Inventario
+        </h3>
+        <div></div>
     </div>
 
-    <div class="mt-4" *ngIf="selectedArea">
-        <p-card header="Seleccione los elementos disponibles" subheader="Marque los elementos que posee esta área">
-            <div class="grid p-fluid">
-                <div class="col-12 sm:col-6 md:col-4 lg:col-3 xl:col-2" *ngFor="let elemento of allElementos">
-                    <div
-                        class="field-checkbox h-full p-3 border-1 surface-border border-round flex align-items-center surface-card hover:surface-hover cursor-pointer">
-                        <p-checkbox #cb [value]="elemento" [(ngModel)]="selectedElementos"
-                            [inputId]="'el-' + elemento.id"></p-checkbox>
-                        <label [for]="'el-' + elemento.id" class="ml-2 cursor-pointer font-medium w-full">{{
-                            elemento.nombre }}</label>
+    <div class="card shadow-2 border-round-xl p-0 overflow-hidden bg-white mb-4">
+        <div class="bg-primary-reverse p-4 flex align-items-center gap-3 border-bottom-1 surface-border">
+            <div class="bg-primary border-round-lg p-3 shadow-1">
+                <i class="pi pi-link text-white text-2xl"></i>
+            </div>
+            <div class="flex flex-column">
+                <span class="text-xl font-bold text-900">Configuración de {{ selectedArea?.nombre || 'Área' }}</span>
+                <span class="text-500 text-sm">Ubicación: <b>{{ selectedArea?.ubicacion }}</b> | Seleccione los
+                    elementos que pertenecen a este espacio.</span>
+            </div>
+        </div>
+
+        <div class="p-4 md:p-5">
+            <div class="mt-2" *ngIf="selectedArea">
+                <div
+                    class="flex flex-column md:flex-row justify-content-between align-items-start md:align-items-center mb-4 gap-3">
+                    <div class="flex flex-column">
+                        <h3 class="text-lg font-bold m-0 text-900">Catálogo de Elementos Disponibles</h3>
+                        <p class="text-500 text-sm m-0">Marque para asignar o desmarque para retirar del área.</p>
+                    </div>
+
+                    <span class="p-input-icon-left w-full md:w-20rem">
+                        <i class="pi pi-filter"></i>
+                        <input pInputText type="text" [(ngModel)]="searchTerm" placeholder="Filtrar por nombre..."
+                            class="w-full p-2 text-sm shadow-sm" />
+                    </span>
+                </div>
+
+                <div class="surface-ground p-3 border-round-lg border-1 surface-border" style="min-height: 200px;">
+                    <div class="grid grid-nogutter">
+                        <div class="col-12 sm:col-6 md:col-4 lg:col-3 p-1" *ngFor="let elemento of filteredElementos()">
+                            <div class="flex align-items-center p-2 surface-card border-1 border-transparent border-round shadow-1 transition-all transition-duration-200"
+                                [ngClass]="{
+                                    'border-primary bg-primary-reverse border-2': isSelected(elemento),
+                                    'hover:surface-100 cursor-pointer': elemento.estado,
+                                    'opacity-50 cursor-not-allowed bg-gray-50': !elemento.estado
+                                }"
+                                (click)="toggleElement(elemento)">
+                                <p-checkbox [binary]="true" [ngModel]="isSelected(elemento)"
+                                    [inputId]="'el-' + elemento.id" styleClass="p-checkbox-sm pointer-events-none" [disabled]="!elemento.estado" class="pointer-events-none"></p-checkbox>
+                                <label
+                                    class="ml-2 font-medium text-sm text-overflow-ellipsis overflow-hidden white-space-nowrap pointer-events-none"
+                                    [ngClass]="{'cursor-pointer text-800': elemento.estado, 'cursor-not-allowed text-500 line-through': !elemento.estado}">
+                                    {{ elemento.nombre }}
+                                </label>
+                                <span *ngIf="!elemento.estado" class="ml-auto text-xs font-bold text-pink-500 bg-pink-100 px-2 py-1 border-round pointer-events-none">Inactivo</span>
+                            </div>
+                            <!-- Cantidad Input -->
+                            <div *ngIf="isSelected(elemento) && elemento.estado" class="flex align-items-center justify-content-between p-2 surface-card border-x-2 border-bottom-2 border-primary bg-primary-reverse" style="border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; margin-top: -2px;">
+                                <span class="text-xs font-bold text-700">Cantidad:</span>
+                                <input pInputText type="number" min="1" [ngModel]="getCantidad(elemento)" (ngModelChange)="setCantidad(elemento, $event)" class="w-4rem p-1 text-center text-sm" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty States -->
+                    <div *ngIf="allElementos.length === 0"
+                        class="flex flex-column align-items-center justify-content-center p-5 text-center">
+                        <i class="pi pi-box text-3xl text-300 mb-2"></i>
+                        <span class="text-500 text-sm">No hay elementos activos en el catálogo.</span>
+                    </div>
+
+                    <div *ngIf="allElementos.length > 0 && filteredElementos().length === 0"
+                        class="flex flex-column align-items-center justify-content-center p-5 text-center">
+                        <i class="pi pi-search-minus text-3xl text-300 mb-2"></i>
+                        <span class="text-500 text-sm">No hay coincidencias para "{{ searchTerm }}".</span>
                     </div>
                 </div>
-            </div>
 
-            <div *ngIf="allElementos.length === 0" class="text-center p-4">
-                <span class="text-500">No hay elementos activos creados en el sistema.</span>
-            </div>
-
-            <ng-template pTemplate="footer">
-                <div class="flex justify-content-end gap-2">
-                    <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-secondary"
-                        (click)="volver()"></p-button>
-                    <p-button label="Guardar Asignaciones" icon="pi pi-save" (click)="guardar()"></p-button>
+                <div class="flex justify-content-end gap-3 mt-5 pt-4 border-top-1 surface-border">
+                    <p-button label="Descartar" icon="pi pi-times"
+                        styleClass="p-button-outlined p-button-secondary p-3 md:w-10rem"
+                        (click)="backToDashboard()"></p-button>
+                    <p-button label="Guardar Configuración" icon="pi pi-save" (click)="guardar()"
+                        [style]="{'background': 'linear-gradient(to right, var(--primary-color), var(--primary-600))'}"
+                        styleClass="p-3 shadow-2 md:w-15rem"></p-button>
                 </div>
-            </ng-template>
-        </p-card>
+            </div>
+        </div>
     </div>
-
-    <div *ngIf="!selectedArea"
-        class="flex flex-column align-items-center justify-content-center p-5 surface-50 border-round">
-        <i class="pi pi-info-circle text-5xl text-500 mb-3"></i>
-        <span class="text-xl text-500">Seleccione un área para gestionar sus elementos.</span>
-    </div>
-
 </div>

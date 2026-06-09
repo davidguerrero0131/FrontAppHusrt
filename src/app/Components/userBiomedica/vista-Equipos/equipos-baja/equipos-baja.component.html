@@ -1,0 +1,107 @@
+<p-toast></p-toast>
+<div class="p-4">
+    <div class="card shadow-sm border-round surface-card p-4">
+        <div class="flex justify-content-between align-items-center mb-4">
+            <div class="flex align-items-center gap-3">
+                <h2 class="text-2xl font-bold text-900 m-0">Equipos Dados de Baja</h2>
+                <button *ngIf="canAuthorize()" pButton label="Autorizar Bajas" icon="pi pi-check-circle" 
+                    class="p-button-success p-button-sm border-round-xl shadow-2" (click)="abrirModalAutorizacion()"></button>
+            </div>
+            
+            <p-iconField iconPosition="left">
+                <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+                <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Buscar equipo..." class="w-full md:w-20rem" appUppercase />
+            </p-iconField>
+        </div>
+
+        <p-table #dt [value]="equipos" [rows]="10" [paginator]="true" [loading]="loading"
+            [globalFilterFields]="['nombres', 'serie', 'placa', 'marca', 'modelo', 'servicios.nombres']"
+            [rowHover]="true" dataKey="id"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} equipos"
+            [showCurrentPageReport]="true" styleClass="p-datatable-sm p-datatable-striped">
+            
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="nombres">Nombre <p-sortIcon field="nombres"></p-sortIcon></th>
+                    <th pSortableColumn="serie">Serie <p-sortIcon field="serie"></p-sortIcon></th>
+                    <th pSortableColumn="placa">Placa <p-sortIcon field="placa"></p-sortIcon></th>
+                    <th pSortableColumn="marca">Marca <p-sortIcon field="marca"></p-sortIcon></th>
+                    <th pSortableColumn="servicios.nombres">Servicio <p-sortIcon field="servicios.nombres"></p-sortIcon></th>
+                    <th style="width: 8rem">Estado</th>
+                    <th style="width: 12rem">Opciones</th>
+                </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="body" let-equipo>
+                <tr>
+                    <td>{{equipo.nombres}}</td>
+                    <td>{{equipo.serie}}</td>
+                    <td>{{equipo.placa}}</td>
+                    <td>{{equipo.marca}}</td>
+                    <td>{{equipo.servicios?.nombres}}</td>
+                    <td>
+                        <p-tag severity="danger" value="DADO DE BAJA"></p-tag>
+                    </td>
+                    <td>
+                        <div class="flex gap-1">
+                            <button pButton icon="pi pi-eye" class="p-button-text p-button-rounded p-button-secondary" (click)="verHojaVida(equipo.id)" pTooltip="Ver Hoja de Vida"></button>
+                            <button pButton icon="pi pi-external-link" class="p-button-text p-button-rounded p-button-info" (click)="verReportes(equipo.id)" pTooltip="Ver Reportes"></button>
+                            <button *ngIf="equipo.reporteBaja && equipo.reporteBaja.length > 0" pButton icon="pi pi-file-pdf" class="p-button-text p-button-rounded p-button-danger" (click)="descargarPdf(equipo.id)" pTooltip="Descargar Reporte de Baja"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" class="text-center p-4">No se encontraron equipos dados de baja.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<p-dialog header="Pendientes de Autorización" [(visible)]="showAuthModal" [modal]="true" [style]="{width: '90vw'}" [draggable]="false" [resizable]="false">
+    <div class="p-2">
+        <p-table [value]="unauthorizedReports" [loading]="loadingAuth" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Equipo</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Serie</th>
+                    <th>Placa</th>
+                    <th>Servicio</th>
+                    <th>Ubicación Específica</th>
+                    <th>Motivo</th>
+                    <th>Fecha</th>
+                    <th style="width: 10rem">Acción</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-reporte>
+                <tr>
+                    <td>{{reporte.equipo?.nombres}}</td>
+                    <td>{{reporte.equipo?.marca}}</td>
+                    <td>{{reporte.equipo?.modelo}}</td>
+                    <td>{{reporte.equipo?.serie}}</td>
+                    <td>{{reporte.equipo?.placa}}</td>
+                    <td>{{reporte.equipo?.servicios?.nombres}}</td>
+                    <td>{{reporte.equipo?.ubicacionEspecifica}}</td>
+                    <td>{{reporte.descripcionFalla}}</td>
+                    <td>{{reporte.fechaBaja | date:'dd/MM/yyyy'}}</td>
+                    <td>
+                        <button pButton label="Confirmar Baja" icon="pi pi-check" class="p-button-success p-button-sm" (click)="confirmarBaja(reporte.id)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="10" class="text-center p-3">No hay bajas pendientes por autorizar.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cerrar" icon="pi pi-times" class="p-button-text" (click)="showAuthModal = false"></button>
+    </ng-template>
+</p-dialog>

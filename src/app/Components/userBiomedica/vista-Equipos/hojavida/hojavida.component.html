@@ -1,11 +1,15 @@
 <div style="width: 90%; margin-left: 5%; margin-right: 5%; margin-top: 2%;">
 
   <ng-container *ngIf="!showCreate; else createForm">
-    <p-card *ngIf="hojaVida" class="mb-4">
+    <p-card *ngIf="hojaVida && isBrowser" class="mb-4">
       <ng-template pTemplate="header">
         <div class="flex justify-content-between align-items-center p-3">
           <span class="text-xl font-bold">Datos del Equipo</span>
-          <p-button *ngIf="!isGuest()" label="Editar" icon="pi pi-pencil" (click)="onEdit()"></p-button>
+          <div class="flex gap-2">
+            <p-button label="Generar PDF" icon="pi pi-file-pdf" (click)="generatePdf()"
+              styleClass="p-button-danger"></p-button>
+            <p-button *ngIf="!isGuestUser" label="Editar" icon="pi pi-pencil" (click)="onEdit()"></p-button>
+          </div>
         </div>
       </ng-template>
 
@@ -13,7 +17,7 @@
 
         <!-- Columna izquierda: Imagen -->
         <div class="col-12 md:col-4 flex justify-content-center align-items-center">
-          <p-image *ngIf="hojaVida.foto" [src]="imagenUrl || undefined" [alt]="hojaVida.equipo?.nombres" width="200"
+          <p-image *ngIf="imagenUrl" [src]="imagenUrl" [alt]="hojaVida.equipo?.nombres" width="200"
             preview></p-image>
         </div>
 
@@ -27,8 +31,8 @@
             <div class="col-12 sm:col-6"><strong>Placa:</strong> {{ hojaVida.equipo.placa }}</div>
             <div class="col-12 sm:col-6"><strong>Sede:</strong> {{ hojaVida.equipo.servicios?.sede?.nombres }}</div>
             <div class="col-12 sm:col-6"><strong>Servicio:</strong> {{ hojaVida.equipo.servicios.nombres }}</div>
-            <div class="col-12 sm:col-6"><strong>Ubicación:</strong> {{ hojaVida.equipo.ubicacion }}</div>
-            <div class="col-12 sm:col-6"><strong>Ubicación específica:</strong> {{
+            <div class="col-12 sm:col-6"><strong>Ubicaci&oacute;n:</strong> {{ hojaVida.equipo.ubicacion }}</div>
+            <div class="col-12 sm:col-6"><strong>Ubicaci&oacute;n espec&iacute;fica:</strong> {{
               hojaVida.equipo.ubicacionEspecifica }}
             </div>
 
@@ -46,7 +50,7 @@
           <p-accordion-content>
             <div class="grid">
               <div class="col-12 sm:col-6" *ngIf="hojaVida.codigoInternacional">
-                <strong>Código Internacional:</strong> {{ hojaVida.codigoInternacional }}
+                <strong>C&oacute;digo Internacional:</strong> {{ hojaVida.codigoInternacional }}
               </div>
               <div class="col-12 sm:col-6">
                 <strong>Proveedor:</strong> {{ hojaVida.proveedor?.nombres }}
@@ -54,11 +58,9 @@
               <div class="col-12 sm:col-6">
                 <strong>Fabricante:</strong> {{ hojaVida.fabricante?.nombres }}
               </div>
+
               <div class="col-12 sm:col-6">
-                <strong>Año de Ingreso:</strong> {{ hojaVida.anoIngreso }}
-              </div>
-              <div class="col-12 sm:col-6">
-                <strong>Tipo de Adquisición:</strong> {{ hojaVida.tipoAdquisicion }}
+                <strong>Tipo de Adquisici&oacute;n:</strong> {{ hojaVida.tipoAdquisicion }}
               </div>
               <div class="col-12 sm:col-6">
                 <strong>Tipo de Uso:</strong> {{ hojaVida.tipoUso }}
@@ -73,7 +75,7 @@
                 <strong>Propiedad:</strong> {{ hojaVida.propiedad }}
               </div>
               <div class="col-12 sm:col-6">
-                <strong>Equipo Portátil:</strong> {{ hojaVida.equipoPortatil ? 'Sí' : 'No' }}
+                <strong>Equipo Port&aacute;til:</strong> {{ hojaVida.equipoPortatil ? 'S&iacute;' : 'No' }}
               </div>
               <div class="col-12 sm:col-6"><strong>Riesgo:</strong> {{ hojaVida.equipo.riesgo }}</div>
               <div class="col-12 sm:col-6"><strong>Registro Invima:</strong> {{ hojaVida.equipo.registroInvima }}</div>
@@ -83,7 +85,7 @@
 
         <!-- Datos del Tipo de Equipo -->
         <p-accordion-panel value="1" *ngIf="hojaVida.equipo?.tipoEquipos">
-          <p-accordion-header>Información del Tipo de Equipo</p-accordion-header>
+          <p-accordion-header>Informaci&oacute;n del Tipo de Equipo</p-accordion-header>
           <p-accordion-content>
             <div class="grid">
               <div class="col-12 sm:col-6"><strong>Nombre:</strong> {{ hojaVida.equipo.tipoEquipos.nombres }}</div>
@@ -96,7 +98,7 @@
                 hojaVida.equipo.tipoEquipos.tiempoMinutos
                 }}
               </div>
-              <div class="col-12 sm:col-6"><strong>Repuestos Mínimos:</strong> {{
+              <div class="col-12 sm:col-6"><strong>Repuestos M&iacute;nimos:</strong> {{
                 hojaVida.equipo.tipoEquipos.repuestosMinimos }}</div>
             </div>
           </p-accordion-content>
@@ -104,7 +106,7 @@
 
         <!-- Datos del Proveedor y Fabricante -->
         <p-accordion-panel value="2" *ngIf="hojaVida.proveedor || hojaVida.fabricante">
-          <p-accordion-header>Información de Proveedor y Fabricante</p-accordion-header>
+          <p-accordion-header>Informaci&oacute;n de Proveedor y Fabricante</p-accordion-header>
           <p-accordion-content>
             <div class="grid">
               <div class="col-12 md:col-6">
@@ -114,7 +116,7 @@
                 <div class="grid" *ngIf="hojaVida.proveedor; else noProv">
                   <div class="col-12"><strong>Nombres:</strong> {{ hojaVida.proveedor.nombres }}</div>
                   <div class="col-12"><strong>Ciudad:</strong> {{ hojaVida.proveedor.ciudad }}</div>
-                  <div class="col-12"><strong>Teléfono:</strong> {{ hojaVida.proveedor.telefono }}</div>
+                  <div class="col-12"><strong>Tel&eacute;fono:</strong> {{ hojaVida.proveedor.telefono }}</div>
                   <div class="col-12"><strong>Correo:</strong> {{ hojaVida.proveedor.correo }}</div>
                   <div class="col-12"><strong>Representante:</strong> {{ hojaVida.proveedor.representante }}</div>
                   <div class="col-12"><strong>Tel. Representante:</strong> {{ hojaVida.proveedor.telRepresentante }}
@@ -131,7 +133,7 @@
                 </p-divider>
                 <div class="grid" *ngIf="hojaVida.fabricante; else noFab">
                   <div class="col-12"><strong>Nombres:</strong> {{ hojaVida.fabricante.nombres }}</div>
-                  <div class="col-12"><strong>País:</strong> {{ hojaVida.fabricante.pais }}</div>
+                  <div class="col-12"><strong>Pa&iacute;s:</strong> {{ hojaVida.fabricante.pais }}</div>
                 </div>
                 <ng-template #noFab>
                   <div class="text-center font-italic text-500">Sin información de fabricante asignado.</div>
@@ -143,7 +145,7 @@
 
         <!-- Datos técnicos -->
         <p-accordion-panel value="3" *ngIf="hojaVida.datosTecnicos">
-          <p-accordion-header>Datos Técnicos</p-accordion-header>
+          <p-accordion-header>Datos T&eacute;cnicos</p-accordion-header>
           <p-accordion-content>
             <div class="grid">
               <div class="col-12 sm:col-6" *ngFor="let key of datosTecnicosKeys()">
@@ -154,42 +156,74 @@
         </p-accordion-panel>
 
         <p-accordion-panel value="4" *ngIf="planMantenimiento.length > 0 || planMetrologia.length > 0">
-          <p-accordion-header>Datos de Mantenimiento y Actividades Metrologicas</p-accordion-header>
+          <p-accordion-header>Datos de Mantenimiento y Actividades Metrol&oacute;gicas</p-accordion-header>
           <p-accordion-content>
             <div class="grid">
               <div class="col-12 sm:col-12">
-                <strong>Mantenimientos Anuales:</strong> {{ hojaVida.equipo.periodicidadM }}
+                <strong>Intervenciones Anuales:</strong> {{ hojaVida.equipo.periodicidadM }}
               </div>
 
               <div class="col-12 sm:col-3" *ngFor="let plan of planMantenimiento">
-                <strong>Fecha:</strong> {{ getNombreMes(plan.mes) }} del Año {{ plan.ano }}
+                <span class="p-tag p-tag-info">
+                  {{ getNombreMes(plan.mes) }} {{ plan.ano }}
+                </span>
               </div>
               <div class="col-12 sm:col-12" *ngFor="let plan of planMantenimiento">
 
               </div>
               <div *ngIf="planMetrologia.length > 0">
                 <div class="col-12 sm:col-12">
-                  <strong>Actividades Metrologicas Anuales:</strong>
+                  <strong>Actividades Metrol&oacute;gicas Anuales:</strong>
                 </div>
                 <div class="col-12 sm:col-6" *ngFor="let plan of planMetrologia">
-                  <strong>Fecha:</strong> {{ getNombreMes(plan.mes) }} del Año {{ plan.ano }}
+                  <strong>Fecha:</strong> {{ getNombreMes(plan.mes) }} del A&ntilde;o {{ plan.ano }}
                 </div>
               </div>
             </div>
           </p-accordion-content>
         </p-accordion-panel>
 
+        <!-- Accesorios -->
+        <p-accordion-panel value="accesorios" *ngIf="hojaVida.accesorios && hojaVida.accesorios.length > 0">
+          <p-accordion-header>Accesorios</p-accordion-header>
+          <p-accordion-content>
+            <p-table [value]="hojaVida.accesorios" responsiveLayout="scroll" styleClass="p-datatable-sm"
+              [paginator]="hojaVida.accesorios.length > 5" [rows]="5" [showCurrentPageReport]="true"
+              currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Nombre</th>
+                  <th>Cantidad</th>
+                  <th>Estado</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-acc>
+                <tr>
+                  <td>{{ acc.nombre }}</td>
+                  <td>{{ acc.cantidad || 1 }}</td>
+                  <td>
+                    <span [class]="acc.estado ? 'text-green-500 font-bold' : 'text-red-500 font-bold'">
+                      {{ acc.estado ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-accordion-content>
+        </p-accordion-panel>
+
         <!-- Documentos Anexos -->
-        <p-accordion-panel value="5">
+        <p-accordion-panel value="5" *ngIf="!isGuestUser">
           <p-accordion-header>Documentos Anexos</p-accordion-header>
           <p-accordion-content>
             <div class="mb-3">
-              <p-button *ngIf="!isGuest()" label="Agregar Documento" icon="pi pi-plus"
+              <p-button *ngIf="!isGuestUser" label="Agregar Documento" icon="pi pi-plus"
                 (click)="openModalAddDocumento()"></p-button>
             </div>
 
             <p-table [value]="documentos" [loading]="loadingDocumentos" [rows]="5" [paginator]="true"
-              responsiveLayout="scroll">
+              responsiveLayout="scroll" [showCurrentPageReport]="true"
+              currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
               <ng-template pTemplate="header">
                 <tr>
                   <th>Nombre</th>
@@ -204,7 +238,7 @@
                   <td>
                     <button pButton icon="pi pi-download" class="p-button-rounded p-button-info mr-2"
                       (click)="descargarDocumento(doc)" pTooltip="Descargar"></button>
-                    <button *ngIf="!isGuest()" pButton icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                    <button *ngIf="!isGuestUser" pButton icon="pi pi-trash" class="p-button-rounded p-button-danger"
                       (click)="eliminarDocumento(doc)" pTooltip="Eliminar"></button>
                   </td>
                 </tr>
@@ -225,7 +259,7 @@
         <div class="p-fluid">
           <div class="field">
             <label for="nombreDoc">Nombre del Documento</label>
-            <input pInputText id="nombreDoc" [(ngModel)]="nuevoDocumento.nombres" />
+            <input pInputText id="nombreDoc" [(ngModel)]="nuevoDocumento.nombres" appUppercase />
           </div>
           <div class="field">
             <label for="tipoDoc">Tipo de Documento</label>
@@ -257,8 +291,8 @@
   </ng-container>
 
   <ng-template #createForm>
-    <app-crear-hojavida [equipoId]="id" [hojaVidaData]="dataToEdit"
-      (hojaVidaCreated)="onHojaVidaCreated()"></app-crear-hojavida>
+    <app-crear-hojavida [equipoId]="id" [hojaVidaData]="dataToEdit" (hojaVidaCreated)="onHojaVidaCreated()"
+      (onCancel)="onCancelCreate()"></app-crear-hojavida>
   </ng-template>
 
 </div>

@@ -2,16 +2,18 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ElementosService } from '../../../../../Services/appServices/areasFisicas/elementos.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
+import { DropdownModule } from 'primeng/dropdown';
+import { MantenimientoadminnavbarComponent } from '../../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
 import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-manage-elemento',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, CheckboxModule],
+    imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, CheckboxModule, DropdownModule, MantenimientoadminnavbarComponent],
     templateUrl: './manage-elemento.component.html',
     styleUrls: ['./manage-elemento.component.css']
 })
@@ -20,6 +22,12 @@ export class ManageElementoComponent implements OnInit {
     elementoForm: FormGroup;
     isEditMode: boolean = false;
     elementoId: number | null = null;
+    isIframe: boolean = false;
+    
+    tipos = [
+        { label: 'Mobiliario', value: 'mobiliario' },
+        { label: 'Infraestructura', value: 'infraestructura' }
+    ];
 
     elementosService = inject(ElementosService);
 
@@ -30,11 +38,13 @@ export class ManageElementoComponent implements OnInit {
     ) {
         this.elementoForm = this.fb.group({
             nombre: ['', Validators.required],
+            tipo: ['mobiliario', Validators.required],
             estado: [true]
         });
     }
 
     async ngOnInit() {
+        this.isIframe = window !== window.parent && !window.opener;
         this.route.paramMap.subscribe(params => {
             const id = params.get('id');
             if (id) {
@@ -51,6 +61,7 @@ export class ManageElementoComponent implements OnInit {
             if (elemento) {
                 this.elementoForm.patchValue({
                     nombre: elemento.nombre,
+                    tipo: elemento.tipo || 'mobiliario',
                     estado: elemento.estado
                 });
             }
@@ -78,14 +89,26 @@ export class ManageElementoComponent implements OnInit {
                 await this.elementosService.createElemento(elementoData);
                 Swal.fire('Éxito', 'Elemento creado correctamente', 'success');
             }
-            this.router.navigate(['/elementos/listado']);
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+            if (returnUrl) {
+                this.router.navigate(['/elementos/listado'], { queryParams: { returnUrl } });
+            } else {
+                this.router.navigate(['/elementos/listado']);
+            }
         } catch (error) {
             console.error('Error guardando elemento', error);
             Swal.fire('Error', 'Ocurrió un error al guardar el elemento', 'error');
         }
     }
 
+    location = inject(Location);
+
     cancelar() {
-        this.router.navigate(['/elementos/listado']);
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+            this.router.navigate(['/elementos/listado'], { queryParams: { returnUrl } });
+        } else {
+            this.router.navigate(['/elementos/listado']);
+        }
     }
 }

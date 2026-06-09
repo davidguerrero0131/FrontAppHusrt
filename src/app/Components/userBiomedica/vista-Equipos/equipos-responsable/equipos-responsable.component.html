@@ -12,13 +12,13 @@
         [tableStyle]="{ 'min-width': '10rem' }">
 
         <!-- Filtro -->
-        <ng-template #caption>
+        <ng-template pTemplate="caption">
             <div class="flex justify-content-end">
                 <p-iconfield iconPosition="left">
                     <p-inputicon>
                         <i class="pi pi-search"></i>
                     </p-inputicon>
-                    <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda General" />
+                    <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="B&uacute;squeda General" />
                 </p-iconfield>
             </div>
         </ng-template>
@@ -32,7 +32,7 @@
                 <th>Modelo</th>
                 <th>Serie</th>
                 <th>Sede</th>
-                <th>Ubicación Específica</th>
+                <th>Ubicaci&oacute;n Específica</th>
                 <th>Meses Mtto</th>
                 <th>Registro Invima</th>
                 <th>Riesgo</th>
@@ -52,7 +52,13 @@
                 <td>{{ equipo.serie }}</td>
                 <td>{{ equipo.servicios?.sede?.nombres }}</td>
                 <td>{{ equipo.ubicacionEspecifica }}</td>
-                <td>{{ equipo.periodicidadM }}</td>
+                <td>
+                    <span *ngFor="let m of obtenerMesesConCumplimiento(equipo); let last = last" [style.color]="m.color"
+                        [style.font-weight]="'bold'">
+                        {{ m.mes }}{{ last ? '' : ', ' }}
+                    </span>
+                    <span *ngIf="!equipo.planesMantenimiento || equipo.planesMantenimiento.length === 0">No Aplica</span>
+                </td>
                 <td>{{ equipo.registroInvima }}</td>
                 <td>{{ equipo.riesgo }}</td>
                 <td>
@@ -76,23 +82,27 @@
     styleClass="standard-modal modal-md" [draggable]="false" [resizable]="false">
     <div class="p-fluid">
         <div class="field">
-            <label for="periodicidad">Periodicidad (Meses)</label>
-            <p-inputNumber [(ngModel)]="periodicidad" inputId="periodicidad" [min]="0" [max]="12"
-                (onInput)="calcularFechas()" placeholder="Ej: 3, 6, 12"></p-inputNumber>
-            <small class="block">Ingrese cada cuantos meses se debe realizar el mantenimiento.</small>
+            <label for="intervenciones">Intervenciones por año</label>
+            <p-select [options]="intervencionOptions" [(ngModel)]="intervencionesAnuales" optionLabel="name"
+                optionValue="value" (onChange)="calcularFechas()"></p-select>
+            <small class="block">Seleccione cuántas veces al año se realizará el mantenimiento.</small>
         </div>
         <div class="field">
             <label for="mesInicio">Mes de Inicio</label>
-            <p-dropdown [options]="monthOptions" [(ngModel)]="mesInicio" optionLabel="name" optionValue="value"
-                (onChange)="calcularFechas()"></p-dropdown>
-            <small class="block">Seleccione el primer mes del mantenimiento.</small>
+            <p-select [options]="monthOptions" [(ngModel)]="mesInicio" optionLabel="name" optionValue="value"
+                (onChange)="calcularFechas()"></p-select>
+            <small class="block">Seleccione el mes en que inicia el primer mantenimiento.</small>
         </div>
         <div class="field">
-            <label for="meses">Meses Calculados</label>
-            <p-multiSelect [options]="monthOptions" [(ngModel)]="selectedMonths" defaultLabel="Seleccione los meses"
-                optionLabel="name" optionValue="value" display="chip" [disabled]="true"></p-multiSelect>
+            <label for="anioInicio">A&ntilde;o de Inicio</label>
+            <p-select [options]="anioOptions" [(ngModel)]="anioInicio" optionLabel="name" optionValue="value"
+                (onChange)="calcularFechas()"></p-select>
+            <small class="block">Seleccione el año de inicio.</small>
+        </div>
+        <div class="field">
+            <label for="meses">Ciclo de Mantenimiento Calculado</label>
             <p class="font-bold mt-2"
-                [ngClass]="{'text-green-500': selectedMonths.length > 0, 'text-red-500': selectedMonths.length === 0}">
+                [ngClass]="{'text-green-500': selectedPlans.length > 0, 'text-red-500': selectedPlans.length === 0}">
                 {{calculatedMonthsText}}
             </p>
         </div>

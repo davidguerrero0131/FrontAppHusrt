@@ -1,8 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { createHeaders } from './../../../../utilidades';
-
 import { API_URL } from '../../../../constantes'
 
 @Injectable({
@@ -17,31 +15,49 @@ export class MantenimientosService {
 
   getPlanMantenimientoEquipo(idEquipo: any) {
     return firstValueFrom(
-      this.httpClient.get<any>(`${API_URL}/planmantenimientoequipo/` + idEquipo, createHeaders())
+      this.httpClient.get<any>(`${API_URL}/planmantenimientoequipo/` + idEquipo)
     )
   }
 
   getPlanMantenimientoMes(mes: any) {
     return firstValueFrom(
-      this.httpClient.post<any>(`${API_URL}/planmantenimientomes`, mes, createHeaders())
+      this.httpClient.post<any>(`${API_URL}/planmantenimientomes`, mes)
     )
   }
 
   getPlanMantenimientoServicio(idServicio: any) {
     return firstValueFrom(
-      this.httpClient.get<any>(`${API_URL}/planmantenimientoservicio/` + idServicio, createHeaders())
+      this.httpClient.get<any>(`${API_URL}/planmantenimientoservicio/` + idServicio)
+    )
+  }
+
+  getPlanMantenimientoServicioPublico(idServicio: any) {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/publico/planmantenimientoservicio/` + idServicio)
     )
   }
 
   getPlanMantenimientoTipoEquipo(idTipoEquipo: any) {
     return firstValueFrom(
-      this.httpClient.get<any>(`${API_URL}/planmantenimientotipoequipo/` + idTipoEquipo, createHeaders())
+      this.httpClient.get<any>(`${API_URL}/planmantenimientotipoequipo/` + idTipoEquipo)
     )
   }
 
   programacionMantenimientoResponsable(date: any) {
     return firstValueFrom(
-      this.httpClient.post<any>(`${API_URL}/programacionpreventivosresponsable`, date, createHeaders())
+      this.httpClient.post<any>(`${API_URL}/programacionpreventivosresponsable`, date)
+    )
+  }
+
+  getScheduledMonths() {
+    return firstValueFrom(
+      this.httpClient.get<any>(`${API_URL}/programacion-preventiva-meses`)
+    )
+  }
+
+  programacionSuplementariaMes(data: any) {
+    return firstValueFrom(
+      this.httpClient.post<any>(`${API_URL}/programacion-suplementaria-mes`, data)
     )
   }
 }

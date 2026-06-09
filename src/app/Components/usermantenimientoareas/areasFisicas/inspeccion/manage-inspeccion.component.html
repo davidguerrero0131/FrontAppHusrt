@@ -1,90 +1,144 @@
-<div class="card p-4">
-    <div class="flex flex-column md:flex-row justify-content-between align-items-center mb-4 gap-3">
-        <div class="flex align-items-center gap-2">
-            <p-button icon="pi pi-arrow-left" label="Volver" styleClass="p-button-secondary p-button-text"
-                (click)="cancelar()" pTooltip="Volver a planes" tooltipPosition="bottom"></p-button>
-            <h2 class="m-0 font-bold text-primary uppercase">SERVICIO {{ nombreArea || 'CARGANDO...' }}</h2>
-        </div>
-        <div class="flex align-items-center gap-2">
-            <span class="font-bold text-lg">FECHA:</span>
-            <span class="text-lg">{{ fechaActual | date:'dd/MM/yyyy' }}</span>
-        </div>
-    </div>
+<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
 
-    <p-table [value]="inspecciones" responsiveLayout="scroll" styleClass="p-datatable-gridlines p-datatable-sm">
-        <ng-template pTemplate="header">
-            <tr>
-                <th style="width: 200px;">DESCRIPCION</th>
-                <th style="width: 180px;" class="text-center">ESTADO</th>
-                <th>REPORTE (OBSERVACIONES)</th>
-                <th style="width: 100px;">ACCIONES</th>
-            </tr>
-            <tr>
-                <th></th>
-                <th class="p-0">
-                    <div class="flex w-full">
-                        <div class="flex-1 text-center font-bold p-2 border-right-1 surface-border bg-gray-100 text-sm">
-                            BUENO</div>
-                        <div class="flex-1 text-center font-bold p-2 border-right-1 surface-border bg-gray-100 text-sm">
-                            REGUL.</div>
-                        <div class="flex-1 text-center font-bold p-2 bg-gray-100 text-sm">MALO</div>
-                    </div>
-                </th>
-                <th></th>
-                <th></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-item>
-            <tr>
-                <td class="font-bold">{{ item.elementoNombre }}</td>
-                <td class="p-0">
-                    <div class="flex w-full h-full align-items-center">
-                        <div class="flex-1 flex justify-content-center p-2 border-right-1 surface-border">
-                            <p-radioButton name="estado-{{item.areaElementoIdFk}}" [value]="1" [(ngModel)]="item.estado"
-                                inputId="bueno-{{item.areaElementoIdFk}}" [disabled]="isReadonly"></p-radioButton>
-                        </div>
-                        <div class="flex-1 flex justify-content-center p-2 border-right-1 surface-border">
-                            <p-radioButton name="estado-{{item.areaElementoIdFk}}" [value]="2" [(ngModel)]="item.estado"
-                                inputId="regular-{{item.areaElementoIdFk}}" [disabled]="isReadonly"></p-radioButton>
-                        </div>
-                        <div class="flex-1 flex justify-content-center p-2">
-                            <p-radioButton name="estado-{{item.areaElementoIdFk}}" [value]="3" [(ngModel)]="item.estado"
-                                inputId="malo-{{item.areaElementoIdFk}}" [disabled]="isReadonly"></p-radioButton>
-                        </div>
-                    </div>
-                </td>
-                <td class="p-1">
-                    <input type="text" pInputText [(ngModel)]="item.observaciones" class="w-full border-0"
-                        placeholder="..." [disabled]="isReadonly">
-                </td>
-                <td class="text-center">
-                    <button *ngIf="item.estado === 3" pButton icon="pi pi-file-edit"
-                        class="p-button-rounded p-button-danger p-button-text" pTooltip="Generar Reporte"
-                        (click)="abrirReporte(item)">
-                    </button>
-                </td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="emptymessage">
-            <tr>
-                <td colspan="3" class="text-center p-4">El área no tiene elementos asignados para inspeccionar.</td>
-            </tr>
-        </ng-template>
-    </p-table>
-
-    <div class="flex justify-content-end gap-2 mt-4" *ngIf="!isReadonly">
-        <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-secondary" (click)="cancelar()"></p-button>
-        <p-button label="Guardar Inspección" icon="pi pi-check" styleClass="p-button-primary p-button-raised"
-            (click)="guardar()"></p-button>
+<div class="dashboard-container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <button class="btn btn-secondary me-2" (click)="cancelar()">
+        <i class="bi bi-arrow-left me-2"></i>Volver
+      </button>
     </div>
-    <div class="flex justify-content-end gap-2 mt-4" *ngIf="isReadonly">
-        <p-button label="Cerrar" icon="pi pi-times" styleClass="p-button-secondary" (click)="cancelar()"></p-button>
+    <h3 class="mb-0">
+      {{ isReadonly ? 'Hoja de Inspección' : 'Realizar Inspección Física' }}
+    </h3>
+    <div></div>
+  </div>
+
+    <div class="card shadow-2 border-round-xl p-0 overflow-hidden bg-white">
+        <!-- Header decorativo -->
+        <div
+            class="bg-primary-reverse p-4 flex align-items-center justify-content-between border-bottom-1 surface-border">
+            <div class="flex align-items-center gap-3">
+                <div class="bg-primary border-round-lg p-3 shadow-1">
+                    <i class="pi pi-check-square text-white text-2xl"></i>
+                </div>
+                <div class="flex flex-column">
+                    <span class="text-xl font-bold text-900 uppercase">{{ nombreArea || 'Cargando Espacio...' }}</span>
+                    <span class="text-500 text-sm">Registro de verificación de elementos físicos y su estado
+                        operativo.</span>
+                </div>
+            </div>
+            <div class="bg-gray-100 p-3 border-round-lg shadow-sm flex flex-column align-items-end">
+                <span class="text-xs font-bold text-500 uppercase mb-1">Fecha de Registro</span>
+                <span class="text-lg font-bold text-primary">{{ fechaActual | date:'dd / MM / yyyy' }}</span>
+                <div *ngIf="isReadonly && inspectorNombre" class="mt-2 text-right border-top-1 surface-border pt-2">
+                    <span class="text-xs font-bold text-500 uppercase mb-1">Inspector</span><br/>
+                    <span class="text-sm font-bold text-700"><i class="pi pi-user mr-1 text-primary"></i> {{ inspectorNombre }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 md:p-5">
+            <p-table [value]="inspecciones" responsiveLayout="scroll"
+                styleClass="p-datatable-striped shadow-1 border-round-lg overflow-hidden border-1 surface-border">
+                <ng-template pTemplate="header">
+                    <tr class="surface-ground">
+                        <th class="p-3 text-900 font-bold" style="min-width: 250px;">Descripción del Elemento</th>
+                        <th class="p-0" style="width: 280px;">
+                            <div class="flex flex-column">
+                                <span
+                                    class="text-center font-bold p-2 surface-border border-bottom-1 surface-100 text-sm text-700">ESTADO
+                                    OPERATIVO</span>
+                                <div class="flex w-full">
+                                    <div
+                                        class="flex-1 text-center font-bold p-2 border-right-1 surface-border bg-green-50 text-green-700 text-xs">
+                                        BUENO</div>
+                                    <div
+                                        class="flex-1 text-center font-bold p-2 border-right-1 surface-border bg-yellow-50 text-yellow-700 text-xs">
+                                        REGULAR</div>
+                                    <div class="flex-1 text-center font-bold p-2 bg-red-50 text-red-700 text-xs">MALO
+                                    </div>
+                                </div>
+                            </div>
+                        </th>
+                        <th class="p-3 text-900 font-bold">Observaciones / Reporte de Hallazgos</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-item>
+                    <tr class="hover:surface-50 transition-colors">
+                        <td class="p-3 font-bold text-800">
+                            <i class="pi pi-box mr-2 text-primary-300"></i>
+                            {{ item.elementoNombre }}
+                        </td>
+                        <td class="p-0 border-left-1 border-right-1 surface-border">
+                            <div class="flex w-full h-full align-items-center">
+                                <div
+                                    class="flex-1 flex justify-content-center p-3 border-right-1 surface-border hover:bg-green-50 transition-colors">
+                                    <p-radioButton name="estado-{{item.areaElementoIdFk}}" [value]="1"
+                                        [(ngModel)]="item.estado" inputId="bueno-{{item.areaElementoIdFk}}"
+                                        [disabled]="isReadonly" styleClass="p-radiobutton-sm"></p-radioButton>
+                                </div>
+                                <div
+                                    class="flex-1 flex justify-content-center p-3 border-right-1 surface-border hover:bg-yellow-50 transition-colors">
+                                    <p-radioButton name="estado-{{item.areaElementoIdFk}}" [value]="2"
+                                        [(ngModel)]="item.estado" inputId="regular-{{item.areaElementoIdFk}}"
+                                        [disabled]="isReadonly" styleClass="p-radiobutton-sm"></p-radioButton>
+                                </div>
+                                <div class="flex-1 flex justify-content-center p-3 hover:bg-red-50 transition-colors">
+                                    <p-radioButton name="estado-{{item.areaElementoIdFk}}" [value]="3"
+                                        [(ngModel)]="item.estado" inputId="malo-{{item.areaElementoIdFk}}"
+                                        [disabled]="isReadonly" styleClass="p-radiobutton-sm"></p-radioButton>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-2">
+                            <textarea [rows]="1" pTextarea [autoResize]="true" [(ngModel)]="item.observaciones"
+                                class="w-full border-transparent hover:border-gray-300 focus:border-primary bg-transparent text-sm p-2"
+                                placeholder="Añadir nota técnica..." [disabled]="isReadonly"></textarea>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="4" class="text-center p-5 surface-50">
+                            <div class="flex flex-column align-items-center gap-3">
+                                <i class="pi pi-box text-4xl text-300"></i>
+                                <span class="text-600 font-medium">El área no tiene elementos asignados para
+                                    inspeccionar.</span>
+                                <p-button label="Gestionar Elementos" icon="pi pi-cog" styleClass="p-button-text"
+                                    (click)="router.navigate(['/areas/asignar-elementos/gestionar', areaId])"></p-button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <div class="flex flex-column md:flex-row justify-content-end gap-3 mt-5 pt-4 border-top-1 surface-border"
+                *ngIf="!isReadonly">
+                <p-button label="Descartar" icon="pi pi-times"
+                    styleClass="p-button-outlined p-button-secondary p-3 md:w-12rem" (click)="cancelar()"></p-button>
+                <p-button label="Finalizar Inspección" icon="pi pi-check-circle"
+                    [style]="{'background': 'linear-gradient(to right, var(--primary-color), var(--primary-600))'}"
+                    styleClass="p-3 shadow-2 md:w-20rem font-bold" (click)="guardar()"></p-button>
+            </div>
+
+            <div class="flex justify-content-end gap-3 mt-5 pt-4 border-top-1 surface-border" *ngIf="isReadonly">
+                <p-button *ngIf="reporteRelacionadoId !== null" label="Ver Reporte Generado" icon="pi pi-file" styleClass="p-button-warning p-3"
+                    (click)="verReporte()"></p-button>
+                <p-button label="Cerrar Vista" icon="pi pi-times" styleClass="p-button-secondary p-3 md:w-12rem"
+                    (click)="cancelar()"></p-button>
+            </div>
+        </div>
     </div>
 </div>
 
 <p-dialog [(visible)]="reporteModalVisible" [modal]="true" [style]="{width: '80vw'}" [draggable]="false"
-    [resizable]="false" header="Generar Reporte de Mantenimiento">
+    [resizable]="false" header="Generar Reporte de Mantenimiento" styleClass="custom-dialog">
     <app-manage-reporte-mantenimiento *ngIf="reporteModalVisible" [inputAreaElementoId]="selectedReporteElementId"
-        [isDialog]="true" (onClose)="cerrarReporte($event)">
+        [inputInspeccionId]="selectedInspeccionId" [isDialog]="true" [isReadonlyReport]="isReadonly"
+        [inputFallasText]="fallasTextToInject"
+        [inputNombresElementos]="nombresElementosToInject"
+        (onClose)="cerrarReporte($event)">
     </app-manage-reporte-mantenimiento>
-</p-dialog>
+</p-dialog>

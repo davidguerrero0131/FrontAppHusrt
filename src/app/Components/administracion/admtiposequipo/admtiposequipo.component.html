@@ -9,14 +9,18 @@
     </ng-template>
 
     <ng-template pTemplate="right">
+      <p-button label="Condiciones Iniciales" icon="pi pi-list" (onClick)="openCondicionesInicialesModal()"
+        severity="help" [raised]="true" class="mr-2" *ngIf="isAdminBiomedica"></p-button>
       <p-button label="Agregar" icon="pi pi-plus" (onClick)="viewModalAddTipoEquipo()" severity="primary"
         [raised]="true"></p-button>
     </ng-template>
   </p-toolbar>
 
-  <p-table #dt2 [value]="tiposEquipos" dataKey="id" [paginator]="true" [rows]="10"
-    [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [globalFilterFields]="['nombres', 'tipoR']"
-    [tableStyle]="{ 'min-width': '75rem' }" styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true">
+  <p-table *ngIf="isBrowser" #dt2 [value]="tiposEquipos" dataKey="id" [paginator]="true" [rows]="10" [(first)]="first"
+    (onPage)="onPageChange($event)" [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
+    [globalFilterFields]="['id', 'nombres', 'materialConsumible', 'herramienta', 'tiempoMinutos', 'tipoR']"
+    [tableStyle]="{ 'min-width': '75rem' }" styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true"
+    [showCurrentPageReport]="true" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
 
     <ng-template pTemplate="caption">
       <div class="flex justify-content-between flex-column sm:flex-row align-items-center">
@@ -26,7 +30,8 @@
         </div>
         <p-iconfield position="left">
           <p-inputicon styleClass="pi pi-search" />
-          <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Buscar tipo..." />
+          <input pInputText type="text" (input)="onGlobalFilter($event)" [value]="searchText"
+            placeholder="Buscar tipo..." />
         </p-iconfield>
       </div>
     </ng-template>
@@ -34,11 +39,11 @@
     <ng-template pTemplate="header">
       <tr>
         <th pSortableColumn="id" style="width:5%">ID <p-sortIcon field="id"></p-sortIcon></th>
-        <th pSortableColumn="nombres">Nombre <p-sortIcon field="nombres"></p-sortIcon></th>
+        <th pSortableColumn="nombres">Nombre (Protocolo) <p-sortIcon field="nombres"></p-sortIcon></th>
         <th>Materiales Consumibles</th>
         <th>Herramientas</th>
         <th pSortableColumn="tiempoMinutos">Minutos <p-sortIcon field="tiempoMinutos"></p-sortIcon></th>
-        <th pSortableColumn="tipoR">Área <p-sortIcon field="tipoR"></p-sortIcon></th>
+        <th pSortableColumn="tipoR">&Aacute;rea <p-sortIcon field="tipoR"></p-sortIcon></th>
         <th style="width:12%">Opciones</th>
       </tr>
     </ng-template>
@@ -47,14 +52,16 @@
       <tr>
         <td class="text-center">{{ equipo?.id }}</td>
         <td>
-          <button pButton [label]="equipo.nombres" class="p-button-link pl-0 text-left font-bold"
-            (click)="viewTipoEquipo(equipo)"></button>
+          <span class="text-primary font-bold cursor-pointer hover:underline" style="transition: color 0.2s;"
+            (click)="viewTipoEquipo(equipo)">
+            {{ equipo.nombres }}
+          </span>
         </td>
         <td>{{ equipo.materialConsumible }}</td>
         <td>{{ equipo.herramienta }}</td>
         <td class="text-center">{{ equipo.tiempoMinutos }}</td>
         <td>
-          <p-tag *ngIf="equipo.tipoR == 1" value="Biomédica" severity="info"></p-tag>
+          <p-tag *ngIf="equipo.tipoR == 1" value="Biom&eacute;dica" severity="info"></p-tag>
           <p-tag *ngIf="equipo.tipoR == 2" value="Sistemas" severity="warning"></p-tag>
           <p-tag *ngIf="equipo.tipoR == 3" value="Mantenimiento" severity="success"></p-tag>
         </td>
@@ -62,6 +69,8 @@
           <div class="flex gap-2">
             <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="warn"
               (onClick)="openEditModal(equipo)" pTooltip="Editar"></p-button>
+            <p-button icon="pi pi-list" [rounded]="true" [text]="true" severity="info"
+              (onClick)="viewMediciones(equipo)" pTooltip="Mediciones Específicas"></p-button>
             <p-button *ngIf="equipo.activo" icon="pi pi-ban" [rounded]="true" [text]="true" severity="danger"
               (onClick)="estadoTipoEquipo(equipo.id, 'D')" pTooltip="Desactivar"></p-button>
             <p-button *ngIf="!equipo.activo" icon="pi pi-check-circle" [rounded]="true" [text]="true" severity="success"
@@ -84,41 +93,68 @@
 <p-dialog [header]="'Protocolos de ' + tipoEquipoSelected?.nombres" [(visible)]="viewProtocolsModal" [modal]="true"
   [style]="{ width: '70vw', maxWidth: '95%' }" styleClass="p-fluid">
 
-  <div class="flex gap-2 mb-3">
+  <div class="flex gap-2 mb-3 mt-2">
     <input type="text" pInputText [(ngModel)]="newProtocoloPaso" placeholder="Paso del nuevo protocolo"
-      class="flex-grow-1" />
+      class="flex-grow-1" appUppercase />
     <button pButton type="button" icon="pi pi-plus" label="Agregar" (click)="addProtocolo()" class="w-auto"></button>
   </div>
 
-  <p-table [value]="protocoloTipoEquipo" [rows]="5" [paginator]="true" styleClass="p-datatable-sm">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Paso</th>
-        <th style="width: 15%">Estado</th>
-        <th style="width: 15%">Acción</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-protocolo>
-      <tr>
-        <td>{{ protocolo.paso }}</td>
-        <td>
-          <p-tag [value]="protocolo.estado ? 'Activo' : 'Inactivo'"
-            [severity]="protocolo.estado ? 'success' : 'danger'"></p-tag>
-        </td>
-        <td>
-          <p-button [icon]="protocolo.estado ? 'pi pi-times' : 'pi pi-check'"
-            [label]="protocolo.estado ? 'Desactivar' : 'Activar'" [severity]="protocolo.estado ? 'danger' : 'success'"
-            [text]="true" (onClick)="toggleProtocolStatus(protocolo)">
-          </p-button>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="3" class="text-center p-4">No hay protocolos registrados.</td>
-      </tr>
-    </ng-template>
-  </p-table>
+  <p-tabView>
+    <p-tabPanel header="Activos">
+      <p-table *ngIf="isBrowser" [value]="protocolosActivos" (onRowReorder)="onRowReorder($event)"
+        styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 3rem"></th>
+            <th>Paso</th>
+            <th style="width: 15%">Acci&oacute;n</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-protocolo let-index="rowIndex">
+          <tr [pReorderableRow]="index">
+            <td>
+              <span class="pi pi-bars" pReorderableRowHandle style="cursor: move; color: #888;"></span>
+            </td>
+            <td>{{ protocolo.paso }}</td>
+            <td>
+              <p-button icon="pi pi-times" label="Desactivar" severity="danger" [text]="true"
+                (onClick)="toggleProtocolStatus(protocolo)"></p-button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="3" class="text-center p-4">No hay protocolos activos.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+
+    <p-tabPanel header="Inactivos">
+      <p-table *ngIf="isBrowser" [value]="protocolosInactivos" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Paso</th>
+            <th style="width: 15%">Acci&oacute;n</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-protocolo>
+          <tr>
+            <td style="text-decoration: line-through; color: #888;">{{ protocolo.paso }}</td>
+            <td>
+              <p-button icon="pi pi-check" label="Activar" severity="success" [text]="true"
+                (onClick)="toggleProtocolStatus(protocolo)"></p-button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="2" class="text-center p-4">No hay protocolos inactivos.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+  </p-tabView>
 </p-dialog>
 
 
@@ -131,17 +167,17 @@
 
     <div class="flex flex-column gap-2">
       <label class="font-bold">Nombre</label>
-      <input pInputText formControlName="nombres" />
+      <input pInputText formControlName="nombres" appUppercase />
     </div>
 
     <div class="formgrid grid">
       <div class="field col-12 md:col-6 flex flex-column gap-2">
         <label class="font-bold">Materiales Consumibles</label>
-        <textarea pInputTextarea rows="3" formControlName="materialConsumible"></textarea>
+        <textarea pInputTextarea rows="3" formControlName="materialConsumible" appUppercase></textarea>
       </div>
       <div class="field col-12 md:col-6 flex flex-column gap-2">
         <label class="font-bold">Herramientas</label>
-        <textarea pInputTextarea rows="3" formControlName="herramienta"></textarea>
+        <textarea pInputTextarea rows="3" formControlName="herramienta" appUppercase></textarea>
       </div>
     </div>
 
@@ -152,28 +188,28 @@
       </div>
       <div class="field col-12 md:col-6 flex flex-column gap-2">
         <label class="font-bold">Repuestos Mínimos</label>
-        <input pInputText formControlName="repuestosMinimos" />
+        <input pInputText formControlName="repuestosMinimos" appUppercase />
       </div>
     </div>
 
     <div class="flex flex-column gap-2">
       <label class="font-bold">Actividad</label>
-      <input pInputText formControlName="actividad" />
+      <input pInputText formControlName="actividad" appUppercase />
     </div>
 
     <div class="flex align-items-center gap-2 mt-2">
       <p-inputSwitch formControlName="requiereMetrologia" inputId="reqMetrologia"></p-inputSwitch>
-      <label for="reqMetrologia" class="font-bold">Requiere Actividad Metrológica</label>
+      <label for="reqMetrologia" class="font-bold">Requiere Actividad Metrol&oacute;gica</label>
     </div>
 
     <div class="flex flex-column gap-2">
-      <label class="font-bold">Área</label>
+      <label class="font-bold">&Aacute;rea</label>
       <select formControlName="tipoR" class="p-inputtext w-full">
-        <option value="1">Biomédica</option>
+        <option value="1">Biom&eacute;dica</option>
         <option value="2">Sistema</option>
         <option value="3">Mantenimiento</option>
       </select>
-      <!-- Ideally use p-dropdown here, but select is simpler for fixed values without array in TS -->
+      <!-- Ideally use p-select here, but select is simpler for fixed values without array in TS -->
     </div>
 
     <div class="flex justify-content-end gap-2 mt-4">
@@ -183,4 +219,130 @@
     </div>
 
   </form>
+</p-dialog>
+
+<!-- Specific Measurements Modal -->
+<p-dialog [header]="'Mediciones Específicas: ' + tipoEquipoSelected?.nombres" [(visible)]="viewMedicionesModal"
+  [modal]="true" [style]="{ width: '40rem' }" [breakpoints]="{ '960px': '75vw', '640px': '90vw' }" styleClass="p-fluid">
+
+  <div class="surface-card p-4 shadow-1 border-round mb-4">
+    <h5 class="m-0 mb-3 text-700">Agregar Nueva Medición</h5>
+    <div class="flex flex-column sm:flex-row gap-3">
+      <div class="flex-grow-1">
+        <span class="p-float-label">
+          <input id="nombreMed" type="text" pInputText [(ngModel)]="newMedicionNombre" class="w-full no-uppercase"
+            noUppercase />
+          <label for="nombreMed">Nombre (Ej: Voltaje)</label>
+        </span>
+      </div>
+      <div class="flex-none w-full sm:w-8rem">
+        <span class="p-float-label">
+          <input id="unidadMed" type="text" pInputText [(ngModel)]="newMedicionUnidad" class="w-full no-uppercase"
+            noUppercase />
+          <label for="unidadMed">Unidad (Ej: V)</label>
+        </span>
+      </div>
+      <div class="flex-none w-full sm:w-8rem">
+        <span class="p-float-label">
+          <input id="estandarMed" type="text" pInputText [(ngModel)]="newMedicionValorEstandar"
+            class="w-full no-uppercase" noUppercase />
+          <label for="estandarMed">Estándar</label>
+        </span>
+      </div>
+      <div class="flex-grow-1">
+        <span class="p-float-label">
+          <input id="critAcep" type="text" pInputText [(ngModel)]="newMedicionCriterioAceptacion"
+            class="w-full no-uppercase" noUppercase />
+          <label for="critAcep">Criterio Aceptación</label>
+        </span>
+      </div>
+    </div>
+    <div class="flex justify-content-end mt-3">
+      <button pButton type="button" icon="pi pi-plus" label="Agregar" (click)="addMedicion()" pTooltip="Agregar"
+        class="w-full sm:w-auto"></button>
+    </div>
+  </div>
+
+  <div class="border-top-1 surface-border pt-4" *ngIf="isBrowser">
+    <p-table [value]="medicionesTipoEquipo" [rows]="5" [paginator]="true" styleClass="p-datatable-sm"
+      responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Medición</th>
+          <th style="width: 20%">Unidad</th>
+          <th style="width: 20%">Estándar</th>
+          <th style="width: 25%">Criterio Aceptación</th>
+          <th style="width: 15%">Estado</th>
+          <th style="width: 15%" class="text-center">Acci&oacute;n</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-medicion>
+        <tr>
+          <td class="font-medium">{{ medicion.nombre }}</td>
+          <td><p-tag [value]="medicion.unidad" severity="info"></p-tag></td>
+          <td>{{ medicion.valorEstandar || 'N/A' }}</td>
+          <td>{{ medicion.criterioAceptacion || 'N/A' }}</td>
+          <td>
+            <p-tag [value]="medicion.estado ? 'Activo' : 'Inactivo'"
+              [severity]="medicion.estado ? 'success' : 'danger'"></p-tag>
+          </td>
+          <td class="text-center">
+            <div class="flex gap-2 justify-content-center">
+              <button pButton [icon]="medicion.estado ? 'pi pi-ban' : 'pi pi-check'"
+                class="p-button-rounded p-button-text"
+                [ngClass]="medicion.estado ? 'p-button-danger' : 'p-button-success'"
+                (click)="toggleMedicionEstado(medicion)"
+                [pTooltip]="medicion.estado ? 'Desactivar' : 'Activar'"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="3" class="text-center p-4 text-500 font-italic">No hay mediciones registradas.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
+
+<!-- Condiciones Iniciales Modal -->
+<p-dialog header="Condiciones Iniciales (Globales)" [(visible)]="viewCondicionesInicialesModal" [modal]="true"
+  [style]="{ width: '50rem' }" [breakpoints]="{ '960px': '75vw', '640px': '90vw' }" styleClass="p-fluid">
+
+  <div class="flex gap-2 mb-3">
+    <input type="text" pInputText [(ngModel)]="newCondicionDescripcion" placeholder="Descripci&oacute;n de la condición"
+      class="flex-grow-1" appUppercase />
+    <button pButton type="button" icon="pi pi-plus" label="Agregar" (click)="addCondicionInicial()"
+      class="w-auto"></button>
+  </div>
+
+  <p-table *ngIf="isBrowser" [value]="condicionesIniciales" [rows]="10" [paginator]="true" styleClass="p-datatable-sm">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Descripci&oacute;n</th>
+        <th style="width: 15%">Estado</th>
+        <th style="width: 20%">Acci&oacute;n</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-cond>
+      <tr>
+        <td>{{ cond.descripcion }}</td>
+        <td>
+          <p-tag [value]="cond.activo ? 'Activo' : 'Inactivo'" [severity]="cond.activo ? 'success' : 'danger'"></p-tag>
+        </td>
+        <td>
+          <p-button [icon]="cond.activo ? 'pi pi-times' : 'pi pi-check'"
+            [label]="cond.activo ? 'Desactivar' : 'Activar'" [severity]="cond.activo ? 'danger' : 'success'"
+            [text]="true" (onClick)="toggleCondicionInicialEstado(cond)">
+          </p-button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="3" class="text-center p-4">No hay condiciones iniciales registradas.</td>
+      </tr>
+    </ng-template>
+  </p-table>
 </p-dialog>

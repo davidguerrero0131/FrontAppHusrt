@@ -2,14 +2,14 @@
 
     <div class="hero-section">
         <div class="hero-content">
-            <h1>Gestión Operativa</h1>
+            <h1>Gesti&oacute;n Operativa</h1>
             <p>Accede a inventarios, mantenimientos, indicadores y actividades metrológicas, todo en un solo lugar.</p>
         </div>
     </div>
 
     <div class="cards-grid">
         <!-- Inventario -->
-        <div class="dashboard-card" (click)="showViewInventarioBio()">
+        <a (click)="showViewInventarioBio()" class="dashboard-card nav-link-container" style="cursor: pointer;">
             <div class="card-icon-container gradient-blue">
                 <i class="pi pi-box"></i>
             </div>
@@ -18,10 +18,10 @@
                 <p>Gestiona el inventario de equipos biomédicos.</p>
                 <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
             </div>
-        </div>
+        </a>
 
         <!-- Mantenimiento -->
-        <div class="dashboard-card" (click)="showViewMantenimientoBio()">
+        <a (click)="showViewMantenimientoBio()" class="dashboard-card nav-link-container" style="cursor: pointer;">
             <div class="card-icon-container gradient-indigo">
                 <i class="pi pi-wrench"></i>
             </div>
@@ -30,22 +30,22 @@
                 <p>Administra mantenimientos preventivos y correctivos.</p>
                 <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
             </div>
-        </div>
+        </a>
 
         <!-- Semaforización -->
-        <div class="dashboard-card" (click)="showViewSemaforizacionBio()">
+        <a (click)="showViewSemaforizacionBio()" class="dashboard-card nav-link-container" style="cursor: pointer;">
             <div class="card-icon-container gradient-orange">
                 <i class="pi pi-circle-fill"></i>
             </div>
             <div class="card-content">
                 <h3>Semaforización</h3>
-                <p>Visualiza el estado de los equipos.</p>
+                <p>Semaforización de Garant&iacute;as: Visualiza los equipos próximos a vencer garantía.</p>
                 <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
             </div>
-        </div>
+        </a>
 
         <!-- Indicadores -->
-        <div class="dashboard-card" (click)="showViewIndicadoresBio()">
+        <a (click)="showViewIndicadoresBio()" class="dashboard-card nav-link-container" style="cursor: pointer;">
             <div class="card-icon-container gradient-green">
                 <i class="pi pi-chart-bar"></i>
             </div>
@@ -54,10 +54,10 @@
                 <p>Analiza métricas e indicadores de gestión.</p>
                 <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
             </div>
-        </div>
+        </a>
 
         <!-- Calendario -->
-        <div class="dashboard-card" (click)="showViewCalendarioBio()">
+        <a (click)="showViewCalendarioBio()" class="dashboard-card nav-link-container" style="cursor: pointer;">
             <div class="card-icon-container gradient-cyan">
                 <i class="pi pi-calendar"></i>
             </div>
@@ -66,18 +66,30 @@
                 <p>Cronograma de actividades y mantenimientos.</p>
                 <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
             </div>
-        </div>
+        </a>
 
         <!-- Actividades Metrologicas -->
-        <div class="dashboard-card" (click)="showViewActividadesMetrologicasBio()">
+        <a (click)="showViewActividadesMetrologicasBio()" class="dashboard-card nav-link-container" style="cursor: pointer;">
             <div class="card-icon-container gradient-teal">
                 <i class="pi pi-clock"></i>
             </div>
             <div class="card-content">
-                <h3>Act. Metrológicas</h3>
-                <p>Gestión de calibración y metrología.</p>
+                <h3>Act. Metrol&oacute;gicas</h3>
+                <p>Gesti&oacute;n de calibración y metrología.</p>
                 <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
             </div>
-        </div>
+        </a>
+
+        <!-- Equipos Dados de Baja -->
+        <a (click)="showViewEquiposBajaBio()" class="dashboard-card nav-link-container" style="cursor: pointer;">
+            <div class="card-icon-container gradient-red">
+                <i class="pi pi-trash"></i>
+            </div>
+            <div class="card-content">
+                <h3>Equipos de Baja</h3>
+                <p>Equipos que han sido retirados del inventario activo.</p>
+                <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </a>
     </div>
 </div>

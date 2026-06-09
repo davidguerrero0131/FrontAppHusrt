@@ -4,10 +4,12 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
+import { UppercaseDirective } from '../../../Directives/uppercase.directive';
+
 @Component({
   selector: 'app-clasificacion-servicio',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, UppercaseDirective],
   templateUrl: './clasificacion-servicio.component.html',
   styleUrl: './clasificacion-servicio.component.css'
 })
@@ -23,7 +25,7 @@ export class ClasificacionServicioComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      this.servicios = await this.servicioServices.getAllServicios();
+      this.servicios = await this.servicioServices.getAllServiciosActivos();
 
       for (let servicio of this.servicios) {
         this.obtenerCantidadEquipos(servicio.id);
@@ -44,13 +46,15 @@ export class ClasificacionServicioComponent implements OnInit {
   }
 
   filteredServicios() {
+    if (!this.servicios) return [];
     return this.servicios.filter(servicio =>
-      servicio.nombres.toLowerCase().includes(this.searchText.toLowerCase())
+      servicio.nombres.toLowerCase().includes(this.searchText.toLowerCase()) &&
+      (this.cantidadesEquipos[servicio.id] > 0)
     );
   }
 
   viewEquiposServicio(idServicio: any) {
-    sessionStorage.setItem("idServicio", idServicio);
+    localStorage.setItem("idServicio", idServicio);
     this.router.navigate(['biomedica/equiposservicio']);
   }
 }

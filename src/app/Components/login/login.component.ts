@@ -6,6 +6,8 @@ import { isPlatformBrowser } from '@angular/common';
 
 import { Router } from '@angular/router';
 import { UserService } from '../../Services/appServices/userServices/user.service';
+import { ThemeService } from '../../Services/theme/theme.service';
+import { UppercaseDirective } from '../../Directives/uppercase.directive';
 
 
 @Component({
@@ -20,6 +22,7 @@ export class LoginComponent implements OnInit {
   formulario: FormGroup;
   userServices = inject(UserService);
   router = inject(Router);
+  themeService = inject(ThemeService);
 
   constructor(
     private formBuilder: FormBuilder,
@@ -32,10 +35,13 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      sessionStorage.setItem('utoken', '');
+    // Si la pestaña actual ya cargó o sincronizó un token válido, redirigir automáticamente
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('utoken')) {
+      const decoded = this.getDecodedAccessToken(sessionStorage.getItem('utoken')!);
+      if (decoded && decoded.rol) {
+        this.redirectBasedOnRole(decoded.rol);
+      }
     }
-    sessionStorage.setItem('utoken', '');
   }
 
   async onSubmit() {
@@ -43,22 +49,9 @@ export class LoginComponent implements OnInit {
       const response = await this.userServices.login(this.formulario.value);
       if (!response.error) {
         sessionStorage.setItem('utoken', response.token);
-        if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'SYSTEMADMIN') {
-          this.router.navigate(['/adminsistemas']);
-        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'SUPERADMIN') {
-          this.router.navigate(['/superadmin']);
-        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'MANTENIMIENTOADMIN') {
-          this.router.navigate(['/adminmantenimiento']);
-        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'ADMINMANTENIMIENTO') {
-          this.router.navigate(['/adminmantenimiento']);
-        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'BIOMEDICAADMIN') {
-          this.router.navigate(['/adminbiomedica']);
-        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'BIOMEDICAUSER') {
-          this.router.navigate(['/userbiomedica']);
-        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'BIOMEDICATECNICO') {
-          this.router.navigate(['/userbiomedica']);
-        } else if (this.getDecodedAccessToken(sessionStorage.getItem('utoken')!).rol === 'MESAUSER') {
-          this.router.navigate(['/mesauser/home']);
+        const decoded = this.getDecodedAccessToken(response.token);
+        if (decoded && decoded.rol) {
+          this.redirectBasedOnRole(decoded.rol);
         }
       }
     } catch {
@@ -67,6 +60,28 @@ export class LoginComponent implements OnInit {
         title: 'Usuario o contraseña incorecto',
         text: 'Verifique los campos.'
       })
+    }
+  }
+
+  redirectBasedOnRole(rol: string) {
+    if (rol === 'SYSTEMADMIN') {
+      this.router.navigate(['/adminsistemas']);
+    } else if (rol === 'SUPERADMIN') {
+      this.router.navigate(['/superadmin']);
+    } else if (rol === 'MANTENIMIENTOADMIN') {
+      this.router.navigate(['/adminmantenimiento']);
+    } else if (rol === 'BIOMEDICAADMIN') {
+      this.router.navigate(['/adminbiomedica']);
+    } else if (rol === 'BIOMEDICAUSER') {
+      this.router.navigate(['/userbiomedica']);
+    } else if (rol === 'BIOMEDICATECNICO') {
+      this.router.navigate(['/userbiomedica']);
+    } else if (rol === 'MESAUSER') {
+      this.router.navigate(['/mesauser/home']);
+    } else if (rol === 'MESAADMIN') {
+      this.router.navigate(['/adminmesaservicios']);
+    } else if (rol === 'INVITADO') {
+      this.router.navigate(['/biomedica/home-invitado']);
     }
   }
 

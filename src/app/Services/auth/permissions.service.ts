@@ -13,6 +13,11 @@ export class PermissionsService {
         return decodedToken ? decodedToken.rol : null;
     }
 
+    getUserCargoId(): number | null {
+        const decodedToken = getDecodedAccessToken();
+        return decodedToken ? decodedToken.cargoId : null;
+    }
+
     hasRole(allowedRoles: string[]): boolean {
         const userRole = this.getUserRole();
         return userRole ? allowedRoles.includes(userRole) : false;

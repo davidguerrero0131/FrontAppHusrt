@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { AreasService } from '../../../../Services/appServices/areasFisicas/areas.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -11,15 +11,17 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TagModule } from 'primeng/tag';
 import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Table } from 'primeng/table';
 import { getDecodedAccessToken } from '../../../../utilidades';
+import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
 import Swal from 'sweetalert2';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'app-areas-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule, ToolbarModule, TagModule, MenuModule],
+    imports: [CommonModule, TableModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule, ToolbarModule, TagModule, MenuModule, MantenimientoadminnavbarComponent],
     templateUrl: './areas-list.component.html',
     styleUrls: ['./areas-list.component.css']
 })
@@ -29,11 +31,12 @@ export class AreasListComponent implements OnInit {
     areas: any[] = [];
     loading: boolean = true;
     areasService = inject(AreasService);
+    route = inject(ActivatedRoute);
+    router = inject(Router);
     isAdmin: boolean = false;
+    isUsuario: boolean = false;
     items: MenuItem[] | undefined;
     selectedArea: any;
-
-    constructor(private router: Router) { }
 
     async ngOnInit() {
         this.checkRole();
@@ -42,13 +45,21 @@ export class AreasListComponent implements OnInit {
 
     checkRole() {
         const tokenData = getDecodedAccessToken();
-        this.isAdmin = tokenData.rol === 'ADMINMANTENIMIENTO' || tokenData.rol === 'BIOMEDICAADMIN' || tokenData.rol === 'SUPERADMIN';
+        this.isAdmin = tokenData.rol === 'ADMINMANTENIMIENTO' || tokenData.rol === 'USERMANTENIMIENTO' || tokenData.rol === 'BIOMEDICAADMIN' || tokenData.rol === 'SUPERADMIN';
+        this.isUsuario = false; // USERMANTENIMIENTO ahora tiene permisos de admin;
     }
 
     async loadAreas() {
         this.loading = true;
         try {
-            this.areas = await this.areasService.getAllAreas();
+            const data = await this.areasService.getAllAreas();
+            const serviceId = this.route.snapshot.params['id'];
+
+            if (serviceId) {
+                this.areas = data.filter((a: any) => a.servicioIdFk == serviceId || a.servicioId == serviceId);
+            } else {
+                this.areas = data;
+            }
         } catch (error) {
             console.error(error);
             Swal.fire('Error', 'No se pudieron cargar las áreas', 'error');
@@ -63,11 +74,26 @@ export class AreasListComponent implements OnInit {
     }
 
     crearArea() {
-        this.router.navigate(['/areas/crear']);
+        const serviceId = this.route.snapshot.params['id'];
+        const queryParams: any = { returnUrl: this.router.url };
+        if (serviceId) {
+            queryParams['servicioId'] = serviceId;
+        }
+        this.router.navigate(['/areas/crear'], { queryParams });
+    }
+
+    verEquiposIndustriales() {
+        const serviceId = this.route.snapshot.params['id'];
+        const queryParams: any = { returnUrl: this.router.url };
+        if (serviceId) {
+            queryParams['servicioId'] = serviceId;
+        }
+        this.router.navigate(['/industriales/equipos'], { queryParams });
     }
 
     setMenuArea(area: any) {
         this.selectedArea = area;
+        const isActive = area.estado === 1 || area.estado === true || area.estado == '1';
         this.items = [
             {
                 label: 'Opciones',
@@ -79,19 +105,16 @@ export class AreasListComponent implements OnInit {
                         visible: this.isAdmin
                     },
                     {
-                        label: 'Gestionar Planes',
+                        label: 'Gestionar plan',
                         icon: 'pi pi-calendar',
-                        command: () => this.verPlanes(area.id)
-                    },
-                    {
-                        label: 'Ver Inspecciones',
-                        icon: 'pi pi-check-square',
-                        command: () => this.verInspecciones(area.id)
+                        command: () => this.verPlanes(area.id),
+                        visible: !this.isUsuario
                     },
                     {
                         label: 'Gestionar Elementos',
                         icon: 'pi pi-box',
-                        command: () => this.verElementos(area.id)
+                        command: () => this.verElementos(area.id),
+                        visible: !this.isUsuario
                     },
                     {
                         label: 'Ver Detalle',
@@ -99,15 +122,18 @@ export class AreasListComponent implements OnInit {
                         command: () => this.verDetalle(area.id)
                     },
                     {
-                        separator: true
+                        separator: true,
+                        visible: !this.isUsuario
                     },
                     {
                         label: 'Reportes',
                         icon: 'pi pi-file',
-                        command: () => { }
+                        command: () => this.verReportes(area.id),
+                        visible: !this.isUsuario
                     },
                     {
-                        separator: true
+                        separator: true,
+                        visible: this.isAdmin
                     },
                     {
                         label: 'Eliminar',
@@ -122,27 +148,44 @@ export class AreasListComponent implements OnInit {
     }
 
     verPlanes(areaId: number) {
-        this.router.navigate(['/adminmantenimiento/mantenimientos-area', areaId]);
-    }
-
-    verInspecciones(areaId: number) {
-        this.router.navigate(['/adminmantenimiento/inspecciones-area', areaId]);
+        this.router.navigate(['/adminmantenimiento/mantenimientos-area', areaId], { queryParams: { returnUrl: this.router.url } });
     }
 
     verElementos(areaId: number) {
-        this.router.navigate(['/adminmantenimiento/elementos-area', areaId]);
+        this.router.navigate(['/areas/asignar-elementos/gestionar', areaId], { queryParams: { returnUrl: this.router.url } });
     }
 
     verDetalle(areaId: number) {
-        this.router.navigate(['/adminmantenimiento/detalle-area', areaId]);
+        this.router.navigate(['/areas/detalle', areaId], { queryParams: { returnUrl: this.router.url } });
+    }
+
+    verReportes(areaId: number) {
+        this.router.navigate(['/adminmantenimiento/reportes-area', areaId], { queryParams: { returnUrl: this.router.url } });
     }
 
     editarArea(id: number) {
-        this.router.navigate(['/areas/editar', id]);
+        this.router.navigate(['/areas/editar', id], { queryParams: { returnUrl: this.router.url } });
     }
 
+    location = inject(Location);
+
     volver() {
-        this.router.navigate(['/adminmantenimiento']);
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+        } else {
+            const serviceId = this.route.snapshot.params['id'];
+            if (serviceId) {
+                this.router.navigate(['/adminmantenimiento/servicios']);
+            } else {
+                const tokenData = getDecodedAccessToken();
+                if (tokenData.rol === 'ADMINMANTENIMIENTO' || tokenData.rol === 'USERMANTENIMIENTO' || tokenData.rol === 'SUPERADMIN') {
+                    this.router.navigate(['/adminmantenimiento']);
+                } else {
+                    this.router.navigate(['/adminmantenimiento/gestion-operativa']);
+                }
+            }
+        }
     }
 
     async eliminarArea(id: number) {

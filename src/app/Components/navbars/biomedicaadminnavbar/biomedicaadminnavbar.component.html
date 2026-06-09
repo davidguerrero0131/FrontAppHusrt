@@ -1,20 +1,40 @@
 <div class="menubar-wrapper">
     <p-menubar [model]="items" styleClass="glass-navbar border-none">
         <ng-template pTemplate="start">
-            <div class="logo-container flex align-items-center gap-2 px-2 cursor-pointer" routerLink="/adminbiomedica">
+            <a class="logo-container flex align-items-center gap-2 px-2 nav-link-container"
+                routerLink="/adminbiomedica">
                 <img src="LogoAgora.png" height="40" alt="Logo" />
                 <div class="flex flex-column">
-                    <span class="font-bold text-primary text-lg">Biomédica</span>
-                    <span class="text-xs text-secondary">Administrador</span>
+                    <span class="font-bold text-primary text-lg">{{ themeService.getThemeConfig().appName }}</span>
+                    <span class="text-xs text-secondary">Administrador Biom&eacute;dica</span>
                 </div>
-            </div>
+            </a>
         </ng-template>
 
         <ng-template pTemplate="end">
             <div class="flex align-items-center gap-2">
-                <p-avatar icon="pi pi-user" styleClass="mr-2 cursor-pointer" shape="circle"
-                    [style]="{'background-color': '#eef2ff', 'color': '#0056b3'}" (click)="viewUser()"
-                    pTooltip="Perfil"></p-avatar>
+                <p-button icon="pi pi-bell" [rounded]="true" [text]="true" severity="secondary"
+                    (onClick)="opNotif.toggle($event)" pTooltip="Notificaciones"
+                    [badge]="pendingCasesCount ? pendingCasesCount.toString() : ''" 
+                    badgeClass="p-badge-danger" [disabled]="!pendingCasesCount">
+                </p-button>
+
+                <p-overlayPanel #opNotif appendTo="body">
+                    <div class="flex flex-column gap-3" style="width: 25rem">
+                        <div *ngIf="notificaciones.length === 0" class="text-500 text-center p-3">No hay notificaciones pendientes</div>
+                        <div *ngFor="let n of notificaciones" class="flex align-items-center p-2 hover:surface-hover border-round cursor-pointer" (click)="viewPendingCases(); opNotif.hide()">
+                            <i class="pi text-xl mr-3" [ngClass]="{'pi-star-fill text-warning': n.tipo === 'CALIFICACION_PENDIENTE', 'pi-exclamation-circle text-primary': n.tipo === 'NUEVO'}"></i>
+                            <div class="flex-1">
+                                <span class="font-medium text-sm block">Caso #{{n.casoId}}</span>
+                                <span class="text-xs text-color-secondary block">{{n.mensaje}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </p-overlayPanel>
+                <a [routerLink]="['/updateprofil']" class="nav-link-container" pTooltip="Perfil">
+                    <p-avatar icon="pi pi-user" styleClass="mr-2 cursor-pointer" shape="circle"
+                        [style]="{'background-color': '#eef2ff', 'color': '#0056b3'}"></p-avatar>
+                </a>
                 <button pButton icon="pi pi-power-off" class="p-button-rounded p-button-text p-button-danger"
                     pTooltip="Cerrar Sesión" tooltipPosition="bottom" (click)="navigateToAbout()"></button>
             </div>

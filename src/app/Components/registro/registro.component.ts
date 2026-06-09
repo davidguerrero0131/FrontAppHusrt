@@ -1,24 +1,30 @@
 import { UserService } from './../../Services/appServices/userServices/user.service';
+import { CargosService } from './../../Services/appServices/general/cargos/cargos.service';
+import { ServicioService } from './../../Services/appServices/general/servicio/servicio.service';
+import { MesaService } from '../../Services/mesa-servicios/mesa.service';
 import { SuperadminnavbarComponent } from '../navbars/superadminnavbar/superadminnavbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'
+import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms'
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 
 
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 import { DividerModule } from 'primeng/divider';
+
+import { UppercaseDirective } from '../../Directives/uppercase.directive';
 
 @Component({
   selector: 'app-registro',
   standalone: true,
-  imports: [SuperadminnavbarComponent, ReactiveFormsModule, CommonModule, InputTextModule, PasswordModule, DropdownModule, ButtonModule, CardModule, DividerModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ButtonModule, InputTextModule, MultiSelectModule, UppercaseDirective, SelectModule, PasswordModule, CardModule],
   templateUrl: './registro.component.html',
   styleUrl: './registro.component.css'
 })
@@ -31,7 +37,14 @@ export class RegistroComponent implements OnInit {
     { label: 'Tarjeta de Identidad', value: 'TI' },
     { label: 'Cédula de Extranjería', value: 'CE' }
   ];
+  mesaRoles: any[] = [];
+
   private userService = inject(UserService);
+  private cargosService = inject(CargosService);
+  private servicioService = inject(ServicioService);
+  private mesaService = inject(MesaService);
+  cargos: any[] = [];
+  servicios: any[] = [];
 
   constructor(
     private router: Router,
@@ -49,7 +62,10 @@ export class RegistroComponent implements OnInit {
       password: new FormControl('', [Validators.required]),
       password2: new FormControl('', [Validators.required]),
       registroInvima: new FormControl('', [Validators.required]),
-      rolId: new FormControl('', [Validators.required])
+      rolId: new FormControl('', [Validators.required]),
+      cargoId: new FormControl(''),
+      servicioId: new FormControl('', [Validators.required]),
+      mesaServicioRolId: new FormControl('', [Validators.required])
     })
 
   }
@@ -57,6 +73,9 @@ export class RegistroComponent implements OnInit {
   async ngOnInit() {
     try {
       this.roles = await this.userService.getAllRoles();
+      this.cargosService.getCargos().subscribe((res: any[]) => this.cargos = res);
+      this.servicios = await this.servicioService.getAllServicios();
+      this.mesaService.getRoles().subscribe((res: any[]) => this.mesaRoles = res);
 
     } catch {
       Swal.fire({
@@ -80,11 +99,14 @@ export class RegistroComponent implements OnInit {
           tipoId: this.formGroup.value.tipoId,
           numeroId: this.formGroup.value.numeroId,
           telefono: this.formGroup.value.telefono,
-          email: this.formGroup.value.email.toLowerCase(),
+          email: this.formGroup.value.email,
           contrasena: this.formGroup.value.password,
           registroInvima: this.formGroup.value.registroInvima,
           estado: true,
-          rolId: this.formGroup.value.rolId
+          rolId: this.formGroup.value.rolId,
+          cargoId: this.formGroup.value.cargoId,
+          servicioId: this.formGroup.value.servicioId,
+          mesaServicioRolId: this.formGroup.value.mesaServicioRolId
         };
         try {
           const ress = await this.userService.registro(obj);
@@ -127,4 +149,3 @@ export class RegistroComponent implements OnInit {
     }
   }
 }
-

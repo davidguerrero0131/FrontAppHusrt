@@ -1,0 +1,21 @@
+.glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+
+
+:host ::ng-deep .p-calendar .p-inputtext,
+:host ::ng-deep .p-dropdown .p-dropdown-label {
+    border-radius: 0.75rem;
+}
+
+:host ::ng-deep .p-dropdown {
+    border-radius: 0.75rem;
+}
+
+:host ::ng-deep .p-button {
+    border-radius: 0.75rem;
+}

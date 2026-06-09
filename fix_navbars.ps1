@@ -1,0 +1,2 @@
+Get-ChildItem -Path d:\REPOSITORIO_NUEVO_APLICATIVO_HUSRT\FrontAppHusrt\src\app\Components\navbars\*\*.ts | ForEach-Object {  = Get-Content .FullName -Raw; if ( -match 'this\.startPolling\(\);') {  =  -replace 'this\.startPolling\(\);', 'this.mesaService.notificationsUpdated.subscribe(() => this.fetchPendingCount());
+        this.startPolling();'; Set-Content -Path .FullName -Value  -NoNewline } }

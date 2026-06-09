@@ -1,0 +1,594 @@
+<div class="case-detail-container" *ngIf="caso">
+    <p-toast></p-toast>
+    <p-confirmdialog header="Confirmación" icon="pi pi-exclamation-triangle"></p-confirmdialog>
+
+    <!-- Header Section -->
+    <header class="case-header shadow-1">
+        <div class="flex align-items-center gap-4">
+            <button *ngIf="!config" pButton icon="pi pi-arrow-left" 
+                class="p-button-rounded p-button-text p-button-secondary bg-gray-50 hover:bg-gray-100"
+                routerLink="/adminmesaservicios/casos" pTooltip="Regresar al listado"></button>
+            
+            <div class="flex align-items-center gap-3">
+                <div class="case-id-badge">#{{casoId}}</div>
+                <div>
+                    <h1 class="text-2xl font-bold m-0 text-900 line-height-1">{{caso.titulo}}</h1>
+                    <div class="flex align-items-center gap-2 mt-2">
+                        <p-tag [value]="caso.estado" 
+                            [severity]="caso.estado === 'NUEVO' ? 'info' : (caso.estado === 'RESUELTO' ? 'success' : 'warning')"
+                            [class.status-pulse]="caso.estado === 'NUEVO'"></p-tag>
+                        <span class="text-500 text-sm font-medium">Categoría: {{caso.categoria?.nombre}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-2">
+            <button *ngIf="canClose() && caso.estado !== 'CERRADO'" pButton label="Finalizar Caso" icon="pi pi-check-circle"
+                class="p-button-success p-button-raised border-round-lg px-4" (click)="openCloseDialog()"></button>
+        </div>
+    </header>
+
+    <div class="grid">
+        <!-- Main Content: Conversation -->
+        <div class="col-12 lg:col-8">
+            <div class="chat-container">
+                <div class="chat-history" #chatHistory>
+                    <div *ngFor="let msg of caso.mensajes" 
+                        class="message-wrapper" 
+                        [ngClass]="{
+                            'sent': msg.usuarioId === userId, 
+                            'received': msg.usuarioId !== userId && msg.usuarioId, 
+                            'system': !msg.usuarioId || msg.tipo === 'SISTEMA'
+                        }">
+                        
+                        <!-- Avatar for non-system messages -->
+                        <div *ngIf="msg.usuarioId" class="user-avatar" 
+                            [ngStyle]="{'background-color': msg.usuarioId === userId ? '#3b82f6' : '#6366f1'}">
+                            {{ getInitials(msg.usuario?.nombres + ' ' + msg.usuario?.apellidos) }}
+                        </div>
+
+                        <div class="chat-bubble">
+                            <div class="message-meta">
+                                <span class="font-bold mr-2">{{ msg.usuarioId ? msg.usuario?.nombres : 'Sistema' }}</span>
+                                <span>{{ msg.fecha | date:'shortTime' }}</span>
+                            </div>
+                            
+                            <div class="message-content line-height-3" [innerHTML]="msg.mensaje"></div>
+
+                            <!-- Attachments -->
+                            <div *ngIf="msg.adjuntos && msg.adjuntos.length > 0" class="attachment-grid">
+                                <div *ngFor="let file of msg.adjuntos" class="attachment-item shadow-1">
+                                    <!-- Image Preview -->
+                                    <div *ngIf="file.tipoMime && file.tipoMime.startsWith('image/')" class="flex justify-content-center">
+                                        <p-image [src]="apiUrl + '/api/mesa/adjuntos/' + file.id" 
+                                            [preview]="true" alt="Adjunto" width="100" 
+                                            imageClass="border-round-md shadow-sm"></p-image>
+                                    </div>
+                                    
+                                    <!-- File Info & Download -->
+                                    <div class="flex align-items-center justify-content-between gap-2 mt-1">
+                                        <span class="text-xs font-medium text-overflow-ellipsis overflow-hidden white-space-nowrap flex-grow-1" 
+                                            pTooltip="{{file.nombreOriginal}}">{{file.nombreOriginal}}</span>
+                                        <a [href]="apiUrl + '/api/mesa/adjuntos/' + file.id" target="_blank" 
+                                            class="p-button p-button-icon-only p-button-text p-button-sm p-button-rounded">
+                                            <i class="pi pi-download text-xs"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="!caso.mensajes || caso.mensajes.length === 0" class="flex flex-column align-items-center justify-content-center h-full text-500 gap-3">
+                        <i class="pi pi-comments text-5xl opacity-20"></i>
+                        <p>No hay mensajes en esta conversación.</p>
+                    </div>
+                </div>
+
+                <!-- Footer / Input -->
+                <div class="chat-footer" *ngIf="canInteract()">
+                    <div class="field mb-3">
+                        <p-editor [(ngModel)]="newMessage" (onTextChange)="newMessage = $event.htmlValue" 
+                            (onInit)="onEditorInit($event)"
+                            [style]="{'height':'120px', 'border-radius': '0.75rem'}"
+                            placeholder="Escribe tu respuesta aquí..."></p-editor>
+                    </div>
+                    
+                    <div class="flex justify-content-between align-items-center">
+                        <div class="flex flex-column gap-2">
+                            <div class="flex align-items-center gap-2">
+                                <input type="file" #fileInput (change)="onFileSelect($event)" multiple hidden>
+                                <button pButton type="button" label="Adjuntar Archivos" icon="pi pi-paperclip" 
+                                    class="p-button-text p-button-secondary p-button-sm font-bold bg-gray-100 px-3 border-round-pill" 
+                                    (click)="fileInput.click()"></button>
+                            </div>
+                            
+                            <!-- Selected Files Chips -->
+                            <div class="flex flex-wrap gap-2 mt-1" *ngIf="uploadedFiles.length > 0">
+                                <p-chip *ngFor="let file of uploadedFiles; let i = index" 
+                                    [label]="file.name" [removable]="true" 
+                                    (onRemove)="removeFile(i)"
+                                    styleClass="text-xs bg-blue-50 text-blue-700 border-1 border-blue-200"></p-chip>
+                            </div>
+                        </div>
+                        
+                        <button pButton label="Enviar Respuesta" icon="pi pi-send" 
+                            class="p-button-raised border-round-lg px-4" 
+                            (click)="sendMessage()" [disabled]="isMessageEmpty()"></button>
+                    </div>
+                </div>
+                
+                <div *ngIf="!canInteract()" class="chat-footer bg-gray-50 text-center py-4">
+                    <i class="pi pi-lock mr-2 text-500"></i>
+                    <span class="text-500 font-bold uppercase tracking-wider text-sm">Este caso se encuentra bloqueado o no tienes permisos para interactuar.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Meta Information -->
+        <div class="col-12 lg:col-4">
+            <aside class="meta-sidebar">
+                <!-- Requester Card -->
+                <div class="meta-card">
+                    <div class="meta-card-title">
+                        <i class="pi pi-user"></i> Solicita
+                    </div>
+                    <div class="flex align-items-center gap-3 mb-4">
+                        <div class="user-avatar bg-indigo-500">
+                            {{ getInitials(caso.creador?.nombres + ' ' + caso.creador?.apellidos) }}
+                        </div>
+                        <div>
+                            <div class="meta-value">{{ caso.creador?.nombres }} {{ caso.creador?.apellidos }}</div>
+                            <div class="text-xs text-500">{{ caso.creador?.cargo?.nombre || 'Funcionario' }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="meta-field">
+                        <span class="meta-label">Servicio</span>
+                        <span class="meta-value">{{ caso.servicioSolicitante?.nombres || caso.creador?.servicio?.nombres }}</span>
+                    </div>
+                    <div class="meta-field m-0">
+                        <span class="meta-label">Fecha de Apertura</span>
+                        <span class="meta-value">{{ caso.fechaCreacion | date:'mediumDate' }} • {{ caso.fechaCreacion | date:'shortTime' }}</span>
+                    </div>
+                </div>
+
+                
+                <!-- Equipo Card -->
+                <div class="meta-card" *ngIf="requiereEquipo">
+                    <div class="meta-card-title flex justify-content-between align-items-center mb-4">
+                        <div class="flex align-items-center gap-2">
+                            <i class="pi pi-desktop text-primary"></i>
+                            <span>Equipo Relacionado</span>
+                        </div>
+                        <button *ngIf="!editandoEquipo && caso.estado !== 'CERRADO'" pButton icon="pi pi-pencil" 
+                            class="p-button-rounded p-button-text p-button-sm p-button-primary"
+                            (click)="iniciarEdicionEquipo()" pTooltip="Cambiar Equipo"></button>
+                    </div>
+                    
+                    <div class="grid p-fluid">
+                        <!-- Vista de Solo Lectura -->
+                        <div *ngIf="!editandoEquipo && equipoActual" class="col-12">
+                            <div class="flex flex-column gap-2 surface-ground p-3 border-round-xl border-1 surface-border">
+                                <span class="font-bold text-lg">{{equipoActual.nombres}}</span>
+                                <div class="flex gap-3 text-sm text-600">
+                                    <span><i class="pi pi-tag mr-1"></i> Placa: {{equipoActual.placaInvima || 'N/A'}}</span>
+                                    <span><i class="pi pi-box mr-1"></i> Serie: {{equipoActual.serie || 'N/A'}}</span>
+                                </div>
+                                <div class="flex gap-3 text-sm text-600 mt-1">
+                                    <span><i class="pi pi-verified mr-1"></i> Marca: {{equipoActual.marca || 'N/A'}}</span>
+                                    <span><i class="pi pi-cog mr-1"></i> Modelo: {{equipoActual.modelo || 'N/A'}}</span>
+                                </div>
+                                <div class="mt-2 text-sm text-500">
+                                    <span class="font-semibold">Tipo:</span> {{tipoEquipoActual?.nombres || 'N/A'}}
+                                </div>
+                            </div>
+                            <div class="mt-3 flex gap-2">
+                                <button *ngIf="!(caso.reporteMantenimiento?.id || caso.biomedicaInfo?.reporteId) && caso.estado !== 'CERRADO'" pButton label="Crear Reporte Técnico" icon="pi pi-file-edit" class="p-button-success p-button-sm w-full"
+                                    (click)="irACrearReporte()"></button>
+                                <button *ngIf="(caso.reporteMantenimiento?.id || caso.biomedicaInfo?.reporteId)" pButton label="Ver Reporte de este caso" icon="pi pi-eye" class="p-button-info p-button-sm w-full"
+                                    (click)="irAVerReporte()"></button>
+                                <button *ngIf="(caso.reporteMantenimiento?.id || caso.biomedicaInfo?.reporteId) && canAssign()" pButton label="Reportes del Equipo" icon="pi pi-list" class="p-button-secondary p-button-sm w-full"
+                                    (click)="irAReportesEquipo()"></button>
+                            </div>
+                        </div>
+
+                        <!-- Vista sin equipo asignado o en modo edición -->
+                        <div *ngIf="editandoEquipo || !equipoActual" class="col-12">
+                            <div class="grid p-fluid">
+                                <div class="col-12">
+                                    <label class="form-field-label">Tipo de Equipo</label>
+                                    <p-select [options]="tiposEquipos" [(ngModel)]="selectedTipoEquipo" optionLabel="nombres"
+                                        placeholder="Filtrar por tipo" [filter]="true" filterBy="nombres"
+                                        [showClear]="true" styleClass="w-full" (onChange)="selectedEquipo = null; $event.value ? loadEquipos($event.value.id) : filteredEquipos = []"
+                                        [disabled]="caso.estado === 'CERRADO'">
+                                    </p-select>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <label class="form-field-label">Equipo Específico</label>
+                                    <p-select [options]="filteredEquipos" [(ngModel)]="selectedEquipo" optionLabel="nombres"
+                                        placeholder="Seleccione el equipo" [filter]="true" filterBy="nombres,serie,placaInvima"
+                                        [showClear]="true" [disabled]="!selectedTipoEquipo || caso.estado === 'CERRADO'" 
+                                        emptyMessage="Seleccione primero un tipo de equipo" styleClass="w-full">
+                                        <ng-template pTemplate="selectedItem" let-selected>
+                                            <div class="flex align-items-center gap-2" *ngIf="selected">
+                                                <span class="font-bold">{{selected.nombres}}</span>
+                                            </div>
+                                        </ng-template>
+                                        <ng-template let-eq pTemplate="item">
+                                            <div class="flex flex-column w-full">
+                                                <span class="font-bold border-bottom-1 border-100 pb-1 mb-1">{{ eq.nombres }}</span>
+                                                <span class="text-500 text-xs line-height-2">Serie: {{ eq.serie || 'N/A' }} | Placa: {{ eq.placaInvima || 'N/A' }}</span>
+                                            </div>
+                                        </ng-template>
+                                    </p-select>
+                                </div>
+                                <div class="col-12 mt-3 flex gap-2">
+                                    <button pButton label="Cancelar" icon="pi pi-times" class="p-button-secondary p-button-outlined p-button-sm w-full"
+                                        (click)="cancelarEdicionEquipo()" *ngIf="equipoActual"></button>
+                                    <button pButton label="Guardar" icon="pi pi-save" class="p-button-primary p-button-sm w-full"
+                                        (click)="guardarEquipoCaso()" *ngIf="caso.estado !== 'CERRADO'"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clasificación Card -->
+                <div class="meta-card">
+                    <div class="meta-card-title flex justify-content-between align-items-center mb-4">
+                        <div class="flex align-items-center gap-2">
+                            <i class="pi pi-tags text-primary"></i>
+                            <span>Clasificación del Caso</span>
+                        </div>
+                        <button *ngIf="!editandoClasificacion && caso?.estado !== 'CERRADO' && canAssign()" pButton icon="pi pi-pencil" 
+                            class="p-button-rounded p-button-text p-button-sm p-button-primary"
+                            (click)="iniciarEdicionClasificacion()" pTooltip="Editar Clasificación"></button>
+                    </div>
+                    
+                    <div class="grid p-fluid">
+                        <!-- Vista de Solo Lectura -->
+                        <div *ngIf="!editandoClasificacion" class="col-12">
+                            <div class="grid">
+                                <div class="col-6 meta-field">
+                                    <span class="meta-label">Categoría</span>
+                                    <span class="meta-value">{{ caso?.categoria?.nombre || 'N/A' }}</span>
+                                </div>
+                                <div class="col-6 meta-field">
+                                    <span class="meta-label">Subcategoría</span>
+                                    <span class="meta-value">{{ caso?.subcategoria?.nombre || 'N/A' }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vista en modo edición -->
+                        <div *ngIf="editandoClasificacion" class="col-12">
+                            <div class="grid p-fluid">
+                                <div class="col-12">
+                                    <label class="form-field-label">Categoría</label>
+                                    <p-select [options]="categorias" [(ngModel)]="selectedCategoria" optionLabel="nombre"
+                                        placeholder="Seleccione la categoría" [filter]="true" filterBy="nombre"
+                                        styleClass="w-full" (onChange)="onCategoriaChange()">
+                                    </p-select>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <label class="form-field-label">Subcategoría</label>
+                                    <p-select [options]="subcategoriasDisponibles" [(ngModel)]="selectedSubcategoria" optionLabel="nombre"
+                                        placeholder="Seleccione la subcategoría" [filter]="true" filterBy="nombre"
+                                        [showClear]="true" emptyMessage="Seleccione primero una categoría" styleClass="w-full">
+                                    </p-select>
+                                </div>
+                                <div class="col-12 mt-3 flex gap-2">
+                                    <button pButton label="Cancelar" icon="pi pi-times" class="p-button-secondary p-button-outlined p-button-sm w-full"
+                                        (click)="cancelarEdicionClasificacion()"></button>
+                                    <button pButton label="Guardar" icon="pi pi-save" class="p-button-primary p-button-sm w-full"
+                                        (click)="guardarClasificacion()"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Details Card -->
+                <div class="meta-card">
+                    <div class="meta-card-title">
+                        <i class="pi pi-cog"></i> Detalles Técnicos
+                    </div>
+                    <div class="grid">
+                        <div class="col-6 meta-field">
+                            <span class="meta-label">Prioridad</span>
+                            <p-tag [value]="caso.prioridad" 
+                                [severity]="caso.prioridad === 'ALTA' || caso.prioridad === 'CRITICA' ? 'danger' : 'info'"></p-tag>
+                        </div>
+                        <div class="col-6 meta-field">
+                            <span class="meta-label">SUMERCE</span>
+                            <span class="meta-value">{{ caso.sumerce }}</span>
+                        </div>
+                        <div class="col-12 meta-field m-0">
+                            <span class="meta-label">Servicio Destino</span>
+                            <div class="flex align-items-center gap-2">
+                                <i class="pi pi-map-marker text-primary"></i>
+                                <span class="meta-value">{{ caso.servicio?.nombres }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assignment Card -->
+                <div class="meta-card">
+                    <div class="meta-card-title flex justify-content-between align-items-center mb-4">
+                        <div class="flex align-items-center gap-2">
+                            <i class="pi pi-users text-primary"></i>
+                            <span>Resolutores Asignados</span>
+                        </div>
+                        <button *ngIf="canAssign() && caso.estado !== 'CERRADO'" pButton icon="pi pi-user-plus" 
+                            class="p-button-rounded p-button-text p-button-sm p-button-primary hover:bg-blue-50"
+                            (click)="openAssignDialog()" pTooltip="Gestionar Responsables"></button>
+                    </div>
+                    <div class="flex flex-column gap-3" *ngIf="caso.asignaciones?.length > 0">
+                        <div *ngFor="let asig of caso.asignaciones" class="flex align-items-center justify-content-between p-2 border-round-md hover:bg-gray-50 transition-colors">
+                            <div class="flex align-items-center gap-2">
+                                <div class="user-avatar w-2rem h-2rem text-xs bg-teal-500">
+                                    {{ getInitials(asig.usuario?.nombres + ' ' + asig.usuario?.apellidos) }}
+                                </div>
+                                <span class="text-sm font-semibold text-700">{{ asig.usuario?.nombres }} {{ asig.usuario?.apellidos }}</span>
+                            </div>
+                            <button *ngIf="canAssign() && caso.estado !== 'CERRADO'" pButton icon="pi pi-times" 
+                                class="p-button-rounded p-button-text p-button-danger p-button-sm"
+                                (click)="removeResolutor(asig.usuario?.id)" pTooltip="Retirar del caso"></button>
+                        </div>
+                    </div>
+                    <div *ngIf="!caso.asignaciones?.length" class="text-center py-3 border-dashed border-1 surface-border border-round-md">
+                        <i class="pi pi-user-minus text-300 text-2xl mb-2"></i>
+                        <p class="text-500 text-sm m-0 font-italic">No hay responsables asignados.</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+
+<!-- Reused Dialogs with better styling -->
+
+<!-- Close Case Dialog -->
+<p-dialog [(visible)]="displayCloseDialog" [style]="{width: '500px'}" header="Finalizar y Cerrar Caso" [modal]="true"
+    [draggable]="false" [resizable]="false" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="bg-blue-50 p-3 border-round-md mb-4 flex gap-3 align-items-center">
+            <i class="pi pi-info-circle text-blue-600 text-xl"></i>
+            <p class="m-0 text-blue-800 text-sm">Al cerrar el caso, se notificará al solicitante que la solicitud ha sido resuelta.</p>
+        </div>
+        
+        <div class="field">
+            <label class="font-bold text-900">Solución / Respuesta Final <span class="text-red-500">*</span></label>
+            <p-editor [(ngModel)]="cierreMensaje" [style]="{'height':'150px'}" 
+                (onInit)="onEditorCloseInit($event)"
+                placeholder="Describe la solución detalladamente..."></p-editor>
+        </div>
+
+        <div class="field">
+            <label class="font-bold text-900">Adjuntar Evidencia (Opcional)</label>
+            <div class="flex flex-column gap-3">
+                <input type="file" #fileInputClose (change)="onFileSelectClose($event)" multiple hidden>
+                <button pButton type="button" label="Elegir Archivos" icon="pi pi-upload" 
+                    class="p-button-outlined p-button-secondary border-round-lg" 
+                    (click)="fileInputClose.click()"></button>
+                
+                <!-- Selected Files Chips -->
+                <div class="flex flex-wrap gap-2" *ngIf="uploadedCloseFiles.length > 0">
+                    <p-chip *ngFor="let file of uploadedCloseFiles; let i = index" 
+                        [label]="file.name" [removable]="true" 
+                        (onRemove)="removeFileClose(i)"
+                        styleClass="text-xs bg-gray-100 text-gray-700 border-1 border-gray-200"></p-chip>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="displayCloseDialog = false"></button>
+        <button pButton label="Cerrar Caso Definitivamente" icon="pi pi-check" class="p-button-success" (click)="confirmClose()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Assignment Dialog -->
+<p-dialog [(visible)]="displayAssignDialog" [style]="{width: '450px'}" header="Asignar Responsables" [modal]="true"
+    [draggable]="false" [resizable]="false" class="p-fluid">
+    <ng-template pTemplate="content">
+        <p class="text-500 mb-4">Seleccione uno o más funcionarios para atender este caso.</p>
+        
+        <div class="field">
+            <label class="font-bold text-900 mb-2 block">Buscar Resolutor <span class="text-red-500">*</span></label>
+            <p-autocomplete [(ngModel)]="selectedResolutor" [suggestions]="filteredUsers"
+                (completeMethod)="filterUsers($event)" field="nombres" [multiple]="true" [dropdown]="true"
+                placeholder="Escribe un nombre..." appendTo="body" styleClass="w-full">
+
+                <ng-template let-user pTemplate="item">
+                    <div class="flex align-items-center gap-2 py-1">
+                        <div class="flex align-items-center justify-content-center bg-blue-100 border-circle w-2rem h-2rem text-blue-700 font-bold text-xs">
+                            {{user.nombres.charAt(0)}}
+                        </div>
+                        <div class="flex flex-column">
+                            <span class="font-semibold text-sm">{{user.nombres}} {{user.apellidos}}</span>
+                            <span class="text-xs text-500">{{user.mesaServicioRol?.nombre}}</span>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-autocomplete>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="displayAssignDialog = false"></button>
+        <button pButton label="Asignar al Caso" icon="pi pi-check" (click)="confirmAssign()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Modal de Vista de Reporte (Solo Lectura) -->
+<p-dialog header="Reporte N. {{ reportSelected?.id }}" [(visible)]="modalReport" [modal]="true" [responsive]="true"
+    styleClass="standard-modal modal-xl" [baseZIndex]="10000">
+    <div class="p-fluid p-3">
+
+        <!-- 1. Línea: Información del Equipo -->
+        <div class="grid">
+            <div class="col-12">
+                <p-card header="Información del Equipo">
+                    <div class="p-text-sm grid">
+                        <div class="col-12 md:col-4">
+                            <p><strong>Nombre:</strong> {{ reportSelected?.equipo.nombres }}</p>
+                            <p><strong>Marca:</strong> {{ reportSelected?.equipo.marca }}</p>
+                            <p><strong>Modelo:</strong> {{ reportSelected?.equipo.modelo }}</p>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <p><strong>Serie:</strong> {{ reportSelected?.equipo.serie }}</p>
+                            <p><strong>Placa:</strong> {{ reportSelected?.equipo.placa }}</p>
+                            <p><strong>Activo:</strong> {{ reportSelected?.equipo.activo ? 'Sí' : 'No' }}</p>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <p><strong>Servicio:</strong> {{ reportSelected?.servicio.nombres }}</p>
+                            <p><strong>Ubicación:</strong> {{ reportSelected?.equipo.ubicacion }}</p>
+                            <p><strong>Ubicación Específica:</strong> {{ reportSelected?.equipo.ubicacionEspecifica }}</p>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+        </div>
+
+        <!-- 2. Línea: Detalles del Reporte -->
+        <div class="grid">
+            <div class="col-12">
+                <p-card header="Detalle del Reporte">
+                    <div class="p-text-sm grid">
+                        <div class="col-12 md:col-4">
+                            <p><strong>Mes Programado:</strong> {{ reportSelected?.mesProgramado + 1 }}</p>
+                            <p><strong>Fecha Realizado:</strong> {{ reportSelected?.fechaRealizado }}</p>
+                            <p><strong>Hora Inicio:</strong> {{ reportSelected?.horaInicio }}</p>
+                            <p><strong>Fecha Fin:</strong> {{ reportSelected?.fechaFin }}</p>
+                            <p><strong>Trabajo Realizado:</strong> {{ reportSelected?.trabajoRealizado }}</p>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <p><strong>Hora Terminación:</strong> {{ reportSelected?.horaTerminacion }}</p>
+                            <p><strong>Hora Total:</strong> {{ reportSelected?.horaTotal }}</p>
+                            <p><strong>Tipo Mantenimiento:</strong> {{ reportSelected?.tipoMantenimiento }}</p>
+                            <p><strong>Tipo Falla:</strong> {{ reportSelected?.tipoFalla }}</p>
+                            <p><strong>Estado Operativo:</strong> {{ reportSelected?.estadoOperativo }}</p>
+                            <p><strong>Observaciones:</strong> {{ reportSelected?.observaciones }}</p>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <p><strong>Motivo:</strong> {{ reportSelected?.motivo }}</p>
+                            <p><strong>Calificación:</strong> {{ reportSelected?.calificacion }}</p>
+                            <p><strong>Mantenimiento Propio:</strong> {{ reportSelected?.mantenimientoPropio ? 'Sí' : 'No' }}</p>
+                            <p><strong>Realizado:</strong> {{ reportSelected?.realizado ? 'Sí' : 'No' }}</p>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+        </div>
+
+        <div class="grid" *ngIf="reportSelected?.valoresMediciones?.length > 0">
+            <div class="col-12">
+                <p-card header="Mediciones Específicas">
+                    <div class="p-text-sm grid">
+                        <div class="col-12">
+                            <table class="table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Medición</th>
+                                        <th>Estándar</th>
+                                        <th>Valor</th>
+                                        <th>Unidad Reg.</th>
+                                        <th>Criterio Aceptación</th>
+                                        <th>Conforme</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let val of reportSelected.valoresMediciones">
+                                        <td>{{ val.medicion?.nombre }} ({{ val.medicion?.unidad }})</td>
+                                        <td>{{ val.medicion?.valorEstandar || 'N/A' }}</td>
+                                        <td>{{ val.valor }}</td>
+                                        <td>{{ val.unidadRegistrada || val.medicion?.unidad }}</td>
+                                        <td>{{ val.medicion?.criterioAceptacion || 'N/A' }}</td>
+                                        <td>{{ val.conforme ? 'Sí' : 'No' }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+        </div>
+
+        <div>
+            <p-card header="Rutina de Mantenimiento">
+                <div class="p-text-sm grid">
+                    <div class="col-12">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th>Cumplimiento</th>
+                                    <th>Observaciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of rutina">
+                                    <td>{{ item.protocolo.paso }}</td>
+                                    <td>{{ item.cumple === 'CUMPLE' ? 'Cumple' : (item.cumple === 'NO_CUMPLE' ? 'No Cumple' : (item.cumple === 'NO_APLICA' ? 'No Aplica' : 'No')) }}</td>
+                                    <td>{{ item.observaciones }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+
+        <div class="grid" *ngIf="reportSelected?.repuestos?.length > 0">
+            <div class="col-12">
+                <p-card header="Insumos / Repuestos Utilizados">
+                    <div class="p-text-sm grid">
+                        <div class="col-12">
+                            <table class="table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre Insumo</th>
+                                        <th>Cantidad</th>
+                                        <th>Comprobante</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let rep of reportSelected.repuestos">
+                                        <td>{{ rep.nombreInsumo }}</td>
+                                        <td>{{ rep.cantidad }}</td>
+                                        <td>{{ rep.comprobanteEgreso || 'N/A' }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+        </div>
+
+        <div style="margin-top: 1%;"></div>
+
+        <div class="grid">
+            <div class="col-12">
+                <p-card header="Realizado Por:">
+                    <div class="p-text-sm grid">
+                        <div class="col-12 md:col-6">
+                            <p><strong>Nombre:</strong> {{ reportSelected?.usuario.nombres }} {{ reportSelected?.usuario.apellidos}}</p>
+                            <p><strong>Email:</strong> {{ reportSelected?.usuario.email }}</p>
+                            <p><strong>Registro Invima:</strong> {{ reportSelected?.usuario.registroInvima }}</p>
+                        </div>
+                        <div class="col-12 md:col-6 flex flex-column gap-2">
+                            <button type="button" pButton icon="pi pi-file-pdf" label="Ver Reporte Firmado (PDF)" class="p-button-danger" (click)="viewPdf(reportSelected?.rutaPdf)"
+                                *ngIf="reportSelected?.rutaPdf"></button>
+                            <button type="button" pButton icon="pi pi-file" label="Generar Formato PDF" class="p-button-secondary" (click)="descargarFormato()"
+                                *ngIf="reportSelected?.realizado"></button>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+        </div>
+    </div>
+</p-dialog>

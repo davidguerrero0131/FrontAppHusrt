@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { API_URL } from '../../../constantes';
 import { firstValueFrom } from 'rxjs';
+import { createHeaders } from '../../../utilidades';
 
 @Injectable({
     providedIn: 'root'
@@ -15,22 +16,27 @@ export class AreaElementoService {
 
     // Obtener elementos asignados a un área
     getElementosByArea(idArea: number): Promise<any> {
-        return firstValueFrom(this.http.get<any>(`${this.url}/api/areasElemento/area/${idArea}`));
+        return firstValueFrom(this.http.get<any>(`${this.url}/api/areasElemento/area/${idArea}`, createHeaders()));
     }
 
     // Obtener todas las asignaciones
     getAllAsignaciones(): Promise<any> {
-        return firstValueFrom(this.http.get<any>(`${this.url}/api/areasElemento`));
+        return firstValueFrom(this.http.get<any>(`${this.url}/api/areasElemento`, createHeaders()));
     }
 
+    // Obtener una asignación específica por ID
+    getAsignacionById(id: number): Promise<any> {
+        return firstValueFrom(this.http.get<any>(`${this.url}/api/areasElemento/${id}`, createHeaders()));
+    }
+    // Riverside: Added get method by ID
     // Asignar múltiples elementos (Bulk)
-    crearAsignacionBulk(data: { areaIdFk: number, elementosIds: number[] }): Promise<any> {
-        return firstValueFrom(this.http.post<any>(`${this.url}/api/addareaElemento/bulk`, data));
+    crearAsignacionBulk(data: { areaIdFk: number, elementos: any[] }): Promise<any> {
+        return firstValueFrom(this.http.post<any>(`${this.url}/api/addareaElemento/bulk`, data, createHeaders()));
     }
 
     // Eliminar todas las asignaciones de un área
     eliminarPorArea(idArea: number): Promise<any> {
-        return firstValueFrom(this.http.delete<any>(`${this.url}/api/remareaElemento/area/${idArea}`));
+        return firstValueFrom(this.http.delete<any>(`${this.url}/api/remareaElemento/area/${idArea}`, createHeaders()));
     }
 
 }

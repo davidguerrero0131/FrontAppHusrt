@@ -16,6 +16,7 @@
       </div>
       <div class="card-content">
         <h3>{{ servicio.nombres }}</h3>
+        <small class="sede-name">{{ servicio.sede?.nombres || 'Sin Sede' }}</small>
         <p>Total Equipos: <strong>{{ cantidadesEquipos[servicio.id] || 0 }}</strong></p>
         <span class="card-action">Ver Equipos <i class="pi pi-arrow-right"></i></span>
       </div>

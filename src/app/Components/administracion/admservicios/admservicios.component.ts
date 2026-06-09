@@ -11,17 +11,20 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TagModule } from 'primeng/tag';
+import { CheckboxModule } from 'primeng/checkbox';
+
+import { UppercaseDirective } from '../../../Directives/uppercase.directive';
 
 @Component({
   selector: 'app-admservicios',
   standalone: true,
-  imports: [TableModule, CommonModule, InputIconModule, IconFieldModule, InputTextModule, DialogModule, ReactiveFormsModule, ButtonModule, TooltipModule, ToolbarModule, TagModule, DropdownModule],
+  imports: [TableModule, CommonModule, InputIconModule, IconFieldModule, InputTextModule, DialogModule, ReactiveFormsModule, ButtonModule, TooltipModule, ToolbarModule, TagModule, SelectModule, CheckboxModule, UppercaseDirective],
   templateUrl: './admservicios.component.html',
   styleUrl: './admservicios.component.css'
 })
@@ -42,17 +45,26 @@ export class AdmserviciosComponent implements OnInit {
     this.formGroup = this.formBuilder.group({
       nombres: ['', Validators.required],
       ubicacion: ['', Validators.required],
-      sedeIdFk: ['', Validators.required]
+      sedeIdFk: ['', Validators.required],
+      requiereMesaServicios: [false],
+      activo: [true]
     });
   }
 
   async ngOnInit() {
-    this.servicios = await this.servicioServices.getAllServicios();
-    this.sedes = await this.sedeServices.getAllSedes();
-
+    this.loading = true;
+    try {
+      this.servicios = await this.servicioServices.getAllServicios();
+      this.sedes = await this.sedeServices.getAllSedes();
+    } catch (error) {
+      console.error('Error loading data:', error);
+      Swal.fire('Error', 'No se pudieron cargar los datos de servicios', 'error');
+    } finally {
+      this.loading = false;
+    }
   }
 
-  estadoServicio(idServicio: any, accion: String) {
+  async estadoServicio(idServicio: any, accion: String) {
     if (accion === 'A') {
       Swal.fire({
         title: "Desea activar el Servicio?",
@@ -69,6 +81,16 @@ export class AdmserviciosComponent implements OnInit {
         }
       });
     } else if (accion === 'D') {
+      try {
+        const cantidadEquipos = await this.servicioServices.getCantidadEquipos(idServicio);
+        if (cantidadEquipos > 0) {
+          Swal.fire("Acción no permitida", "El servicio tiene equipos activos relacionados y no puede ser desactivado.", "error");
+          return;
+        }
+      } catch (error) {
+        console.error("Error al obtener cantidad de equipos", error);
+      }
+
       Swal.fire({
         title: "Desea desactivar el servicio?",
         showCancelButton: true,
@@ -104,14 +126,19 @@ export class AdmserviciosComponent implements OnInit {
     this.formGroup.patchValue({
       nombres: servicio.nombres,
       ubicacion: servicio.ubicacion,
-      sedeIdFk: servicio.sedeIdFk || servicio.sede?.id // Handle flat or associated
+      sedeIdFk: servicio.sedeIdFk || servicio.sede?.id, // Handle flat or associated
+      requiereMesaServicios: servicio.requiereMesaServicios,
+      activo: servicio.activo
     });
     this.visibleEditModal = true;
   }
 
   openCreateModal() {
     this.selectedServicio = null;
-    this.formGroup.reset();
+    this.formGroup.reset({
+      requiereMesaServicios: false,
+      activo: true
+    });
     this.visibleEditModal = true;
   }
 

@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject, forwardRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { EquiposService } from '../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { FormsModule } from '@angular/forms';
 
@@ -15,7 +15,7 @@ import { getDecodedAccessToken } from '../../../utilidades';
 @Component({
   selector: 'app-clasificacion-inventario',
   standalone: true,
-  imports: [FormsModule, CommonModule, SelectModule, ButtonModule],
+  imports: [FormsModule, CommonModule, SelectModule, ButtonModule, RouterModule],
   templateUrl: './clasificacion-inventario.component.html',
   styleUrl: './clasificacion-inventario.component.css'
 })
@@ -24,6 +24,7 @@ export class ClasificacionInventarioComponent implements OnInit {
   equipos!: any[];
   selectedEquipo: any | undefined;
   showCreateEquipmentButton: boolean = false;
+  loading: boolean = false;
 
   constructor(private router: Router, @Inject(forwardRef(() => EquiposService)) private equipoServices: EquiposService) {
   }
@@ -43,6 +44,24 @@ export class ClasificacionInventarioComponent implements OnInit {
 
   goToCreateEquipment() {
     this.router.navigate(['/biomedica/nuevoequipo']);
+  }
+
+  async descargarInventario() {
+    this.loading = true;
+    try {
+      const blob = await this.equipoServices.exportarInventario();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Inventario_Equipos.xlsx';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error descargando inventario:', error);
+      Swal.fire('Error', 'No se pudo descargar el inventario.', 'error');
+    } finally {
+      this.loading = false;
+    }
   }
 
   buscarEquipo() {
@@ -78,6 +97,10 @@ export class ClasificacionInventarioComponent implements OnInit {
 
   showViewSedes() {
     this.router.navigate(['/biomedica/sedes']);
+  }
+
+  showViewRiesgos() {
+    this.router.navigate(['/biomedica/riesgos']);
   }
 
 }

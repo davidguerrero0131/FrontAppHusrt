@@ -38,13 +38,17 @@ export class OlvidoContrasenaComponent {
     if (this.form.invalid) return;
 
     try {
-      await this.userService.recuperarContrasena(this.form.value.email);
-      this.enviado = true
-      this.router.navigate(['/login']);
+      const res = await this.userService.recuperarContrasena(this.form.value.email);
+      this.enviado = true;
       Swal.fire({
-        title: "Enlace de recuperacion enviado, revise su bandeja de entrada",
+        title: "Código enviado, revise su bandeja de entrada (incluyendo Spam)",
         icon: "success",
         draggable: true
+      });
+      // Navegamos directamente a recuperarcontraseña pasando el token interceptado
+      this.router.navigate(['/olvidocontraseña/recuperar'], { queryParams: { token: res.token } }).catch(() => {
+        // En caso de que la ruta esté en otro lugar (verificaremos el nombre de la ruta original)
+        this.router.navigate(['/recuperarcontraseña'], { queryParams: { token: res.token } });
       });
     } catch (error) {
       Swal.fire({

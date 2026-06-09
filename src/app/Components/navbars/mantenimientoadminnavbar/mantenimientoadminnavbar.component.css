@@ -1,3 +1,15 @@
+.menubar-wrapper {
+    width: 100%;
+    position: relative;
+    z-index: 2000;
+}
+
+:host ::ng-deep .p-menubar {
+    border-radius: 0 !important;
+    border: none !important;
+    padding: 0.5rem 5% !important;
+}
+
 .profil {
     cursor: pointer;
 }

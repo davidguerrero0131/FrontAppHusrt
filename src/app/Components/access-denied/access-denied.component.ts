@@ -41,10 +41,7 @@ export class AccessDeniedComponent {
                         this.router.navigate(['/adminsistemas']);
                         break;
                     case 'MANTENIMIENTOADMIN':
-                        // Handling the potential typo in routes, assuming app.routes.ts is source of truth 'adminmantenimineto' 
-                        // or 'adminmantenimiento'. Let's try to match Login component intent but fix typo if needed.
-                        // Checked app.routes.ts: path is 'adminmantenimineto'
-                        this.router.navigate(['/adminmantenimineto']);
+                        this.router.navigate(['/adminmantenimiento']);
                         break;
                     default:
                         this.router.navigate(['/login']);

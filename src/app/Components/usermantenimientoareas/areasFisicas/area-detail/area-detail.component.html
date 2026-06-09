@@ -1,0 +1,211 @@
+<app-mantenimientoadminnavbar *ngIf="!isIframe"></app-mantenimientoadminnavbar>
+
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 fade-in">
+        <button class="btn btn-secondary shadow-sm hover-effect" (click)="goBack()">
+            <i class="bi bi-arrow-left me-2"></i>Regresar
+        </button>
+        <h3 class="mb-0 text-900 font-bold tracking-tight">Hoja de Vida del Área Física</h3>
+        <div style="width: 100px;"></div> <!-- Spacer -->
+    </div>
+
+    <!-- Loader -->
+    <div *ngIf="isLoading" class="flex justify-content-center align-items-center" style="height: 60vh;">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+
+    <div *ngIf="!isLoading && areaInfo" class="grid fade-in-up">
+        <!-- Main Area Info Card -->
+        <div class="col-12 xl:col-4 mb-4">
+            <div
+                class="card shadow-4 border-round-2xl overflow-hidden glassmorphism profile-card h-full flex flex-column">
+                <div class="bg-gradient-primary p-4 text-center profile-header">
+                    <div class="profile-icon shadow-3 mb-3 mx-auto">
+                        <i class="pi pi-building text-4xl text-primary"></i>
+                    </div>
+                    <h2 class="text-white m-0 font-bold tracking-tight">{{ areaInfo.nombre }}</h2>
+                    <span class="text-white-alpha-80 font-medium text-lg block mt-1"><i
+                            class="pi pi-map-marker mr-1"></i>{{ areaInfo.ubicacion || 'Sin Ubicación' }}</span>
+                </div>
+
+                <div class="p-4 flex-grow-1 flex flex-column justify-content-between profile-body bg-white">
+                    <div class="info-list">
+                        <div
+                            class="info-item border-bottom-1 surface-border py-3 flex align-items-center justify-content-between">
+                            <span class="text-500 font-medium flex align-items-center"><i
+                                    class="pi pi-briefcase text-primary mr-2"></i>Servicio</span>
+                            <span class="text-900 font-semibold">{{ areaInfo.servicios?.nombres || 'No asignado'
+                                }}</span>
+                        </div>
+                        <div
+                            class="info-item border-bottom-1 surface-border py-3 flex align-items-center justify-content-between">
+                            <span class="text-500 font-medium flex align-items-center"><i
+                                    class="pi pi-info-circle text-primary mr-2"></i>Estado</span>
+                            <p-tag [severity]="areaInfo.estado ? 'success' : 'danger'"
+                                [value]="areaInfo.estado ? 'Activo' : 'Inactivo'" styleClass="shadow-1 px-3"></p-tag>
+                        </div>
+                        <div class="info-item py-3 flex flex-column">
+                            <span class="text-500 font-medium flex align-items-center mb-2"><i
+                                    class="pi pi-align-left text-primary mr-2"></i>Descripción</span>
+                            <p class="text-800 line-height-3 m-0 bg-gray-50 border-round p-3 shadow-1">{{
+                                areaInfo.descripcion || 'No hay descripción disponible para esta área.' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top-1 surface-border statistics grid">
+                        <div class="col-6 text-center">
+                            <div class="stat-box p-3 border-round bg-primary-reverse border-1 border-primary-50">
+                                <span class="block text-2xl font-bold text-primary">{{ inspecciones.length }}</span>
+                                <span class="text-sm font-medium text-500">Inspecciones</span>
+                            </div>
+                        </div>
+                        <div class="col-6 text-center">
+                            <div class="stat-box p-3 border-round bg-primary-reverse border-1 border-primary-50">
+                                <span class="block text-2xl font-bold text-orange-500">{{ reportes.length }}</span>
+                                <span class="text-sm font-medium text-500">Reportes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity and History -->
+        <div class="col-12 xl:col-8 grid m-0 p-0">
+
+            <!-- Últimas Inspecciones -->
+            <div class="col-12 md:col-6 mb-4">
+                <div class="card shadow-3 border-round-xl h-full p-4 bg-white hover-zoom-effect">
+                    <div class="flex align-items-center mb-4">
+                        <div class="p-2 border-round-lg bg-cyan-100 text-cyan-600 mr-3 shadow-1">
+                            <i class="pi pi-check-square text-xl"></i>
+                        </div>
+                        <h4 class="m-0 text-900 font-bold">Últimas Inspecciones</h4>
+                    </div>
+                    <div *ngIf="inspecciones.length === 0" class="text-center p-4">
+                        <i class="pi pi-inbox text-4xl text-300 mb-2"></i>
+                        <p class="text-500 m-0">No se encontraron inspecciones.</p>
+                    </div>
+                    <ul class="list-none p-0 m-0" *ngIf="inspecciones.length > 0">
+                        <li *ngFor="let insp of inspecciones | slice:0:3"
+                            (click)="verInspeccion(insp.planMantenimientoId)"
+                            class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-3 p-3 surface-ground border-round-lg shadow-sm border-left-3 border-cyan-500 cursor-pointer hover:surface-hover transition-colors transition-duration-150">
+                            <div>
+                                <span class="block text-900 font-semibold mb-1">{{ insp._f | date:'mediumDate' }}</span>
+                                <span class="text-600 text-sm"><i class="pi pi-user mr-1"></i>{{ insp._inspector
+                                    }}</span>
+                            </div>
+                            <div class="mt-2 md:mt-0 flex align-items-center">
+                                <p-tag severity="info" value="Completada" styleClass="text-xs"></p-tag>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Últimos Mantenimientos -->
+            <div class="col-12 md:col-6 mb-4">
+                <div class="card shadow-3 border-round-xl h-full p-4 bg-white hover-zoom-effect">
+                    <div class="flex align-items-center mb-4">
+                        <div class="p-2 border-round-lg bg-orange-100 text-orange-600 mr-3 shadow-1">
+                            <i class="pi pi-wrench text-xl"></i>
+                        </div>
+                        <h4 class="m-0 text-900 font-bold">Reportes Correctivos</h4>
+                    </div>
+                    <div *ngIf="reportes.length === 0" class="text-center p-4">
+                        <i class="pi pi-inbox text-4xl text-300 mb-2"></i>
+                        <p class="text-500 m-0">No se encontraron reportes.</p>
+                    </div>
+                    <ul class="list-none p-0 m-0" *ngIf="reportes.length > 0">
+                        <li *ngFor="let rep of reportes | slice:0:3" (click)="verReporte(rep)"
+                            class="flex flex-column mb-3 p-3 surface-ground border-round-lg shadow-sm border-left-3 border-orange-500 cursor-pointer hover:surface-hover transition-colors transition-duration-150">
+                            <div class="flex justify-content-between align-items-center mb-2">
+                                <span class="text-900 font-semibold">{{ rep._f | date:'mediumDate' }}</span>
+                                <p-tag [severity]="rep._isPrev ? 'success' : 'warning'"
+                                    [value]="rep._isPrev ? 'Preventivo' : 'Correctivo'" styleClass="text-xs"></p-tag>
+                            </div>
+                            <span class="text-600 text-sm line-height-2 block"><i
+                                    class="pi pi-exclamation-triangle text-orange-400 mr-1"></i> {{ rep.tipoReporte ||
+                                'Mantenimiento' }} - {{ rep.areaElemento?.elemento?.nombre ||
+                                rep.areaElemento?.elemento?.name || 'General' }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Elementos Instalados -->
+            <div class="col-12 mb-4">
+                <div class="card shadow-3 border-round-xl p-4 bg-white">
+                    <div class="flex align-items-center mb-4">
+                        <div class="p-2 border-round-lg bg-teal-100 text-teal-600 mr-3 shadow-1">
+                            <i class="pi pi-box text-xl"></i>
+                        </div>
+                        <h4 class="m-0 text-900 font-bold">Elementos Instalados en el Área</h4>
+                    </div>
+                    <div *ngIf="elementosArea.length === 0" class="text-center p-4">
+                        <i class="pi pi-inbox text-4xl text-300 mb-2"></i>
+                        <p class="text-500 m-0">No hay mobiliarios asignados a esta área.</p>
+                    </div>
+                    <ul class="list-none p-0 m-0 grid" *ngIf="elementosArea.length > 0">
+                        <li *ngFor="let el of elementosArea" class="col-12 md:col-6 p-2">
+                            <div
+                                class="surface-ground border-round-lg p-3 shadow-sm border-left-3 border-teal-500 hover:surface-hover transition-colors flex justify-content-between align-items-center h-full">
+                                <div>
+                                    <span class="block text-900 font-semibold text-lg mb-1">{{ el.elemento?.nombre ||
+                                        'Elemento' }}</span>
+                                    <span class="text-600 text-sm font-medium"><i class="pi pi-hashtag mr-1"></i>Cantidad: {{ el.cantidad || 1 }}</span>
+                                </div>
+                                <div class="text-right">
+                                    <p-tag *ngIf="el.historialFallas" severity="warning" value="Con reporte de Falla"
+                                        icon="pi pi-exclamation-triangle"></p-tag>
+                                    <p-tag *ngIf="!el.historialFallas" severity="success" value="En Buen Estado"
+                                        icon="pi pi-check-circle"></p-tag>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Timeline/Historial -->
+            <div class="col-12">
+                <div class="card shadow-3 border-round-xl p-4 bg-white">
+                    <div class="flex align-items-center mb-4">
+                        <div class="p-2 border-round-lg bg-indigo-100 text-indigo-600 mr-3 shadow-1">
+                            <i class="pi pi-history text-xl"></i>
+                        </div>
+                        <h4 class="m-0 text-900 font-bold">Línea de Tiempo de Actividad</h4>
+                    </div>
+
+                    <div *ngIf="historial.length === 0" class="text-center p-5 border-round surface-ground m-3">
+                        <i class="pi pi-clock text-5xl text-300 mb-3 block"></i>
+                        <p class="text-600 m-0 text-lg">No hay historial de actividad registrado para esta área.</p>
+                    </div>
+
+                    <p-timeline [value]="historial" align="alternate" styleClass="customized-timeline"
+                        *ngIf="historial.length > 0">
+                        <ng-template pTemplate="marker" let-event>
+                            <span class="custom-marker shadow-2" [style.backgroundColor]="event.color">
+                                <i [class]="event.icon"></i>
+                            </span>
+                        </ng-template>
+                        <ng-template pTemplate="content" let-event>
+                            <div class="p-3 border-round-lg shadow-1 surface-card mb-4 timeline-card-effect cursor-pointer"
+                                (click)="event.eventRef ? (event.status === 'Inspección' ? verInspeccion(event.eventRef.planMantenimientoId) : verReporte(event.eventRef)) : null">
+                                <div class="flex justify-content-between align-items-center mb-2">
+                                    <span class="font-bold text-900">{{ event.status }}</span>
+                                    <small class="text-500 font-medium bg-gray-100 px-2 py-1 border-round"><i
+                                            class="pi pi-calendar mr-1"></i>{{ event.date | date:'dd/MM/yyyy' }}</small>
+                                </div>
+                                <p class="text-600 m-0 line-height-3">{{ event.description }}</p>
+                            </div>
+                        </ng-template>
+                    </p-timeline>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

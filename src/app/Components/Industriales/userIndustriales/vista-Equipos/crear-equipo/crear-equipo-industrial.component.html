@@ -1,0 +1,135 @@
+<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+<div class="container-fluid p-4">
+  <div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h3 class="mb-0 text-white">Registro de Equipos Industriales</h3>
+      <button class="btn btn-outline-light btn-sm" (click)="regresar()">
+        <i class="bi bi-arrow-left me-2"></i>Volver
+      </button>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="equipoForm" (ngSubmit)="guardar()">
+
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Tipo de Equipo</label>
+            <select formControlName="tipoEquipoIdFk" class="form-select">
+              <option value="" disabled selected>Seleccione un tipo</option>
+              <option *ngFor="let t of tiposequipo" [value]="t.id">{{ t.nombres }}</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Nombre del equipo</label>
+            <input type="text" formControlName="nombres" class="form-control" placeholder="Ej: Caldera Industrial"
+              appUppercase />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Marca</label>
+            <input type="text" formControlName="marca" class="form-control" appUppercase />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Modelo</label>
+            <input type="text" formControlName="modelo" class="form-control" appUppercase />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Serie</label>
+            <input type="text" formControlName="serie" class="form-control" appUppercase />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Placa</label>
+            <input type="text" formControlName="placa" class="form-control" appUppercase />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Registro Sanitario / Permiso</label>
+            <input type="text" formControlName="registroInvima" class="form-control" appUppercase />
+          </div>
+
+
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Servicio</label>
+            <select formControlName="servicioIdFk" class="form-select">
+              <option value="" disabled selected>Seleccione un servicio</option>
+              <option *ngFor="let s of servicios" [value]="s.id">{{ s.nombres }}</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Ubicación Específica</label>
+            <input type="text" formControlName="ubicacionEspecifica" class="form-control" appUppercase />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Sede</label>
+            <select formControlName="sedeIdFk" class="form-select">
+              <option value="" disabled selected>Seleccione una sede</option>
+              <option *ngFor="let sd of sedes" [value]="sd.id">{{ sd.nombres }}</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Responsable</label>
+            <select formControlName="responsableIdFk" class="form-select">
+              <option value="" disabled selected>Seleccione un responsable</option>
+              <option *ngFor="let r of responsables" [value]="r.id">{{ r.nombres }}</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Estado</label>
+            <select formControlName="estado" class="form-select">
+              <option value="Bueno">Bueno</option>
+              <option value="Regular">Regular</option>
+              <option value="Malo">Malo</option>
+              <option value="Ruina">Ruina</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Frecuencia Mantenimiento</label>
+            <select formControlName="periodicidadM" class="form-select">
+              <option [ngValue]="0">No requiere</option>
+              <option [ngValue]="1">1 - Anual (1 año)</option>
+              <option [ngValue]="2">2 - Semestral (Cada 6 meses)</option>
+              <option [ngValue]="3">3 - Trimestral (Cada 3 meses)</option>
+              <option [ngValue]="4">4 - Bimestral (Cada 2 meses)</option>
+              <option [ngValue]="5">5 - Mensual (Cada mes)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" (click)="regresar()" class="btn btn-secondary">
+            Cancelar
+          </button>
+          <button type="button" (click)="guardar()" class="btn btn-primary">
+            <i class="bi bi-save me-2"></i>Guardar Equipo
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<p-dialog header="Programar Fechas de Mantenimiento" [modal]="true" [(visible)]="modalAddFechasMantenimiento"
+  [style]="{ width: '400px' }" [closable]="false" [draggable]="false" [resizable]="false">
+  <div class="p-3">
+    <div *ngFor="let item of fechasMantenimiento; let i = index; trackBy: trackByIndex" class="mb-3">
+      <label class="d-block mb-1 fw-bold">Mantenimiento {{ i + 1 }}</label>
+      <p-datepicker [(ngModel)]="fechasMantenimiento[i]" view="month" dateFormat="mm/yy" [style]="{ width: '100%' }"
+        appendTo="body" inputStyleClass="form-control"></p-datepicker>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn btn-primary w-100" (click)="validarFechasMantenimiento()">
+      Confirmar Fechas
+    </button>
+  </ng-template>
+</p-dialog>

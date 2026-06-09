@@ -1,77 +1,130 @@
-<div class="card p-4 shadow-2 border-round-lg">
-    <div class="flex align-items-center gap-2 mb-4">
-        <p-button icon="pi pi-arrow-left" label="Volver" styleClass="p-button-secondary p-button-text"
-            (click)="cancelar()" pTooltip="Volver al listado" tooltipPosition="bottom"></p-button>
-        <h2 class="text-primary font-bold m-0">{{ isEditMode ? 'Editar' : 'Nuevo' }} Plan de Mantenimiento</h2>
+<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+
+<div class="dashboard-container container-plan">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <button class="btn btn-secondary me-2" (click)="cancelar()">
+        <i class="bi bi-arrow-left me-2"></i>Volver al Cronograma
+      </button>
     </div>
+    <h3 class="mb-0">
+      {{ isEditMode ? 'Editar' : 'Planificar' }} Plan de Mantenimiento
+    </h3>
+    <div></div>
+  </div>
 
-    <form [formGroup]="planForm" (ngSubmit)="guardar()" class="grid">
-
-        <!-- Área -->
-        <div class="col-12 md:col-6 mb-3">
-            <label for="area" class="block text-900 font-medium mb-2">Área Física</label>
-            <p-dropdown id="area" [options]="areas" formControlName="areaId" optionLabel="nombre" optionValue="id"
-                placeholder="Seleccione un área" [filter]="true" filterBy="nombre" styleClass="w-full" appendTo="body"
-                [ngClass]="{'ng-invalid ng-dirty': planForm.get('areaId')?.invalid && planForm.get('areaId')?.touched}"></p-dropdown>
-            <small class="p-error" *ngIf="planForm.get('areaId')?.invalid && planForm.get('areaId')?.touched">
-                El área es requerida.
-            </small>
+    <div class="card shadow-2 border-round-xl p-0 overflow-hidden bg-white">
+        <!-- Header decorativo -->
+        <div class="bg-primary-reverse p-4 flex align-items-center gap-3 border-bottom-1 surface-border">
+            <div class="bg-primary border-round-lg p-3 shadow-1">
+                <i class="pi pi-calendar-plus text-white text-2xl"></i>
+            </div>
+            <div class="flex flex-column">
+                <span class="text-xl font-bold text-900">Programación de Actividades Metrológicas y de
+                    Mantenimiento</span>
+                <span class="text-500 text-sm">Defina los parámetros para el seguimiento periódico de los
+                    activos.</span>
+            </div>
         </div>
 
-        <!-- Responsable -->
-        <div class="col-12 md:col-6 mb-3">
-            <label for="responsable" class="block text-900 font-medium mb-2">Responsable</label>
-            <input pInputText id="responsable" formControlName="responsable" class="w-full"
-                placeholder="Nombre del responsable"
-                [ngClass]="{'ng-invalid ng-dirty': planForm.get('responsable')?.invalid && planForm.get('responsable')?.touched}" />
-            <small class="p-error" *ngIf="planForm.get('responsable')?.invalid && planForm.get('responsable')?.touched">
-                El responsable es requerido.
-            </small>
-        </div>
+        <form [formGroup]="planForm" (ngSubmit)="guardar()" class="p-4 md:p-5">
+            <div class="grid">
+                <!-- Área -->
+                <div class="col-12 md:col-6 field mb-4">
+                    <label for="area" class="block text-900 font-semibold mb-2 flex align-items-center gap-2">
+                        <i class="pi pi-building text-primary"></i> Área Física <span class="text-red-500">*</span>
+                    </label>
+                    <p-select id="area" [options]="areas" formControlName="areaId" optionLabel="nombre"
+                        optionValue="id" placeholder="Seleccione el área de trabajo" [filter]="true" filterBy="nombre"
+                        styleClass="w-full p-inputtext-lg" appendTo="body"
+                        [ngClass]="{'ng-invalid ng-dirty': planForm.get('areaId')?.invalid && planForm.get('areaId')?.touched}"></p-select>
+                    <small class="p-error block mt-1"
+                        *ngIf="planForm.get('areaId')?.invalid && planForm.get('areaId')?.touched">
+                        <i class="pi pi-exclamation-circle mr-1"></i> El área es obligatoria.
+                    </small>
+                </div>
 
-        <!-- Actividad -->
-        <div class="col-12 mb-3">
-            <label for="actividad" class="block text-900 font-medium mb-2">Actividad</label>
-            <input pInputText id="actividad" formControlName="actividad" class="w-full"
-                placeholder="Descripción de la actividad"
-                [ngClass]="{'ng-invalid ng-dirty': planForm.get('actividad')?.invalid && planForm.get('actividad')?.touched}" />
-            <small class="p-error" *ngIf="planForm.get('actividad')?.invalid && planForm.get('actividad')?.touched">
-                La actividad es requerida.
-            </small>
-        </div>
+                <!-- Responsable -->
+                <div class="col-12 md:col-6 field mb-4">
+                    <label for="tecnico" class="block text-900 font-semibold mb-2 flex align-items-center gap-2">
+                        <i class="pi pi-user text-primary"></i> Responsable Asignado
+                    </label>
+                    <p-select id="tecnico" [options]="tecnicos" formControlName="tecnicoId" optionLabel="label"
+                        optionValue="value" placeholder="Asignación automática (según carga)" [filter]="true" filterBy="label"
+                        styleClass="w-full p-inputtext-lg" appendTo="body"></p-select>
+                    <small class="text-500 block mt-1">
+                        <i class="pi pi-info-circle mr-1"></i> Si no selecciona uno, se asignará al técnico con menos carga.
+                    </small>
+                </div>
 
-        <!-- Periodo (Mes y Año) -->
-        <div class="col-12 md:col-6 mb-3">
-            <label for="mes" class="block text-900 font-medium mb-2">Mes</label>
-            <p-dropdown id="mes" [options]="meses" formControlName="mes" optionLabel="label" optionValue="value"
-                placeholder="Seleccione mes" styleClass="w-full" appendTo="body"></p-dropdown>
-        </div>
-        <div class="col-12 md:col-6 mb-3">
-            <label for="anio" class="block text-900 font-medium mb-2">Año</label>
-            <p-dropdown id="anio" [options]="anios" formControlName="anio" optionLabel="label" optionValue="value"
-                styleClass="w-full" appendTo="body"></p-dropdown>
-        </div>
+                <!-- Actividad -->
+                <div class="col-12 field mb-4">
+                    <label for="actividad" class="block text-900 font-semibold mb-2 flex align-items-center gap-2">
+                        <i class="pi pi-cog text-primary"></i> Descripción de la Actividad <span
+                            class="text-red-500">*</span>
+                    </label>
+                    <input pInputText id="actividad" formControlName="actividad" class="w-full p-3"
+                        placeholder="Ej: Limpieza profunda de equipos, Calibración anual, etc."
+                        [ngClass]="{'ng-invalid ng-dirty': planForm.get('actividad')?.invalid && planForm.get('actividad')?.touched}" />
+                    <small class="p-error block mt-1"
+                        *ngIf="planForm.get('actividad')?.invalid && planForm.get('actividad')?.touched">
+                        <i class="pi pi-exclamation-circle mr-1"></i> La descripción de la actividad es requerida.
+                    </small>
+                </div>
 
-        <!-- Rango de Días -->
-        <div class="col-12 md:col-6 mb-3">
-            <label for="diaInicio" class="block text-900 font-medium mb-2">Día Inicio (1-31)</label>
-            <p-inputNumber id="diaInicio" formControlName="diaRangoInicio" [min]="1" [max]="31" styleClass="w-full"
-                [showButtons]="true" buttonLayout="horizontal"></p-inputNumber>
-        </div>
-        <div class="col-12 md:col-6 mb-3">
-            <label for="diaFin" class="block text-900 font-medium mb-2">Día Fin (1-31)</label>
-            <p-inputNumber id="diaFin" formControlName="diaRangoFin" [min]="1" [max]="31" styleClass="w-full"
-                [showButtons]="true" buttonLayout="horizontal"></p-inputNumber>
-        </div>
+                <div class="col-12 p-0">
+                    <p-divider align="left">
+                        <div class="inline-flex align-items-center gap-2 text-500">
+                            <i class="pi pi-clock"></i>
+                            <b>Temporalidad y Duración</b>
+                        </div>
+                    </p-divider>
+                </div>
 
+                <div class="col-12 md:col-6 field mb-4">
+                    <label for="periodicidad" class="block text-900 font-semibold mb-2">Periodicidad <span class="text-red-500">*</span></label>
+                    <p-select id="periodicidad" [options]="periodicidades" formControlName="periodicidad" optionLabel="label" optionValue="value"
+                        placeholder="Seleccione la periodicidad" styleClass="w-full p-inputtext-lg" appendTo="body"></p-select>
+                </div>
+                <div class="col-12 md:col-6 field mb-4">
+                    <label for="mes" class="block text-900 font-semibold mb-2">Mes de Inicio</label>
+                    <p-select id="mes" [options]="meses" formControlName="mes" optionLabel="label" optionValue="value"
+                        placeholder="Seleccione el mes" styleClass="w-full p-inputtext-lg" appendTo="body"></p-select>
+                </div>
+                <div class="col-12 md:col-6 field mb-4">
+                    <label for="anio" class="block text-900 font-semibold mb-2">Año</label>
+                    <p-select id="anio" [options]="anios" formControlName="anio" optionLabel="label"
+                        optionValue="value" styleClass="w-full p-inputtext-lg" appendTo="body"></p-select>
+                </div>
 
-        <!-- Botones -->
-        <div class="col-12 flex justify-content-end gap-2 mt-4">
-            <button pButton type="button" label="Cancelar" icon="pi pi-times"
-                class="p-button-outlined p-button-secondary" (click)="cancelar()"></button>
-            <button pButton type="submit" label="Guardar" icon="pi pi-save" class="p-button-primary"
-                [disabled]="planForm.invalid"></button>
-        </div>
+                <!-- Rango de Días -->
+                <div class="col-12 md:col-6 field mb-4">
+                    <label for="diaInicio" class="block text-900 font-semibold mb-2">Día Estimado de Inicio
+                        (1-31)</label>
+                    <p-inputNumber id="diaInicio" formControlName="diaRangoInicio" [min]="1" [max]="31"
+                        styleClass="w-full" [showButtons]="true" buttonLayout="stacked"
+                        inputClassName="p-3"></p-inputNumber>
+                </div>
+                <div class="col-12 md:col-6 field mb-4">
+                    <label for="diaFin" class="block text-900 font-semibold mb-2">Día Estimado de Finalización
+                        (1-31)</label>
+                    <p-inputNumber id="diaFin" formControlName="diaRangoFin" [min]="1" [max]="31" styleClass="w-full"
+                        [showButtons]="true" buttonLayout="stacked" inputClassName="p-3"></p-inputNumber>
+                </div>
+            </div>
 
-    </form>
+            <!-- Footer con acciones -->
+            <div class="flex flex-column md:flex-row justify-content-end gap-3 mt-5 pt-4 border-top-1 surface-border">
+                <p-button label="Cancelar" icon="pi pi-times"
+                    styleClass="p-button-outlined p-button-secondary p-3 md:w-12rem" (click)="cancelar()"></p-button>
+                
+                <p-button *ngIf="isViewing" label="Editar" icon="pi pi-pencil" 
+                    styleClass="p-button-warning p-3 md:w-12rem" (click)="habilitarEdicion()"></p-button>
+
+                <p-button *ngIf="!isViewing" label="Guardar Programación" icon="pi pi-save" type="submit"
+                    [style]="{'background': 'linear-gradient(to right, var(--primary-color), var(--primary-600))'}"
+                    styleClass="p-3 shadow-2 md:w-20rem" [disabled]="planForm.invalid"></p-button>
+            </div>
+        </form>
+    </div>
 </div>

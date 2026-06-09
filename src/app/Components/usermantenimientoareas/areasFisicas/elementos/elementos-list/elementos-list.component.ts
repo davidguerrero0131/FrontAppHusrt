@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { ElementosService } from '../../../../../Services/appServices/areasFisicas/elementos.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -9,15 +9,16 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TagModule } from 'primeng/tag';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Table } from 'primeng/table';
 import { getDecodedAccessToken } from '../../../../../utilidades';
+import { MantenimientoadminnavbarComponent } from '../../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
 import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-elementos-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule, ToolbarModule, TagModule],
+    imports: [CommonModule, TableModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule, ToolbarModule, TagModule, MantenimientoadminnavbarComponent],
     templateUrl: './elementos-list.component.html',
     styleUrls: ['./elementos-list.component.css']
 })
@@ -30,6 +31,7 @@ export class ElementosListComponent implements OnInit {
     isAdmin: boolean = false;
 
     constructor(private router: Router) { }
+    route = inject(ActivatedRoute);
 
     async ngOnInit() {
         this.checkRole();
@@ -38,7 +40,7 @@ export class ElementosListComponent implements OnInit {
 
     checkRole() {
         const tokenData = getDecodedAccessToken();
-        this.isAdmin = tokenData.rol === 'ADMINMANTENIMIENTO' || tokenData.rol === 'BIOMEDICAADMIN' || tokenData.rol === 'SUPERADMIN';
+        this.isAdmin = tokenData.rol === 'ADMINMANTENIMIENTO' || tokenData.rol === 'USERMANTENIMIENTO' || tokenData.rol === 'BIOMEDICAADMIN' || tokenData.rol === 'SUPERADMIN' || tokenData.rol === 'TECNICOMANTENIMIENTO';
     }
 
     async loadElementos() {
@@ -59,15 +61,44 @@ export class ElementosListComponent implements OnInit {
     }
 
     crearElemento() {
-        this.router.navigate(['/elementos/crear']);
+        this.router.navigate(['/elementos/crear'], { queryParams: { returnUrl: this.route.snapshot.queryParams['returnUrl'] } });
     }
 
     editarElemento(id: number) {
-        this.router.navigate(['/elementos/editar', id]);
+        this.router.navigate(['/elementos/editar', id], { queryParams: { returnUrl: this.route.snapshot.queryParams['returnUrl'] } });
     }
 
+    location = inject(Location);
+
     volver() {
-        this.router.navigate(['/adminmantenimiento/inventario']);
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+        } else {
+            const tokenData = getDecodedAccessToken();
+            if (tokenData.rol === 'ADMINMANTENIMIENTO' || tokenData.rol === 'USERMANTENIMIENTO' || tokenData.rol === 'SUPERADMIN') {
+                this.router.navigate(['/adminmantenimiento']);
+            } else {
+                this.router.navigate(['/adminmantenimiento/gestion-operativa']);
+            }
+        }
+    }
+
+    async cambiarEstado(elemento: any) {
+        const nuevoEstado = !elemento.estado;
+        try {
+            await this.elementosService.changeEstado(elemento.id, nuevoEstado);
+            elemento.estado = nuevoEstado;
+            Swal.fire({
+                title: 'Éxito',
+                text: `Elemento ${nuevoEstado ? 'activado' : 'inhabilitado'} correctamente`,
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        } catch (error) {
+            Swal.fire('Error', 'No se pudo cambiar el estado del elemento', 'error');
+        }
     }
 
     async eliminarElemento(id: number) {

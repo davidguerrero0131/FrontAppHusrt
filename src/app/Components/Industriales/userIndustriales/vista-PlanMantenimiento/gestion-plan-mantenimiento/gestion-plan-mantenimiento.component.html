@@ -1,0 +1,397 @@
+<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+<div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
+</div>
+
+<div style="margin-bottom: 2%;">
+  <h1 style="text-align: center;">MANTENIMIENTOS DE EQUIPOS INDUSTRIALES</h1>
+  <div class="text-center mt-3">
+    <button class="btn btn-outline-secondary" (click)="regresar()">
+      <i class="pi pi-arrow-left"></i> Volver al panel
+    </button>
+  </div>
+</div>
+
+<div class="filtromes flex flex-wrap align-items-center justify-content-center gap-3" style="margin-bottom: 2%;">
+
+  <div class="flex align-items-center gap-2">
+    <label class="font-bold">Año:</label>
+    <input pInputText type="number" [(ngModel)]="anio" placeholder="YYYY" class="w-8rem" />
+  </div>
+
+  <div class="flex align-items-center gap-2">
+    <label class="font-bold">Inicio:</label>
+    <p-select [options]="meses" [(ngModel)]="mesInicio" optionLabel="label" optionValue="value"
+      placeholder="Mes Inicio" [style]="{'width':'10rem'}"></p-select>
+  </div>
+
+  <div class="flex align-items-center gap-2">
+    <label class="font-bold">Fin:</label>
+    <p-select [options]="meses" [(ngModel)]="mesFin" optionLabel="label" optionValue="value" placeholder="Mes Fin"
+      [style]="{'width':'10rem'}"></p-select>
+  </div>
+
+  <button type="button" class="btn btn-dark" (click)="setDate()">
+    Buscar
+  </button>
+</div>
+
+<div>
+  <h6 style="text-align: center;" *ngIf="mesInicio === mesFin">
+    Mantenimientos del mes de {{obtenerNombreMes(mesInicio)}} del año {{anio}}
+  </h6>
+  <h6 style="text-align: center;" *ngIf="mesInicio !== mesFin">
+    Mantenimientos de {{obtenerNombreMes(mesInicio)}} a {{obtenerNombreMes(mesFin)}} del año {{anio}}
+  </h6>
+</div>
+
+<div class="btn-group botonesMenu" role="group" aria-label="Basic example">
+  <button type="button" class="btn" [ngClass]="panelPreventivos ? 'btn-warning' : 'btn-dark'"
+    (click)="viewPreventivos()">
+    Preventivos
+  </button>
+
+  <button type="button" class="btn" [ngClass]="panelMetas ? 'btn-warning' : 'btn-dark'" (click)="viewMetas()">
+    Metas
+  </button>
+
+  <button type="button" class="btn" [ngClass]="panelCorrectivos ? 'btn-warning' : 'btn-dark'"
+    (click)="viewCorrectivos()">
+    Correctivos
+  </button>
+</div>
+
+<div style="margin-top: 1%;">
+  <div class="panelMantenimientos" *ngIf="panelPreventivos">
+
+    <div class="card">
+      <p-table #dt2 [value]="preventivos" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [loading]="loading" [paginator]="true" [tableStyle]="{ 'min-width': '10rem' }"
+        [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'equipo.servicioInd.nombres', 'reporte.usuario.nombres']">
+
+        <ng-template #caption>
+          <div class="flex">
+            <p-iconfield iconPosition="left" class="ml-auto">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda General" />
+            </p-iconfield>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width:15%; align-items: center; text-align: center">Nombre</th>
+            <th style="width:10%; align-items: center; text-align: center">Marca</th>
+            <th style="width:10%; align-items: center; text-align: center">Serie</th>
+            <th style="width:10%; align-items: center; text-align: center">Placa</th>
+            <th style="width:15%; align-items: center; text-align: center">Servicio</th>
+            <th style="width:15%; align-items: center; text-align: center">Responsable</th>
+            <th style="width:10%; align-items: center; text-align: center">Estado</th>
+            <th style="width:15%; align-items: center; text-align: center" *ngIf="canViewDetail()">
+               Opciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-plan>
+          <tr>
+            <td style="text-align: center; align-items: center;">
+              {{plan.equipo?.nombres}}
+            </td>
+            <td style="text-align: center; align-items: center;">
+              {{ plan.equipo?.marca }}
+            </td>
+            <td style="text-align: center; align-items: center;">
+              {{ plan.equipo?.serie }}
+            </td>
+            <td style="text-align: center; align-items: center;">
+              {{ plan.equipo?.placa }}
+            </td>
+            <td style="text-align: center; align-items: center;">
+              {{ plan.equipo?.servicioInd?.nombres}}
+            </td>
+            <td style="text-align: center; align-items: center;">
+              {{ plan.reporte?.usuario?.nombres || 'Sin Asignar' }}
+            </td>
+            <td style="text-align: center; align-items: center;">
+              <p-tag [severity]="getEstadoSeverity(plan.estado)" [value]="getEstadoLabel(plan.estado)"
+                [style]="{'cursor': (plan.estado === 1 || plan.estado === 2 || plan.estado === 3 || plan.estado === 4) ? 'pointer' : 'default'}"
+                (click)="irAReporte(plan)">
+              </p-tag>
+            </td>
+            <td style="text-align: center; align-items: center;" *ngIf="canViewDetail()">
+               <button type="button" class="btn btn-info ml-1" (click)="verDetalle(plan.id)" pTooltip="Ver Detalle">
+                 <i class="pi pi-eye"></i>
+               </button>
+               <button type="button" class="btn btn-warning ml-1" (click)="editarPlan(plan.id)" pTooltip="Editar"
+                 *ngIf="canEditPlan()">
+                 <i class="pi pi-pencil"></i>
+               </button>
+             </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="11">No hay planes registrados.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <div class="panelMantenimientos" *ngIf="panelMetas">
+    <div class="btn-group botonesMenu mb-3" role="group" style="display: flex; justify-content: center;">
+      <button type="button" class="btn" [ngClass]="panelRealizados ? 'btn-success' : 'btn-dark'"
+        (click)="panelRealizadosView()">
+        Realizados
+      </button>
+      <button type="button" class="btn" [ngClass]="panelPendientes ? 'btn-danger' : 'btn-dark'"
+        (click)="panelPendientesView()">
+        Pendientes
+      </button>
+    </div>
+
+    <div class="card">
+      <p-table #dtMetas [value]="metas" [rows]="10" [paginator]="true" [loading]="loading"
+        [globalFilterFields]="['equipo', 'serie', 'placa', 'ubicacion', 'tipo']">
+        
+        <ng-template #caption>
+          <div class="flex">
+            <p-iconfield iconPosition="left" class="ml-auto">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input pInputText type="text" (input)="onGlobalFilterMetas($event)" 
+                placeholder="Buscar en metas..." />
+            </p-iconfield>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="text-align: center">Equipo</th>
+            <th style="text-align: center">Serie</th>
+            <th style="text-align: center">Placa</th>
+            <th style="text-align: center">Tipo</th>
+            <th style="text-align: center">Estado</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-meta>
+          <tr>
+            <td style="text-align: center">{{ meta.equipo }}</td>
+            <td style="text-align: center">{{ meta.serie }}</td>
+            <td style="text-align: center">{{ meta.placa }}</td>
+            <td style="text-align: center">
+              <p-tag [value]="meta.tipo" [severity]="meta.tipo === 'Preventivo' ? 'info' : 'warning'"></p-tag>
+            </td>
+            <td style="text-align: center">
+              <p-tag [value]="meta.estado" [severity]="panelRealizados ? 'success' : 'danger'"></p-tag>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center">No hay registros para mostrar.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <div class="panelMantenimientos" style="background-color: white;" *ngIf="panelCorrectivos">
+
+    <div class="card">
+      <p-table #dt3 [value]="correctivos" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [loading]="loading" [paginator]="true" [tableStyle]="{ 'min-width': '10rem' }"
+        [globalFilterFields]="['equipo.nombres', 'usuario.nombres', 'equipo.serie', 'equipo.placa', 'servicio.nombres']">
+
+        <ng-template #caption>
+          <div class="flex">
+            <p-iconfield iconPosition="left" class="ml-auto">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda General" />
+            </p-iconfield>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width:15%; align-items: center; text-align: center">Nombre</th>
+            <th style="width:10%; align-items: center; text-align: center">Marca</th>
+            <th style="width:10%; align-items: center; text-align: center">Serie</th>
+            <th style="width:10%; align-items: center; text-align: center">Placa</th>
+            <th style="width:15%; align-items: center; text-align: center">Servicio</th>
+            <th style="width:15%; align-items: center; text-align: center">Responsable</th>
+            <th style="width:15%; align-items: center; text-align: center">Ítem(s) No Cumple</th>
+            <th style="width:10%; align-items: center; text-align: center">Estado</th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-correctivo>
+          <tr>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ correctivo.equipo?.nombres }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ correctivo.equipo?.marca }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ correctivo.equipo?.serie }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ correctivo.equipo?.placa }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ correctivo.servicio?.nombres }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle">
+                {{ correctivo.usuario?.nombres || 'Sin Asignar' }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+              <span class="ml-1 vertical-align-middle text-danger">
+                {{ correctivo.motivo || 'Sin especificar' }}
+              </span>
+            </td>
+            <td style="text-align: center; align-items: center; text-align: center">
+               <!-- BOTONES DE ESTADO CORRECTIVO: CORREGIR -> CORREGIDO -> REALIZADO -->
+                <button *ngIf="canEditCorrective() && correctivo.estado === 'Corregir'" type="button" class="btn btn-danger" 
+                   (click)="cambiarEstadoCorrectivo(correctivo)">CORREGIR</button>
+                   
+                <button *ngIf="canEditCorrective() && correctivo.estado === 'Corregido'" type="button" class="btn btn-warning" 
+                   style="color: black;" (click)="cambiarEstadoCorrectivo(correctivo)">CORREGIDO</button>
+                  
+               <button type="button" class="btn btn-success" *ngIf="correctivo.estado === 'Realizado'" 
+                  (click)="cambiarEstadoCorrectivo(correctivo)">REALIZADO</button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="11" class="text-center">No hay Mantenimientos Correctivos reportados en este periodo.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+  </div>
+
+</div>
+
+<p-dialog header="Resumen del Reporte" [(visible)]="displayReporteDialog" [modal]="true" [style]="{width: '50vw'}"
+  [draggable]="false" [resizable]="false">
+  <div *ngIf="reporteSeleccionado" class="p-fluid">
+    <div class="field grid">
+      <label class="col-12 md:col-4 font-bold">Fecha Realizado:</label>
+      <div class="col-12 md:col-8">{{ reporteSeleccionado.fechaRealizado | date:'dd/MM/yyyy' }}</div>
+    </div>
+    <div class="field grid">
+      <label class="col-12 md:col-4 font-bold">Tipo Mantenimiento:</label>
+      <div class="col-12 md:col-8">{{ reporteSeleccionado.tipoMantenimiento }}</div>
+    </div>
+    <div class="field grid">
+      <label class="col-12 md:col-4 font-bold">Realizado Por:</label>
+      <div class="col-12 md:col-8">{{ reporteSeleccionado.usuario?.nombres || 'N/A' }}</div>
+    </div>
+    <div class="field grid">
+      <label class="col-12 md:col-4 font-bold">Trabajo Realizado:</label>
+      <div class="col-12 md:col-8">{{ reporteSeleccionado.trabajoRealizado }}</div>
+    </div>
+    <div class="field grid">
+      <label class="col-12 md:col-4 font-bold">Observaciones:</label>
+      <div class="col-12 md:col-8">{{ reporteSeleccionado.observaciones || 'Ninguna' }}</div>
+    </div>
+    <div class="field grid">
+      <label class="col-12 md:col-4 font-bold">Recibido Por:</label>
+      <div class="col-12 md:col-8">{{ reporteSeleccionado.nombreRecibio }}</div>
+    </div>
+
+    <div class="field grid" *ngIf="reporteSeleccionado.responsable">
+      <label class="col-12 md:col-4 font-bold">Responsable:</label>
+      <div class="col-12 md:col-8">{{ reporteSeleccionado.responsable?.nombres }}</div>
+    </div>
+
+    <div class="field grid" *ngIf="reporteSeleccionado.rutaImagen">
+      <label class="col-12 md:col-4 font-bold">Imágenes Adjuntas:</label>
+      <div class="col-12 md:col-8">
+        <div *ngFor="let img of getImagenesReporte(reporteSeleccionado.rutaImagen)" class="mb-2">
+          <img [src]="API_URL + '/uploads/industriales/reportes/' + img" alt="Imagen del Reporte"
+            style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 10px;">
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="rutina && rutina.length > 0">
+      <div class="field grid">
+        <div class="col-12 font-bold">Rutina de Mantenimiento:</div>
+        <div class="col-12">
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Descripción</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of rutina">
+                <td>{{ item.protocoloPreventivo?.paso || 'Paso ' + item.protocoloPreventivoIdFk }}</td>
+                <td>
+                  <span [ngClass]="{
+                        'text-green-600 font-bold': item.cumple === 'Realizado',
+                        'text-red-600 font-bold': item.cumple === 'No Realizado',
+                        'text-blue-600 font-bold': item.cumple === 'No Aplica'
+                    }">{{ item.cumple }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <!-- Input oculto para seleccionar PDF firmado -->
+    <input #inputPdfFirmado type="file" accept="application/pdf" style="display:none"
+      (change)="onPdfFirmadoSelected($event)" />
+
+    <!-- Estado 2 = Realizado → mostrar Imprimir PDF + Subir informe firmado -->
+    <ng-container *ngIf="!planSeleccionado || planSeleccionado?.estado === 2">
+      <p-button icon="pi pi-file-pdf" (click)="imprimirReporte()" label="Imprimir PDF"
+        styleClass="p-button-danger"></p-button>
+
+      <p-button
+        *ngIf="planSeleccionado?.estado === 2"
+        icon="pi pi-upload"
+        (click)="abrirSelectorPDF()"
+        label="Subir informe firmado"
+        styleClass="p-button-warning"
+        pTooltip="Sube el PDF del informe firmado por las partes"
+        tooltipPosition="top">
+      </p-button>
+    </ng-container>
+
+    <!-- Estado 3 = Completado → mostrar solo Ver informe firmado -->
+    <p-button
+      *ngIf="planSeleccionado?.estado === 3"
+      icon="pi pi-eye"
+      (click)="verInformeFirmado()"
+      label="Ver informe firmado"
+      styleClass="p-button-success">
+    </p-button>
+
+    <p-button icon="pi pi-check" (click)="displayReporteDialog=false" label="Cerrar"
+      styleClass="p-button-text"></p-button>
+  </ng-template>
+</p-dialog>

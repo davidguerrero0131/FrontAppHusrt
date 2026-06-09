@@ -1,0 +1,59 @@
+<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+
+<div class="fade-in-animation p-4">
+    <div class="hero-section" style="margin-bottom: 3rem;">
+        <div class="hero-content">
+            <h1>PARAMETRIZACIÓN</h1>
+        </div>
+    </div>
+
+    <p-button icon="pi pi-arrow-left" label="Volver"
+        styleClass="p-button-secondary bg-gray-800 border-none shadow-2 px-4 py-2 border-round-lg hover:bg-gray-900 transition-all font-bold"
+        (click)="backToDashboard()" pTooltip="Volver al Panel Principal" tooltipPosition="bottom"></p-button>
+
+    <div class="dashboard-container">
+
+        <div class="cards-grid">
+            <!-- Áreas Físicas -->
+            <div *ngIf="userRole === 'Administrador' || userRole === 'Usuario'" class="dashboard-card" (click)="showViewAreas()">
+                <div class="card-icon-container gradient-blue">
+                    <i class="pi pi-building"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Áreas Físicas</h3>
+                    <p>Gestionar nombres, ubicaciones y descripciones de áreas del hospital.</p>
+                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <!-- Elementos -->
+            <div *ngIf="userRole === 'Administrador' || userRole === 'Usuario' || userRole === 'Técnico'" class="dashboard-card"
+                (click)="showViewElementos()">
+                <div class="card-icon-container gradient-orange">
+                    <i class="pi pi-box"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Catálogo de Elementos</h3>
+                    <p>Administrar el catálogo global de elementos físicos y activos.</p>
+                    <span class="card-action">Ingresar <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+            <!-- Industrial Equipment Types -->
+            <div *ngIf="userRole === 'Administrador' || userRole === 'Usuario'" class="dashboard-card" (click)="showViewTiposIndustriales()">
+                <div class="card-icon-container gradient-cyan">
+                    <i class="pi pi-cog"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Tipos Industriales</h3>
+                    <p>Catálogo de equipos industriales y protocolos diarios.</p>
+                    <div style="margin-top: 10px;" *ngIf="tiposEquipoIndustriales.length > 0">
+                        <span class="badge bg-success shadow-sm px-3 py-2 border-round-2xl">
+                            <i class="pi pi-check-circle mr-1"></i> {{ tiposEquipoIndustriales.length }} Registrados
+                        </span>
+                    </div>
+                    <span class="card-action mt-2">Ingresar <i class="pi pi-arrow-right"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

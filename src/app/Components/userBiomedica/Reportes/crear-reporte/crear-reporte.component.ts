@@ -1,11 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, FormsModule, FormArray, FormControl } from '@angular/forms';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, FormsModule, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { InputMaskModule } from 'primeng/inputmask';
-import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
@@ -13,18 +11,22 @@ import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
+import { TableModule } from 'primeng/table';
 import Swal from 'sweetalert2';
 import { getDecodedAccessToken } from '../../../../utilidades';
 import { ProtocolosService } from '../../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { UserService } from '../../../../Services/appServices/userServices/user.service';
-import { Router } from '@angular/router';
 import { ReportesService } from '../../../../Services/appServices/biomedicaServices/reportes/reportes.service';
+import { TipoEquipoService } from '../../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
+import { CondicionInicialService } from '../../../../Services/appServices/biomedicaServices/condicionesIniciales/condicion-inicial.service';
+
+import { UppercaseDirective } from '../../../../Directives/uppercase.directive';
 
 @Component({
   selector: 'app-crear-reporte',
   standalone: true,
-  imports: [DatePickerModule, SelectModule, TextareaModule, InputTextModule, ButtonModule, CardModule, CalendarModule, InputMaskModule, CommonModule, DropdownModule, CheckboxModule, ReactiveFormsModule, FormsModule],
+  imports: [DatePickerModule, SelectModule, TextareaModule, InputTextModule, ButtonModule, CardModule, CalendarModule, InputMaskModule, CommonModule, CheckboxModule, ReactiveFormsModule, FormsModule, TableModule, UppercaseDirective],
   templateUrl: './crear-reporte.component.html',
   styleUrl: './crear-reporte.component.css'
 })
@@ -41,44 +43,104 @@ export class CrearReporteComponent implements OnInit {
   protocoloservices = inject(ProtocolosService);
   userServices = inject(UserService);
   reprteServices = inject(ReportesService);
+  tipoEquipoService = inject(TipoEquipoService);
+  condicionInicialService = inject(CondicionInicialService);
   router = inject(Router);
   tipoMantenimiento = '';
+
+  // Specific Measurements
+  medicionesPreventivo: any[] = [];
 
   tiposMantenimiento = [
     { label: 'Correctivo', value: 'Correctivo' },
     { label: 'Preventivo', value: 'Preventivo' },
-    { label: 'Predictivo', value: 'Predictivo' },
     { label: 'Otro', value: 'Otro' },
   ];
 
+  get opcionesMantenimiento() {
+    const token = getDecodedAccessToken();
+    if (token && token.rol === 'BIOMEDICATECNICO') {
+      if (this.tipoMantenimiento === 'Preventivo') {
+          return this.tiposMantenimiento;
+      }
+      return this.tiposMantenimiento.filter(t => t.value !== 'Preventivo');
+    }
+    return this.tiposMantenimiento;
+  }
+
   tiposFalla = [
     'Desgaste', 'Operación Indebida', 'Causa Externa', 'Accesorios',
-    'Desconocido', 'Sin Falla', 'Otros'
+    'Desconocido', 'Sin Falla', 'Otros', 'No Registra'
+  ].map(v => ({ label: v, value: v }));
+
+  estadosOperativos = [
+    'Operativo sin restricciones', 'Operativo con restricciones', 'Fuera de servicio'
   ].map(v => ({ label: v, value: v }));
 
   id!: number;
+  casoId: number | null = null;
+
+  opcionesCumplimiento = [
+    { label: 'Cumple', value: 'CUMPLE' },
+    { label: 'No Cumple', value: 'NO_CUMPLE' },
+    { label: 'No Aplica', value: 'NO_APLICA' }
+  ];
+
+  equiposPatron: any[] = [];
+  selectedPatron: any = null;
+
+  opcionesCalificacion = [
+    { label: '0 - 20 % Operativo', value: 1 },
+    { label: '20 - 40 % Operativo', value: 2 },
+    { label: '40 - 60 % Operativo', value: 3 },
+    { label: '60 - 80 % Operativo', value: 4 },
+    { label: '80 - 100 % Operativo', value: 5 },
+  ];
 
   constructor(private route: ActivatedRoute, private fb: FormBuilder, private location: Location) {
     this.validarTipoMantenimiento();
     this.reporteForm = this.fb.group({
-      fechaRealizado: [null],
-      horaInicio: [null],
-      fechaFin: [null],
-      horaTerminacion: [null],
+      fechaRealizado: [null, Validators.required],
+      horaInicio: [null, Validators.required],
+      fechaFin: [null, Validators.required],
+      horaTerminacion: [null, Validators.required],
       horaTotal: [{ value: null, disabled: true }],
-      tipoMantenimiento: this.tipoMantenimiento,
-      tipoFalla: [null],
-      motivo: [''],
-      trabajoRealizado: [''],
-      calificacion: [null],
-      nombreRecibio: [''],
-      cedulaRecibio: [''],
-      observaciones: [''],
-      cumplimientoProtocolo: this.fb.array([])
+      tipoMantenimiento: [this.tipoMantenimiento, Validators.required],
+      tipoFalla: [null, Validators.required],
+      estadoOperativo: [null, Validators.required],
+      motivo: ['', Validators.required],
+      trabajoRealizado: ['', Validators.required],
+      calificacion: [null, [Validators.required, Validators.min(1), Validators.max(5)]],
+      nombreRecibio: ['', Validators.required],
+      cedulaRecibio: ['', Validators.required],
+      observaciones: ['', Validators.required],
+      equipoPatronIdFk: [null], // Renamed field
+      cumplimientoProtocolo: this.fb.array([]),
+      valoresMediciones: this.fb.array([]),
+      repuestos: this.fb.array([]),
+      condicionesIniciales: this.fb.array([])
     });
 
     this.reporteForm.valueChanges.subscribe(() => {
       this.calcularHoras();
+    });
+
+    this.reporteForm.get('tipoMantenimiento')?.valueChanges.subscribe((val) => {
+      if (val === 'Preventivo') {
+        this.reporteForm.get('tipoFalla')?.setValue('Sin Falla');
+        this.reporteForm.get('tipoFalla')?.disable();
+        this.reporteForm.get('motivo')?.setValue('Programado para mantenimiento preventivo');
+        this.reporteForm.get('motivo')?.disable();
+      } else {
+        this.reporteForm.get('tipoFalla')?.enable();
+        this.reporteForm.get('motivo')?.enable();
+        if (this.reporteForm.get('tipoFalla')?.value === 'Sin Falla') {
+          this.reporteForm.get('tipoFalla')?.setValue(null);
+        }
+        if (this.reporteForm.get('motivo')?.value === 'Programado para mantenimiento preventivo') {
+          this.reporteForm.get('motivo')?.setValue('');
+        }
+      }
     });
 
     if (this.tipoMantenimiento === 'Preventivo') {
@@ -89,13 +151,24 @@ export class CrearReporteComponent implements OnInit {
     }
 
     this.reporteForm.get('tipoMantenimiento')?.disable();
+
+    const token = getDecodedAccessToken();
+
+    if (token && (token.rol === 'SUPERADMIN' || token.rol === 'BIOMEDICAADMIN' || token.rol === 'BIOMEDICAUSER' || (token.rol === 'BIOMEDICATECNICO' && this.tipoMantenimiento !== 'Preventivo'))) {
+
+      this.reporteForm.get('tipoMantenimiento')?.enable();
+    }
   }
 
   calcularHoras() {
     const fechaInicio = this.reporteForm.get('fechaRealizado')?.value;
     const horaInicio = this.reporteForm.get('horaInicio')?.value;
-    const fechaFin = this.reporteForm.get('fechaFin')?.value;
+    let fechaFin = this.reporteForm.get('fechaFin')?.value;
     const horaFin = this.reporteForm.get('horaTerminacion')?.value;
+
+    if (!fechaFin && fechaInicio) {
+      fechaFin = fechaInicio;
+    }
 
     if (fechaInicio && horaInicio && fechaFin && horaFin) {
       const inicio = new Date(fechaInicio);
@@ -109,7 +182,7 @@ export class CrearReporteComponent implements OnInit {
       const diferenciaMs = fin.getTime() - inicio.getTime();
 
       if (diferenciaMs < 0) {
-        this.reporteForm.get('horaTotal')?.setValue('00:00:00');
+        this.reporteForm.get('horaTotal')?.setValue('00:00:00', { emitEvent: false });
         return;
       }
 
@@ -119,85 +192,285 @@ export class CrearReporteComponent implements OnInit {
 
       const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-      this.reporteForm.get('horaTotal')?.setValue(formattedTime);
+      this.reporteForm.get('horaTotal')?.setValue(formattedTime, { emitEvent: false });
     }
   }
 
   async ngOnInit() {
     this.id = Number(this.route.snapshot.paramMap.get('id'));
-    this.reporte = await this.reprteServices.getPreventivoProgramado(Number(sessionStorage.getItem('idReporte'))) || {};
-    this.equipo = await this.equiposervices.getEquipoById(this.id);
-    this.protocolos = await this.protocoloservices.getProtocoloTipoEquipo(this.equipo.tipoEquipoIdFk);
-    this.nombreUsuario = await this.userServices.getNameUSer(getDecodedAccessToken().id);
-    this.selectProtocolos = [this.protocolos[1]];
+    const qCasoId = this.route.snapshot.queryParamMap.get('casoId');
+    if (qCasoId) this.casoId = Number(qCasoId);
+    const idReporte = Number(localStorage.getItem('idReporte'));
+
+    await this.loadInitialReportData(idReporte);
+    await this.loadBaseData();
+    
+    // For new reports, initialize tipoMantenimiento from localStorage
+    if (!this.reporte.id) {
+       this.validarTipoMantenimiento();
+       if (this.tipoMantenimiento) {
+         this.reporteForm.get('tipoMantenimiento')?.setValue(this.tipoMantenimiento, { emitEvent: false });
+       }
+    }
+
+    await this.initRelatedEntities();
+    this.populateFormFromReport();
+  }
+
+  private async loadInitialReportData(idReporte: number) {
+    if (idReporte && idReporte > 0) {
+      try {
+        let reporteTemporal: any = await this.reprteServices.getPreventivoProgramado(idReporte) || {};
+        
+        // Fetch full report details to get specific measurements and repuestos
+        const reportDetails = await this.reprteServices.getReporteById(idReporte);
+        if (reportDetails) {
+          reporteTemporal = { ...reporteTemporal, ...reportDetails };
+        }
+
+        // VALIDACIÓN PARA EVITAR ROBO DE REGISTROS (LOCALSTORAGE HIJACKING)
+        if (reporteTemporal.id && reporteTemporal.equipoIdFk !== this.id) {
+          console.warn('El idReporte en localStorage no corresponde al equipo actual de la URL. Posible caché cruzada. Limpiando.');
+          localStorage.removeItem('idReporte');
+          this.reporte = {};
+        } else {
+          this.reporte = reporteTemporal;
+          // Fetch compliance data
+          if (this.reporte.id) {
+            this.reporte.cumplimientoProtocolo = await this.protocoloservices.getCumplimientoProtocoloReporte(this.reporte.id).catch(() => []);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading initial report data:', error);
+        this.reporte = {};
+      }
+    } else {
+      this.reporte = {};
+    }
+  }
+
+  private async loadBaseData() {
+    // 1. Load User Info
+    try {
+      this.nombreUsuario = await this.userServices.getNameUSer(getDecodedAccessToken().id);
+    } catch (error) {
+      console.error('Error fetching user name:', error);
+      this.nombreUsuario = { nombreCompleto: 'Técnico', numeroId: '' };
+    }
+    if (this.reporte.id && this.reporte.usuario) {
+      this.nombreUsuario = this.reporte.usuario;
+    }
+
+    // 2. Load Equipment Info
+    try {
+      this.equipo = await this.equiposervices.getEquipoById(this.id);
+      if (this.equipo && this.equipo.tipoEquipoIdFk) {
+        const [protocolos, allMediciones, equiposPatron] = await Promise.all([
+          this.protocoloservices.getProtocoloActivoTipoEquipo(this.equipo.tipoEquipoIdFk).catch(() => []),
+          this.tipoEquipoService.getMediciones(this.equipo.tipoEquipoIdFk).catch(() => []),
+          this.equiposervices.getEquiposPatron().catch(() => [])
+        ]);
+        this.protocolos = protocolos;
+        this.medicionesPreventivo = allMediciones.filter((m: any) => m.estado !== false);
+        this.equiposPatron = equiposPatron;
+      }
+    } catch (error) {
+      console.error('Error in loadBaseData:', error);
+      Swal.fire('Error', 'No se pudo cargar la información básica del equipo', 'error');
+    }
+  }
+
+  private async initRelatedEntities() {
+    this.iniValoresMediciones();
     await this.iniCumplimientoProtocolo();
+    this.iniRepuestos();
+    await this.iniCondicionesIniciales();
+  }
+
+  private populateFormFromReport() {
+    if (!this.reporte.id || !this.reporte.realizado) return;
+
+    this.reporteForm.patchValue({
+      fechaRealizado: this.reporte.fechaRealizado ? new Date(this.reporte.fechaRealizado + 'T00:00:00') : null,
+      horaInicio: this.reporte.horaInicio,
+      fechaFin: this.reporte.fechaFin ? new Date(this.reporte.fechaFin + 'T00:00:00') : null,
+      horaTerminacion: this.reporte.horaTerminacion,
+      horaTotal: this.reporte.horaTotal,
+      tipoMantenimiento: this.reporte.tipoMantenimiento,
+      tipoFalla: this.reporte.tipoFalla,
+      motivo: this.reporte.motivo,
+      trabajoRealizado: this.reporte.trabajoRealizado,
+      calificacion: this.reporte.calificacion,
+      nombreRecibio: this.reporte.nombreRecibio,
+      cedulaRecibio: this.reporte.cedulaRecibio,
+      observaciones: this.reporte.observaciones,
+      estadoOperativo: this.reporte.estadoOperativo,
+      equipoPatronIdFk: this.reporte.equipoPatronIdFk
+    });
+
+    if (this.reporte.tipoMantenimiento) {
+      this.tipoMantenimiento = this.reporte.tipoMantenimiento;
+      const token = getDecodedAccessToken();
+      const canEditType = token && (token.rol === 'SUPERADMIN' || token.rol === 'BIOMEDICAADMIN' || token.rol === 'BIOMEDICAUSER' || (token.rol === 'BIOMEDICATECNICO' && this.tipoMantenimiento !== 'Preventivo'));
+      
+      if (canEditType) {
+        this.reporteForm.get('tipoMantenimiento')?.enable({ emitEvent: false });
+      } else {
+        this.reporteForm.get('tipoMantenimiento')?.disable({ emitEvent: false });
+      }
+    }
+
+    if (this.reporte.equipoPatronIdFk) {
+      this.selectedPatron = this.equiposPatron.find(e => e.id === this.reporte.equipoPatronIdFk);
+    }
+  }
+
+  onSelectPatron() {
+    const id = this.reporteForm.get('equipoPatronIdFk')?.value;
+    if (id) {
+      this.selectedPatron = this.equiposPatron.find(e => e.id === id);
+    } else {
+      this.selectedPatron = null;
+    }
+  }
+
+  iniValoresMediciones() {
+    const array = this.reporteForm.get('valoresMediciones') as FormArray;
+    array.clear();
+    if (this.medicionesPreventivo) {
+      this.medicionesPreventivo.forEach(m => {
+        // Find existing value in report if editing
+        const existingVal = this.reporte.valoresMediciones?.find((v: any) => v.medicion?.id === m.id || v.medicionIdFk === m.id);
+
+        array.push(this.fb.group({
+          id: [m.id],
+          nombre: [m.nombre],
+          unidad: [m.unidad],
+          valorEstandar: [m.valorEstandar],
+          valor: [existingVal ? existingVal.valor : ''],
+          unidadRegistrada: [existingVal ? existingVal.unidadRegistrada : m.unidad],
+          criterioAceptacion: [m.criterioAceptacion],
+          conforme: [existingVal ? existingVal.conforme : false]
+        }));
+      });
+    }
+  }
+
+  get valoresMedicionesFormArray(): FormArray {
+    return this.reporteForm.get('valoresMediciones') as FormArray;
   }
 
   async onSubmit() {
     if (this.reporteForm.valid) {
+      const selectedTipo = this.reporteForm.get('tipoMantenimiento')?.value || this.tipoMantenimiento;
+
+      // Prepare payload
+      let medicionesPayload = [];
+      if (selectedTipo === 'Preventivo' && this.reporteForm.value.valoresMediciones) {
+        medicionesPayload = this.reporteForm.value.valoresMediciones.map((m: any) => ({
+          id: m.id,
+          valor: m.valor,
+          unidadRegistrada: m.unidadRegistrada,
+          conforme: m.conforme
+        }));
+      }
+
       this.reporte =
       {
         id: this.reporte.id || null,
-        añoProgramado: this.reporte.añoProgramado || null,
-        mesProgramado: this.reporte.mesProgramado || null,
+        añoProgramado: this.reporte.añoProgramado || (this.reporteForm.value.fechaRealizado ? new Date(this.reporteForm.value.fechaRealizado).getFullYear() : null),
+        mesProgramado: (this.reporte.mesProgramado !== null && this.reporte.mesProgramado !== undefined) 
+                        ? this.reporte.mesProgramado 
+                        : (this.reporteForm.value.fechaRealizado ? new Date(this.reporteForm.value.fechaRealizado).getMonth() + 1 : null),
         fechaRealizado: this.reporteForm.value.fechaRealizado,
         horaInicio: this.reporteForm.value.horaInicio,
         fechaFin: this.reporteForm.value.fechaFin,
         horaTerminacion: this.reporteForm.value.horaTerminacion,
-        horaTotal: this.reporteForm.get('horaTotal')?.value || 0,
-        tipoMantenimiento: this.tipoMantenimiento,
-        tipoFalla: this.tipoMantenimiento == 'Preventivo' ? 'Sin Falla' : this.reporteForm.value.tipoFalla,
-        motivo: this.tipoMantenimiento == 'Preventivo' ? 'Programado para mantenimiento preventivo' : this.reporteForm.value.motivo,
+        horaTotal: this.reporteForm.get('horaTotal')?.value || '00:00:00',
+        tipoMantenimiento: selectedTipo,
+        tipoFalla: selectedTipo === 'Preventivo' ? 'Sin Falla' : this.reporteForm.value.tipoFalla,
+        motivo: selectedTipo === 'Preventivo' ? 'Programado para mantenimiento preventivo' : this.reporteForm.value.motivo,
         trabajoRealizado: this.reporteForm.value.trabajoRealizado,
         calificacion: this.reporteForm.value.calificacion,
         nombreRecibio: this.reporteForm.value.nombreRecibio,
         cedulaRecibio: this.reporteForm.value.cedulaRecibio,
         observaciones: this.reporteForm.value.observaciones,
+        estadoOperativo: this.reporteForm.value.estadoOperativo, // Ensure operative state is saved
         mantenimientoPropio: true,
         realizado: true,
         rutaPdf: null,
         servicioIdFk: this.equipo.servicioIdFk,
         equipoIdFk: this.equipo.id,
         usuarioIdFk: getDecodedAccessToken().id,
+        mediciones: medicionesPayload, // Add measurements to payload
+        repuestos: this.reporteForm.value.repuestos, // Add accessories to payload
+        equipoPatronIdFk: this.reporteForm.value.equipoPatronIdFk, // Add patron equipment
+        condicionesIniciales: selectedTipo === 'Preventivo' ? this.reporteForm.value.condicionesIniciales : [], // Add initial conditions only if Preventive
+        cumplimientoProtocolo: selectedTipo === 'Preventivo' ? this.reporteForm.value.cumplimientoProtocolo : [], // Add protocol compliance
+        casoId: this.casoId // Send casoId to backend
       }
-      if (this.tipoMantenimiento === 'Preventivo') {
-        await this.reprteServices.ActualizarPreventivoProgramado(this.reporte.id, this.reporte).then(() => {
+      if (this.reporte.id) {
+        // UPDATE: Use the update method if the report already exists (Corrective or Preventive edit)
+        try {
+          await this.reprteServices.ActualizarPreventivoProgramado(this.reporte.id, this.reporte);
           Swal.fire({
             icon: 'success',
-            title: 'Se almaceno el reporte Preventivo',
+            title: selectedTipo === 'Preventivo' ? 'Se actualizó el reporte Preventivo' : 'Se actualizó el reporte Correctivo',
             showConfirmButton: false,
             timer: 1500
           });
-          this.guardarCumplimiento();
-
-          this.router.navigate(['/biomedica/reportesequipo/', this.reporte.equipoIdFk]);
-        }).catch(error => {
+          localStorage.removeItem('idReporte');
+          localStorage.removeItem('TipoMantenimiento');
+          if (this.casoId) {
+            this.router.navigate(['/adminmesaservicios/casos', this.casoId]);
+          } else {
+            this.router.navigate(['/biomedica/reportesequipo/', this.equipo.id]);
+          }
+        } catch (error) {
           console.error('Error al actualizar el reporte:', error);
           Swal.fire({
             icon: 'error',
             title: 'Error al actualizar el reporte',
             text: 'Por favor, inténtelo de nuevo más tarde.'
           });
-        });
+        }
       } else {
-        await this.reprteServices.CrearReporteCorrectivo(this.reporte).then(() => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Se almaceno el reporte correctamente',
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.guardarCumplimiento();
-          this.router.navigate(['/biomedica/mantenimineto']);
-        }).catch(error => {
+        // NEW: Only call creation if there is no ID (usually for new Corrective reports)
+        try {
+          const res = await this.reprteServices.CrearReporteCorrectivo(this.reporte);
+          if (res && res.id) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Se almacenó el reporte correctamente',
+              showConfirmButton: false,
+              timer: 1500
+            });
+            localStorage.removeItem('idReporte');
+            localStorage.removeItem('TipoMantenimiento');
+            if (this.casoId) {
+            this.router.navigate(['/adminmesaservicios/casos', this.casoId]);
+          } else {
+            this.router.navigate(['/biomedica/reportesequipo/', this.equipo.id]);
+          }
+          } else {
+            throw new Error('No se recibió el ID del reporte creado');
+          }
+        } catch (error) {
           console.error('Error al crear el reporte:', error);
           Swal.fire({
             icon: 'error',
             title: 'Error al crear el reporte',
             text: 'Por favor, inténtelo de nuevo más tarde.'
           });
-        });
+        }
       }
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario Incompleto',
+        text: 'Por favor, diligencie todos los campos requeridos antes de guardar.',
+        confirmButtonText: 'Aceptar'
+      });
     }
   }
 
@@ -205,33 +478,87 @@ export class CrearReporteComponent implements OnInit {
     const array = this.reporteForm.get('cumplimientoProtocolo') as FormArray;
     array.clear();
     this.protocolos.forEach(p => {
+      // Find existing compliance in report if editing
+      const existingComp = this.reporte.cumplimientoProtocolo?.find((c: any) => c.protocoloPreventivoIdFk === p.id || c.protocolo?.id === p.id);
+
       array.push(this.fb.group({
         protocoloPreventivoIdFk: [p.id],
-        cumple: [false],
+        cumple: [existingComp ? existingComp.cumple : 'CUMPLE'],
         reporteIdFk: [this.reporte.id],
-        paso: [p.paso]
+        paso: [p.paso],
+        observaciones: [existingComp ? existingComp.observaciones : '']
       }));
     });
   }
 
-  async guardarCumplimiento() {
-    for (let i = 0; i < this.reporteForm.value.cumplimientoProtocolo.length; i++) {
-      const cp = {
-        protocoloPreventivoIdFk: this.reporteForm.value.cumplimientoProtocolo[i].protocoloPreventivoIdFk,
-        cumple: this.reporteForm.value.cumplimientoProtocolo[i].cumple,
-        reporteIdFk: this.reporteForm.value.cumplimientoProtocolo[i].reporteIdFk
-      };
-      const response = await this.protocoloservices.addCumplimientoProtocolo(cp);
-    }
+  // Initial Conditions (Global)
+  activeCondicionesIniciales: any[] = [];
+
+  get condicionesInicialesFormArray(): FormArray {
+    return this.reporteForm.get('condicionesIniciales') as FormArray;
+  }
+
+  async iniCondicionesIniciales() {
+    const array = this.condicionesInicialesFormArray;
+    array.clear();
+
+    // Fetch active conditions
+    this.activeCondicionesIniciales = await this.condicionInicialService.getActive();
+
+    // Determine existing values if any
+    const existing = this.reporte && this.reporte.cumplimientoCondicionesIniciales ? this.reporte.cumplimientoCondicionesIniciales : [];
+
+    this.activeCondicionesIniciales.forEach(cond => {
+      const match = existing.find((e: any) => e.condicionInicialIdFk === cond.id || e.condicion?.id === cond.id || (e.condicionInicial && e.condicionInicial.id === cond.id));
+
+      array.push(this.fb.group({
+        id: [cond.id], // Definition ID
+        descripcion: [cond.descripcion], // For display
+        cumple: [match ? match.cumple : 'CUMPLE', Validators.required],
+        observacion: [match ? match.observacion : '']
+      }));
+    });
   }
 
   get cumplimientoProtocoloFormArray(): FormArray {
     return this.reporteForm.get('cumplimientoProtocolo') as FormArray;
   }
 
-  testViewCumplimiento() {
+  // Accessor for repuestos FormArray
+  get repuestosFormArray(): FormArray {
+    return this.reporteForm.get('repuestos') as FormArray;
+  }
 
-    this.guardarCumplimiento();
+  // Add new accessory
+  agregarRepuesto() {
+    const repuestoGroup = this.fb.group({
+      id: [null], // For editing
+      nombreInsumo: [''],
+      cantidad: [''],
+      comprobanteEgreso: ['']
+    });
+    this.repuestosFormArray.push(repuestoGroup);
+  }
+
+  // Remove accessory
+  eliminarRepuesto(index: number) {
+    this.repuestosFormArray.removeAt(index);
+  }
+
+  // Initialize repuestos from report data
+  iniRepuestos() {
+    const array = this.reporteForm.get('repuestos') as FormArray;
+    array.clear();
+    if (this.reporte.repuestos && this.reporte.repuestos.length > 0) {
+      this.reporte.repuestos.forEach((r: any) => {
+        array.push(this.fb.group({
+          id: [r.id],
+          nombreInsumo: [r.nombreInsumo],
+          cantidad: [r.cantidad],
+          comprobanteEgreso: [r.comprobanteEgreso]
+        }));
+      });
+    }
   }
 
 
@@ -249,15 +576,15 @@ export class CrearReporteComponent implements OnInit {
         Swal.fire("Reporte Guardado!", "", "success");
       } else if (result.isDenied) {
         Swal.fire("Los cambios no se guardan", "", "info");
+        localStorage.removeItem('idReporte');
+        localStorage.removeItem('TipoMantenimiento');
         this.location.back();
       }
     });
   }
 
   validarPreventivo(): boolean {
-
     return this.reporteForm.value.tipoMantenimiento === 'Preventivo' ? true : false;
-
   }
 
   validarQR() {
@@ -265,9 +592,9 @@ export class CrearReporteComponent implements OnInit {
   }
 
   validarTipoMantenimiento() {
-    if (sessionStorage.getItem('TipoMantenimiento') === 'C') {
+    if (localStorage.getItem('TipoMantenimiento') === 'C') {
       this.tipoMantenimiento = 'Correctivo';
-    } else if (sessionStorage.getItem('TipoMantenimiento') === 'P') {
+    } else if (localStorage.getItem('TipoMantenimiento') === 'P') {
       this.tipoMantenimiento = 'Preventivo';
     }
   }

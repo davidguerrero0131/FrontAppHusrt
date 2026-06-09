@@ -1,0 +1,168 @@
+<app-mantenimientoadminnavbar *ngIf="!isEmbedded"></app-mantenimientoadminnavbar>
+
+<div class="fade-in-animation p-4 container-wrapper">
+    <!-- Header -->
+    <div class="flex align-items-center justify-content-between mb-4 header-section" *ngIf="!isEmbedded">
+        <div class="flex align-items-center gap-3">
+            <p-button icon="pi pi-arrow-left" label="Volver"
+                styleClass="p-button-secondary bg-gray-800 border-none shadow-2 px-4 py-2 border-round-lg hover:bg-gray-900 transition-all font-bold"
+                (click)="goBack()" pTooltip="Volver al Dashboard" tooltipPosition="bottom">
+            </p-button>
+            <span class="text-3xl font-light text-400">/</span>
+            <div>
+                <h2 class="m-0 text-3xl font-bold text-primary flex align-items-center gap-2">
+                    <i class="pi pi-calendar-plus text-3xl"></i>
+                    Programar Mantenimientos Anuales
+                </h2>
+                <p class="text-600 m-0 mt-1">Genera automáticamente múltiples meses de mantenimiento por periodicidad</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="col-12 md:col-8 md:col-offset-2">
+            <p-card styleClass="shadow-3 border-round-xl">
+                <form [formGroup]="programacionForm" (ngSubmit)="onSubmit()" class="flex flex-column gap-4 p-fluid">
+                    
+                    <div class="grid">
+                        <!-- Selección de Servicio (Filtro) -->
+                        <div class="col-12 md:col-6">
+                            <div class="field">
+                                <label for="servicio" class="font-bold text-700">Filtrar por Servicio</label>
+                                <p-select id="servicio" [options]="servicios" formControlName="servicioId" optionLabel="nombres" optionValue="id"
+                                    [filter]="true" filterBy="nombres" [showClear]="true" placeholder="Busque y seleccione un servicio..."
+                                    styleClass="w-full mt-2">
+                                    <ng-template pTemplate="selectedItem">
+                                        <div class="flex align-items-center gap-2" *ngIf="programacionForm.get('servicioId')?.value">
+                                            <i class="pi pi-tags text-primary"></i>
+                                            <span>{{ getServicioName(programacionForm.get('servicioId')?.value) }}</span>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template let-servicio pTemplate="item">
+                                        <div class="flex align-items-center gap-2">
+                                            <i class="pi pi-tags text-600"></i>
+                                            <div class="font-bold">{{ servicio.nombres }}</div>
+                                        </div>
+                                    </ng-template>
+                                </p-select>
+                            </div>
+                        </div>
+
+                        <!-- Selección de Área -->
+                        <div class="col-12 md:col-6">
+                            <div class="field">
+                                <label for="area" class="font-bold text-700">Seleccione el Área <span class="text-red-500">*</span></label>
+                                <p-select id="area" [options]="filteredAreas" formControlName="areaId" optionLabel="nombre" optionValue="id"
+                                    [filter]="true" filterBy="nombre" [showClear]="true" placeholder="Busque y seleccione un área..."
+                                    styleClass="w-full mt-2" emptyMessage="No se encontraron áreas para el servicio seleccionado"
+                                    [ngClass]="{'ng-invalid ng-dirty': programacionForm.get('areaId')?.invalid && programacionForm.get('areaId')?.touched}">
+                                    <ng-template pTemplate="selectedItem">
+                                        <div class="flex align-items-center gap-2" *ngIf="programacionForm.get('areaId')?.value">
+                                            <i class="pi pi-building text-primary"></i>
+                                            <span>{{ getAreaName(programacionForm.get('areaId')?.value) }}</span>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template let-area pTemplate="item">
+                                        <div class="flex align-items-center gap-2">
+                                            <i class="pi pi-building text-600"></i>
+                                            <div>
+                                                <div class="font-bold">{{ area.nombre }}</div>
+                                                <div class="text-sm text-500">{{ area.servicios?.nombres }}</div>
+                                            </div>
+                                        </div>
+                                    </ng-template>
+                                </p-select>
+                                <small class="text-red-500" *ngIf="programacionForm.get('areaId')?.invalid && programacionForm.get('areaId')?.touched">
+                                    El área es requerida.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configuración de Tiempo y Periodicidad -->
+                    <div class="grid">
+                        <div class="col-12 md:col-4">
+                            <div class="field">
+                                 <label for="anio" class="font-bold text-700">Año <span class="text-red-500">*</span></label>
+                                 <p-select id="anio" [options]="aniosOptions" formControlName="anio" optionLabel="label" optionValue="value" styleClass="w-full mt-2"></p-select>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="field">
+                                <label for="periodicidad" class="font-bold text-700">Periodicidad <span class="text-red-500">*</span></label>
+                                <p-select id="periodicidad" [options]="periodicidadOptions" formControlName="periodicidad" optionLabel="label" optionValue="value" styleClass="w-full mt-2"></p-select>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="field">
+                                <label for="mesInicio" class="font-bold text-700">Mes Inicial <span class="text-red-500">*</span></label>
+                                <p-select id="mesInicio" [options]="mesesOptions" formControlName="mesInicio" optionLabel="label" optionValue="value" styleClass="w-full mt-2"></p-select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rango de Días del Mes -->
+                    <div class="grid">
+                        <div class="col-12 md:col-6">
+                            <div class="field">
+                                <label for="diaRangoInicio" class="font-bold text-700">Del día (Inicio) <span class="text-red-500">*</span></label>
+                                <p-inputNumber inputId="diaRangoInicio" formControlName="diaRangoInicio" [min]="1" [max]="31" styleClass="w-full mt-2" 
+                                    [ngClass]="{'ng-invalid ng-dirty': programacionForm.get('diaRangoInicio')?.invalid && programacionForm.get('diaRangoInicio')?.touched}">
+                                </p-inputNumber>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-6">
+                            <div class="field">
+                                <label for="diaRangoFin" class="font-bold text-700">Al día (Fin) <span class="text-red-500">*</span></label>
+                                <p-inputNumber inputId="diaRangoFin" formControlName="diaRangoFin" [min]="1" [max]="31" styleClass="w-full mt-2"
+                                    [ngClass]="{'ng-invalid ng-dirty': programacionForm.get('diaRangoFin')?.invalid && programacionForm.get('diaRangoFin')?.touched}">
+                                </p-inputNumber>
+                            </div>
+                        </div>
+                        <div class="col-12" *ngIf="programacionForm.errors?.['rangoInvalido'] && (programacionForm.get('diaRangoInicio')?.touched || programacionForm.get('diaRangoFin')?.touched)">
+                            <small class="text-red-500 font-bold block mt-[-1rem]">El día de inicio no puede ser mayor al día de fin.</small>
+                        </div>
+                    </div>
+
+                    <!-- Responsable -->
+                    <div class="field mt-3">
+                        <label for="tecnico" class="font-bold text-700">Responsable Asignado</label>
+                        <p-select id="tecnico" [options]="tecnicos" formControlName="tecnicoId" optionLabel="label" optionValue="value"
+                            [filter]="true" filterBy="label" [showClear]="true" placeholder="Asignación automática (según carga)..."
+                            styleClass="w-full mt-2">
+                            <ng-template pTemplate="selectedItem">
+                                <div class="flex align-items-center gap-2" *ngIf="programacionForm.get('tecnicoId')?.value">
+                                    <i class="pi pi-user text-primary"></i>
+                                    <span>{{ programacionForm.get('responsable')?.value }}</span>
+                                </div>
+                            </ng-template>
+                        </p-select>
+                        <small class="text-500 block mt-1">
+                            <i class="pi pi-info-circle mr-1"></i> Si no selecciona uno, se asignará al técnico con menos planes.
+                        </small>
+                    </div>
+
+                    <div class="field">
+                        <label for="actividad" class="font-bold text-700">Actividades a Realizar <span class="text-red-500">*</span></label>
+                        <textarea id="actividad" pTextarea formControlName="actividad" [rows]="4" class="w-full mt-2"
+                                  placeholder="Ej. Revisión de condiciones de infraestructura, pintura, resanes..."
+                                  [ngClass]="{'ng-invalid ng-dirty': programacionForm.get('actividad')?.invalid && programacionForm.get('actividad')?.touched}"></textarea>
+                        <small class="text-red-500" *ngIf="programacionForm.get('actividad')?.invalid && programacionForm.get('actividad')?.touched">
+                            La actividad es requerida.
+                        </small>
+                    </div>
+                </form>
+
+                <ng-template pTemplate="footer">
+                    <div class="flex justify-content-end gap-3 border-top-1 border-300 pt-4 mt-2">
+                        <p-button *ngIf="!isEmbedded" label="Cancelar" icon="pi pi-times" styleClass="p-button-text p-button-secondary font-bold" (click)="goBack()"></p-button>
+                        <p-button label="Generar Programación" icon="pi pi-check" styleClass="p-button-primary shadow-2 font-bold px-4" 
+                                  [disabled]="programacionForm.invalid || isSubmitting" 
+                                  [loading]="isSubmitting"
+                                  (click)="onSubmit()"></p-button>
+                    </div>
+                </ng-template>
+            </p-card>
+        </div>
+    </div>
+</div>

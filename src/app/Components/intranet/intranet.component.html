@@ -1,1 +1,638 @@
-<p>intranet works!</p>
+<div class="intranet-layout">
+    <!-- Sidebar Izquierdo -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <img src="san-rafa.png" alt="Portal Institucional" />
+        </div>
+        <nav class="sidebar-nav">
+            <a href="javascript:void(0)" class="nav-item" [class.active]="activePanel === 'inicio'"
+                (click)="setActivePanel('inicio')"><i class="pi pi-home"></i> Inicio</a>
+            <a href="javascript:void(0)" class="nav-item" [class.active]="activePanel === 'mi_espacio'"
+                (click)="setActivePanel('mi_espacio')"><i class="pi pi-user"></i> Mi espacio</a>
+            <a href="javascript:void(0)" class="nav-item" [class.active]="activePanel === 'sumerce'"
+                (click)="setActivePanel('sumerce')"><i class="pi pi-star-fill"></i> Sumercé</a>
+            <a href="javascript:void(0)" class="nav-item" [class.active]="activePanel === 'sistemas_informacion'"
+                (click)="setActivePanel('sistemas_informacion')"><i class="pi pi-th-large"></i> Sistemas de
+                información</a>
+            <a href="javascript:void(0)" class="nav-item" [class.active]="activePanel === 'servicios'"
+                (click)="setActivePanel('servicios')"><i class="pi pi-briefcase"></i> Servicios</a>
+            <a href="javascript:void(0)" class="nav-item" [class.active]="activePanel === 'noticias'"
+                (click)="setActivePanel('noticias')"><i class="pi pi-bell"></i> Noticias</a>
+            <a href="javascript:void(0)" class="nav-item" [class.active]="activePanel === 'plan_mantenimiento'"
+                (click)="setActivePanel('plan_mantenimiento')"><i class="pi pi-calendar"></i> Plan de Mantenimiento</a>
+            <a href="javascript:void(0)" class="nav-item" [class.active]="activePanel === 'seguridad'"
+                (click)="setActivePanel('seguridad')"><i class="pi pi-shield"></i> Seguridad de la Información</a>
+            <a href="javascript:void(0)" class="nav-item" [class.active]="activePanel === 'soporte' "
+                (click)="setActivePanel('soporte')"><i class="pi pi-question-circle"></i> Soporte y ayuda</a>
+        </nav>
+
+        <div class="sidebar-widget">
+            <div class="widget-icon-wrapper">
+                <i class="pi pi-shield widget-icon"></i>
+            </div>
+            <p>La seguridad es compromiso de todos</p>
+            <button class="widget-btn">Conoce más</button>
+        </div>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="main-content">
+        <!-- Barra Superior Oculta/Eliminada a petición -->
+
+        <div class="dashboard-container">
+            <!-- Hero Banner -->
+            <div class="hero-banner slide-down">
+                <div class="hero-text">
+                    <h1>¡Hola! Bienvenido a tu portal institucional</h1>
+                    <p>Aquí encuentras todo lo que necesitas para hacer tu trabajo más fácil y eficiente en el Hospital
+                        Universitario San Rafael de Tunja.</p>
+                </div>
+                <div class="hero-logos">
+                    <img src="logo-husrt.png" alt="Hospital Universitario San Rafael de Tunja" class="hero-logo" />
+                    <img src="san-rafa.png" alt="San Rafael" class="hero-logo" />
+                </div>
+            </div>
+
+            <!-- Panel 1: INICIO -->
+            <div *ngIf="activePanel === 'inicio'" class="fade-in">
+                <!-- Sección: Accesos Directos (Oculto temporalmente) -->
+                <!--
+                <section class="dashboard-section fade-in">
+                    ...
+                </section>
+                -->
+
+                <!-- Sección: Sistemas de Información -->
+                <section class="dashboard-section fade-in delay-1">
+                    <div class="section-header">
+                        <h2>Accesos y Reportes</h2>
+                        <!-- <a href="#" class="view-all">Ver todos</a> -->
+                    </div>
+
+                    <div class="cards-grid">
+                        <ng-container *ngFor="let app of reportesCards">
+                            <a *ngIf="app.url" [href]="app.url" target="_blank" class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i *ngIf="app.icon" [ngClass]="app.icon.startsWith('bi-') ? 'bi ' + app.icon : 'pi ' + app.icon"></i>
+                                    <img *ngIf="app.img" [src]="app.img" [alt]="app.title"
+                                        [class]="app.imgClass || ''" />
+                                </div>
+                                <div class="card-body">
+                                    <h3>{{ app.title }}</h3>
+                                    <p>{{ app.subtitle }}</p>
+                                    <i class="pi card-star"
+                                        [ngClass]="isFavorite(app.id) ? 'pi-star-fill text-yellow-400' : 'pi-star'"
+                                        (click)="toggleFavorite(app.id, $event)"></i>
+                                </div>
+                            </a>
+                            <a *ngIf="app.routerLink" [routerLink]="app.routerLink" class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i *ngIf="app.icon" [ngClass]="app.icon.startsWith('bi-') ? 'bi ' + app.icon : 'pi ' + app.icon"></i>
+                                    <img *ngIf="app.img" [src]="app.img" [alt]="app.title"
+                                        [class]="app.imgClass || ''" />
+                                </div>
+                                <div class="card-body">
+                                    <h3>{{ app.title }}</h3>
+                                    <p>{{ app.subtitle }}</p>
+                                    <i class="pi card-star"
+                                        [ngClass]="isFavorite(app.id) ? 'pi-star-fill text-yellow-400' : 'pi-star'"
+                                        (click)="toggleFavorite(app.id, $event)"></i>
+                                </div>
+                            </a>
+                        </ng-container>
+                    </div>
+                </section>
+
+                <!-- Sección: Sistemas de información (También en Inicio) -->
+                <section class="dashboard-section fade-in delay-1">
+                    <div class="section-header">
+                        <h2>Sistemas de información</h2>
+                        <!-- <a href="#" class="view-all">Ver todos</a> -->
+                    </div>
+
+                    <div class="cards-grid">
+                        <ng-container *ngFor="let app of sistemasCards">
+                            <a *ngIf="app.url" [href]="app.url" target="_blank" class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i *ngIf="app.icon" [ngClass]="app.icon.startsWith('bi-') ? 'bi ' + app.icon : 'pi ' + app.icon"></i>
+                                    <img *ngIf="app.img" [src]="app.img" [alt]="app.title"
+                                        [class]="app.imgClass || ''" />
+                                </div>
+                                <div class="card-body">
+                                    <h3>{{ app.title }}</h3>
+                                    <p>{{ app.subtitle }}</p>
+                                    <i class="pi card-star"
+                                        [ngClass]="isFavorite(app.id) ? 'pi-star-fill text-yellow-400' : 'pi-star'"
+                                        (click)="toggleFavorite(app.id, $event)"></i>
+                                </div>
+                            </a>
+                            <a *ngIf="app.routerLink" [routerLink]="app.routerLink" class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i *ngIf="app.icon" [ngClass]="app.icon.startsWith('bi-') ? 'bi ' + app.icon : 'pi ' + app.icon"></i>
+                                    <img *ngIf="app.img" [src]="app.img" [alt]="app.title"
+                                        [class]="app.imgClass || ''" />
+                                </div>
+                                <div class="card-body">
+                                    <h3>{{ app.title }}</h3>
+                                    <p>{{ app.subtitle }}</p>
+                                    <i class="pi card-star"
+                                        [ngClass]="isFavorite(app.id) ? 'pi-star-fill text-yellow-400' : 'pi-star'"
+                                        (click)="toggleFavorite(app.id, $event)"></i>
+                                </div>
+                            </a>
+                        </ng-container>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Panel 1.5: Mi Espacio -->
+            <div *ngIf="activePanel === 'mi_espacio'" class="fade-in">
+                <section class="dashboard-section fade-in delay-1">
+                    <div class="section-header">
+                        <h2>Mi espacio personalizado</h2>
+                    </div>
+
+                    <!-- Estado Vacío (Sin Favoritos) -->
+                    <div *ngIf="favoriteCardsList.length === 0" class="empty-state-panel fade-in delay-1">
+                        <i class="pi pi-star empty-icon"></i>
+                        <h3>Aún no tienes atajos guardados</h3>
+                        <p>Ve a "Inicio" y haz clic en la estrella de tus aplicaciones favoritas para tenerlas siempre a
+                            mano aquí.</p>
+                    </div>
+
+                    <!-- Lista de Favoritos -->
+                    <div *ngIf="favoriteCardsList.length > 0" class="cards-grid fade-in delay-1">
+                        <ng-container *ngFor="let app of favoriteCardsList">
+                            <a *ngIf="app.url" [href]="app.url" target="_blank" class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i *ngIf="app.icon" [ngClass]="app.icon.startsWith('bi-') ? 'bi ' + app.icon : 'pi ' + app.icon"></i>
+                                    <img *ngIf="app.img" [src]="app.img" [alt]="app.title"
+                                        [class]="app.imgClass || ''" />
+                                </div>
+                                <div class="card-body">
+                                    <h3>{{ app.title }}</h3>
+                                    <p>{{ app.subtitle }}</p>
+                                    <i class="pi card-star"
+                                        [ngClass]="isFavorite(app.id) ? 'pi-star-fill text-yellow-400' : 'pi-star'"
+                                        (click)="toggleFavorite(app.id, $event)"></i>
+                                </div>
+                            </a>
+                            <a *ngIf="app.routerLink" [routerLink]="app.routerLink" class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i *ngIf="app.icon" [ngClass]="app.icon.startsWith('bi-') ? 'bi ' + app.icon : 'pi ' + app.icon"></i>
+                                    <img *ngIf="app.img" [src]="app.img" [alt]="app.title"
+                                        [class]="app.imgClass || ''" />
+                                </div>
+                                <div class="card-body">
+                                    <h3>{{ app.title }}</h3>
+                                    <p>{{ app.subtitle }}</p>
+                                    <i class="pi card-star"
+                                        [ngClass]="isFavorite(app.id) ? 'pi-star-fill text-yellow-400' : 'pi-star'"
+                                        (click)="toggleFavorite(app.id, $event)"></i>
+                                </div>
+                            </a>
+                        </ng-container>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Panel 2: Sistemas de Información -->
+            <div *ngIf="activePanel === 'sistemas_informacion'" class="fade-in">
+                <section class="dashboard-section fade-in delay-1">
+                    <div class="section-header">
+                        <h2>Sistemas de información</h2>
+                    </div>
+
+                    <div class="cards-grid">
+                        <ng-container *ngFor="let app of sistemasCards">
+                            <a *ngIf="app.url" [href]="app.url" target="_blank" class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i *ngIf="app.icon" [ngClass]="app.icon.startsWith('bi-') ? 'bi ' + app.icon : 'pi ' + app.icon"></i>
+                                    <img *ngIf="app.img" [src]="app.img" [alt]="app.title"
+                                        [class]="app.imgClass || ''" />
+                                </div>
+                                <div class="card-body">
+                                    <h3>{{ app.title }}</h3>
+                                    <p>{{ app.subtitle }}</p>
+                                    <i class="pi card-star"
+                                        [ngClass]="isFavorite(app.id) ? 'pi-star-fill text-yellow-400' : 'pi-star'"
+                                        (click)="toggleFavorite(app.id, $event)"></i>
+                                </div>
+                            </a>
+                            <a *ngIf="app.routerLink" [routerLink]="app.routerLink" class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i *ngIf="app.icon" [ngClass]="app.icon.startsWith('bi-') ? 'bi ' + app.icon : 'pi ' + app.icon"></i>
+                                    <img *ngIf="app.img" [src]="app.img" [alt]="app.title"
+                                        [class]="app.imgClass || ''" />
+                                </div>
+                                <div class="card-body">
+                                    <h3>{{ app.title }}</h3>
+                                    <p>{{ app.subtitle }}</p>
+                                    <i class="pi card-star"
+                                        [ngClass]="isFavorite(app.id) ? 'pi-star-fill text-yellow-400' : 'pi-star'"
+                                        (click)="toggleFavorite(app.id, $event)"></i>
+                                </div>
+                            </a>
+                        </ng-container>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Panel 3: Plan de Mantenimiento -->
+            <div *ngIf="activePanel === 'plan_mantenimiento'" class="fade-in">
+                <section class="dashboard-section">
+                    <div class="section-header">
+                        <h2>Plan de Mantenimiento Institucional</h2>
+                    </div>
+
+                    <!-- Sub-navegación por Tipo de Mantenimiento -->
+                    <div class="maintenance-tabs">
+                        <button class="tab-btn" [class.active]="mantenimientoTab === 'biomedica'"
+                            (click)="setMantenimientoTab('biomedica')">
+                            <i class="pi pi-heart"></i> Biomédica
+                        </button>
+                        <button class="tab-btn" [class.active]="mantenimientoTab === 'sistemas'"
+                            (click)="setMantenimientoTab('sistemas')">
+                            <i class="pi pi-desktop"></i> Sistemas
+                        </button>
+                        <button class="tab-btn" [class.active]="mantenimientoTab === 'infraestructura'"
+                            (click)="setMantenimientoTab('infraestructura')">
+                            <i class="pi pi-building"></i> Infraestructura
+                        </button>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="filter-bar card-modern">
+                        <div class="filter-group">
+                            <p-dropdown [options]="listaServicios" 
+                                [(ngModel)]="selectedServicio" 
+                                optionLabel="nombres" 
+                                optionValue="id"
+                                [filter]="true" 
+                                filterBy="nombres" 
+                                [showClear]="true" 
+                                placeholder="Seleccione un servicio"
+                                styleClass="modern-p-dropdown"
+                                appendTo="body">
+                            </p-dropdown>
+                        </div>
+                        <div class="filter-group">
+                            <label>Mes:</label>
+                            <select [(ngModel)]="selectedMes" class="modern-select">
+                                <option *ngFor="let m of meses" [ngValue]="m.id">{{ m.nombre }}</option>
+                            </select>
+                        </div>
+                        <button class="search-btn" (click)="consultarPlanMantenimiento()"
+                            [disabled]="!selectedServicio || loadingPlanes">
+                            <i class="pi" [ngClass]="loadingPlanes ? 'pi-spin pi-spinner' : 'pi-search'"></i>
+                            Consultar
+                        </button>
+                    </div>
+
+                    <!-- Tabla de Resultados -->
+                    <div class="table-container card-modern" *ngIf="planesFiltrados.length > 0">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>Equipo</th>
+                                    <th>Marca / Modelo</th>
+                                    <th>Serie / Placa</th>
+                                    <th>Mantenimiento</th>
+                                    <th>Actividades Metrológicas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let plan of planesFiltrados" class="fade-in">
+                                    <td>
+                                        <div class="equipment-info">
+                                            <span class="equip-name">{{ plan.equipo?.nombres }}</span>
+                                            <span class="equip-id">ID: {{ plan.equipo?.id }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-sub">{{ plan.equipo?.marca }}</span><br>
+                                        <span class="text-main">{{ plan.equipo?.modelo }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-sub">S: {{ plan.equipo?.serie }}</span><br>
+                                        <span class="text-main">P: {{ plan.equipo?.placa }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="status-badge"
+                                            [ngClass]="{
+                                                'status-realizado': plan.hasMantenimiento && plan.estadoMantenimiento === 'REALIZADO',
+                                                'status-programado': plan.hasMantenimiento && plan.estadoMantenimiento === 'PROGRAMADO',
+                                                'status-planeado': plan.hasMantenimiento && plan.estadoMantenimiento === 'PLANEADO',
+                                                'status-none': !plan.hasMantenimiento
+                                            }">
+                                            {{ plan.hasMantenimiento ? plan.estadoMantenimiento : 'No aplica' }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="status-badge"
+                                            [ngClass]="plan.hasMetrologia ? 'status-metrology' : 'status-none'">
+                                            {{ plan.hasMetrologia ? (plan.tipoActividad || 'Programado') : 'No aplica'
+                                            }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Estados Vacíos / Mensajes -->
+                    <div class="empty-state-panel card-modern"
+                        *ngIf="!loadingPlanes && planesFiltrados.length === 0 && selectedServicio && mantenimientoTab === 'biomedica'">
+                        <i class="pi pi-calendar-times empty-icon"></i>
+                        <h3>Sin mantenimientos</h3>
+                        <p>No se encontraron equipos programados para el servicio y mes seleccionados.</p>
+                    </div>
+
+                    <div class="empty-state-panel card-modern" *ngIf="mantenimientoTab !== 'biomedica'">
+                        <i class="pi pi-cog pi-spin empty-icon"></i>
+                        <h3>Módulo en desarrollo</h3>
+                        <p>La integración de planes para <b>{{ mantenimientoTab === 'sistemas' ? 'Sistemas' :
+                                'Infraestructura' }}</b> estará disponible próximamente.</p>
+                    </div>
+
+                    <div class="empty-state-panel card-modern"
+                        *ngIf="!selectedServicio && mantenimientoTab === 'biomedica'">
+                        <i class="pi pi-info-circle empty-icon"></i>
+                        <h3>Seleccione un servicio</h3>
+                        <p>Para ver el plan de mantenimiento, por favor seleccione un servicio y el mes de interés.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Panel 4: Servicios -->
+            <div *ngIf="activePanel === 'servicios'" class="fade-in">
+                <section class="dashboard-section fade-in delay-1">
+                    <div class="section-header">
+                        <h2>Servicios</h2>
+                    </div>
+
+                    <div class="cards-grid">
+                        <ng-container *ngFor="let app of serviciosCards">
+                            <a *ngIf="app.url" [href]="app.url" target="_blank" class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i *ngIf="app.icon" [ngClass]="app.icon.startsWith('bi-') ? 'bi ' + app.icon : 'pi ' + app.icon"></i>
+                                    <img *ngIf="app.img" [src]="app.img" [alt]="app.title"
+                                        [class]="app.imgClass || ''" />
+                                </div>
+                                <div class="card-body">
+                                    <h3>{{ app.title }}</h3>
+                                    <p>{{ app.subtitle }}</p>
+                                    <i class="pi card-star"
+                                        [ngClass]="isFavorite(app.id) ? 'pi-star-fill text-yellow-400' : 'pi-star'"
+                                        (click)="toggleFavorite(app.id, $event)"></i>
+                                </div>
+                            </a>
+                            <a *ngIf="app.routerLink" [routerLink]="app.routerLink" class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i *ngIf="app.icon" [ngClass]="app.icon.startsWith('bi-') ? 'bi ' + app.icon : 'pi ' + app.icon"></i>
+                                    <img *ngIf="app.img" [src]="app.img" [alt]="app.title"
+                                        [class]="app.imgClass || ''" />
+                                </div>
+                                <div class="card-body">
+                                    <h3>{{ app.title }}</h3>
+                                    <p>{{ app.subtitle }}</p>
+                                    <i class="pi card-star"
+                                        [ngClass]="isFavorite(app.id) ? 'pi-star-fill text-yellow-400' : 'pi-star'"
+                                        (click)="toggleFavorite(app.id, $event)"></i>
+                                </div>
+                            </a>
+                        </ng-container>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Panel: Seguridad de la Información -->
+            <div *ngIf="activePanel === 'seguridad'" class="fade-in">
+                <section class="dashboard-section fade-in delay-1">
+                    <div class="section-header">
+                        <h2>Seguridad de la Información</h2>
+                    </div>
+
+                    <div class="cards-grid">
+                        <a routerLink="/RuletaSeguridadTI" class="app-card">
+                            <div class="card-icon-header gradient-banner">
+                                <i class="pi pi-shield"></i>
+                            </div>
+                            <div class="card-body">
+                                <h3>Ruleta de Seguridad</h3>
+                                <p>Pon a prueba tus conocimientos sobre seguridad de la información de forma divertida.</p>
+                            </div>
+                        </a>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Panel: SUMERCE -->
+            <div *ngIf="activePanel === 'sumerce'" class="fade-in">
+                <section class="dashboard-section">
+                    <!-- Sub-navegación Sumercé -->
+                    <div class="maintenance-tabs mb-4">
+                        <button class="tab-btn" [class.active]="activeSumerceSubPanel === 'que_tan_sumerce'"
+                            (click)="setSumerceSubPanel('que_tan_sumerce')">
+                            <i class="pi pi-question-circle"></i> ¿Qué tan sumercé somos?
+                        </button>
+                        <button class="tab-btn" [class.active]="activeSumerceSubPanel === 'ranking'"
+                            (click)="setSumerceSubPanel('ranking')">
+                            <i class="pi pi-list"></i> Ranking
+                        </button>
+                    </div>
+
+                    <!-- Sub-panel: Que tan sumerce somos -->
+                    <div *ngIf="activeSumerceSubPanel === 'que_tan_sumerce'" class="fade-in">
+                        <div class="card-modern p-4 text-center">
+                            <!-- Power BI Container -->
+                            <div class="powerbi-container shadow-2 border-round overflow-hidden"
+                                style="position: relative; padding-bottom: 56.25%; height: 0; max-width: 100%;">
+                                <iframe title="sumerceII" [src]="safePowerBiUrl" frameborder="0" allowFullScreen="true"
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub-panel: Ranking -->
+                    <div *ngIf="activeSumerceSubPanel === 'ranking'" class="fade-in">
+                        <div class="card-modern p-4 text-center">
+                            <!-- Power BI Container -->
+                            <div class="powerbi-container shadow-2 border-round overflow-hidden"
+                                style="position: relative; padding-bottom: 56.25%; height: 0; max-width: 100%;">
+                                <iframe title="Ranking" [src]="safeRankingUrl" frameborder="0" allowFullScreen="true"
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Panel 5: Soporte y Ayuda -->
+            <div *ngIf="activePanel === 'soporte'" class="fade-in">
+                <section class="dashboard-section fade-in delay-1">
+                    <div class="section-header">
+                        <h2>Soporte y Ayuda</h2>
+                    </div>
+
+                    <!-- TECNOLOGIAS DE LA INFORMACION -->
+                    <div class="support-area" style="margin-bottom: 2rem;">
+                        <h3
+                            style="font-size: 1.1rem; font-weight: 700; color: #3b2c7a; margin-bottom: 1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">
+                            Tecnologías de la Información</h3>
+                        <div class="cards-grid">
+                            <!-- Tarjeta 1: Historia Clínica -->
+                            <div class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i class="pi pi-file"></i>
+                                </div>
+                                <div class="card-body">
+                                    <h3>Soporte Historia Clínica</h3>
+                                    <p
+                                        style="font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem; color: #3b2c7a;">
+                                        Manejo del software de historia clínica</p>
+                                    <p>Teléfono: 3213272094</p>
+                                </div>
+                            </div>
+
+                            <!-- Tarjeta 2: Profesional -->
+                            <div class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i class="pi pi-sitemap"></i>
+                                </div>
+                                <div class="card-body">
+                                    <h3>Soporte Profesional</h3>
+                                    <p
+                                        style="font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem; color: #3b2c7a;">
+                                        Todos los sistemas de información</p>
+                                    <p>Teléfono: 3166004678</p>
+                                </div>
+                            </div>
+
+                            <!-- Tarjeta 3: Técnico -->
+                            <div class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i class="pi pi-desktop"></i>
+                                </div>
+                                <div class="card-body">
+                                    <h3>Soporte Técnico</h3>
+                                    <p
+                                        style="font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem; color: #3b2c7a;">
+                                        Equipos informáticos</p>
+                                    <p>Teléfono: 3166654727</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BIOMEDICA -->
+                    <div class="support-area" style="margin-bottom: 2rem;">
+                        <h3
+                            style="font-size: 1.1rem; font-weight: 700; color: #3b2c7a; margin-bottom: 1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">
+                            Biomédica</h3>
+                        <div class="cards-grid">
+                            <div class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i class="pi pi-heart-fill"></i>
+                                </div>
+                                <div class="card-body">
+                                    <h3>Soporte Biomédica</h3>
+                                    <p
+                                        style="font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem; color: #3b2c7a;">
+                                        Mantenimiento de equipos médicos</p>
+                                    <p>Teléfono: 3203980070</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MANTENIMIENTO -->
+                    <div class="support-area" style="margin-bottom: 2rem;">
+                        <h3
+                            style="font-size: 1.1rem; font-weight: 700; color: #3b2c7a; margin-bottom: 1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">
+                            Mantenimiento</h3>
+                        <div class="cards-grid">
+                            <div class="app-card">
+                                <div class="card-icon-header gradient-banner">
+                                    <i class="pi pi-wrench"></i>
+                                </div>
+                                <div class="card-body">
+                                    <h3>Soporte Mantenimiento</h3>
+                                    <p
+                                        style="font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem; color: #3b2c7a;">
+                                        Infraestructura y mobiliario</p>
+                                    <p>Teléfono: 7405030 ext. 2159 - 2155</p>
+                                    <p style="word-break: break-all;">Email:
+                                        mantenimiento&#64;hospitalsanrafaeltunja.gov.co</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Panel 4 eliminado a petición -->
+        </div>
+    </main>
+
+    <!-- Chat IA Botón Flotante -->
+    <div class="chat-bot-container">
+        <!-- Nube de texto -->
+        <div class="chat-cloud" [class.hidden]="isChatOpen" (click)="toggleChat()">
+            Pregúntale a Rafa
+        </div>
+
+        <!-- Botón del bot -->
+        <div class="chat-bot-button" (click)="toggleChat()">
+            <img src="rafa.png" alt="Rafa IA" />
+        </div>
+
+        <!-- Ventana del Chat -->
+        <div class="chat-window" *ngIf="isChatOpen">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <img src="rafa.png" alt="Rafa IA" class="chat-header-avatar" />
+                    <div>
+                        <h4>Rafa IA</h4>
+                        <span>Asistente Inteligente ORBIX</span>
+                    </div>
+                </div>
+                <button class="close-chat" (click)="toggleChat()">
+                    <i class="pi pi-times"></i>
+                </button>
+            </div>
+            <div class="chat-messages">
+                <div *ngFor="let msg of chatMessages" class="chat-message-wrapper" [ngClass]="msg.role === 'user' ? 'user-wrapper' : 'bot-wrapper'">
+                    <div class="chat-message" [ngClass]="msg.role === 'user' ? 'user-message' : 'bot-message'">
+                        <div class="message-text" [innerHTML]="msg.formattedContent"></div>
+                        <button class="copy-btn-small" *ngIf="msg.role === 'assistant'" (click)="copyToClipboard(msg.content)" title="Copiar">
+                            <i class="pi pi-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Loading Indicator -->
+                <div class="chat-message-wrapper bot-wrapper" *ngIf="isChatLoading">
+                    <div class="chat-message bot-message loading">
+                        <div class="dot-flashing"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <textarea 
+                    placeholder="Escribe tu mensaje... (Shift+Enter para nueva línea)" 
+                    [(ngModel)]="userInput" 
+                    (keydown)="onKeydown($event)"
+                    (input)="autoResize($event)"
+                    [disabled]="isChatLoading"
+                    rows="1">
+                </textarea>
+                <button class="chat-send-btn" (click)="sendMessage()" [disabled]="!userInput.trim() || isChatLoading">
+                    <i class="pi pi-send"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

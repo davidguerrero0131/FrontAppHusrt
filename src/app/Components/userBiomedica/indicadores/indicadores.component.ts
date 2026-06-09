@@ -10,12 +10,14 @@ import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { ReportesService } from '../../../Services/appServices/biomedicaServices/reportes/reportes.service';
-import { IndicadoresService } from '../../../Services/appServices/biomedicaServices/indicadores/indicadores.service';
 import { MeterGroupModule } from 'primeng/metergroup';
+import { DialogModule } from 'primeng/dialog';
 import { BiomedicausernavbarComponent } from '../../navbars/biomedicausernavbar/biomedicausernavbar.component';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 type TipoMantenimiento = 'Correctivo' | 'Preventivo' | 'Predictivo' | 'Otro';
 type TipoFalla =
@@ -28,8 +30,15 @@ type TipoFalla =
   | 'Otros'
   | 'No Registra';
 
-interface IEquipo { id: number; nombres?: string; nombre?: string; codigo?: string; tipoEquipos?: { nombres: string }; }
-interface IServicio { id: number; nombre: string; }
+interface IEquipo {
+  id: number;
+  nombres?: string;
+  nombre?: string;
+  codigo?: string;
+  tipoEquipos?: { nombres: string };
+  servicios?: { nombres: string };
+}
+interface IServicio { id: number; nombres: string; }
 interface IUsuario { id: number; nombres?: string; apellidos?: string; nombre?: string; email?: string; }
 interface Reporte {
   id: number;
@@ -38,12 +47,14 @@ interface Reporte {
   tipoMantenimiento?: TipoMantenimiento | null;
   tipoFalla?: TipoFalla | null;
   realizado?: boolean | null;
+  mesProgramado?: number | null;
+  añoProgramado?: number | null;
   servicioIdFk: number;
   equipoIdFk: number;
   usuarioIdFk: number | null;
   equipo?: IEquipo | null;
-  servicio?: IServicio | null;
   usuario?: IUsuario | null;
+  servicio?: IServicio | null;
 }
 
 @Component({
@@ -59,10 +70,249 @@ interface Reporte {
     ProgressSpinnerModule,
     TagModule,
     MeterGroupModule,
-    DropdownModule,
-    InputTextModule
+    SelectModule,
+    InputTextModule,
+    DialogModule
   ],
-  templateUrl: `./indicadores.component.html`,
+  template: `
+<div class="dashboard-container bg-white min-h-screen p-3">
+
+  <!-- Header / Filtros -->
+  <div class="card border-0 shadow-sm border-round-xl surface-card p-3 mb-3">
+    <div class="flex flex-column lg:flex-row justify-content-between align-items-center gap-3">
+
+      <!-- Título y Filtros -->
+      <div class="flex flex-column md:flex-row gap-3 align-items-center w-full lg:w-auto">
+        <label class="text-lg font-bold text-700">INDICADORES BIOM&Eacute;DICA</label>
+
+        <div class="flex align-items-center gap-2 bg-white border-1 border-100 p-2 border-round-lg">
+          <div class="flex flex-column">
+            <span class="text-xs text-500 font-semibold ml-1">A&ntilde;o</span>
+            <input pInputText type="number" [(ngModel)]="anio"
+              class="p-inputtext-sm w-5rem border-0 bg-transparent font-bold">
+          </div>
+          <div class="w-1px bg-300 h-2rem"></div>
+          <div class="flex flex-column">
+            <span class="text-xs text-500 font-semibold ml-1">Desde</span>
+            <p-select [options]="meses" [(ngModel)]="mesInicio" optionLabel="label" optionValue="value"
+              styleClass="p-inputtext-sm border-0 bg-transparent w-8rem text-sm"></p-select>
+          </div>
+          <div class="w-1px bg-300 h-2rem"></div>
+          <div class="flex flex-column">
+            <span class="text-xs text-500 font-semibold ml-1">Hasta</span>
+            <p-select [options]="meses" [(ngModel)]="mesFin" optionLabel="label" optionValue="value"
+              styleClass="p-inputtext-sm border-0 bg-transparent w-8rem text-sm"></p-select>
+          </div>
+        </div>
+
+        <div class="flex align-items-center gap-1">
+          <button pButton icon="pi pi-sync" (click)="refrescar()"
+            class="p-button-rounded p-button-text p-button-secondary"></button>
+          <span *ngIf="rangoVisualizado()" class="text-xs font-bold text-600 uppercase tracking-wider">
+            {{ rangoVisualizado() }}
+          </span>
+        </div>
+
+        <button pButton label="Exportar Excel" icon="pi pi-file-excel" (click)="exportarExcel()"
+          class="p-button-success p-button-sm ml-2"></button>
+      </div>
+
+      <!-- Totales -->
+      <div class="flex align-items-center gap-3">
+        <span *ngIf="loading()" class="text-primary text-sm font-medium flex align-items-center gap-2">
+          <i class="pi pi-spin pi-spinner"></i> Actualizando...
+        </span>
+        <div class="bg-white border-1 border-100 px-4 py-2 border-round-2xl">
+          <span class="text-500 text-sm font-semibold mr-2">Total Reportes</span>
+          <span class="text-xl font-bold text-900">{{ reportes().length }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" *ngIf="!loading()">
+
+    <!-- Fila 1: KPIs Principales (Preventivo/Correctivo/Tiempos) -->
+    <div class="col-12 lg:col-4">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-3 h-full flex flex-column">
+        <div class="flex align-items-center justify-content-between mb-3">
+          <span class="text-lg font-bold text-700 flex align-items-center gap-2">
+            <i class="pi pi-shield text-green-500"></i> Preventivo
+          </span>
+          <span class="text-xs font-medium bg-green-50 text-green-600 px-2 py-1 border-round">Cumplimiento: {{
+            preventivoInfo().cumplimiento }}%</span>
+        </div>
+
+        <div class="flex align-items-center gap-3 mb-3">
+          <div class="flex-1 bg-white border-1 border-100 p-2 border-round text-center">
+            <div class="text-xs text-500 font-bold mb-1">PROGRAMADOS</div>
+            <div class="text-xl font-bold text-900">{{ preventivoInfo().programados }}</div>
+          </div>
+          <div class="flex-1 bg-white border-1 border-100 p-2 border-round text-center">
+            <div class="text-xs text-500 font-bold mb-1">REALIZADOS</div>
+            <div class="text-xl font-bold text-green-600">{{ preventivoInfo().realizados }}</div>
+          </div>
+        </div>
+        <p-meterGroup [value]="preventivoMeterData()" labelPosition="start" [max]="100"
+          styleClass="w-full text-xs"></p-meterGroup>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-4">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-3 h-full flex flex-column">
+        <div class="flex align-items-center justify-content-between mb-3">
+          <span class="text-lg font-bold text-700 flex align-items-center gap-2">
+            <i class="pi pi-wrench text-blue-500"></i> Correctivo
+          </span>
+          <span class="text-xs font-medium bg-blue-50 text-blue-600 px-2 py-1 border-round">Eficiencia</span>
+        </div>
+
+        <div class="flex align-items-center gap-3 mb-3">
+          <div class="flex-1 bg-white border-1 border-100 p-2 border-round text-center">
+            <div class="text-xs text-500 font-bold mb-1">REPORTADOS</div>
+            <div class="text-xl font-bold text-900">{{ correctivoInfo().reportados }}</div>
+          </div>
+          <div class="flex-1 bg-white border-1 border-100 p-2 border-round text-center">
+            <div class="text-xs text-500 font-bold mb-1">ATENDIDOS</div>
+            <div class="text-xl font-bold text-blue-600">{{ correctivoInfo().realizados }}</div>
+          </div>
+        </div>
+        <p-meterGroup [value]="correctivoMeterData()" labelPosition="start" [max]="100"
+          styleClass="w-full text-xs"></p-meterGroup>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-4">
+      <div
+        class="card border-0 shadow-sm border-round-xl surface-card p-3 h-full flex flex-column justify-content-center">
+        <span class="text-lg font-bold text-700 mb-2 block">Duraci&oacute;n Promedio</span>
+        <div class="flex gap-3 h-full">
+          <div
+            class="flex-1 bg-white border-1 border-green-100 border-round-xl p-3 flex flex-column align-items-center justify-content-center">
+            <span class="text-sm text-green-700 font-medium mb-1">Preventivo</span>
+            <span class="text-2xl font-black text-green-700">{{ duracionStats().preventivo }}</span>
+            <span class="text-xs text-green-600 mt-1">hh:mm:ss</span>
+          </div>
+          <div
+            class="flex-1 bg-white border-1 border-blue-100 border-round-xl p-3 flex flex-column align-items-center justify-content-center">
+            <span class="text-sm text-blue-700 font-medium mb-1">Correctivo</span>
+            <span class="text-2xl font-black text-blue-700">{{ duracionStats().correctivo }}</span>
+            <span class="text-xs text-blue-600 mt-1">hh:mm:ss</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Fila 3: Distribuciones (Grid más denso) -->
+
+    <div class="col-12 lg:col-8">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-3 h-full">
+        <h5 class="text-lg font-bold text-800 mb-3">Actividad por Responsable</h5>
+        <div style="position: relative; height: 480px;">
+          <p-chart type="bar" [data]="porUsuarioChartData()" [options]="getResponsableOptions()" height="480px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-4">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-3 h-full">
+        <h5 class="text-lg font-bold text-800 mb-3">Por Tipo</h5>
+        <div class="flex justify-content-center align-items-center" style="position: relative; height: 480px;">
+          <p-chart type="doughnut" [data]="porTipoChartData()" [options]="chartOptions()" height="480px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-6 mt-2">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-3 h-full">
+        <h5 class="text-lg font-bold text-800 mb-3">Preventivos por Sede</h5>
+        <div style="position: relative; height: 480px;">
+          <p-chart type="bar" [data]="preventivoSedeChartData()" [options]="barOptions('Cumplimiento Preventivos por Sede')" height="480px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-6 mt-2">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-3 h-full">
+        <h5 class="text-lg font-bold text-800 mb-3">Correctivos por Sede</h5>
+        <div style="position: relative; height: 480px;">
+          <p-chart type="bar" [data]="correctivoSedeChartData()" [options]="barOptions('Eficiencia Correctivos por Sede')" height="480px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fila 4: Detalles (Top Servicios Split) -->
+    <div class="col-12 lg:col-6">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-3 h-full">
+        <h5 class="text-lg font-bold text-800 mb-3 text-center">Top 5 Servicios - Mantenimientos Preventivos</h5>
+        <div style="position: relative; height: 480px;">
+          <p-chart type="bar" [data]="porServicioPreventivoChartData()" [options]="barOptions()" height="480px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-6">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-3 h-full">
+        <h5 class="text-lg font-bold text-800 mb-3 text-center">Top 5 Servicios - Mantenimientos Correctivos</h5>
+        <div style="position: relative; height: 480px;">
+          <p-chart type="bar" [data]="porServicioCorrectivoChartData()" [options]="barOptions()" height="480px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-6">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-3 h-full">
+        <h5 class="text-lg font-bold text-800 mb-3">Reportes por Falla</h5>
+        <div style="position: relative; height: 480px;">
+          <p-chart type="bar" [data]="porFallaChartData()" [options]="barOptions()" height="480px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fila 5: Distribuciones por Equipo (Two per row) -->
+    <div class="col-12 lg:col-6">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-3 h-full">
+        <h5 class="text-lg font-bold text-800 mb-3">Preventivos por Tipo</h5>
+        <div style="position: relative; height: 480px;">
+          <p-chart type="bar" [data]="preventivoPorTipoEquipoChartData()" [options]="barOptions()" height="480px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-6">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-3 h-full">
+        <h5 class="text-lg font-bold text-800 mb-3">Correctivos por Tipo</h5>
+        <div style="position: relative; height: 480px;">
+          <p-chart type="bar" [data]="correctivoPorTipoEquipoChartData()" [options]="barOptions()" height="480px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-6">
+      <div class="card border-0 shadow-sm border-round-xl surface-card p-3 h-full">
+        <h5 class="text-lg font-bold text-800 mb-3">Top 10 Equipos</h5>
+        <div style="position: relative; height: 480px;">
+          <p-chart type="bar" [data]="topEquiposChartData()" [options]="barOptions()" height="480px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal de Carga -->
+  <p-dialog [(visible)]="loading" [modal]="true" [closable]="false" [draggable]="false" [resizable]="false" 
+    [showHeader]="false" styleClass="loading-dialog">
+    <div class="flex flex-column align-items-center justify-content-center p-5">
+      <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+      <span class="text-xl font-bold text-700 mt-4">Actualizando Indicadores...</span>
+      <span class="text-500 mt-2">Por favor espere un momento</span>
+    </div>
+  </p-dialog>
+
+</div>
+  `,
 })
 export class IndicadoresComponent {
 
@@ -81,13 +331,20 @@ export class IndicadoresComponent {
 
 
   private srv = inject(ReportesService);
-  private indicadoresSrv = inject(IndicadoresService);
 
   loading = signal(false);
-  reportes = signal<Reporte[]>([]);
-  indicadoresData = signal<any>(null);
+  rangoVisualizado = signal('');
 
-  // Fechas (Rango)
+  // Data signals
+  allPreventivos = signal<any[]>([]);
+  allCorrectivos = signal<any[]>([]);
+  sedesData = signal<any>(null);
+
+
+  // Unified reports for general charts
+  reportes = computed(() => [...this.allPreventivos(), ...this.allCorrectivos()]);
+
+  // Fechas (Rango) 
   fechaActual = new Date();
   anio: number = this.fechaActual.getFullYear();
   mesInicio: number = this.fechaActual.getMonth() + 1;
@@ -107,33 +364,44 @@ export class IndicadoresComponent {
   async refrescar() {
     if (!this.anio || !this.mesInicio || !this.mesFin) return;
 
-    // Calcular fechas inicio y fin
-    // Inicio: Día 1 del mesInicio
-    // Fin: Último día del mesFin
-
-    // Mes en Date es 0-indexed (mesInicio - 1)
-    const firstDay = new Date(this.anio, this.mesInicio - 1, 1);
-
-    // Para último día de mesFin: Usar mesFin (sin restar 1), día 0. 
-    // Ejemplo: Si mesFin es 1 (Enero), new Date(2023, 1, 0) da 31 Enero.
-    const lastDay = new Date(this.anio, this.mesFin, 0);
-
-    const inicioStr = this.yyyyMMdd(firstDay);
-    const finStr = this.yyyyMMdd(lastDay);
-
     this.loading.set(true);
     try {
-      const data = await this.srv.getReportesPorRango(inicioStr, finStr, 10000, 0);
-      this.reportes.set(Array.isArray(data) ? data : []);
+      // Actualizar el texto del rango visualizado
+      const labelInicio = this.meses.find(m => m.value === this.mesInicio)?.label;
+      const labelFin = this.meses.find(m => m.value === this.mesFin)?.label;
+      this.rangoVisualizado.set(`${labelInicio} - ${labelFin} ${this.anio}`);
 
-      const ind = await this.indicadoresSrv.getIndicadoresCumplimiento(inicioStr, finStr);
-      this.indicadoresData.set(ind);
+      const query = {
+        mesInicio: this.mesInicio,
+        mesFin: this.mesFin,
+        anio: this.anio
+      };
+
+      // Fetch raw data for both types
+      const prevPromise = this.srv.getReportesPreventivosRango(query);
+      const corrPromise = this.srv.getReportesCorrectivosRango(query);
+
+      // Calcular fechas para el nuevo endpoint
+      const fechaInicio = `${this.anio}-${String(this.mesInicio).padStart(2, '0')}-01`;
+      const lastDay = new Date(this.anio, this.mesFin, 0).getDate();
+      const fechaFin = `${this.anio}-${String(this.mesFin).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+      
+      const sedesPromise = this.srv.getIndicadoresSedes({ fechaInicio, fechaFin });
+
+      const [prevData, corrData, sData] = await Promise.all([prevPromise, corrPromise, sedesPromise]);
+
+      this.allPreventivos.set(Array.isArray(prevData) ? prevData : []);
+      this.allCorrectivos.set(Array.isArray(corrData) ? corrData : []);
+      this.sedesData.set(sData);
     } catch (e) {
       console.error(e);
-      this.reportes.set([]);
+      this.allPreventivos.set([]);
+      this.allCorrectivos.set([]);
+      this.sedesData.set(null);
     } finally {
       this.loading.set(false);
     }
+
   }
 
   private groupCount<K extends string | number>(arr: Reporte[], key: (r: Reporte) => K | null | undefined) {
@@ -181,21 +449,50 @@ export class IndicadoresComponent {
           borderColor: '#e5e7eb',
           borderWidth: 1,
           padding: 10,
-          boxPadding: 4
+          boxPadding: 4,
+          footerColor: '#111827',
+          footerFont: { weight: 'bold', size: 12 },
+          callbacks: {
+            label: (context: any) => {
+              let label = context.dataset.label || '';
+              if (label) label += ': ';
+              if (context.parsed.y !== null) label += context.parsed.y;
+              return label;
+            },
+            footer: (tooltipItems: any) => {
+              let total = 0;
+              let realized = 0;
+              tooltipItems.forEach((item: any) => {
+                const val = Number(item.raw || 0);
+                total += val;
+                const lbl = item.dataset.label || '';
+                if (lbl.includes('Ejecutados') || lbl.includes('Atendidos') || lbl.includes('Realizado')) {
+                  realized += val;
+                }
+              });
+              if (total > 0) {
+                const perc = ((realized / total) * 100).toFixed(1);
+                return `Cumplimiento: ${perc}%`;
+              }
+              return 'Cumplimiento: 0%';
+            }
+          }
         }
       },
       scales: {
         x: {
-          ticks: { autoSkip: true, font: { size: 12, family: "'Inter', sans-serif" }, color: '#6b7280' },
+          stacked: true,
+          ticks: { autoSkip: false, font: { size: 10 }, color: '#6b7280' },
           grid: { display: false }
         },
         y: {
+          stacked: true,
           beginAtZero: true,
-          ticks: { precision: 0, font: { size: 12, family: "'Inter', sans-serif" }, color: '#6b7280' },
+          grace: '10%',
+          ticks: { precision: 0, font: { size: 12 }, color: '#6b7280' },
           grid: { color: '#f3f4f6', borderDash: [5, 5] }
         }
-      },
-      layout: { padding: { top: 10, bottom: 10 } }
+      }
     } as any;
   }
 
@@ -207,15 +504,33 @@ export class IndicadoresComponent {
         legend: { position: 'top', labels: { font: { size: 14, family: "'Inter', sans-serif" }, usePointStyle: true } },
         tooltip: {
           mode: 'index', intersect: false,
-          backgroundColor: 'rgba(255, 255, 255, 0.9)', titleColor: '#1f2937', bodyColor: '#4b5563', borderColor: '#e5e7eb', borderWidth: 1
+          backgroundColor: 'rgba(255, 255, 255, 0.9)', titleColor: '#1f2937', bodyColor: '#4b5563', borderColor: '#e5e7eb', borderWidth: 1,
+          callbacks: {
+            footer: (tooltipItems: any) => {
+              let realized = 0;
+              let notRealized = 0;
+              tooltipItems.forEach((item: any) => {
+                if (item.dataset.label === 'Prev. Realizado') realized = item.raw;
+                if (item.dataset.label === 'Prev. No Realizado') notRealized = item.raw;
+              });
+              const total = realized + notRealized;
+              if (total > 0) {
+                const percentage = (realized / total) * 100;
+                return `Cumplimiento Prev: ${percentage.toFixed(2)}%`;
+              }
+              return '';
+            }
+          },
+          footerColor: '#1f2937',
+          footerFont: { weight: 'bold', size: 13, family: "'Inter', sans-serif" }
         }
       },
       scales: {
-        x: { ticks: { autoSkip: true, font: { size: 12 } }, grid: { display: false } },
+        x: { ticks: { autoSkip: false, font: { size: 10 }, color: '#6b7280' }, grid: { display: false } },
         y: {
           beginAtZero: true,
-          suggestedMax: 120,
-          ticks: { stepSize: 30, precision: 0, font: { size: 12 }, color: '#6b7280' },
+          grace: '10%',
+          ticks: { stepSize: 5, precision: 0, font: { size: 12 }, color: '#6b7280' },
           grid: { color: '#f3f4f6' }
         }
       }
@@ -231,7 +546,12 @@ export class IndicadoresComponent {
       },
       scales: {
         x: { ticks: { autoSkip: true, font: { size: 12 } }, grid: { display: false } },
-        y: { beginAtZero: true, ticks: { precision: 0, font: { size: 12 } }, grid: { color: '#f3f4f6', borderDash: [5, 5] } }
+        y: { 
+          beginAtZero: true, 
+          grace: '10%',
+          ticks: { precision: 0, font: { size: 12 } }, 
+          grid: { color: '#f3f4f6', borderDash: [5, 5] } 
+        }
       },
       elements: {
         line: { tension: 0.4, borderWidth: 3 },
@@ -240,12 +560,13 @@ export class IndicadoresComponent {
     } as any;
   }
 
-  // --- Nuevos Computed para Indicadores Backend ---
+  // --- Nuevos Computed para Indicadores Calculados Localmente ---
 
   preventivoMeterData = computed(() => {
-    const d = this.indicadoresData();
-    if (!d || !d.preventivo) return [];
-    const c = d.preventivo.cumplimiento || 0;
+    const total = this.allPreventivos().length;
+    if (total === 0) return [];
+    const realizados = this.allPreventivos().filter(r => r.realizado).length;
+    const c = (realizados / total) * 100;
     return [
       { label: 'Realizados', value: c, color: '#34d399', icon: 'pi pi-check-circle' },
       { label: 'Pendientes', value: 100 - c, color: '#fbbf24', icon: 'pi pi-exclamation-circle' }
@@ -253,9 +574,10 @@ export class IndicadoresComponent {
   });
 
   correctivoMeterData = computed(() => {
-    const d = this.indicadoresData();
-    if (!d || !d.correctivo) return [];
-    const c = d.correctivo.cumplimiento || 0;
+    const total = this.allCorrectivos().length;
+    if (total === 0) return [];
+    const realizados = this.allCorrectivos().filter(r => r.realizado).length;
+    const c = (realizados / total) * 100;
     return [
       { label: 'Atendidos', value: c, color: '#60a5fa', icon: 'pi pi-check-circle' },
       { label: 'Pendientes', value: 100 - c, color: '#f87171', icon: 'pi pi-exclamation-circle' }
@@ -263,23 +585,46 @@ export class IndicadoresComponent {
   });
 
   duracionStats = computed(() => {
-    const d = this.indicadoresData();
-    if (!d) return { preventivo: '00:00:00', correctivo: '00:00:00' };
+    const calcAvg = (reps: any[]) => {
+      const realizados = reps.filter(r => r.realizado && r.horaTotal);
+      if (realizados.length === 0) return '00:00:00';
+      const totalMinutes = realizados.reduce((acc, r) => acc + (this.hhmmssToMinutes(r.horaTotal) || 0), 0);
+      return this.formatearDuracion(totalMinutes / realizados.length);
+    };
+
     return {
-      preventivo: d.preventivo?.promedioDuracion || '00:00:00',
-      correctivo: d.correctivo?.promedioDuracion || '00:00:00'
+      preventivo: calcAvg(this.allPreventivos()),
+      correctivo: calcAvg(this.allCorrectivos())
     };
   });
 
   preventivoInfo = computed(() => {
-    const d = this.indicadoresData();
-    return d?.preventivo || { programados: 0, realizados: 0, cumplimiento: 0 };
+    const total = this.allPreventivos().length;
+    const realizados = this.allPreventivos().filter(r => r.realizado).length;
+    return {
+      programados: total,
+      realizados: realizados,
+      cumplimiento: total > 0 ? parseFloat(((realizados / total) * 100).toFixed(2)) : 0
+    };
   });
 
   correctivoInfo = computed(() => {
-    const d = this.indicadoresData();
-    return d?.correctivo || { reportados: 0, realizados: 0, cumplimiento: 0 };
+    const total = this.allCorrectivos().length;
+    const realizados = this.allCorrectivos().filter(r => r.realizado).length;
+    return {
+      reportados: total,
+      realizados: realizados,
+      cumplimiento: total > 0 ? parseFloat(((realizados / total) * 100).toFixed(2)) : 0
+    };
   });
+
+  private formatearDuracion(minutosTotales: number): string {
+    if (!minutosTotales) return "00:00:00";
+    const horas = Math.floor(minutosTotales / 60);
+    const minutos = Math.floor(minutosTotales % 60);
+    const segundos = Math.floor((minutosTotales * 60) % 60);
+    return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+  }
 
   realizadosChartData = computed(() => {
     const rs = this.reportes();
@@ -299,25 +644,43 @@ export class IndicadoresComponent {
 
   porTipoChartData = computed(() => {
     const rs = this.reportes();
-    const orden: TipoMantenimiento[] = ['Preventivo', 'Correctivo', 'Predictivo', 'Otro'];
-    const mapa = this.groupCount(rs, r => (r.tipoMantenimiento ?? 'Otro') as TipoMantenimiento);
+    const mapa = new Map<string, number>();
+
+    rs.forEach(r => {
+      let tipo = (r.tipoMantenimiento ?? 'Otro');
+      if (tipo === 'Preventivo') {
+        tipo = r.realizado ? 'Prev. Realizado' : 'Prev. No Realizado';
+      }
+      mapa.set(tipo, (mapa.get(tipo) ?? 0) + 1);
+    });
+
+    const orden = ['Prev. Realizado', 'Prev. No Realizado', 'Correctivo', 'Predictivo', 'Otro'];
+    const labels = orden.filter(k => mapa.has(k) || k === 'Correctivo' || k === 'Prev. Realizado' || k === 'Prev. No Realizado');
+
+    // Custom colors for the split types
+    const colorMap: Record<string, string> = {
+      'Prev. Realizado': '#10b981', // Green
+      'Prev. No Realizado': '#fbbf24', // Amber
+      'Correctivo': '#3b82f6', // Blue
+      'Predictivo': '#8b5cf6', // Purple
+      'Otro': '#94a3b8' // Slate
+    };
+
     return {
-      labels: orden,
+      labels,
       datasets: [{
-        label: 'Cantidad',
-        data: orden.map(k => mapa.get(k) ?? 0),
-        backgroundColor: this.bgColors,
-        borderColor: this.borderColors,
-        borderWidth: 1,
-        borderRadius: 8,
-        barPercentage: 0.6
+        data: labels.map(k => mapa.get(k) ?? 0),
+        backgroundColor: labels.map(k => colorMap[k] || '#cbd5e1'),
+        hoverOffset: 4,
+        borderColor: '#ffffff',
+        borderWidth: 2
       }]
     };
   });
 
   porUsuarioChartData = computed(() => {
     const rs = this.reportes();
-    const stats = new Map<string, { preventivo: number, correctivo: number }>();
+    const stats = new Map<string, { prevRealizado: number, prevNoRealizado: number, correctivo: number }>();
 
     rs.forEach(r => {
       const u = r.usuario;
@@ -326,9 +689,13 @@ export class IndicadoresComponent {
       const email = (u?.email || '').trim();
       const name = (nom || ap) ? `${nom} ${ap}`.trim() : (email || 'Sin usuario');
 
-      const current = stats.get(name) || { preventivo: 0, correctivo: 0 };
+      const current = stats.get(name) || { prevRealizado: 0, prevNoRealizado: 0, correctivo: 0 };
       if (r.tipoMantenimiento === 'Preventivo') {
-        current.preventivo++;
+        if (r.realizado) {
+          current.prevRealizado++;
+        } else {
+          current.prevNoRealizado++;
+        }
       } else if (r.tipoMantenimiento === 'Correctivo') {
         current.correctivo++;
       }
@@ -336,17 +703,27 @@ export class IndicadoresComponent {
     });
 
     const labels = Array.from(stats.keys());
-    const dataPrev = labels.map(l => stats.get(l)?.preventivo ?? 0);
+    const dataPrevR = labels.map(l => stats.get(l)?.prevRealizado ?? 0);
+    const dataPrevN = labels.map(l => stats.get(l)?.prevNoRealizado ?? 0);
     const dataCorr = labels.map(l => stats.get(l)?.correctivo ?? 0);
 
     return {
       labels,
       datasets: [
         {
-          label: 'Preventivo',
-          data: dataPrev,
-          backgroundColor: '#3b82f6', // blue-500
-          borderColor: '#2563eb',
+          label: 'Prev. Realizado',
+          data: dataPrevR,
+          backgroundColor: '#34d399', // green-400
+          borderColor: '#10b981',
+          borderWidth: 1,
+          borderRadius: 4,
+          barPercentage: 0.7
+        },
+        {
+          label: 'Prev. No Realizado',
+          data: dataPrevN,
+          backgroundColor: '#fbbf24', // amber-400
+          borderColor: '#f59e0b',
           borderWidth: 1,
           borderRadius: 4,
           barPercentage: 0.7
@@ -364,25 +741,68 @@ export class IndicadoresComponent {
     };
   });
 
-  porServicioChartData = computed(() => {
-    const rs = this.reportes().filter(r => r.tipoMantenimiento === 'Correctivo');
-    const mapa = this.groupCount(rs, r => (r.equipo as any)?.servicios?.nombre || 'Sin servicio');
+  porServicioPreventivoChartData = computed(() => {
+    const rs = this.allPreventivos().filter(r => 
+      r.realizado && 
+      r.añoProgramado === this.anio && 
+      r.mesProgramado >= this.mesInicio && 
+      r.mesProgramado <= this.mesFin
+    );
+    const stats = new Map<string, number>();
 
-    const pares = Array.from(mapa.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
-    const labels = pares.map(p => p[0]);
-    const data = pares.map(p => p[1]);
+    rs.forEach(r => {
+      const sName = r.servicio?.nombres || r.equipo?.servicios?.nombres || 'Sin servicio';
+      stats.set(sName, (stats.get(sName) ?? 0) + 1);
+    });
+
+    const sortedLabels = Array.from(stats.keys())
+      .sort((a, b) => (stats.get(b) ?? 0) - (stats.get(a) ?? 0))
+      .slice(0, 5);
 
     return {
-      labels,
-      datasets: [{
-        label: 'Top 5 Correctivos por Servicio (Equipo)',
-        data,
-        backgroundColor: '#f97316', // orange-500
-        borderColor: '#ea580c',
-        borderWidth: 1,
-        borderRadius: 8,
-        barPercentage: 0.6
-      }]
+      labels: sortedLabels,
+      datasets: [
+        {
+          label: 'Preventivos',
+          data: sortedLabels.map(l => stats.get(l) ?? 0),
+          backgroundColor: '#3b82f6',
+          borderColor: '#2563eb',
+          borderWidth: 1,
+          borderRadius: 4,
+          barPercentage: 0.7
+        }
+      ]
+    };
+  });
+
+  porServicioCorrectivoChartData = computed(() => {
+    // Correctivos en el frontend ya vienen filtrados por fechaRealizado desde el backend,
+    // pero nos aseguramos de contar solo los realizados.
+    const rs = this.allCorrectivos().filter(r => r.realizado);
+    const stats = new Map<string, number>();
+
+    rs.forEach(r => {
+      const sName = r.servicio?.nombres || r.equipo?.servicios?.nombres || 'Sin servicio';
+      stats.set(sName, (stats.get(sName) ?? 0) + 1);
+    });
+
+    const sortedLabels = Array.from(stats.keys())
+      .sort((a, b) => (stats.get(b) ?? 0) - (stats.get(a) ?? 0))
+      .slice(0, 5);
+
+    return {
+      labels: sortedLabels,
+      datasets: [
+        {
+          label: 'Correctivos',
+          data: sortedLabels.map(l => stats.get(l) ?? 0),
+          backgroundColor: '#f97316',
+          borderColor: '#ea580c',
+          borderWidth: 1,
+          borderRadius: 4,
+          barPercentage: 0.7
+        }
+      ]
     };
   });
 
@@ -511,8 +931,13 @@ export class IndicadoresComponent {
       counts[tipoName] = (counts[tipoName] || 0) + 1;
     });
 
-    const labels = Object.keys(counts);
-    const data = Object.values(counts);
+    // Sort by count descending and take top 10
+    const sortedEntries = Object.entries(counts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10);
+
+    const labels = sortedEntries.map(([name]) => name);
+    const data = sortedEntries.map(([, count]) => count);
 
     return {
       labels,
@@ -540,8 +965,13 @@ export class IndicadoresComponent {
       counts[tipoName] = (counts[tipoName] || 0) + 1;
     });
 
-    const labels = Object.keys(counts);
-    const data = Object.values(counts);
+    // Sort by count descending and take top 10
+    const sortedEntries = Object.entries(counts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10);
+
+    const labels = sortedEntries.map(([name]) => name);
+    const data = sortedEntries.map(([, count]) => count);
 
     return {
       labels,
@@ -588,4 +1018,169 @@ export class IndicadoresComponent {
       ]
     };
   });
+
+  preventivoSedeChartData = computed(() => {
+    const data = this.sedesData();
+    if (!data) return null;
+
+    const labels = Object.keys(data);
+    const realizados = labels.map(l => Number(data[l].preventivoRealizado || 0));
+    const totales = labels.map(l => Number(data[l].preventivoTotal || 0));
+    const pendientes = totales.map((t, i) => Math.max(0, t - realizados[i]));
+
+    const labelsConPorcentaje = labels.map(l => l.length > 20 ? l.substring(0, 17) + '...' : l);
+
+    return {
+      labels: labelsConPorcentaje,
+      datasets: [
+        {
+          label: 'Prev. Ejecutados',
+          data: realizados,
+          backgroundColor: 'rgba(52, 211, 153, 0.8)', // Verde con transparencia
+          borderColor: '#10b981',
+          borderWidth: 1,
+          borderRadius: 4
+        },
+        {
+          label: 'Prev. Pendientes',
+          data: pendientes,
+          backgroundColor: 'rgba(251, 191, 36, 0.8)', // Amber con transparencia
+          borderColor: '#f59e0b',
+          borderWidth: 1,
+          borderRadius: 4
+        }
+      ]
+    };
+  });
+
+  correctivoSedeChartData = computed(() => {
+    const data = this.sedesData();
+    if (!data) return null;
+
+    const labels = Object.keys(data);
+    const realizados = labels.map(l => Number(data[l].correctivoRealizado || 0));
+    const totales = labels.map(l => Number(data[l].correctivoTotal || 0));
+    const pendientes = totales.map((t, i) => Math.max(0, t - realizados[i]));
+
+    const labelsConPorcentaje = labels.map(l => l.length > 20 ? l.substring(0, 17) + '...' : l);
+
+    return {
+      labels: labelsConPorcentaje,
+      datasets: [
+        {
+          label: 'Corr. Atendidos',
+          data: realizados,
+          backgroundColor: 'rgba(96, 165, 250, 0.8)', // Azul con transparencia
+          borderColor: '#3b82f6',
+          borderWidth: 1,
+          borderRadius: 4
+        },
+        {
+          label: 'Corr. Pendientes',
+          data: pendientes,
+          backgroundColor: 'rgba(248, 113, 113, 0.8)', // Rojo con transparencia
+          borderColor: '#ef4444',
+          borderWidth: 1,
+          borderRadius: 4
+        }
+      ]
+    };
+  });
+
+  exportarExcel() {
+    const wb = XLSX.utils.book_new();
+
+    // 1. Hoja de Resumen General (KPIs)
+    const resumenData = [
+      { Indicador: 'Año de Consulta', Valor: this.anio },
+      { Indicador: 'Mes Inicio', Valor: this.meses.find(m => m.value === this.mesInicio)?.label },
+      { Indicador: 'Mes Fin', Valor: this.meses.find(m => m.value === this.mesFin)?.label },
+      { Indicador: 'Total Reportes', Valor: this.reportes().length },
+      {},
+      { Indicador: 'PREVENTIVOS - Programados', Valor: this.preventivoInfo().programados },
+      { Indicador: 'PREVENTIVOS - Realizados', Valor: this.preventivoInfo().realizados },
+      { Indicador: 'PREVENTIVOS - Cumplimiento (%)', Valor: this.preventivoInfo().cumplimiento + '%' },
+      { Indicador: 'PREVENTIVOS - Duración Promedio', Valor: this.duracionStats().preventivo },
+      {},
+      { Indicador: 'CORRECTIVOS - Reportados', Valor: this.correctivoInfo().reportados },
+      { Indicador: 'CORRECTIVOS - Atendidos', Valor: this.correctivoInfo().realizados },
+      { Indicador: 'CORRECTIVOS - Eficacia (%)', Valor: this.correctivoInfo().cumplimiento + '%' },
+      { Indicador: 'CORRECTIVOS - Duración Promedio', Valor: this.duracionStats().correctivo },
+    ];
+    const wsResumen = XLSX.utils.json_to_sheet(resumenData);
+    XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen General');
+
+    // 2. Preventivos por Tipo de Equipo
+    const prevPorTipo = this.preventivoPorTipoEquipoChartData();
+    if (prevPorTipo) {
+      const data = prevPorTipo.labels.map((label: string, index: number) => ({
+        'Tipo de Equipo': label,
+        'Cantidad Preventivos': prevPorTipo.datasets[0].data[index]
+      }));
+      const ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, 'Prev por Tipo');
+    }
+
+    // 3. Correctivos por Tipo de Equipo
+    const corrPorTipo = this.correctivoPorTipoEquipoChartData();
+    if (corrPorTipo) {
+      const data = corrPorTipo.labels.map((label: string, index: number) => ({
+        'Tipo de Equipo': label,
+        'Cantidad Correctivos': corrPorTipo.datasets[0].data[index]
+      }));
+      const ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, 'Corr por Tipo');
+    }
+
+    // 4. Actividad por Responsable
+    const porResp = this.porUsuarioChartData();
+    if (porResp) {
+      const data = porResp.labels.map((label: string, index: number) => {
+        const totalPrev = Number(porResp.datasets[0].data[index]) + Number(porResp.datasets[1].data[index]);
+        const cumplimiento = totalPrev > 0 ? ((Number(porResp.datasets[0].data[index]) / totalPrev) * 100).toFixed(2) + '%' : '0%';
+        
+        return {
+          'Responsable': label,
+          'Prev. Realizado': porResp.datasets[0].data[index],
+          'Prev. No Realizado': porResp.datasets[1].data[index],
+          'Total Preventivos': totalPrev,
+          'Cumplimiento (%)': cumplimiento,
+          'Correctivos Atendidos': porResp.datasets[2].data[index]
+        };
+      });
+      const ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, 'Por Responsable');
+    }
+
+    // 5. Indicadores por Sede
+    const sedes = this.sedesData();
+    if (sedes) {
+      const data = Object.keys(sedes).map(sede => {
+        const prevRealizados = Number(sedes[sede].preventivoRealizado || 0);
+        const prevTotales = Number(sedes[sede].preventivoTotal || 0);
+        const corrRealizados = Number(sedes[sede].correctivoRealizado || 0);
+        const corrTotales = Number(sedes[sede].correctivoTotal || 0);
+
+        return {
+          'Sede': sede,
+          'Prev. Realizados': prevRealizados,
+          'Prev. Totales': prevTotales,
+          'Cumplimiento Prev (%)': prevTotales > 0 ? ((prevRealizados / prevTotales) * 100).toFixed(2) + '%' : '0%',
+          'Corr. Atendidos': corrRealizados,
+          'Corr. Reportados': corrTotales,
+          'Eficacia Corr (%)': corrTotales > 0 ? ((corrRealizados / corrTotales) * 100).toFixed(2) + '%' : '0%'
+        };
+      });
+      const ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, 'Por Sede');
+    }
+
+    // Generar nombre de archivo y guardar
+    const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const data: Blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+    saveAs(data, `Indicadores_Biomedica_${this.anio}_${this.mesInicio}_${this.mesFin}.xlsx`);
+  }
 }
+
+
+

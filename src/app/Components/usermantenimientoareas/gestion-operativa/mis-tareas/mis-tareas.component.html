@@ -1,0 +1,280 @@
+<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
+
+<div class="fade-in-animation p-4 bg-gray-50 min-h-screen">
+    <!-- Header Hero -->
+    <div class="card shadow-2 border-round-xl p-0 overflow-hidden bg-white mb-4">
+        <div class="bg-primary-reverse p-4 flex flex-column md:flex-row md:align-items-center justify-content-between gap-3 border-bottom-1 surface-border" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+            <div class="flex align-items-center gap-3">
+                <div class="bg-white border-round-lg p-3 shadow-2" style="color: #2a5298;">
+                    <i class="pi pi-bell text-3xl"></i>
+                </div>
+                <div class="flex flex-column">
+                    <span class="text-3xl font-bold text-white">{{ userRole === 'ADMINMANTENIMIENTO' || userRole === 'USERMANTENIMIENTO' || userRole === 'SUPERADMIN' ? 'Gestión de Tareas' : 'Mis Tareas Asignadas' }}</span>
+                    <span class="text-indigo-100 mt-1">Gestión de observaciones y requerimientos técnicos</span>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <p-button label="Volver al Panel" icon="pi pi-home"
+                    styleClass="p-button-secondary bg-white text-indigo-900 border-none shadow-1 px-4 py-2 border-round-lg hover:bg-gray-100 transition-all font-bold"
+                    (click)="volver()"></p-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats & Tabs -->
+    <div class="grid mb-4">
+        <div class="col-12 md:col-6">
+            <div class="card shadow-1 border-round-xl p-4 cursor-pointer transition-all hover:shadow-2"
+                 [ngClass]="{'border-primary border-2 shadow-2': activeTab === 'pendientes'}"
+                 (click)="setTab('pendientes')"
+                 style="background: linear-gradient(to right, #ffffff, #fff5f5);">
+                <div class="flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="text-red-500 m-0 font-bold text-xl mb-2">Tareas Pendientes</h4>
+                        <span class="text-500">Requieren tu atención</span>
+                    </div>
+                    <div class="bg-red-100 text-red-600 border-round-circle flex align-items-center justify-content-center" style="width: 4rem; height: 4rem;">
+                        <span class="text-2xl font-bold">{{tareasPendientes.length}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 md:col-6">
+            <div class="card shadow-1 border-round-xl p-4 cursor-pointer transition-all hover:shadow-2"
+                 [ngClass]="{'border-primary border-2 shadow-2': activeTab === 'completadas'}"
+                 (click)="setTab('completadas')"
+                 style="background: linear-gradient(to right, #ffffff, #f0fdf4);">
+                <div class="flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="text-green-500 m-0 font-bold text-xl mb-2">Tareas Completadas</h4>
+                        <span class="text-500">Historial de resueltas</span>
+                    </div>
+                    <div class="bg-green-100 text-green-600 border-round-circle flex align-items-center justify-content-center" style="width: 4rem; height: 4rem;">
+                        <span class="text-2xl font-bold">{{tareasCompletadas.length}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="card shadow-2 border-round-xl p-4 bg-white">
+        
+        <!-- PENDIENTES GRID -->
+        <div *ngIf="activeTab === 'pendientes'">
+            <div class="flex align-items-center gap-2 mb-4">
+                <i class="pi pi-list text-red-500 text-xl"></i>
+                <h3 class="m-0 text-900 font-bold">Listado de Requerimientos</h3>
+            </div>
+
+            <div *ngIf="tareasPendientes.length === 0" class="text-center p-6 border-round bg-gray-50 border-1 border-gray-200">
+                <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png" alt="vacio" width="200"/>
+                <h3 class="text-700 mt-4">¡Excelente trabajo!</h3>
+                <p class="text-500">Estás al día. No tienes observaciones pendientes por resolver.</p>
+            </div>
+
+            <div class="grid" *ngIf="groupedPendientes.length > 0">
+                <div class="col-12 md:col-6 mb-4" *ngFor="let group of groupedPendientes">
+                    <div class="card h-full shadow-2 border-round-xl p-0 overflow-hidden border-1 border-gray-200 flex flex-column transition-all hover:shadow-4 relative">
+                        <!-- Banda de color superior -->
+                        <div class="bg-primary h-1rem w-full" style="background: linear-gradient(90deg, #1e3c72, #2a5298);"></div>
+                        
+                        <div class="p-4 flex-grow-1 flex flex-column">
+                            <div class="flex justify-content-between align-items-center mb-4">
+                                <div class="flex align-items-center gap-2">
+                                    <p-tag value="Pendiente" severity="danger" [rounded]="true"></p-tag>
+                                    <span class="text-xs font-bold text-500 uppercase tracking-wider">
+                                        <i class="pi pi-calendar mr-1"></i> {{group.fecha | date:'dd MMM yyyy'}}
+                                    </span>
+                                </div>
+                                <span class="bg-gray-100 px-3 py-1 border-round-full text-sm font-bold text-700">
+                                    {{group.items.length}} {{group.items.length === 1 ? 'item' : 'ítems'}}
+                                </span>
+                            </div>
+                            
+                            <h3 class="mt-0 mb-4 text-900 line-height-3 text-2xl flex align-items-center gap-2 overflow-hidden white-space-nowrap text-overflow-ellipsis">
+                                <div class="bg-blue-50 p-2 border-round-lg">
+                                    <i class="pi pi-map-marker text-primary text-xl"></i>
+                                </div>
+                                {{group.areaName}}
+                            </h3>
+                            
+                            <!-- Lista de elementos y sus fallas -->
+                            <div class="flex-grow-1">
+                                <div *ngFor="let item of group.items" 
+                                     class="surface-50 p-3 border-round-xl mb-3 border-left-3 border-primary shadow-sm hover:surface-100 transition-all flex justify-content-between align-items-center gap-3">
+                                    <div class="flex flex-column gap-1">
+                                        <span class="text-900 font-bold font-italic">"{{item.descripcion}}"</span>
+                                        <span *ngIf="userRole === 'ADMINMANTENIMIENTO' || userRole === 'USERMANTENIMIENTO' || userRole === 'SUPERADMIN'" class="text-xs text-500 mt-1">
+                                            <i class="pi pi-user mr-1"></i> Asignado a: {{ item.tecnico?.nombres }} {{ item.tecnico?.apellidos }}
+                                        </span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button pButton pRipple icon="pi pi-eye"
+                                            class="p-button-rounded p-button-info p-button-text" pTooltip="Ver Detalles"
+                                            (click)="verDetalle(item)"></button>
+                                        <button *ngIf="item.estado === 'Pendiente' && (userRole === 'ADMINMANTENIMIENTO' || userRole === 'USERMANTENIMIENTO' || userRole === 'SUPERADMIN')" pButton pRipple icon="pi pi-users"
+                                            class="p-button-rounded p-button-warning p-button-text" pTooltip="Reasignar"
+                                            (click)="reasignar(item)"></button>
+                                        <button *ngIf="item.estado === 'Pendiente'" pButton pRipple icon="pi pi-check"
+                                            class="p-button-rounded p-button-success p-button-text" pTooltip="Completar"
+                                            (click)="completar(item)"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPLETADAS GRID -->
+        <div *ngIf="activeTab === 'completadas'">
+            <div class="flex align-items-center gap-2 mb-4">
+                <i class="pi pi-check-square text-green-500 text-xl"></i>
+                <h3 class="m-0 text-900 font-bold">Historial de Mantenimientos</h3>
+            </div>
+
+            <p-table [value]="tareasCompletadas" [paginator]="true" [rows]="10" styleClass="p-datatable-striped" responsiveLayout="scroll">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Fecha Registro</th>
+                        <th>Fecha Completado</th>
+                        <th>Área</th>
+                        <th>Descripción Inicial</th>
+                        <th>Estado</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-obs>
+                    <tr>
+                        <td>{{obs.createdAt | date:'dd/MM/yyyy HH:mm'}}</td>
+                        <td>{{obs.updatedAt | date:'dd/MM/yyyy HH:mm'}}</td>
+                        <td class="font-bold">
+                            {{obs.areaElemento?.areas?.nombre || 'N/A'}}<br>
+                            <small class="text-500 font-normal"><i class="pi pi-box"></i> {{obs.areaElemento?.elemento?.nombre || 'Elemento General'}}</small><br>
+                            <small *ngIf="userRole === 'ADMINMANTENIMIENTO' || userRole === 'USERMANTENIMIENTO' || userRole === 'SUPERADMIN'" class="text-500 font-normal"><i class="pi pi-user"></i> {{ obs.tecnico?.nombres }}</small>
+                        </td>
+                        <td><span class="text-overflow-ellipsis" style="max-width: 200px; display: inline-block; overflow: hidden; white-space: nowrap;" pTooltip="{{obs.descripcion}}">{{obs.descripcion}}</span></td>
+                        <td>
+                            <p-tag value="Resuelto" severity="success" icon="pi pi-check"></p-tag>
+                            <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text p-button-secondary ml-2" style="height: 1.5rem; width: 1.5rem;" (click)="verDetalle(obs)" pTooltip="Ver Detalles"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="5" class="text-center p-4">No tienes tareas completadas aún en tu historial.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+    </div>
+</div>
+
+<p-dialog [(visible)]="displayDetalle" header="Detalles del Requerimiento" [modal]="true" [style]="{width: '50vw', 'min-width': '300px'}" [draggable]="false" [resizable]="false">
+    <div *ngIf="selectedObs" class="mt-3">
+        <ul class="list-none p-0 m-0">
+            <li class="flex align-items-center mb-3">
+                <i class="pi pi-calendar text-2xl mr-3 text-primary"></i>
+                <div>
+                    <span class="text-500 block mb-1">Fecha de Inspección</span>
+                    <span class="font-bold text-900">{{selectedObs.inspeccion?.fecha | date:'dd MMM yyyy'}}</span>
+                </div>
+            </li>
+            <li class="flex align-items-center mb-3">
+                <i class="pi pi-map-marker text-2xl mr-3 text-primary"></i>
+                <div>
+                    <span class="text-500 block mb-1">Área y Elemento Físico</span>
+                    <span class="font-bold text-900">{{selectedObs.areaElemento?.areas?.nombre || 'N/A'}} - {{selectedObs.areaElemento?.elemento?.nombre || 'N/A'}}</span>
+                </div>
+            </li>
+            <li class="flex align-items-center mb-3" *ngIf="selectedObs.inspeccion">
+                <i class="pi pi-tag text-2xl mr-3 text-primary"></i>
+                <div>
+                    <span class="text-500 block mb-1">Estado de Elemento (Inspección)</span>
+                    <span class="font-bold text-900">
+                        <ng-container *ngIf="selectedObs.inspeccion?.estado == 1">Bueno</ng-container>
+                        <ng-container *ngIf="selectedObs.inspeccion?.estado == 2">Malo</ng-container>
+                        <ng-container *ngIf="selectedObs.inspeccion?.estado == 3">Regular</ng-container>
+                        <ng-container *ngIf="selectedObs.inspeccion?.estado == undefined">No Indicado</ng-container>
+                    </span>
+                </div>
+            </li>
+            <li class="flex align-items-center mb-0 mt-4 p-3 surface-100 border-round">
+                <i class="pi pi-align-left text-2xl mr-3 text-primary"></i>
+                <div>
+                    <span class="text-500 block mb-1 font-bold">Observación Inicial</span>
+                    <span class="text-900">{{selectedObs.inspeccion?.observaciones || selectedObs.descripcion || 'Sin observaciones detalladas'}}</span>
+                </div>
+            </li>
+            <li class="flex align-items-center mb-0 mt-4 p-3 bg-green-50 border-round" *ngIf="selectedObs.observacionCierre">
+                <i class="pi pi-check-circle text-2xl mr-3 text-green-600"></i>
+                <div class="flex-grow-1">
+                    <div class="flex justify-content-between align-items-center mb-1">
+                        <span class="text-green-800 font-bold">Observación de Cierre</span>
+                        <span class="text-xs text-green-700 font-medium" *ngIf="selectedObs.updatedAt">
+                            <i class="pi pi-clock mr-1"></i> Completado el: {{selectedObs.updatedAt | date:'dd MMM yyyy HH:mm'}}
+                        </span>
+                    </div>
+                    <span class="text-900 block mb-3">{{selectedObs.observacionCierre}}</span>
+                    
+                    <!-- Evidencia Fotográfica -->
+                    <div *ngIf="selectedObs.imagenCierre" class="mt-2">
+                        <span class="text-xs text-500 block mb-2 font-bold uppercase tracking-wider">Evidencia Fotográfica</span>
+                        <div class="border-round-xl overflow-hidden shadow-2 border-1 border-gray-200 bg-white" style="max-width: 100%;">
+                            <img [src]="getImageUrl(selectedObs.imagenCierre)" 
+                                 alt="Evidencia de cierre" 
+                                 class="w-full h-auto block"
+                                 style="max-height: 400px; object-fit: contain;">
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cerrar" icon="pi pi-times" class="p-button-text" (click)="displayDetalle = false"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="displayCompletar" header="Completar Tarea" [modal]="true"
+    [style]="{width: '40vw', 'min-width': '320px'}" [draggable]="false" [resizable]="false">
+    <div class="flex flex-column gap-3 mt-3">
+        <div class="field">
+            <label for="observacionCierre" class="block font-semibold mb-2">Observación de cierre *</label>
+            <textarea id="observacionCierre" pInputTextarea [(ngModel)]="observacionCierre" rows="3"
+                class="w-full" placeholder="Escribe el trabajo realizado o hallazgos..."></textarea>
+        </div>
+        <div class="field">
+            <label for="imagenCierre" class="block font-semibold mb-2">Evidencia Fotográfica *</label>
+            <input type="file" id="imagenCierre" class="p-inputtext w-full p-2 border-1 border-round border-gray-300" 
+                accept="image/*" (change)="onFileSelected($event)">
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary"
+            (click)="displayCompletar = false"></button>
+        <button pButton label="Guardar" icon="pi pi-check" class="p-button-success"
+            (click)="confirmarCompletar()" [disabled]="!observacionCierre || !imagenCierre"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="displayReasignar" header="Reasignar Tarea" [modal]="true"
+    [style]="{width: '50vw', 'min-width': '350px'}" [draggable]="false" [resizable]="false">
+    <div class="flex flex-column gap-3 mt-3">
+        <div class="field">
+            <label for="tecnicoDropdown" class="block font-semibold mb-2">Seleccione un Técnico</label>
+            <p-dropdown id="tecnicoDropdown" [options]="tecnicos" [(ngModel)]="selectedTecnicoId"
+                placeholder="Seleccione un técnico" optionLabel="label" optionValue="value" styleClass="w-full"
+                [filter]="true" filterBy="label" appendTo="body" scrollHeight="250px"></p-dropdown>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary"
+            (click)="displayReasignar = false"></button>
+        <button pButton label="Reasignar" icon="pi pi-check" class="p-button-warning"
+            (click)="confirmarReasignacion()" [disabled]="!selectedTecnicoId"></button>
+    </ng-template>
+</p-dialog>

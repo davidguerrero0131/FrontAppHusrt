@@ -1,7 +1,6 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { API_URL } from '../../../../constantes';
-import { createHeaders } from '../../../../utilidades';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -14,19 +13,19 @@ export class DocumentosService {
 
     getDocumentosByEquipo(idEquipo: any) {
         return firstValueFrom(
-            this.httpClient.get<any[]>(`${API_URL}/documentos/equipo/${idEquipo}`, createHeaders())
+            this.httpClient.get<any[]>(`${API_URL}/documentos/equipo/${idEquipo}`)
         );
     }
 
     addDocumento(formData: FormData) {
         return firstValueFrom(
-            this.httpClient.post<any>(`${API_URL}/adddocumento`, formData, createHeaders())
+            this.httpClient.post<any>(`${API_URL}/adddocumento`, formData)
         );
     }
 
     deleteDocumento(id: any) {
         return firstValueFrom(
-            this.httpClient.delete<any>(`${API_URL}/documentos/${id}`, createHeaders())
+            this.httpClient.delete<any>(`${API_URL}/documentos/${id}`)
         );
     }
 }

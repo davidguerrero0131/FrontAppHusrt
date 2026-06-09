@@ -6,10 +6,12 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { getDecodedAccessToken } from '../../../utilidades';
 
+import { RouterModule } from '@angular/router';
+
 @Component({
   selector: 'app-homeadminbiomedica',
   standalone: true,
-  imports: [CommonModule, CardModule, ButtonModule, TooltipModule],
+  imports: [CommonModule, CardModule, ButtonModule, TooltipModule, RouterModule],
   templateUrl: './homeadminbiomedica.component.html',
   styleUrl: './homeadminbiomedica.component.css'
 })
@@ -33,10 +35,10 @@ export class HomeadminbiomedicaComponent {
   }
 
   // Operativa
-  showViewGestionOperativa() { this.router.navigate(['/biomedica/gestion-operativa']); }
+  showViewGestionOperativa() { this.router.navigate(['/gestion-operativa']); }
 
   // Parametrizacion
-  showViewParametrizacion() { this.router.navigate(['/biomedica/parametrizacion']); }
+  showViewParametrizacion() { this.router.navigate(['/parametrizacion']); }
 
 
 }

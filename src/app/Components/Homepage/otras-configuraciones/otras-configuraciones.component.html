@@ -1,0 +1,60 @@
+<div class="dashboard-container">
+    <div class="hero-section" style="margin-bottom: 2rem;">
+        <div class="hero-content" style="display: flex; align-items: center; gap: 15px;">
+            <p-button icon="pi pi-arrow-left" [rounded]="true" [text]="true" severity="secondary" (onClick)="goBack()" styleClass="p-button-lg text-white"></p-button>
+            <h1 style="margin: 0;">Otras Configuraciones</h1>
+        </div>
+    </div>
+
+    <div class="cards-grid">
+        <!-- Usuario de Garantías y Comodatos -->
+        <p-card styleClass="shadow-2 border-round-xl h-full">
+            <ng-template pTemplate="header">
+                <div class="p-3 border-bottom-1 surface-border flex align-items-center gap-2">
+                    <i class="pi pi-user-edit text-primary text-xl"></i>
+                    <h3 class="m-0 text-xl font-semibold">Garantías y Comodatos Biomedica</h3>
+                </div>
+            </ng-template>
+            <p class="text-color-secondary mb-4">
+                Asigna el usuario predeterminado responsable de recibir notificaciones y gestionar reportes de equipos en garantía o comodato.
+            </p>
+            <div class="flex flex-column gap-2 mb-4">
+                <label for="usuarioGarantia" class="font-medium">Usuario Responsable:</label>
+                <p-dropdown [options]="usuarios" [(ngModel)]="usuarioGarantiaId" optionLabel="label" optionValue="value"
+                    [filter]="true" filterBy="label" [showClear]="false" placeholder="Seleccione un Usuario"
+                    styleClass="w-full">
+                </p-dropdown>
+            </div>
+            <ng-template pTemplate="footer">
+                <div class="flex justify-content-end">
+                    <p-button label="Guardar" icon="pi pi-save" (onClick)="guardarParametroGarantia()" severity="success"></p-button>
+                </div>
+            </ng-template>
+        </p-card>
+
+        <!-- Subcategoría para Mantenimientos -->
+        <p-card styleClass="shadow-2 border-round-xl h-full">
+            <ng-template pTemplate="header">
+                <div class="p-3 border-bottom-1 surface-border flex align-items-center gap-2">
+                    <i class="pi pi-tags text-primary text-xl"></i>
+                    <h3 class="m-0 text-xl font-semibold">Subcategoría asociada a casos de Equipos Biomedica</h3>
+                </div>
+            </ng-template>
+            <p class="text-color-secondary mb-4">
+                Asigna la subcategoría de la mesa de servicios que permite relacionar los equipos a los reportes.
+            </p>
+            <div class="flex flex-column gap-2 mb-4">
+                <label for="subcategoriaMesa" class="font-medium">Subcategoría (Mesa de Servicios):</label>
+                <p-dropdown [options]="subcategoriasMesa" [(ngModel)]="subcategoriaMantenimientoId" optionLabel="label" optionValue="value"
+                    [filter]="true" filterBy="label" [showClear]="false" placeholder="Seleccione una Subcategoría"
+                    styleClass="w-full">
+                </p-dropdown>
+            </div>
+            <ng-template pTemplate="footer">
+                <div class="flex justify-content-end">
+                    <p-button label="Guardar" icon="pi pi-save" (onClick)="guardarParametroSubcategoria()" severity="success"></p-button>
+                </div>
+            </ng-template>
+        </p-card>
+    </div>
+</div>

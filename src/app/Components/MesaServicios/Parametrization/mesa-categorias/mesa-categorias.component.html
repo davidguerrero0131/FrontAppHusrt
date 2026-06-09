@@ -1,0 +1,265 @@
+<div class="dashboard-container m-4 shadow-3">
+    <p-toast></p-toast>
+    <p-confirmdialog header="Confirmación" icon="pi pi-exclamation-triangle" styleClass="premium-dialog"></p-confirmdialog>
+
+    <!-- Header Module -->
+    <div class="hero-section mb-4">
+        <div class="hero-content">
+            <h1>Gestión de Tipologías</h1>
+            <p>Categorías y subcategorías de servicios</p>
+        </div>
+    </div>
+
+    <!-- Glassmorphic Service Selector -->
+    <div class="glass-focus-area flex flex-column md:flex-row align-items-md-center justify-content-between gap-4">
+        <div class="flex-grow-1 relative">
+            <label for="servicio" class="block font-bold text-700 mb-2 text-sm uppercase tracking-wider pl-1">
+                <i class="pi pi-briefcase mr-2 text-blue-500"></i>Seleccione el Entorno
+            </label>
+            <p-select [options]="servicios" [(ngModel)]="selectedServicio" optionLabel="nombres" [filter]="true"
+                filterBy="nombres" placeholder="Escoja el servicio sobre el que va a operar..." (onChange)="onServicioChange()"
+                styleClass="w-full shadow-1 border-round-xl p-inputtext-lg border-blue-100 focus:border-blue-300" [showClear]="true" appendTo="body">
+            </p-select>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="selectedServicio" class="fadein animation-duration-300">
+        
+        <p-toolbar styleClass="modern-toolbar mt-2 px-2">
+            <ng-template pTemplate="left">
+                <div class="flex align-items-center gap-3">
+                    <h3 class="m-0 text-700 font-extrabold uppercase tracking-wide text-sm mr-3">Catálogo Actual</h3>
+                    <button pButton pRipple label="Nueva Categoría" icon="pi pi-plus" 
+                        class="p-button-primary border-round-2xl font-bold shadow-2 hover-scale"
+                        (click)="openNewCategory()"></button>
+                </div>
+            </ng-template>
+        </p-toolbar>
+
+        <p-table *ngIf="isBrowser" [value]="categorias" dataKey="id" 
+            styleClass="modern-datatable p-datatable-lg" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 50, 100, 1000]" [showCurrentPageReport]="true"
+            [(first)]="first" (onPage)="onPageChange($event)"
+            currentPageReportTemplate="{first} a {last} de {totalRecords} categorías">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 4rem"></th>
+                    <th style="min-width: 200px">Nombre</th>
+                    <th>Descripción Detallada</th>
+                    <th style="width: 10rem">Estado</th>
+                    <th style="width: 15rem; text-align: center">Acciones</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-categoria let-expanded="expanded">
+                <tr>
+                    <td>
+                        <button type="button" pButton pRipple [pRowToggler]="categoria"
+                            class="p-button-text p-button-rounded p-button-plain shadow-1"
+                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                    </td>
+                    <td>
+                        <div class="font-bold text-800 text-lg">{{ categoria.nombre }}</div>
+                        <div class="text-500 text-xs mt-1" *ngIf="categoria.subcategorias?.length">
+                            {{ categoria.subcategorias.length }} subcategorías vinculadas
+                        </div>
+                    </td>
+                    <td class="text-600 line-height-3">{{ categoria.descripcion || 'Sin descripción' }}</td>
+                    <td>
+                        <p-tag [value]="categoria.activo ? 'Vigente' : 'Inactivo'"
+                            [severity]="categoria.activo ? 'success' : 'danger'"
+                            styleClass="px-3 border-round-2xl shadow-1 font-bold tracking-wide"></p-tag>
+                    </td>
+                    <td style="text-align: center">
+                        <div class="flex justify-content-center gap-2">
+                            <button pButton icon="pi pi-tags" class="p-button-rounded p-button-text p-button-info action-btn bg-blue-50"
+                                (click)="openManageSubcategories(categoria)" pTooltip="Gestión Subcategorías" tooltipPosition="left"></button>
+                            <button pButton icon="pi pi-plus-circle" class="p-button-rounded p-button-text p-button-secondary action-btn bg-gray-100"
+                                (click)="openNewSubCategory(categoria)" pTooltip="Crear Subcategoría" tooltipPosition="top"></button>
+                            <button pButton [icon]="'pi pi-power-off'"
+                                [class]="'p-button-rounded p-button-text action-btn ' + (categoria.activo ? 'p-button-danger bg-red-50' : 'p-button-success bg-green-50')"
+                                (click)="toggleCategoria(categoria)" [pTooltip]="categoria.activo ? 'Desactivar' : 'Activar'" tooltipPosition="right"></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            
+            <!-- Row Expansion for Subcategories -->
+            <ng-template pTemplate="rowexpansion" let-categoria>
+                <tr class="fadein animation-duration-200">
+                    <td colspan="5" class="expansion-area">
+                        <div class="sub-table-container">
+                            <div class="flex align-items-center gap-2 mb-3">
+                                <i class="pi pi-sitemap text-blue-500"></i>
+                                <h4 class="m-0 text-700 font-bold uppercase tracking-wide text-sm">Registro de Subtipos: {{categoria.nombre}}</h4>
+                            </div>
+                            
+                            <p-table *ngIf="isBrowser" [value]="categoria.subcategorias" dataKey="id"
+                                styleClass="sub-datatable p-datatable-sm bg-white">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th>Subcategoría</th>
+                                        <th>Descripción</th>
+                                        <th style="width: 120px">Estado Actual</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-sub>
+                                    <tr>
+                                        <td class="font-bold text-700">{{ sub.nombre }}</td>
+                                        <td class="text-600">{{ sub.descripcion || '--' }}</td>
+                                        <td>
+                                            <p-tag [value]="sub.activo ? 'Activo' : 'Desactivado'"
+                                                [severity]="sub.activo ? 'success' : 'secondary'" styleClass="border-round-2xl text-xs"></p-tag>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                        <td colspan="3" class="text-center p-4">
+                                            <div class="text-500 font-medium"><i class="pi pi-inbox mr-2"></i>Esta categoría está vacía. Selecciona "Crear Subcategoría" arriba.</div>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="5">
+                        <div class="flex flex-column align-items-center justify-content-center p-6">
+                            <div class="bg-gray-100 border-circle w-6rem h-6rem flex align-items-center justify-content-center border-3 border-white shadow-2 mb-4">
+                                <i class="pi pi-inbox text-4rem text-400"></i>
+                            </div>
+                            <span class="text-700 font-bold text-xl block mb-2">No hay categorías</span>
+                            <span class="text-500 font-medium">Aún no se ha parametrizado el catálogo de este servicio.</span>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<!-- Forms and Modals ... Same structures but improved UI classes -->
+<p-dialog [(visible)]="displayCategoryDialog" [style]="{width: '450px'}" header="Registrar Categoría" [modal]="true"
+    styleClass="p-fluid premium-dialog border-round-2xl shadow-8" [draggable]="false" [resizable]="false">
+    <ng-template pTemplate="content">
+        <div class="flex flex-column gap-3 pt-2">
+            <div class="field">
+                <label for="name" class="font-bold text-700 block mb-2 text-sm uppercase tracking-wide">Identificador (Nombre)</label>
+                <input type="text" pInputText id="name" [(ngModel)]="newCategory.nombre" required autofocus
+                    class="w-full p-inputtext-lg border-round-xl" placeholder="Ej: Soporte In-situ" />
+                <small class="p-error block mt-2 font-medium" *ngIf="!newCategory.nombre"><i class="pi pi-exclamation-circle mr-1"></i>Campo estrictamente requerido.</small>
+            </div>
+            <div class="field mt-3">
+                <label for="description" class="font-bold text-700 block mb-2 text-sm uppercase tracking-wide">Contexto / Detalle (Opcional)</label>
+                <textarea id="description" pInputTextarea [(ngModel)]="newCategory.descripcion" rows="4"
+                    class="w-full border-round-xl"></textarea>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary font-bold"
+            (click)="displayCategoryDialog = false"></button>
+        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-primary border-round-xl px-4 shadow-2 font-bold"
+            (click)="saveCategory()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Dialog New SubCategory -->
+<p-dialog [(visible)]="displaySubCategoryDialog" [style]="{width: '450px'}" header="Registrar Subcategoría" [modal]="true"
+    styleClass="p-fluid premium-dialog border-round-2xl shadow-8" [draggable]="false" [resizable]="false">
+    <ng-template pTemplate="content">
+        <div class="flex flex-column gap-3 pt-2">
+            <div class="surface-ground p-3 border-round-xl flex align-items-center gap-3 shadow-1 mb-3">
+                <i class="pi pi-sitemap text-blue-500 text-xl"></i>
+                <div>
+                    <span class="text-500 text-xs uppercase font-bold tracking-wide">Dependencia de Categoría</span>
+                    <div class="font-bold text-800">{{ selectedCategoriaForSub?.nombre }}</div>
+                </div>
+            </div>
+            
+            <div class="field">
+                <label for="subName" class="font-bold text-700 block mb-2 text-sm uppercase tracking-wide">Nombre Subcategoría</label>
+                <input type="text" pInputText id="subName" [(ngModel)]="newSubCategory.nombre" required autofocus
+                    class="w-full p-inputtext-lg border-round-xl" placeholder="Ej: Reparación de Hardware" />
+                <small class="p-error block mt-2 font-medium" *ngIf="!newSubCategory.nombre"><i class="pi pi-exclamation-circle mr-1"></i>Campo requerido.</small>
+            </div>
+            <div class="field mt-3">
+                <label for="subDesc" class="font-bold text-700 block mb-2 text-sm uppercase tracking-wide">Descripción (Opcional)</label>
+                <textarea id="subDesc" pInputTextarea [(ngModel)]="newSubCategory.descripcion" rows="4"
+                    class="w-full border-round-xl"></textarea>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary font-bold"
+            (click)="displaySubCategoryDialog = false"></button>
+        <button pButton pRipple label="Agregar" icon="pi pi-check" class="p-button-primary border-round-xl px-4 shadow-2 font-bold"
+            (click)="saveSubCategory()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Dialog Manage Subcategories -->
+<p-dialog [(visible)]="displaySubManageDialog" [style]="{width: '750px'}"
+    header="Control de Subtipos" [modal]="true" styleClass="p-fluid premium-dialog border-round-2xl shadow-8" [draggable]="false" [resizable]="false">
+    <ng-template pTemplate="header">
+        <div class="flex align-items-center gap-2">
+            <i class="pi pi-tags text-2xl text-primary"></i>
+            <div>
+                <span class="block text-sm text-500">Configuración de catálogo para</span>
+                <span class="font-bold">{{ selectedCategoryForManage?.nombre }}</span>
+            </div>
+        </div>
+    </ng-template>
+    
+    <ng-template pTemplate="content">
+        <div class="flex justify-content-end mb-3 mt-2">
+            <button pButton pRipple label="Insertar Nueva" icon="pi pi-plus" class="p-button-success border-round-2xl shadow-2 font-bold hover-scale px-4"
+                (click)="openNewSubCategory(selectedCategoryForManage)"></button>
+        </div>
+
+        <p-table *ngIf="isBrowser" [value]="selectedCategoryForManage?.subcategorias"
+            styleClass="modern-datatable p-datatable-sm" [rowHover]="true">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Nombre Registrado</th>
+                    <th>Detalle</th>
+                    <th style="width: 100px">Estado</th>
+                    <th style="width: 100px; text-align: center">Switch</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-sub>
+                <tr>
+                    <td class="font-bold text-800">{{ sub.nombre }}</td>
+                    <td class="text-600">{{ sub.descripcion || 'N/A' }}</td>
+                    <td>
+                        <p-tag [value]="sub.activo ? 'Habilitado' : 'Suspendido'"
+                            [severity]="sub.activo ? 'success' : 'danger'" styleClass="text-xs border-round-2xl px-2"></p-tag>
+                    </td>
+                    <td style="text-align: center">
+                        <button pButton [icon]="'pi pi-power-off'"
+                            [class]="'p-button-rounded p-button-text action-btn ' + (sub.activo ? 'p-button-danger bg-red-50' : 'p-button-success bg-green-50')"
+                            (click)="toggleSubcategoria(sub)" [pTooltip]="sub.activo ? 'Desactivar' : 'Activar'"
+                            tooltipPosition="left"></button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="4" class="text-center p-5">
+                        <i class="pi pi-folder-open text-4xl text-300 mb-2 block"></i>
+                        <span class="text-500 font-medium">No se han registrado ramificaciones (subcategorías) aún.</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-template>
+    
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Hecho" icon="pi pi-check" class="p-button-primary border-round-xl px-5 shadow-2 font-bold"
+            (click)="displaySubManageDialog = false"></button>
+    </ng-template>
+</p-dialog>

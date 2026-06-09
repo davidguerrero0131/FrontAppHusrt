@@ -2,24 +2,30 @@
 
     <div class="text-center mb-5">
         <h1 class="text-3xl font-bold mb-2">Listado General de Equipos</h1>
-        <p class="text-secondary text-lg">Gestión completa: Editar, Desactivar, Reportes y Hoja de Vida.</p>
+        <p class="text-secondary text-lg">Gesti&oacute;n completa: Editar, Desactivar, Reportes y Hoja de Vida.</p>
     </div>
 
-    <div class="card border-0 shadow-sm border-round-xl surface-card p-4">
-        <p-table #dt2 [value]="equipos" dataKey="id" [paginator]="true" [rows]="10"
-            [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
-            [globalFilterFields]="['nombres', 'marca', 'modelo', 'serie', 'ubicacionEspecifica', 'placa']"
-            styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true" [scrollable]="true" scrollHeight="600px">
+    <div class="card border-0 shadow-sm border-round-xl surface-card p-4" *ngIf="isBrowser">
+        <p-table #dt2 [value]="equipos" dataKey="id" [paginator]="true" [rows]="10" [(first)]="first"
+            (onPage)="onPageChange($event)" [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
+            [globalFilterFields]="['id', 'nombres', 'marca', 'modelo', 'serie', 'ubicacionEspecifica', 'placa', 'periodicidadM']"
+            styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true" [scrollable]="true" scrollHeight="600px"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
 
             <ng-template pTemplate="caption">
                 <div class="flex flex-column sm:flex-row justify-content-between align-items-center gap-3">
-                    <button pButton label="Limpiar Filtros" class="p-button-outlined p-button-secondary p-button-sm"
-                        icon="pi pi-filter-slash" (click)="dt2.clear()"></button>
+                    <div class="flex gap-2">
+                        <button pButton label="Limpiar Filtros" class="p-button-outlined p-button-secondary p-button-sm"
+                            icon="pi pi-filter-slash" (click)="dt2.clear()"></button>
+                        <button pButton label="Descargar Inventario" class="p-button-success p-button-sm"
+                            icon="pi pi-file-excel" (click)="descargarInventario()"></button>
+                    </div>
 
                     <p-iconfield position="left" class="w-full sm:w-auto">
                         <p-inputicon styleClass="pi pi-search" />
-                        <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Búsqueda General"
-                            class="w-full sm:w-auto" />
+                        <input pInputText type="text" (input)="onGlobalFilter($event)" [value]="searchText"
+                            placeholder="B&uacute;squeda General" class="w-full sm:w-auto" appUppercase />
                     </p-iconfield>
                 </div>
             </ng-template>
@@ -37,7 +43,7 @@
                     </th>
                     <th pSortableColumn="placa" style="min-width:120px">Placa <p-sortIcon field="placa"></p-sortIcon>
                     </th>
-                    <th pSortableColumn="ubicacionEspecifica" style="min-width:200px">Ubicación <p-sortIcon
+                    <th pSortableColumn="ubicacionEspecifica" style="min-width:200px">Ubicaci&oacute;n <p-sortIcon
                             field="ubicacionEspecifica"></p-sortIcon></th>
                     <th pSortableColumn="periodicidadM" style="min-width:120px">Period.<p-sortIcon
                             field="periodicidadM"></p-sortIcon></th>
@@ -55,14 +61,15 @@
                     <td>{{ equipo.placa }}</td>
                     <td>{{ equipo.ubicacionEspecifica }}</td>
                     <td class="text-center">
-                        <span *ngIf="equipo.periodicidadM">{{ equipo.periodicidadM }} Meses</span>
+                        <span *ngIf="equipo.periodicidadM">{{ equipo.periodicidadM }} Veces</span>
                         <span *ngIf="!equipo.periodicidadM" class="text-400">-</span>
                     </td>
                     <td class="text-center">
-                        <p-splitButton label="Opciones" icon="pi pi-cog" [model]="equipo.opciones"
-                            styleClass="p-button-sm p-button-help p-button-outlined"
-                            (onClick)="equipo.opciones[0].command()" appendTo="body">
-                        </p-splitButton>
+                        <a [routerLink]="['/biomedica/hojavidaequipo', equipo.id]" class="nav-link-container">
+                            <p-splitButton label="HV" icon="pi pi-eye" [model]="equipo.opciones"
+                                styleClass="p-button-sm p-button-help p-button-outlined" appendTo="body">
+                            </p-splitButton>
+                        </a>
                     </td>
                 </tr>
             </ng-template>
@@ -86,23 +93,27 @@
     styleClass="standard-modal modal-md" [draggable]="false" [resizable]="false">
     <div class="p-fluid">
         <div class="field">
-            <label for="periodicidad">Periodicidad (Meses)</label>
-            <p-inputNumber [(ngModel)]="periodicidad" inputId="periodicidad" [min]="0" [max]="12"
-                (onInput)="calcularFechas()" placeholder="Ej: 3, 6, 12"></p-inputNumber>
-            <small class="block">Ingrese cada cuantos meses se debe realizar el mantenimiento.</small>
+            <label for="intervenciones">Intervenciones por año</label>
+            <p-select [options]="intervencionOptions" [(ngModel)]="intervencionesAnuales" optionLabel="name"
+                optionValue="value" (onChange)="calcularFechas()"></p-select>
+            <small class="block">Seleccione cuántas veces al año se realizará el mantenimiento.</small>
         </div>
         <div class="field">
             <label for="mesInicio">Mes de Inicio</label>
-            <p-dropdown [options]="monthOptions" [(ngModel)]="mesInicio" optionLabel="name" optionValue="value"
-                (onChange)="calcularFechas()"></p-dropdown>
-            <small class="block">Seleccione el primer mes del mantenimiento.</small>
+            <p-select [options]="monthOptions" [(ngModel)]="mesInicio" optionLabel="name" optionValue="value"
+                (onChange)="calcularFechas()"></p-select>
+            <small class="block">Seleccione el mes en que inicia el primer mantenimiento.</small>
         </div>
         <div class="field">
-            <label for="meses">Meses Calculados</label>
-            <p-multiSelect [options]="monthOptions" [(ngModel)]="selectedMonths" defaultLabel="Seleccione los meses"
-                optionLabel="name" optionValue="value" display="chip" [disabled]="true"></p-multiSelect>
+            <label for="anioInicio">A&ntilde;o de Inicio</label>
+            <p-select [options]="anioOptions" [(ngModel)]="anioInicio" optionLabel="name" optionValue="value"
+                (onChange)="calcularFechas()"></p-select>
+            <small class="block">Seleccione el año de inicio.</small>
+        </div>
+        <div class="field">
+            <label for="meses">Ciclo de Mantenimiento Calculado</label>
             <p class="font-bold mt-2"
-                [ngClass]="{'text-green-500': selectedMonths.length > 0, 'text-red-500': selectedMonths.length === 0}">
+                [ngClass]="{'text-green-500': selectedPlans.length > 0, 'text-red-500': selectedPlans.length === 0}">
                 {{calculatedMonthsText}}
             </p>
         </div>

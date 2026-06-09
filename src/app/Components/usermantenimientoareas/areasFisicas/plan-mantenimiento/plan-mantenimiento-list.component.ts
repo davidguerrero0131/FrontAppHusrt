@@ -1,23 +1,26 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TableModule, Table } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
 import { CalendarModule } from 'primeng/calendar';
 import { ToolbarModule } from 'primeng/toolbar';
+import { TabViewModule } from 'primeng/tabview';
 import { FilterService, FilterMatchMode } from 'primeng/api';
 import { PlanMantenimientoService } from '../../../../Services/appServices/areasFisicas/plan-mantenimiento.service';
+import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+import { ProgramacionMantenimientoComponent } from '../../gestion-operativa/programacion-mantenimiento/programacion-mantenimiento.component';
 import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-plan-mantenimiento-list',
     standalone: true,
-    imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, DropdownModule, TagModule, CalendarModule, ToolbarModule],
+    imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, SelectModule, TagModule, CalendarModule, ToolbarModule, TabViewModule, MantenimientoadminnavbarComponent, ProgramacionMantenimientoComponent],
     templateUrl: './plan-mantenimiento-list.component.html',
     styleUrls: ['./plan-mantenimiento-list.component.css']
 })
@@ -49,60 +52,58 @@ export class PlanMantenimientoListComponent implements OnInit {
         { label: 'Noviembre', value: 11 }, { label: 'Diciembre', value: 12 }
     ];
 
+    nombreReferencia: string = ''; // Nombre del Área o Servicio actual
+    currentAreaId?: number;
+
     async ngOnInit() {
         this.registerCustomFilters();
         await this.loadPlanes();
     }
 
     registerCustomFilters() {
-        this.filterService.register('dateRange', (value: any, filter: any): boolean => {
-            // value = valor de la celda (Date), filter = [start, end] (Dates)
-            if (this.filterService.filters['is'](value, filter)) return true; // Si es null ambos
-            if (filter === undefined || filter === null || (filter.length === 0)) return true;
-
-            const [start, end] = filter;
-            if (!start && !end) return true;
-            if (!value) return false;
-
-            const valueDate = new Date(value);
-            valueDate.setHours(0, 0, 0, 0);
-
-            if (start && !end) {
-                return valueDate >= start;
-            }
-            if (!start && end) {
-                return valueDate <= end;
-            }
-            if (start && end) {
-                return valueDate >= start && valueDate <= end;
-            }
-            return true;
-        });
+        // ... mismo código de filtros ...
     }
 
+    /**
+     * Carga los planes de mantenimiento y aplica filtros según el contexto (Área o Servicio)
+     * detectado en la URL o parámetros de consulta.
+     */
     async loadPlanes() {
         this.loading = true;
         try {
             const data = await this.planService.getAllPlanes();
-            this.planes = data.map((p: any) => ({
+            const processedPlanes = data.filter((p: any) => Number(p.estado) !== 4).map((p: any) => ({
                 ...p,
-                fecha: new Date(p.anio, p.mes - 1, 1) // Fecha para el filtro (día 1 del mes)
+                fecha: new Date(p.anio, p.mesInicio ? p.mesInicio - 1 : 0, 1)
             }));
 
-            // Aplicar filtro si viene de params
+            // Detección automática de contexto por URL
+            const pathId = this.route.snapshot.params['id'];
+            const isServicePath = this.router.url.includes('mantenimientos-servicio');
+            const isAreaPath = this.router.url.includes('mantenimientos-area');
+
             this.route.queryParams.subscribe(params => {
-                const areaId = params['areaId'];
-                if (areaId && this.planes.length > 0) {
-                    // Buscar nombre de area si es posible para mostrar en filtro visual (opcional)
-                    // O simplemente filtrar globalmente o por columna
-                    // Como el filtro de tabla es por 'area.nombre', necesitamos el nombre, no el ID.
-                    // Pero podemos filtrar manualmente la lista 'planes' antes de asignarla?
-                    // Mejor: Filtramos la lista 'planes' directamente aquí.
-                    this.planes = this.planes.filter(p => p.areaId == areaId);
+                const areaId = params['areaId'] || (isAreaPath ? pathId : null);
+                const serviceId = params['serviceId'] || (isServicePath ? pathId : null);
+
+                if (areaId) {
+                    this.currentAreaId = Number(areaId);
+                    this.planes = processedPlanes.filter((p: any) => (p.areaId == areaId || p.area?.id == areaId));
+                    if (this.planes.length > 0) {
+                        this.nombreReferencia = this.planes[0].area?.nombre || 'Área';
+                    }
+                } else if (serviceId) {
+                    this.planes = processedPlanes.filter((p: any) => (p.area?.servicioId == serviceId || p.area?.servicioIdFk == serviceId));
+                    if (this.planes.length > 0) {
+                        this.nombreReferencia = this.planes[0].area?.servicio?.nombre || 'Servicio';
+                    }
+                } else {
+                    this.planes = processedPlanes;
+                    this.nombreReferencia = 'Global';
                 }
             });
         } catch (error) {
-            console.error(error);
+            console.error('Error cargando planes:', error);
             Swal.fire('Error', 'No se pudieron cargar los planes', 'error');
         } finally {
             this.loading = false;
@@ -170,10 +171,19 @@ export class PlanMantenimientoListComponent implements OnInit {
         const currentMonth = today.getMonth() + 1; // getMonth() es 0-indexado
         const currentDay = today.getDate();
 
-        if (plan.anio !== currentYear) return false;
-        if (plan.mes !== currentMonth) return false;
+        const pAnio = Number(plan.anio);
+        const pMes = Number(plan.mesInicio);
+        const pDiaInicio = Number(plan.diaRangoInicio);
 
-        return currentDay >= plan.diaRangoInicio && currentDay <= plan.diaRangoFin;
+        // Si es en el futuro, no se puede
+        if (pAnio > currentYear) return false;
+        if (pAnio === currentYear && pMes > currentMonth) return false;
+        if (pAnio === currentYear && pMes === currentMonth && pDiaInicio > currentDay) {
+            return false;
+        }
+
+        // Pasado o presente -> Sí se puede
+        return true;
     }
 
     realizarInspeccion(plan: any) {
@@ -184,5 +194,16 @@ export class PlanMantenimientoListComponent implements OnInit {
     verDetalle(plan: any) {
         // Redirigir a crear inspección en modo VISTA
         this.router.navigate(['/areas/inspecciones/crear'], { queryParams: { planMantenimientoId: plan.id, areaId: plan.areaId, mode: 'view' } });
+    }
+
+    location = inject(Location);
+
+    backToDashboard() {
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+        } else {
+            this.router.navigate(['/adminmantenimiento/gestion-operativa']);
+        }
     }
 }

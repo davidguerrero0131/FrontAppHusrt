@@ -1,0 +1,26 @@
+.card {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 8px;
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  padding: 1.5rem;
+}
+
+.card-header h3 {
+  color: #495057;
+  font-weight: 600;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.btn {
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+}
