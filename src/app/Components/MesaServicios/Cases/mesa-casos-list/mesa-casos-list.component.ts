@@ -75,6 +75,7 @@ export class MesaCasosListComponent implements OnInit {
   servicios: any[] = [];
 
   estados = [
+    { label: 'Abiertos y Pendientes', value: 'ABIERTOS_Y_PENDIENTES' },
     { label: 'Abiertos', value: 'ABIERTOS' },
     { label: 'Pendientes de Calificación', value: 'CERRADOS_SIN_CALIFICACION' },
     { label: 'Todos', value: null },
@@ -87,7 +88,7 @@ export class MesaCasosListComponent implements OnInit {
 
   // Filters
   selectedServicio: any = null;
-  selectedEstado: any = this.estados[0]; // Default to Abiertos
+  selectedEstado: any = this.estados[0]; // Default to Abiertos y Pendientes
   selectedTipo: any = null;
   selectedSumerce: any = null;
   selectedId: any = null;
@@ -190,7 +191,7 @@ export class MesaCasosListComponent implements OnInit {
   clearFilters() {
     this.selectedId = null;
     this.selectedServicio = { nombres: 'Todos', id: null };
-    this.selectedEstado = this.estados[1]; // Todos
+    this.selectedEstado = this.estados[3]; // Todos
     this.selectedTipo = { label: 'Todos', value: null };
     this.selectedSumerce = { label: 'Todos', value: null };
     if (this.dtCasos) {
