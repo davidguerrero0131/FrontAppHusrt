@@ -347,6 +347,32 @@
                         <p class="text-500 text-sm m-0 font-italic">No hay responsables asignados.</p>
                     </div>
                 </div>
+
+                <!-- Calificación Card -->
+                <div class="meta-card" *ngIf="caso.estado === 'CERRADO' && caso.calificacion">
+                    <div class="meta-card-title flex justify-content-between align-items-center mb-4">
+                        <div class="flex align-items-center gap-2">
+                            <i class="pi pi-star-fill text-yellow-500"></i>
+                            <span>Calificación del Caso</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-column gap-3">
+                        <div class="flex align-items-center justify-content-center">
+                            <div class="text-6xl line-height-1">
+                                {{ getRatingEmoji(caso.calificacion?.calificacion) }}
+                            </div>
+                        </div>
+                        <div class="text-center font-bold text-lg text-800">
+                            {{ getRatingLabel(caso.calificacion?.calificacion) }}
+                        </div>
+                        <div *ngIf="caso.calificacion?.comentario" class="surface-ground p-3 border-round-xl border-1 surface-border text-sm text-700 font-italic text-center shadow-1">
+                            "{{ caso.calificacion?.comentario }}"
+                        </div>
+                        <div class="text-xs text-500 text-center mt-2">
+                            <i class="pi pi-calendar mr-1"></i> {{ caso.calificacion?.fecha | date:'mediumDate' }}
+                        </div>
+                    </div>
+                </div>
             </aside>
         </div>
     </div>

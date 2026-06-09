@@ -707,4 +707,26 @@ export class MesaCasoDetailComponent implements OnInit {
     }
     return parts[0].charAt(0).toUpperCase();
   }
+
+  getRatingEmoji(val: number | undefined): string {
+    switch(val) {
+      case 1: return '😠';
+      case 2: return '🙁';
+      case 3: return '😐';
+      case 4: return '🙂';
+      case 5: return '🤩';
+      default: return '❓';
+    }
+  }
+
+  getRatingLabel(val: number | undefined): string {
+    switch(val) {
+      case 1: return 'Muy Malo';
+      case 2: return 'Malo';
+      case 3: return 'Regular';
+      case 4: return 'Bueno';
+      case 5: return 'Excelente';
+      default: return 'Sin calificar';
+    }
+  }
 }
