@@ -142,10 +142,15 @@ export class CalendarioComponent implements OnInit {
           const user = getDecodedAccessToken();
           const res = await this.mantenimientoServices.programacionSuplementariaMes({ mes: item.mes, anio: item.anio, usuarioId: user?.id });
 
+          const cantidad = Array.isArray(res) ? res.length : 0;
+          const texto = cantidad > 0 
+            ? `Se han programado ${cantidad} equipos faltantes exitosamente.` 
+            : `No se encontraron equipos faltantes por programar.`;
+
           Swal.fire({
             title: "Proceso completado",
-            text: res.message,
-            icon: "success"
+            text: texto,
+            icon: cantidad > 0 ? "success" : "info"
           });
 
           // Refresh statistics or data for the current view
