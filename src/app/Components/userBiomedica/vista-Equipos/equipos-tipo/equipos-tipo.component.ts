@@ -28,6 +28,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import Swal from 'sweetalert2';
 import { TagModule } from 'primeng/tag';
 import { DatePickerModule } from 'primeng/datepicker';
+import { CheckboxModule } from 'primeng/checkbox';
 import { ReporteBajaModalComponent } from '../reporte-baja-modal/reporte-baja-modal.component';
 
 
@@ -35,7 +36,7 @@ import { ReporteBajaModalComponent } from '../reporte-baja-modal/reporte-baja-mo
   selector: 'app-equipos-tipo',
   standalone: true,
   imports: [FormsModule, CommonModule, TableModule, RouterModule,
-    SplitButtonModule, SpeedDialModule, IconFieldModule, InputIconModule, InputTextModule, InputTextarea, DialogModule, MultiSelectModule, SelectModule, InputNumberModule, ButtonModule, TagModule, DatePickerModule],
+    SplitButtonModule, SpeedDialModule, IconFieldModule, InputIconModule, InputTextModule, InputTextarea, DialogModule, MultiSelectModule, SelectModule, InputNumberModule, ButtonModule, TagModule, DatePickerModule, CheckboxModule],
   providers: [DialogService],
   templateUrl: './equipos-tipo.component.html',
   styleUrl: './equipos-tipo.component.css'
@@ -69,6 +70,7 @@ export class EquiposTipoComponent implements OnInit {
   mesInicio: number = 1;
   anioInicio: number = new Date().getFullYear();
   calculatedMonthsText: string = '';
+  libreMantenimiento: boolean = false;
 
   intervencionOptions = [
     { name: '1 vez al año (Anual)', value: 1 },
@@ -444,6 +446,7 @@ export class EquiposTipoComponent implements OnInit {
   openPlanDialog(equipo: any) {
     this.currentEquipo = equipo;
     this.displayPlanDialog = true;
+    this.libreMantenimiento = equipo.periodicidadM === 0;
 
     // Inicializar valores basados en el primer plan si existe
     if (equipo.planesMantenimiento && equipo.planesMantenimiento.length > 0) {
@@ -510,10 +513,16 @@ export class EquiposTipoComponent implements OnInit {
 
     try {
 
+      let finalPlans = this.selectedPlans;
+      if (this.libreMantenimiento) {
+        finalPlans = [];
+        this.intervencionesAnuales = 0;
+      }
+
       const equipoUpdate = {
         ...this.currentEquipo,
         periodicidadM: this.intervencionesAnuales,
-        planesMantenimiento: this.selectedPlans
+        planesMantenimiento: finalPlans
       };
 
       await this.equipoServices.updateEquipo(this.currentEquipo.id, equipoUpdate);
@@ -542,11 +551,13 @@ export class EquiposTipoComponent implements OnInit {
 
   // --- VARIABLES PARA METROLOGIA ---
   displayPlanMetrologiaDialog: boolean = false;
-  fechasCalibracion: any[] = [];
+  libreActividadesMetrologicas: boolean = false;
+  intervencionesAnualesMetrologia: number = 1;
   mesInicioMetrologia: number = 1;
-  selectedMonthsMetrologia: number[] = [];
-  calculatedMonthsMetrologiaText: string = '';
-  selectedTipoActividad: string = 'Calibración'; // Default
+  anioInicioMetrologia: number = new Date().getFullYear();
+  selectedPlansMetrologia: any[] = [];
+  calculatedMonthsTextMetrologia: string = '';
+  tipoActividadGlobal: string = 'Calibración';
 
   tipoActividadOptions: any[] = [
     { label: 'Calibración', value: 'Calibración' },
@@ -558,92 +569,93 @@ export class EquiposTipoComponent implements OnInit {
   openPlanMetrologiaDialog(equipo: any) {
     this.currentEquipo = equipo;
     this.displayPlanMetrologiaDialog = true;
-    this.fechasCalibracion = []; // Reset
+    this.libreActividadesMetrologicas = equipo.periodicidadC === 0;
 
-    // Check existing plans
     if (equipo.planesActividadMetrologica && equipo.planesActividadMetrologica.length > 0) {
-      // Map existing plans to editable format
-      const currentYear = new Date().getFullYear();
-      this.fechasCalibracion = equipo.planesActividadMetrologica.map((p: any) => ({
-        fecha: new Date(currentYear, p.mes - 1, 1),
-        tipoActividad: p.tipoActividad || 'Calibración'
-      }));
-
-      // Update meses calculados for consistency if needed, though we use manual list now
-      this.selectedMonthsMetrologia = equipo.planesActividadMetrologica.map((p: any) => p.mes);
+      const firstPlan = equipo.planesActividadMetrologica[0];
+      this.mesInicioMetrologia = firstPlan.mes || 1;
+      this.anioInicioMetrologia = firstPlan.ano || new Date().getFullYear();
+      this.intervencionesAnualesMetrologia = equipo.periodicidadC || 1;
+      this.tipoActividadGlobal = firstPlan.tipoActividad || 'Calibración';
+      this.selectedPlansMetrologia = equipo.planesActividadMetrologica;
     } else {
-      // Initialize based on frequency if available
-      this.mesInicioMetrologia = 1;
-      this.selectedMonthsMetrologia = [];
-      // Calculate initial Suggestions
-      this.calcularFechasMetrologia(true); // Auto-calc new
+      this.mesInicioMetrologia = new Date().getMonth() + 1;
+      this.anioInicioMetrologia = new Date().getFullYear();
+      this.intervencionesAnualesMetrologia = 1;
+      this.tipoActividadGlobal = 'Calibración';
+      this.selectedPlansMetrologia = [];
     }
+
+    this.calcularFechasMetrologia();
   }
 
-  calcularFechasMetrologia(forceNew: boolean = false) {
-    if (!this.currentEquipo) return;
-
-    // Use periodicity from Equipo, similar to Maintenance but for Metrology (periodicidadC usually holds this?)
-    // In backend 'addequipo': const periodicidad = parseInt(equipo.periodicidadC) || 0;
-    // Let's check which field holds metrology frequency. In CrearEquipo it is 'periodicidadAM'. 
-    // In backend model verification, let's assume 'periodicidadAM' or 'periodicidadC' depending on legacy. 
-    // Looking at CrearEquipo html: formControlName="periodicidadAM".
-    // Looking at backend create: periodicidad = parseInt(equipo.periodicidadC). 
-    // Mismatch?? 
-    // Let's check 'Equipo' model or just use whatever property has the value.
-    // In CrearEquipoComponent.ts: 'periodicidadAM' form control.
-    // Let's assume the equipo object has 'periodicidadAM' or 'periodicidadC'.
-    // Actually, looking at previous context, create-equipo used 'periodicidadAM' in form, but backend uses 'periodicidadC' for Metrology?
-    // Let's accept 'periodicidadAM' if present, else 'periodicidadC'.
-
-    const period = this.currentEquipo.periodicidadAM || this.currentEquipo.periodicidadC || 0;
-
-    if (!period || period <= 0) {
-      if (forceNew) this.fechasCalibracion = [];
+  calcularFechasMetrologia() {
+    if (this.libreActividadesMetrologicas) {
+      this.selectedPlansMetrologia = [];
+      this.updateCalculatedTextMetrologia();
       return;
     }
 
-    // Only overwrite if forcing new or empty
-    if (forceNew || this.fechasCalibracion.length === 0) {
-      const interval = Math.floor(12 / period);
-      const nuevosMeses = [];
-      this.fechasCalibracion = [];
-
-      let mesActual = this.mesInicioMetrologia;
-      const currentYear = new Date().getFullYear();
-
-      while (mesActual <= 12) {
-        nuevosMeses.push(mesActual);
-        const fechaCalculada = new Date(currentYear, mesActual - 1, 1);
-        this.fechasCalibracion.push({
-          fecha: fechaCalculada,
-          tipoActividad: 'Calibración'
-        });
-        mesActual += interval;
-      }
-      this.selectedMonthsMetrologia = nuevosMeses;
+    if (this.intervencionesAnualesMetrologia <= 0) {
+      this.selectedPlansMetrologia = [];
+      this.updateCalculatedTextMetrologia();
+      return;
     }
+
+    const interval = 12 / this.intervencionesAnualesMetrologia;
+    const nuevosPlanes = [];
+    let m = this.mesInicioMetrologia;
+    let y = this.anioInicioMetrologia;
+
+    for (let i = 0; i < this.intervencionesAnualesMetrologia; i++) {
+      let calcMonth = m + (i * interval);
+      let calcYear = y + Math.floor((calcMonth - 1) / 12);
+      calcMonth = ((calcMonth - 1) % 12) + 1;
+
+      nuevosPlanes.push({ mes: Math.floor(calcMonth), ano: calcYear });
+    }
+
+    this.selectedPlansMetrologia = nuevosPlanes;
+    this.updateCalculatedTextMetrologia();
+  }
+
+  updateCalculatedTextMetrologia() {
+    if (!this.selectedPlansMetrologia || this.selectedPlansMetrologia.length === 0) {
+      this.calculatedMonthsTextMetrologia = 'Sin fechas seleccionadas';
+      return;
+    }
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
+    const textPlanes = this.selectedPlansMetrologia.map(p => {
+      return `${meses[p.mes - 1]} ${p.ano}`;
+    }).join(', ');
+
+    this.calculatedMonthsTextMetrologia = `Ciclo calculado: ${textPlanes}`;
   }
 
   async savePlanMetrologia() {
     if (!this.currentEquipo) return;
 
     try {
-      const planesActividadMetrologica = this.fechasCalibracion
-        .map(item => {
-          let mes = 0;
-          if (item.fecha) {
-            mes = item.fecha.getMonth() + 1;
-          }
-          return {
-            mes: mes,
-            tipoActividad: item.tipoActividad
-          };
-        })
-        .filter(p => p.mes > 0);
+      let finalPlans = this.selectedPlansMetrologia;
+      if (this.libreActividadesMetrologicas) {
+        finalPlans = [];
+        this.intervencionesAnualesMetrologia = 0;
+      }
+
+      // Añadimos el tipo de actividad global a cada plan generado
+      const planesActividadMetrologica = finalPlans.map(p => ({
+        mes: p.mes,
+        ano: p.ano,
+        tipoActividad: this.tipoActividadGlobal
+      }));
 
       const equipoUpdate = {
         ...this.currentEquipo,
+        periodicidadC: this.intervencionesAnualesMetrologia,
         planesActividadMetrologica: planesActividadMetrologica
       };
 
@@ -656,7 +668,7 @@ export class EquiposTipoComponent implements OnInit {
       );
 
       this.displayPlanMetrologiaDialog = false;
-      this.ngOnInit(); // Reload
+      this.ngOnInit();
     } catch (error) {
       console.error(error);
       Swal.fire(

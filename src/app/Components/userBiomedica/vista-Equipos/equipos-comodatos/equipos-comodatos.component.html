@@ -94,16 +94,19 @@
             {{ equipo.ubicacionEspecifica }}
           </a>
         </td>
-        <td>
-          <a [routerLink]="['/biomedica/reportesequipo', equipo.id]"
-            style="color: inherit; text-decoration: none; display: block;">
-            <span *ngFor="let m of obtenerMesesConCumplimiento(equipo); let last = last" [style.color]="m.color"
-              [style.font-weight]="'bold'">
-              {{ m.mes }}{{ last ? '' : ', ' }}
-            </span>
-            <span *ngIf="!equipo.planesMantenimiento || equipo.planesMantenimiento.length === 0">No Aplica</span>
-          </a>
-        </td>
+            <td>
+              <a [routerLink]="['/biomedica/reportesequipo', equipo.id]"
+                style="color: inherit; text-decoration: none; display: block;">
+                <span *ngIf="equipo.periodicidadM === 0" class="text-gray-500 font-bold font-italic">Libre de Mantenimiento</span>
+                <ng-container *ngIf="equipo.periodicidadM !== 0">
+                  <span *ngFor="let m of obtenerMesesConCumplimiento(equipo); let last = last" [style.color]="m.color"
+                    [style.font-weight]="'bold'">
+                    {{ m.mes }}{{ last ? '' : ', ' }}
+                  </span>
+                  <span *ngIf="!equipo.planesMantenimiento || equipo.planesMantenimiento.length === 0">No Aplica</span>
+                </ng-container>
+              </a>
+            </td>
         <td>
           <a [routerLink]="['/biomedica/reportesequipo', equipo.id]"
             style="color: inherit; text-decoration: none; display: block;">
@@ -135,34 +138,38 @@
 </div>
 
 <p-dialog header="Editar Plan de Mantenimiento" [(visible)]="displayPlanDialog" [modal]="true"
-  styleClass="standard-modal modal-md" [draggable]="false" [resizable]="false">
-  <div class="p-fluid">
-    <div class="field">
-      <label for="intervenciones">Intervenciones por año</label>
-      <p-select [options]="intervencionOptions" [(ngModel)]="intervencionesAnuales" optionLabel="name"
-        optionValue="value" (onChange)="calcularFechas()"></p-select>
-      <small class="block">Seleccione cuántas veces al año se realizará el mantenimiento.</small>
+    styleClass="standard-modal modal-md" [draggable]="false" [resizable]="false">
+    <div class="p-fluid">
+      <div class="field-checkbox mb-4 flex align-items-center gap-2">
+        <p-checkbox [(ngModel)]="libreMantenimiento" [binary]="true" inputId="libreMantenimiento" (onChange)="calcularFechas()"></p-checkbox>
+        <label for="libreMantenimiento" class="font-bold">Libre de Mantenimiento (No requiere plan preventivo)</label>
+      </div>
+      <div class="field" [class.opacity-50]="libreMantenimiento">
+        <label for="intervenciones">Intervenciones por año</label>
+        <p-select [options]="intervencionOptions" [(ngModel)]="intervencionesAnuales" optionLabel="name"
+          optionValue="value" (onChange)="calcularFechas()" [disabled]="libreMantenimiento"></p-select>
+        <small class="block">Seleccione cuántas veces al año se realizará el mantenimiento.</small>
+      </div>
+      <div class="field" [class.opacity-50]="libreMantenimiento">
+        <label for="mesInicio">Mes de Inicio</label>
+        <p-select [options]="monthOptions" [(ngModel)]="mesInicio" optionLabel="name" optionValue="value"
+          (onChange)="calcularFechas()" [disabled]="libreMantenimiento"></p-select>
+        <small class="block">Seleccione el mes en que inicia el primer mantenimiento.</small>
+      </div>
+      <div class="field" [class.opacity-50]="libreMantenimiento">
+        <label for="anioInicio">Año de Inicio</label>
+        <p-select [options]="anioOptions" [(ngModel)]="anioInicio" optionLabel="name" optionValue="value"
+          (onChange)="calcularFechas()" [disabled]="libreMantenimiento"></p-select>
+        <small class="block">Seleccione el año de inicio.</small>
+      </div>
+      <div class="field">
+        <label for="meses">Ciclo de Mantenimiento Calculado</label>
+        <p class="font-bold mt-2"
+          [ngClass]="{'text-green-500': selectedPlans.length > 0, 'text-red-500': selectedPlans.length === 0}">
+          {{calculatedMonthsText}}
+        </p>
+      </div>
     </div>
-    <div class="field">
-      <label for="mesInicio">Mes de Inicio</label>
-      <p-select [options]="monthOptions" [(ngModel)]="mesInicio" optionLabel="name" optionValue="value"
-        (onChange)="calcularFechas()"></p-select>
-      <small class="block">Seleccione el mes en que inicia el primer mantenimiento.</small>
-    </div>
-    <div class="field">
-      <label for="anioInicio">A&ntilde;o de Inicio</label>
-      <p-select [options]="anioOptions" [(ngModel)]="anioInicio" optionLabel="name" optionValue="value"
-        (onChange)="calcularFechas()"></p-select>
-      <small class="block">Seleccione el año de inicio.</small>
-    </div>
-    <div class="field">
-      <label for="meses">Ciclo de Mantenimiento Calculado</label>
-      <p class="font-bold mt-2"
-        [ngClass]="{'text-green-500': selectedPlans.length > 0, 'text-red-500': selectedPlans.length === 0}">
-        {{calculatedMonthsText}}
-      </p>
-    </div>
-  </div>
   <ng-template pTemplate="footer">
     <p-button icon="pi pi-times" (click)="displayPlanDialog=false" label="Cancelar"
       styleClass="p-button-text p-button-secondary"></p-button>
@@ -170,55 +177,52 @@
   </ng-template>
 </p-dialog>
 
-<p-dialog header="Editar Plan de Actividades Metrol&oacute;gicas" [(visible)]="displayPlanMetrologiaDialog"
-  [modal]="true" [style]="{ width: '25rem' }">
-  <div *ngFor="let item of fechasCalibracion; let i = index; trackBy: trackByIndex" class="mb-4">
-    <h5 class="mb-2 font-bold">Actividad {{ i + 1 }}</h5>
-    <div class="field mb-3">
-      <label class="block mb-1 text-sm font-medium" [for]="'fecha-cal-'+i">Fecha Programada</label>
-      <p-datepicker [(ngModel)]="fechasCalibracion[i].fecha" inputId="{{ 'fecha-cal-' + i }}" view="month"
-        dateFormat="mm/yy" [style]="{ width: '100%' }" appendTo="body">
-      </p-datepicker>
+<p-dialog header="Editar Plan de Actividades Metrol&oacute;gicas" [(visible)]="displayPlanMetrologiaDialog" [modal]="true"
+      styleClass="standard-modal modal-md" [draggable]="false" [resizable]="false">
+      <div class="p-fluid">
+        <div class="field-checkbox mb-4 flex align-items-center gap-2">
+          <p-checkbox [(ngModel)]="libreActividadesMetrologicas" [binary]="true" inputId="libreActividadesMetrologicas" 
+            (onChange)="calcularFechasMetrologia()"></p-checkbox>
+          <label for="libreActividadesMetrologicas" class="font-bold">Libre de Actividades Metrológicas (No requiere plan)</label>
+        </div>
+        <div class="field" [class.opacity-50]="libreActividadesMetrologicas">
+          <label for="intervencionesMetrologia">Intervenciones por a&ntilde;o</label>
+          <p-select [options]="intervencionOptions" [(ngModel)]="intervencionesAnualesMetrologia" optionLabel="name"
+            optionValue="value" (onChange)="calcularFechasMetrologia()" [disabled]="libreActividadesMetrologicas"></p-select>
+          <small class="block">Seleccione cu&aacute;ntas veces al a&ntilde;o se realizar&aacute; la actividad.</small>
+        </div>
+        <div class="field" [class.opacity-50]="libreActividadesMetrologicas">
+          <label for="mesInicioMetrologia">Mes de Inicio</label>
+          <p-select [options]="monthOptions" [(ngModel)]="mesInicioMetrologia" optionLabel="name" optionValue="value"
+            (onChange)="calcularFechasMetrologia()" [disabled]="libreActividadesMetrologicas"></p-select>
+          <small class="block">Seleccione el mes en que inicia la primera actividad.</small>
+        </div>
+        <div class="field" [class.opacity-50]="libreActividadesMetrologicas">
+          <label for="anioInicioMetrologia">A&ntilde;o de Inicio</label>
+          <p-select [options]="anioOptions" [(ngModel)]="anioInicioMetrologia" optionLabel="name" optionValue="value"
+            (onChange)="calcularFechasMetrologia()" [disabled]="libreActividadesMetrologicas"></p-select>
+          <small class="block">Seleccione el a&ntilde;o de inicio.</small>
+        </div>
+        <div class="field" [class.opacity-50]="libreActividadesMetrologicas">
+          <label for="tipoActividadGlobal">Tipo de Actividad (Global)</label>
+          <p-select [options]="tipoActividadOptions" [(ngModel)]="tipoActividadGlobal" optionLabel="label" optionValue="value"
+            (onChange)="calcularFechasMetrologia()" [disabled]="libreActividadesMetrologicas" appendTo="body"></p-select>
+          <small class="block">Seleccione el tipo de actividad para todo el ciclo.</small>
+        </div>
+        <div class="field">
+          <label for="mesesMetrologia">Ciclo Calculado</label>
+          <p class="font-bold mt-2"
+            [ngClass]="{'text-green-500': selectedPlansMetrologia.length > 0, 'text-red-500': selectedPlansMetrologia.length === 0}">
+            {{calculatedMonthsTextMetrologia}}
+          </p>
+        </div>
     </div>
-    <div class="field mb-3">
-      <label class="block mb-1 text-sm font-medium" [for]="'tipo-act-'+i">Tipo de Actividad</label>
-      <p-select [options]="tipoActividadOptions" [(ngModel)]="fechasCalibracion[i].tipoActividad" optionLabel="label"
-        optionValue="value" [style]="{ width: '100%' }" placeholder="Seleccione Tipo" appendTo="body">
-      </p-select>
-    </div>
-    <hr *ngIf="i < fechasCalibracion.length - 1" class="my-3 border-gray-300" />
-  </div>
-  <ng-template pTemplate="footer">
-    <p-button icon="pi pi-times" (click)="displayPlanMetrologiaDialog=false" label="Cancelar"
-      styleClass="p-button-text p-button-secondary"></p-button>
-    <p-button icon="pi pi-check" (click)="savePlanMetrologia()" label="Guardar"></p-button>
-  </ng-template>
-</p-dialog>
-
-<p-dialog header="Editar Plan de Actividades Metrol&oacute;gicas" [(visible)]="displayPlanMetrologiaDialog"
-  [modal]="true" [style]="{ width: '25rem' }">
-  <div *ngFor="let item of fechasCalibracion; let i = index; trackBy: trackByIndex" class="mb-4">
-    <h5 class="mb-2 font-bold">Actividad {{ i + 1 }}</h5>
-    <div class="field mb-3">
-      <label class="block mb-1 text-sm font-medium" [for]="'fecha-cal-'+i">Fecha Programada</label>
-      <p-datepicker [(ngModel)]="fechasCalibracion[i].fecha" inputId="{{ 'fecha-cal-' + i }}" view="month"
-        dateFormat="mm/yy" [style]="{ width: '100%' }" appendTo="body">
-      </p-datepicker>
-    </div>
-    <div class="field mb-3">
-      <label class="block mb-1 text-sm font-medium" [for]="'tipo-act-'+i">Tipo de Actividad</label>
-      <p-select [options]="tipoActividadOptions" [(ngModel)]="fechasCalibracion[i].tipoActividad" optionLabel="label"
-        optionValue="value" [style]="{ width: '100%' }" placeholder="Seleccione Tipo" appendTo="body">
-      </p-select>
-    </div>
-    <hr *ngIf="i < fechasCalibracion.length - 1" class="my-3 border-gray-300" />
-  </div>
-  <ng-template pTemplate="footer">
-    <p-button icon="pi pi-times" (click)="displayPlanMetrologiaDialog=false" label="Cancelar"
-      styleClass="p-button-text p-button-secondary"></p-button>
-    <p-button icon="pi pi-check" (click)="savePlanMetrologia()" label="Guardar"></p-button>
-  </ng-template>
-</p-dialog>
+    <ng-template pTemplate="footer">
+      <p-button icon="pi pi-times" (click)="displayPlanMetrologiaDialog=false" label="Cancelar"
+        styleClass="p-button-text p-button-secondary"></p-button>
+      <p-button icon="pi pi-check" (click)="savePlanMetrologia()" label="Guardar"></p-button>
+    </ng-template>
+  </p-dialog>
 
 <!-- Modal Registrar Traslado -->
 <p-dialog header="Registrar Traslado de Equipo" [(visible)]="displayTrasladoDialog" [modal]="true"
