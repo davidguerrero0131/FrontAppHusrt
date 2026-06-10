@@ -61,7 +61,7 @@
                                 <div *ngFor="let file of msg.adjuntos" class="attachment-item shadow-1">
                                     <!-- Image Preview -->
                                     <div *ngIf="file.tipoMime && file.tipoMime.startsWith('image/')" class="flex justify-content-center">
-                                        <p-image [src]="apiUrl + '/api/mesa/adjuntos/' + file.id" 
+                                        <p-image [src]="apiUrl + '/api/mesa/adjuntos/' + file.id + '?token=' + currentToken" 
                                             [preview]="true" alt="Adjunto" width="100" 
                                             imageClass="border-round-md shadow-sm"></p-image>
                                     </div>
@@ -70,7 +70,7 @@
                                     <div class="flex align-items-center justify-content-between gap-2 mt-1">
                                         <span class="text-xs font-medium text-overflow-ellipsis overflow-hidden white-space-nowrap flex-grow-1" 
                                             pTooltip="{{file.nombreOriginal}}">{{file.nombreOriginal}}</span>
-                                        <a [href]="apiUrl + '/api/mesa/adjuntos/' + file.id" target="_blank" 
+                                        <a [href]="apiUrl + '/api/mesa/adjuntos/' + file.id + '?token=' + currentToken" target="_blank" 
                                             class="p-button p-button-icon-only p-button-text p-button-sm p-button-rounded">
                                             <i class="pi pi-download text-xs"></i>
                                         </a>

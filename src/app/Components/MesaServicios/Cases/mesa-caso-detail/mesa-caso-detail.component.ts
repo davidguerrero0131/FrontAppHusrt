@@ -61,6 +61,10 @@ export class MesaCasoDetailComponent implements OnInit {
   caso: any = null;
   userId: number = 0;
 
+  get currentToken(): string {
+    return this.userService.getToken() || '';
+  }
+
   newMessage: string = '';
   uploadedFiles: any[] = []; // Store selected files
 
