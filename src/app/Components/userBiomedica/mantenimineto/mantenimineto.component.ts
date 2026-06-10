@@ -380,6 +380,9 @@ export class ManteniminetoComponent implements OnInit {
       const id = (reporte && typeof reporte === 'object') ? reporte.id : reporte;
       this.reportSelected = await this.reportesService.getReporteById(id);
       this.rutina = await this.protocolosServices.getCumplimientoProtocoloReporte(id);
+      if (!this.reportSelected.cumplimientoProtocolo || this.reportSelected.cumplimientoProtocolo.length === 0) {
+        this.reportSelected.cumplimientoProtocolo = this.rutina;
+      }
       this.modalReport = true;
     } catch (error) {
       console.error(error);
