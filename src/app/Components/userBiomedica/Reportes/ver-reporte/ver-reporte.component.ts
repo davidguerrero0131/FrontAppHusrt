@@ -182,6 +182,9 @@ export class VerReporteComponent implements OnInit {
       this.reportSelected = reporte; // Fallback
     }
     this.rutina = await this.protocolosServices.getCumplimientoProtocoloReporte(this.reportSelected.id);
+    if (!this.reportSelected.cumplimientoProtocolo || this.reportSelected.cumplimientoProtocolo.length === 0) {
+      this.reportSelected.cumplimientoProtocolo = this.rutina;
+    }
   }
 
   viewModalTraslado(traslado: any) {
