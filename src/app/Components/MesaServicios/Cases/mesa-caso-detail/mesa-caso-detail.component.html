@@ -130,27 +130,27 @@
         <div class="col-12 lg:col-4">
             <aside class="meta-sidebar">
                 <!-- Requester Card -->
-                <div class="meta-card">
-                    <div class="meta-card-title">
-                        <i class="pi pi-user"></i> Solicita
-                    </div>
-                    <div class="flex align-items-center gap-3 mb-4">
-                        <div class="user-avatar bg-indigo-500">
+                <div class="meta-card surface-ground border-1 surface-border">
+                    <div class="flex align-items-center gap-3 mb-3">
+                        <div class="user-avatar bg-indigo-500 w-3rem h-3rem text-lg shadow-2">
                             {{ getInitials(caso.creador?.nombres + ' ' + caso.creador?.apellidos) }}
                         </div>
                         <div>
-                            <div class="meta-value">{{ caso.creador?.nombres }} {{ caso.creador?.apellidos }}</div>
-                            <div class="text-xs text-500">{{ caso.creador?.cargo?.nombre || 'Funcionario' }}</div>
+                            <div class="text-500 text-xs font-bold uppercase mb-1 tracking-wide">Solicitante</div>
+                            <div class="font-bold text-900 text-lg">{{ caso.creador?.nombres }} {{ caso.creador?.apellidos }}</div>
+                            <div class="text-xs text-600">{{ caso.creador?.cargo?.nombre || 'Funcionario' }}</div>
                         </div>
                     </div>
                     
-                    <div class="meta-field">
-                        <span class="meta-label">Servicio</span>
-                        <span class="meta-value">{{ caso.servicioSolicitante?.nombres || caso.creador?.servicio?.nombres }}</span>
-                    </div>
-                    <div class="meta-field m-0">
-                        <span class="meta-label">Fecha de Apertura</span>
-                        <span class="meta-value">{{ caso.fechaCreacion | date:'mediumDate' }} • {{ caso.fechaCreacion | date:'shortTime' }}</span>
+                    <div class="surface-0 p-3 border-round-lg shadow-1 mt-2">
+                        <div class="meta-field">
+                            <span class="meta-label"><i class="pi pi-building mr-1"></i> Servicio Origen</span>
+                            <span class="meta-value">{{ caso.servicioSolicitante?.nombres || caso.creador?.servicio?.nombres }}</span>
+                        </div>
+                        <div class="meta-field m-0">
+                            <span class="meta-label"><i class="pi pi-clock mr-1"></i> Apertura del Caso</span>
+                            <span class="meta-value">{{ caso.fechaCreacion | date:'mediumDate' }} a las {{ caso.fechaCreacion | date:'shortTime' }}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -238,45 +238,60 @@
                     </div>
                 </div>
 
-                <!-- Clasificación Card -->
+                <!-- Información General Card -->
                 <div class="meta-card">
                     <div class="meta-card-title flex justify-content-between align-items-center mb-4">
                         <div class="flex align-items-center gap-2">
-                            <i class="pi pi-tags text-primary"></i>
-                            <span>Clasificación del Caso</span>
+                            <i class="pi pi-info-circle text-primary"></i>
+                            <span>Información General</span>
                         </div>
                         <button *ngIf="!editandoClasificacion && caso?.estado !== 'CERRADO' && canAssign()" pButton icon="pi pi-pencil" 
-                            class="p-button-rounded p-button-text p-button-sm p-button-primary"
+                            class="p-button-rounded p-button-text p-button-sm p-button-primary bg-blue-50"
                             (click)="iniciarEdicionClasificacion()" pTooltip="Editar Clasificación"></button>
                     </div>
                     
                     <div class="grid p-fluid">
                         <!-- Vista de Solo Lectura -->
                         <div *ngIf="!editandoClasificacion" class="col-12">
-                            <div class="grid">
-                                <div class="col-6 meta-field">
-                                    <span class="meta-label">Categoría</span>
-                                    <span class="meta-value">{{ caso?.categoria?.nombre || 'N/A' }}</span>
+                            <div class="grid p-0 m-0 bg-blue-50 border-round-lg p-2 border-1 border-blue-200">
+                                <div class="col-6 p-2 border-bottom-1 border-right-1 border-blue-200">
+                                    <span class="meta-label text-xs text-blue-700"><i class="pi pi-tag mr-1"></i> Categoría</span>
+                                    <span class="meta-value text-sm block mt-1">{{ caso?.categoria?.nombre || 'N/A' }}</span>
                                 </div>
-                                <div class="col-6 meta-field">
-                                    <span class="meta-label">Subcategoría</span>
-                                    <span class="meta-value">{{ caso?.subcategoria?.nombre || 'N/A' }}</span>
+                                <div class="col-6 p-2 border-bottom-1 border-blue-200">
+                                    <span class="meta-label text-xs text-blue-700"><i class="pi pi-tags mr-1"></i> Subcategoría</span>
+                                    <span class="meta-value text-sm block mt-1">{{ caso?.subcategoria?.nombre || 'N/A' }}</span>
+                                </div>
+                                <div class="col-6 p-2 border-bottom-1 border-right-1 border-blue-200">
+                                    <span class="meta-label text-xs text-blue-700"><i class="pi pi-flag mr-1"></i> Prioridad</span>
+                                    <div class="mt-1">
+                                        <p-tag [value]="caso.prioridad" 
+                                            [severity]="caso.prioridad === 'ALTA' || caso.prioridad === 'CRITICA' ? 'danger' : 'info'"></p-tag>
+                                    </div>
+                                </div>
+                                <div class="col-6 p-2 border-bottom-1 border-blue-200">
+                                    <span class="meta-label text-xs text-blue-700"><i class="pi pi-hashtag mr-1"></i> SUMERCE</span>
+                                    <span class="meta-value text-sm font-mono block mt-1 bg-white px-2 border-round-sm inline-block shadow-1">{{ caso.sumerce }}</span>
+                                </div>
+                                <div class="col-12 p-2">
+                                    <span class="meta-label text-xs text-blue-700"><i class="pi pi-map-marker mr-1"></i> Servicio Destino</span>
+                                    <span class="meta-value text-sm block mt-1 font-bold">{{ caso.servicio?.nombres }}</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Vista en modo edición -->
                         <div *ngIf="editandoClasificacion" class="col-12">
-                            <div class="grid p-fluid">
+                            <div class="grid p-fluid surface-ground p-3 border-round-lg border-1 surface-border">
                                 <div class="col-12">
-                                    <label class="form-field-label">Categoría</label>
+                                    <label class="form-field-label text-sm">Categoría</label>
                                     <p-select [options]="categorias" [(ngModel)]="selectedCategoria" optionLabel="nombre"
                                         placeholder="Seleccione la categoría" [filter]="true" filterBy="nombre"
                                         styleClass="w-full" (onChange)="onCategoriaChange()">
                                     </p-select>
                                 </div>
                                 <div class="col-12 mt-2">
-                                    <label class="form-field-label">Subcategoría</label>
+                                    <label class="form-field-label text-sm">Subcategoría</label>
                                     <p-select [options]="subcategoriasDisponibles" [(ngModel)]="selectedSubcategoria" optionLabel="nombre"
                                         placeholder="Seleccione la subcategoría" [filter]="true" filterBy="nombre"
                                         [showClear]="true" emptyMessage="Seleccione primero una categoría" styleClass="w-full">
@@ -288,31 +303,6 @@
                                     <button pButton label="Guardar" icon="pi pi-save" class="p-button-primary p-button-sm w-full"
                                         (click)="guardarClasificacion()"></button>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Technical Details Card -->
-                <div class="meta-card">
-                    <div class="meta-card-title">
-                        <i class="pi pi-cog"></i> Detalles Técnicos
-                    </div>
-                    <div class="grid">
-                        <div class="col-6 meta-field">
-                            <span class="meta-label">Prioridad</span>
-                            <p-tag [value]="caso.prioridad" 
-                                [severity]="caso.prioridad === 'ALTA' || caso.prioridad === 'CRITICA' ? 'danger' : 'info'"></p-tag>
-                        </div>
-                        <div class="col-6 meta-field">
-                            <span class="meta-label">SUMERCE</span>
-                            <span class="meta-value">{{ caso.sumerce }}</span>
-                        </div>
-                        <div class="col-12 meta-field m-0">
-                            <span class="meta-label">Servicio Destino</span>
-                            <div class="flex align-items-center gap-2">
-                                <i class="pi pi-map-marker text-primary"></i>
-                                <span class="meta-value">{{ caso.servicio?.nombres }}</span>
                             </div>
                         </div>
                     </div>

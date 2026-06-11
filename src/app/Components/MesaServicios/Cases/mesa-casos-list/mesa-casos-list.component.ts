@@ -27,6 +27,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { MesaCasoDetailComponent } from '../mesa-caso-detail/mesa-caso-detail.component';
+import { TabsModule } from 'primeng/tabs';
 
 import { UppercaseDirective } from '../../../../Directives/uppercase.directive';
 
@@ -38,7 +39,7 @@ import { UppercaseDirective } from '../../../../Directives/uppercase.directive';
     CalendarModule, TagModule, TooltipModule, ToolbarModule, FieldsetModule, DialogModule, InputTextModule,
     MenuModule,
     AutoCompleteModule, ConfirmDialogModule, IconFieldModule, InputIconModule,
-    UppercaseDirective, ToastModule
+    UppercaseDirective, ToastModule, TabsModule
   ],
    providers: [ConfirmationService, MessageService, DialogService],
   templateUrl: './mesa-casos-list.component.html',
@@ -72,6 +73,49 @@ export class MesaCasosListComponent implements OnInit {
   ];
 
   casos: any[] = [];
+
+  get isSuperAdminUser(): boolean {
+    return this.userRole === 'SUPERADMIN' || (this.userRole === 'MESAADMIN' && this.userRoleCode === 'ADM');
+  }
+
+  get showTabs(): boolean {
+    return this.userRoleCode === 'ADM' || this.userRoleCode === 'AG';
+  }
+
+  get casosRecibidos(): any[] {
+    return this.casos.filter(c => 
+      c.servicioId === this.userServiceId || 
+      (c.asignaciones && c.asignaciones.some((a: any) => a.usuarioId === this.userId))
+    );
+  }
+
+  get casosSolicitados(): any[] {
+    return this.casos.filter(c => 
+      c.servicioSolicitanteId === this.userServiceId || 
+      c.creadorId === this.userId || 
+      c.creador?.id === this.userId
+    );
+  }
+
+  activeTab: string = 'recibidos';
+
+  get displayCasos(): any[] {
+    if (!this.showTabs) return this.casos;
+    if (this.activeTab === 'recibidos') return this.casosRecibidos;
+    if (this.activeTab === 'solicitados') return this.casosSolicitados;
+    if (this.activeTab === 'global') return this.casos;
+    return this.casos;
+  }
+
+  onTabChange(val: any) {
+    if (val !== undefined && val !== null) {
+      this.activeTab = val.toString();
+    }
+    if (this.dtCasos) {
+        this.dtCasos.reset();
+    }
+  }
+
   servicios: any[] = [];
 
   estados = [
@@ -388,11 +432,12 @@ export class MesaCasosListComponent implements OnInit {
         if (user && user.mesaServicioRol) {
           this.userRoleCode = user.mesaServicioRol.codigo;
           this.userServiceId = user.servicioId;
-        } else if (this.userRole !== 'SUPERADMIN' && this.userRole !== 'MESAADMIN') {
-          // Si el usuario es un solicitante (sin rol de mesa ni superadmin)
-          const calificacionState = this.estados.find(e => e.value === 'CERRADOS_SIN_CALIFICACION');
-          if (calificacionState) {
-            this.selectedEstado = calificacionState;
+          
+          if (this.userRoleCode === 'ADM' || this.userRoleCode === 'AG') {
+              const defaultState = this.estados.find(e => e.value === 'ABIERTOS_Y_PENDIENTES');
+              if (defaultState) {
+                  this.selectedEstado = defaultState;
+              }
           }
         }
       } catch (err) {

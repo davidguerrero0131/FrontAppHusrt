@@ -107,9 +107,27 @@
         </div>
     </div>
 
+    <!-- Tabs para Agentes y Administradores de Servicio -->
+    <div class="mb-3" *ngIf="showTabs">
+        <p-tabs [(value)]="activeTab" (valueChange)="onTabChange($event)">
+            <p-tablist>
+                <p-tab value="recibidos">
+                    <i class="pi pi-inbox mr-2"></i> Casos Recibidos ({{casosRecibidos.length}})
+                </p-tab>
+                <p-tab value="solicitados">
+                    <i class="pi pi-send mr-2"></i> Casos Solicitados ({{casosSolicitados.length}})
+                </p-tab>
+                <p-tab value="global" *ngIf="isSuperAdminUser">
+                    <i class="pi pi-globe mr-2"></i> Todos los Casos ({{casos.length}})
+                </p-tab>
+            </p-tablist>
+        </p-tabs>
+    </div>
+
     <!-- Main Content Table -->
-    <div class="card border-none shadow-1 p-0 overflow-hidden">
-        <p-table #dtCasos [value]="casos" [loading]="loading" [rows]="10" [paginator]="true"
+    <div class="card border-none shadow-1 p-0">
+        <p-table #dtCasos [value]="displayCasos" [loading]="loading" [rows]="10" [paginator]="true"
+            paginatorDropdownAppendTo="body"
             styleClass="p-datatable-sm" [rowsPerPageOptions]="[10, 20, 50, 100]" [scrollable]="true"
             [globalFilterFields]="['id', 'titulo', 'fechaCreacion', 'servicio.nombres', 'servicioSolicitante.nombres', 'categoria.nombre', 'sumerce', 'estado', 'prioridad']"
             [tableStyle]="{ 'min-width': '100rem' }" responsiveLayout="scroll" [showCurrentPageReport]="true"

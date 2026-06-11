@@ -164,6 +164,15 @@
     max-width: 100%;
 }
 
+.message-content {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+.message-content p {
+    margin: 0;
+}
+
 .message-meta {
     font-size: 0.75rem;
     margin-bottom: 0.4rem;

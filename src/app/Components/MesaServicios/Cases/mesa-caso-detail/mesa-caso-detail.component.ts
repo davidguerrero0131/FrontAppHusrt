@@ -194,7 +194,8 @@ export class MesaCasoDetailComponent implements OnInit {
 
     const payload = {
         categoriaId: this.selectedCategoria.id,
-        subcategoriaId: this.selectedSubcategoria ? this.selectedSubcategoria.id : null
+        subcategoriaId: this.selectedSubcategoria ? this.selectedSubcategoria.id : null,
+        usuarioId: this.userId
     };
 
     this.mesaService.updateCasoDetails(this.casoId, payload).subscribe({
@@ -291,10 +292,11 @@ export class MesaCasoDetailComponent implements OnInit {
 
     const payload = {
       equipoId: this.selectedEquipo.id,
-      tipoEquipoId: this.selectedTipoEquipo.id
+      tipoEquipoId: this.selectedTipoEquipo.id,
+      usuarioId: this.userId
     };
 
-    this.mesaService.updateCasoDetails(this.casoId, payload).subscribe({
+    this.mesaService.updateEquipoCaso(this.casoId, payload).subscribe({
       next: (res) => {
         this.messageService.add({ severity: 'success', summary: 'Guardado', detail: 'Equipo asociado al caso exitosamente' });
         this.equipoActual = this.selectedEquipo;
@@ -392,11 +394,15 @@ export class MesaCasoDetailComponent implements OnInit {
     if (hasRole && sameService) {
       return true;
     }
-    // SuperAdmin
+    // SuperAdmin or Global Admins
     const token = this.userService.getToken();
     if (token) {
-      const decoded: any = jwtDecode(token);
-      if (decoded.rol === 'SUPERADMIN') return true;
+      try {
+          const decoded: any = JSON.parse(atob(token.split('.')[1]));
+          if (['SUPERADMIN', 'MESAADMIN', 'BIOMEDICAADMIN', 'SISTEMASADMIN', 'INFRAESTRUCTURAADMIN'].includes(decoded.rol)) {
+              return true;
+          }
+      } catch { }
     }
     return false;
   }

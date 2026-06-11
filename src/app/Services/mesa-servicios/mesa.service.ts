@@ -124,6 +124,10 @@ export class MesaService {
         return this.http.patch<any>(`${this.apiUrl}/casos/${id}/detalles`, data, this.createHeaders());
     }
 
+    updateEquipoCaso(id: number, data: any): Observable<any> {
+        return this.http.patch<any>(`${this.apiUrl}/casos/${id}/equipo`, data, this.createHeaders());
+    }
+
     // --- Interacciones ---
     addMensaje(casoId: number, data: any): Observable<any> {
         return this.http.post<any>(`${this.apiUrl}/casos/${casoId}/mensajes`, data, this.createHeaders());
