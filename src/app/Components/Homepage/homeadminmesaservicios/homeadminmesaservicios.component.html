@@ -8,6 +8,18 @@
 
     <div class="cards-grid">
 
+        <!-- Gestión de Casos TI (Local Service Admin) -->
+        <a *ngIf="isTiServiceAdmin" class="dashboard-card nav-link-container" [routerLink]="['/adminmesaservicios/casos-ti']">
+            <div class="card-icon-container gradient-blue">
+                <i class="pi pi-desktop"></i>
+            </div>
+            <div class="card-content">
+                <h3>Gestión de Casos de TI (Tecnologías de la Información)</h3>
+                <p>Gestione de manera exclusiva los casos pertenecientes al servicio de TI.</p>
+                <span class="card-action">Acceder <i class="pi pi-arrow-right"></i></span>
+            </div>
+        </a>
+
         <!-- Configuración Categor&iacute;as -->
         <a class="dashboard-card nav-link-container" [routerLink]="['/adminmesaservicios/config/categorias']">
             <div class="card-icon-container gradient-blue">

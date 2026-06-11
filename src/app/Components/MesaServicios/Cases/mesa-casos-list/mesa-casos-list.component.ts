@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { TableModule } from 'primeng/table';
@@ -79,6 +79,7 @@ export class MesaCasosListComponent implements OnInit {
   }
 
   get showTabs(): boolean {
+    if (this.isLocalTi) return false;
     return this.userRoleCode === 'ADM' || this.userRoleCode === 'AG';
   }
 
@@ -166,17 +167,21 @@ export class MesaCasosListComponent implements OnInit {
 
   @ViewChild('dtCasos') dtCasos!: any;
 
+  isLocalTi: boolean = false;
+
   constructor(
     private mesaService: MesaService,
     private servicioService: ServicioService,
     private userService: UserService,
     private router: Router,
+    private route: ActivatedRoute,
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
     public dialogService: DialogService
   ) { }
 
   async ngOnInit() {
+    this.isLocalTi = this.route.snapshot.data['isLocalTi'] === true;
     await this.loadUserProfile();
     this.loadServicios();
     this.loadCasos();
@@ -186,8 +191,17 @@ export class MesaCasosListComponent implements OnInit {
     this.servicioService.getAllServiciosActivos().then(data => {
       if (Array.isArray(data)) {
         // Filter for Mesa de Servicios
-        const serviciosMesa = data.filter((s: any) => s.requiereMesaServicios === true);
-        this.servicios = [{ nombres: 'Todos', id: null }, ...serviciosMesa];
+        let serviciosMesa = data.filter((s: any) => s.requiereMesaServicios === true);
+        
+        if (this.isLocalTi) {
+            serviciosMesa = serviciosMesa.filter((s: any) => s.id === 45);
+            if (serviciosMesa.length > 0) {
+                this.selectedServicio = serviciosMesa[0];
+            }
+            this.servicios = [...serviciosMesa];
+        } else {
+            this.servicios = [{ nombres: 'Todos', id: null }, ...serviciosMesa];
+        }
       } else {
         this.servicios = [{ nombres: 'Todos', id: null }];
       }

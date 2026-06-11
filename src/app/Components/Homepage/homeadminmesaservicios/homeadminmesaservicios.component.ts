@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { MesaadminnavbarComponent } from '../../navbars/mesaadminnavbar/mesaadminnavbar.component';
 import { jwtDecode } from 'jwt-decode';
+import { UserService } from '../../../Services/appServices/userServices/user.service';
 
 @Component({
   selector: 'app-homeadminmesaservicios',
@@ -16,9 +17,11 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class HomeadminmesaserviciosComponent {
 
-  constructor(private router: Router) { }
-
   userRole: string = '';
+  userId: number | null = null;
+  isTiServiceAdmin: boolean = false;
+
+  constructor(private router: Router, private userService: UserService) { }
 
   ngOnInit() {
     this.extractUser();
@@ -29,6 +32,15 @@ export class HomeadminmesaserviciosComponent {
     if (token) {
       const decoded: any = jwtDecode(token);
       this.userRole = decoded.rol;
+      this.userId = decoded.id || decoded.id_usuario || decoded.userId;
+
+      if (this.userId) {
+        this.userService.getUserProfil(this.userId).then((user: any) => {
+          if (user && user.mesaServicioRolId === 1 && Number(user.servicioId) === 45) {
+             this.isTiServiceAdmin = true;
+          }
+        }).catch((err: any) => console.error("Error fetching user profile", err));
+      }
     }
   }
 

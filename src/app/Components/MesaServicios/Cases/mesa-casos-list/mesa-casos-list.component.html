@@ -86,8 +86,8 @@
             <div class="col-12 sm:col-6 md:col-3">
                 <span class="filter-label">Servicio Destino</span>
                 <p-select [options]="servicios" [(ngModel)]="selectedServicio" optionLabel="nombres"
-                    placeholder="Todos los servicios" (onChange)="loadCasos()" [showClear]="true" appendTo="body"
-                    [filter]="true" filterBy="nombres"></p-select>
+                    placeholder="Todos los servicios" (onChange)="loadCasos()" [showClear]="!isLocalTi" appendTo="body"
+                    [filter]="true" filterBy="nombres" [disabled]="isLocalTi"></p-select>
             </div>
             <div class="col-12 sm:col-6 md:col-2">
                 <span class="filter-label">Estado</span>
