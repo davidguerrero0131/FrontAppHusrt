@@ -807,7 +807,7 @@ export class IndicadoresComponent {
   });
 
   porFallaChartData = computed(() => {
-    const rs = this.reportes();
+    const rs = this.allCorrectivos();
     const orden: TipoFalla[] = [
       'Desgaste', 'Operación Indebida', 'Causa Externa', 'Accesorios',
       'Desconocido', 'Sin Falla', 'Otros', 'No Registra'
