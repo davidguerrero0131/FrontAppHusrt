@@ -126,7 +126,7 @@ export class EquiposTipoComponent implements OnInit {
     const idTipo = localStorage.getItem('idTipoEquipo');
     const equiposData = await this.equipoServices.getAllEquiposTipo(idTipo);
 
-    if (['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN'].includes(getDecodedAccessToken().rol)) {
+    if (['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN', 'BIOMEDICATECNICO'].includes(getDecodedAccessToken().rol)) {
       this.serviciosList = await this.servicioServices.getAllServicios();
     }
 
