@@ -1,7 +1,7 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { HttpInterceptorFn, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, throwError, retry } from 'rxjs';
+import { catchError, throwError, retry, tap } from 'rxjs';
 import Swal from 'sweetalert2';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
@@ -21,6 +21,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     }
 
     return next(authReq).pipe(
+        tap(event => {
+            if (event instanceof HttpResponse) {
+                const newToken = event.headers.get('New-Token');
+                if (newToken && typeof sessionStorage !== 'undefined') {
+                    sessionStorage.setItem('utoken', newToken);
+                }
+            }
+        }),
         retry(3), // Retry up to 3 times for transient failures
         catchError((error: HttpErrorResponse) => {
             if (error.status === 401 && !isPublicRoute && !isExternalIA) {

@@ -88,7 +88,7 @@ export class MesaRolesComponent implements OnInit {
     this.userService.getUserProfil(decoded.id).then((user: any) => {
       this.selectedUser = user; // Store current user info
 
-      if (user.rol && (user.rol.nombre === 'SUPERADMIN' || user.rol.nombre === 'MESAADMIN')) {
+      if (this.userRole === 'SUPERADMIN' || this.userRole === 'MESAADMIN') {
         this.servicioService.getAllServiciosActivos().then(data => {
           this.servicios = data.filter((s: any) => s && s.requiereMesaServicios === true);
         });
