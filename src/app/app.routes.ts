@@ -1,3 +1,4 @@
+import { TriageQuirurgicoComponent } from './Components/Servinte/triage-quirurgico/triage-quirurgico.component';
 import { OlvidoContrasenaComponent } from './Components/gestionarContraseña/olvido-contrasena/olvido-contrasena.component';
 import { NgModule } from '@angular/core';
 import { authGuard } from './auth.guard';
@@ -124,6 +125,7 @@ export const routes: Routes = [
   { path: 'servinte/reportepediatria', component: ReportspediatricsComponent },
   { path: 'servinte/news2', component: UsuariosServicioComponent },
   { path: 'servinte/cirugia', component: CirugiaComponent },
+  { path: 'servinte/triagequirurgico', component: TriageQuirurgicoComponent },
   { path: 'acreditacion/aerolinea', component: AerolineaComponent },
   { path: 'admusuarios', component: GestionUsuariosComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'ADMINISTRADOR'] } },
 

@@ -235,9 +235,17 @@ export class IntranetComponent implements OnInit {
 
   async cargarServicios() {
     try {
-      this.listaServicios = await this.servicioService.getAllServiciosPublico();
+      const response: any = await this.servicioService.getAllServiciosPublico();
+      if (Array.isArray(response)) {
+        this.listaServicios = response;
+      } else if (response && Array.isArray(response.data)) {
+        this.listaServicios = response.data;
+      } else {
+        this.listaServicios = [];
+      }
     } catch (error) {
       console.error('Error al cargar servicios:', error);
+      this.listaServicios = [];
     }
   }
 
@@ -392,11 +400,13 @@ export class IntranetComponent implements OnInit {
     try {
       if (this.mantenimientoTab === 'biomedica') {
         // 1. Obtener TODOS los equipos del servicio (Ruta pública para mayor fiabilidad)
-        let todosLosEquipos = await this.equiposService.getAllEquiposServicioPublico(servicioId);
+        const unwrapArray = (res: any) => Array.isArray(res) ? res : (res && Array.isArray(res.data) ? res.data : []);
 
-        if (!todosLosEquipos || !Array.isArray(todosLosEquipos)) {
-          console.warn('Respuesta inesperada al obtener equipos (no es un array):', todosLosEquipos);
-          todosLosEquipos = [];
+        let todosLosEquiposRaw = await this.equiposService.getAllEquiposServicioPublico(servicioId);
+        let todosLosEquipos = unwrapArray(todosLosEquiposRaw);
+
+        if (!todosLosEquipos || todosLosEquipos.length === 0) {
+          console.warn('Respuesta inesperada o vacía al obtener equipos:', todosLosEquiposRaw);
         }
 
         // 2. Obtener planes y reportes (Rutas públicas)
@@ -406,9 +416,9 @@ export class IntranetComponent implements OnInit {
           this.reportesService.getReportesPreventivosServicioMesPublico(servicioId, this.selectedMes, anioActual)
         ]);
 
-        const planesM = Array.isArray(mantenimientoPlanes) ? mantenimientoPlanes : [];
-        const planesMet = Array.isArray(metrologiaPlanes) ? metrologiaPlanes : [];
-        const reportes = Array.isArray(reportesMes) ? reportesMes : [];
+        const planesM = unwrapArray(mantenimientoPlanes);
+        const planesMet = unwrapArray(metrologiaPlanes);
+        const reportes = unwrapArray(reportesMes);
 
         // 3. Filtrar planes por el mes seleccionado
         const planesM_mes = planesM.filter((p: any) => p && p.mes == this.selectedMes);

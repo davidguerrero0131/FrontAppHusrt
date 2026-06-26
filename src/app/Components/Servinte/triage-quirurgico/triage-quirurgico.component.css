@@ -1,0 +1,69 @@
+/* Estilos para el contenedor */
+.grid-container {
+  display: grid;
+  gap: 20px;
+  padding: 10px;
+}
+
+/* Pantallas grandes: 4 columnas (tarjetas un ~40% mas anchas comparado con 6) */
+@media (min-width: 1400px) {
+  .grid-container {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Pantallas medianas-grandes: 3 columnas */
+@media (min-width: 1024px) and (max-width: 1399px) {
+  .grid-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Pantallas tablet: 2 columnas */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Pantallas moviles: 1 columna */
+@media (max-width: 767px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Estilos para los elementos dentro del grid */
+.grid-item {
+  display: flex;
+}
+
+.card {
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 8px;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0.5rem; /* Padding más pequeño para reducir altura */
+}
+
+/* Hacer el tooltip mucho mas ancho */
+:host ::ng-deep .custom-tooltip-wide .p-tooltip-text {
+  width: 400px !important;
+  max-width: 90vw !important; /* Asegura que no rompa en moviles */
+  text-align: left;
+  font-size: 13px;
+  padding: 12px;
+}

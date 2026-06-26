@@ -100,4 +100,9 @@ export class EntidadService {
     const url = API_URL + `/citas-pediatria-medicos/${id}`;
     return firstValueFrom(this.httpClient.put<any>(url, data));
   }
+
+  getTriagePacientes() {
+    const url = API_SERVINTE_URL + `/TriageQuirurgico`;
+    return firstValueFrom(this.httpClient.get<any[]>(url));
+  }
 }

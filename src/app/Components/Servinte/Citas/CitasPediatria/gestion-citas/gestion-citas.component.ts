@@ -31,7 +31,7 @@ export class GestionCitasComponent implements OnInit {
     { label: 'Pendiente', value: false },
     { label: 'Validada', value: true }
   ];
-  
+
   appointmentStatuses: any[] = [
     { label: 'Pendiente', value: 'Pendiente' },
     { label: 'Confirmada', value: 'Confirmada' },
@@ -259,7 +259,7 @@ export class GestionCitasComponent implements OnInit {
       if (['Cancelada', 'No Asistio', 'Reprogramada'].includes(this.editingCita.estadoCita)) {
         updateData.observaciones = this.editingCita.observaciones;
       }
-      
+
       if (this.editingCita.estadoCita === 'Reprogramada' && this.editingCita.fechaReprogramacion) {
         updateData.fechaReprogramacion = this.formatDate(this.editingCita.fechaReprogramacion);
       }
