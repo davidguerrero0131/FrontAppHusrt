@@ -243,7 +243,7 @@
           <p-card header="Detalle del Reporte">
             <div class="p-text-sm grid">
               <div class="col-12 md:col-4">
-                <p><strong>Mes Programado:</strong> {{ reportSelected?.mesProgramado + 1 }}</p>
+                <p><strong>Mes Programado:</strong> {{ getMesEnLetras(reportSelected?.mesProgramado) }} ({{ reportSelected?.mesProgramado }})</p>
                 <p><strong>Fecha Realizado:</strong> {{ reportSelected?.fechaRealizado }}</p>
                 <p><strong>Hora Inicio:</strong> {{ reportSelected?.horaInicio }}</p>
                 <p><strong>Fecha Fin:</strong> {{ reportSelected?.fechaFin }}</p>

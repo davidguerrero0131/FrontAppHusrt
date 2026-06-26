@@ -248,6 +248,15 @@ export class VerReporteComponent implements OnInit {
     }
   }
 
+  getMesEnLetras(mes: number | undefined): string {
+    if (mes === undefined || mes === null) return '';
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    return meses[mes - 1] || mes.toString();
+  }
+
   fileToUploadTraslado: File | null = null;
 
   onFileTrasladoSelected(event: any) {
