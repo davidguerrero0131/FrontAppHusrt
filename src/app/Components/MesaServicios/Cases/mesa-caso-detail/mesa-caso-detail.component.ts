@@ -339,6 +339,54 @@ export class MesaCasoDetailComponent implements OnInit {
     } catch (e) { console.log('Sin parametro subcategoria'); }
   }
 
+  canAssign(): boolean {
+    if (!this.caso) return false;
+    
+    const roleCode = this.userRoleCode?.toUpperCase();
+    if (['ADMINISTRADOR', 'ADM', 'AGENTE', 'AG'].includes(roleCode)) {
+      return true; // General agents and admins can assign any case
+    }
+
+    if (['ADMIN_SERVICIO', 'RESOLUTOR'].includes(roleCode)) {
+      const caseServiceId = this.caso.servicioId || this.caso.servicio?.id;
+      if (Number(this.userServiceId) === Number(caseServiceId)) {
+        return true;
+      }
+    }
+
+    // SuperAdmin or Global Admins
+    const token = this.userService.getToken();
+    if (token) {
+      try {
+          const decoded: any = JSON.parse(atob(token.split('.')[1]));
+          if (['SUPERADMIN', 'MESAADMIN', 'BIOMEDICAADMIN', 'SISTEMASADMIN', 'INFRAESTRUCTURAADMIN'].includes(decoded.rol)) {
+              return true;
+          }
+      } catch { }
+    }
+    return false;
+  }
+
+  canModifyAssign(): boolean {
+    if (!this.canAssign()) return false;
+    
+    const roleCode = this.userRoleCode?.toUpperCase();
+    if (['AGENTE', 'AG'].includes(roleCode)) {
+      if (this.caso?.asignaciones && this.caso.asignaciones.length > 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  canClose(): boolean {
+    if (!this.caso || this.caso.estado === 'CERRADO') return false;
+    if (this.canAssign()) return true; // Admin/Agent can close
+    // Assigned user can close
+    if (this.caso.asignaciones && this.caso.asignaciones.some((a: any) => a.usuarioId === this.userId)) return true;
+    return false;
+  }
+
   userRoleCode: string = '';
   userServiceId: number = 0;
 
@@ -383,6 +431,218 @@ export class MesaCasoDetailComponent implements OnInit {
       this.filteredEquipos = [];
     }
   }
+
+  canInteract(): boolean {
+    if (!this.caso || this.caso.estado === 'CERRADO') return false;
+    if (this.canAssign()) return true; // Admin/Agent
+    if (this.caso.creadorId === this.userId) return true;
+    if (this.caso.asignaciones && this.caso.asignaciones.some((a: any) => a.usuarioId === this.userId)) return true;
+    return false;
+  }
+
+  loadCaso() {
+    this.mesaService.getCasoById(this.casoId).subscribe({
+      next: (data) => {
+        this.caso = data;
+
+        // Extraer informacin de equipo de la nueva estructura del backend
+        if (this.caso.equipoBiomedico || this.caso.equipoIndustrial || this.caso.area || this.caso.elemento || this.caso.tipoEquipo) {
+          this.requiereEquipo = true;
+          this.equipoActual = this.caso.equipoBiomedico || this.caso.equipoIndustrial || this.caso.area || this.caso.elemento;
+          this.tipoEquipoActual = this.caso.tipoEquipo;
+        } else if (this.caso.biomedicaInfo) {
+          // Backward compatibility por si acaso
+          this.requiereEquipo = true;
+          this.equipoActual = this.caso.biomedicaInfo.equipo;
+          this.tipoEquipoActual = this.caso.biomedicaInfo.tipoEquipo;
+        } else if (this.caso.subcategoriaId === this.subcategoriaMantenimientoId || (this.caso.categoria?.nombre && this.caso.categoria.nombre.toLowerCase().includes('mantenimiento'))) {
+          this.requiereEquipo = true;
+        } else {
+          this.requiereEquipo = false;
+        }
+
+        // Treat Description as the first message
+        if (this.caso.descripcion) {
+          const descriptionMsg = {
+            id: 'DESC', // Pseudo ID
+            mensaje: this.caso.descripcion,
+            fecha: this.caso.fechaCreacion,
+            usuarioId: this.caso.creadorId, // Creator ID
+            usuario: this.caso.creador,
+            tipo: 'DESCRIPCION'
+          };
+          if (!this.caso.mensajes) this.caso.mensajes = [];
+          this.caso.mensajes.unshift(descriptionMsg);
+        }
+
+        // Sort messages
+        if (this.caso.mensajes) {
+          this.caso.mensajes.sort((a: any, b: any) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
+        }
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar el caso' });
+      }
+    });
+  }
+
+  sendMessage() {
+    if (this.isMessageEmpty()) return;
+
+    this.confirmationService.confirm({
+      message: '¿Está seguro de enviar este mensaje?',
+      header: 'Confirmar Envío',
+      icon: 'pi pi-question-circle',
+      accept: () => {
+        const formData = new FormData();
+        formData.append('usuarioId', this.userId.toString());
+        formData.append('mensaje', this.newMessage || '');
+        formData.append('tipo', 'NORMAL');
+
+        // Append files
+        if (this.uploadedFiles && this.uploadedFiles.length > 0) {
+          for (let file of this.uploadedFiles) {
+            formData.append('archivos', file);
+          }
+        }
+
+        this.mesaService.addMensaje(this.casoId, formData).subscribe({
+          next: () => {
+            this.newMessage = ''; 
+            this.uploadedFiles = []; // Clear files
+            this.loadCaso(); 
+            this.messageService.add({ severity: 'success', summary: 'Enviado', detail: 'Mensaje enviado correctamente' });
+          },
+          error: (err: any) => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || 'Falló el envío' });
+          }
+        });
+      }
+    });
+  }
+
+  onEditorInit(event: any) {
+    const quill = event.editor;
+    if (quill) {
+      quill.root.addEventListener('paste', (e: ClipboardEvent) => {
+        const clipboardData = e.clipboardData;
+        if (!clipboardData) return;
+
+        const items = clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf('image') !== -1) {
+            const blob = items[i].getAsFile();
+            if (blob) {
+              const file = new File([blob], `pasted_image_${Date.now()}.png`, { type: blob.type });
+              this.uploadedFiles.push(file);
+              this.messageService.add({ severity: 'info', summary: 'Imagen Detectada', detail: 'Imagen pegada añadida como adjunto' });
+              
+              // Prevent default only if we want to avoid base64 inline images
+              // e.preventDefault(); 
+            }
+          }
+        }
+      });
+    }
+  }
+
+  onEditorCloseInit(event: any) {
+    const quill = event.editor;
+    if (quill) {
+      quill.root.addEventListener('paste', (e: ClipboardEvent) => {
+        const clipboardData = e.clipboardData;
+        if (!clipboardData) return;
+
+        const items = clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf('image') !== -1) {
+            const blob = items[i].getAsFile();
+            if (blob) {
+              const file = new File([blob], `pasted_close_image_${Date.now()}.png`, { type: blob.type });
+              this.uploadedCloseFiles.push(file);
+              this.messageService.add({ severity: 'info', summary: 'Imagen Detectada', detail: 'Imagen fijada como evidencia' });
+            }
+          }
+        }
+      });
+    }
+  }
+
+  isMessageEmpty(): boolean {
+    const hasText = this.newMessage && this.newMessage.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim().length > 0;
+    const hasFiles = this.uploadedFiles && this.uploadedFiles.length > 0;
+    return !hasText && !hasFiles;
+  }
+
+  openCloseDialog() {
+    this.cierreMensaje = '';
+    this.uploadedCloseFiles = [];
+    this.displayCloseDialog = true;
+  }
+
+  confirmClose() {
+    if (!this.cierreMensaje.trim()) {
+      this.messageService.add({ severity: 'warn', summary: 'Requerido', detail: 'Debe ingresar un mensaje de cierre y solución' });
+      return;
+    }
+
+    if (this.requiereEquipo) {
+      if (!this.caso.biomedicaInfo || !this.caso.biomedicaInfo.reporteId) {
+        this.messageService.add({ severity: 'error', summary: 'Reporte Requerido', detail: 'Debe crear el reporte de mantenimiento correctivo antes de cerrar el caso.' });
+        return;
+      }
+    }
+
+    const formData = new FormData();
+    formData.append('usuarioId', this.userId.toString());
+    formData.append('mensajeFinal', this.cierreMensaje);
+
+    // Append files
+    if (this.uploadedCloseFiles && this.uploadedCloseFiles.length > 0) {
+      for (let file of this.uploadedCloseFiles) {
+        formData.append('archivos', file);
+      }
+    }
+
+    this.mesaService.closeCaso(this.casoId, formData).subscribe({
+      next: (res) => {
+        this.displayCloseDialog = false;
+        this.cierreMensaje = '';
+        this.uploadedCloseFiles = [];
+        this.messageService.add({ severity: 'success', summary: 'Cerrado', detail: 'Caso cerrado exitosamente' });
+        this.loadCaso();
+        this.mesaService.notificationsUpdated.next();
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cerrar el caso' });
+      }
+    });
+  }
+
+  openAssignDialog() {
+    if (!this.caso) return;
+    
+    // Pre-fill with current assignees
+    this.selectedResolutor = this.caso.asignaciones ? this.caso.asignaciones.map((a: any) => a.usuario) : [];
+
+    // Load Resolutors for this service
+    const serviceId = this.caso.servicioId || this.caso.servicio?.id;
+    if (serviceId) {
+      this.mesaService.getUsersByServicio(serviceId).subscribe((data: any[]) => {
+        this.usersService = data.filter(user => {
+          const roleName = user.mesaServicioRol?.nombre?.toUpperCase();
+          const roleCode = user.mesaServicioRol?.codigo?.toUpperCase();
+          const isActive = user.estado;
+          return (roleName === 'ADMINISTRADOR' || roleName === 'AGENTE' || roleCode === 'ADM' || roleCode === 'AG' || roleCode === 'RESOLUTOR') && isActive === true;
+        });
+        this.displayAssignDialog = true;
+      });
+    } else {
+      this.displayAssignDialog = true;
+    }
+  }
+
+  confirmAssign() {
     if (!this.selectedResolutor) return;
 
     this.confirmationService.confirm({
@@ -392,13 +652,13 @@ export class MesaCasoDetailComponent implements OnInit {
       accept: () => {
         const selectedList = Array.isArray(this.selectedResolutor) ? this.selectedResolutor : [this.selectedResolutor];
         const selectedIds = selectedList.map(u => u.id);
-        const currentIds = this.caso.asignaciones.map((a: any) => a.usuarioId);
+        const currentIds = this.caso.asignaciones ? this.caso.asignaciones.map((a: any) => a.usuarioId) : [];
 
         // Identify new assignments
         const toAdd = selectedList.filter(u => !currentIds.includes(u.id));
         
         // Identify removals
-        const toRemove = this.caso.asignaciones.filter((a: any) => !selectedIds.includes(a.usuarioId));
+        const toRemove = this.caso.asignaciones ? this.caso.asignaciones.filter((a: any) => !selectedIds.includes(a.usuarioId)) : [];
 
         let totalOps = toAdd.length + toRemove.length;
         if (totalOps === 0) {

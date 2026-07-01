@@ -496,10 +496,23 @@ export class MesaCasosListComponent implements OnInit {
     if (caso.estado === 'CERRADO') return false;
     if (this.checkSuperAdmin()) return true;
 
+    const roleCode = this.userRoleCode?.toUpperCase();
+    
+    // Prevent AG from modifying already assigned cases
+    if (['AGENTE', 'AG'].includes(roleCode)) {
+      if (caso.asignaciones && caso.asignaciones.length > 0) {
+        return false;
+      }
+    }
+
+    if (['ADMINISTRADOR', 'ADM', 'AGENTE', 'AG'].includes(roleCode)) {
+      return true; // General agents and admins can assign any case
+    }
+
     // Admin, Agent, Resolutor of the same service
-    if (['ADMIN_SERVICIO', 'ADMINISTRADOR', 'RESOLUTOR', 'AGENTE', 'ADM', 'AG'].includes(this.userRoleCode)) {
+    if (['ADMIN_SERVICIO', 'RESOLUTOR'].includes(roleCode)) {
       const caseServiceId = caso.servicioId || caso.servicio?.id;
-      if (this.userServiceId === caseServiceId) {
+      if (Number(this.userServiceId) === Number(caseServiceId)) {
         return true;
       }
     }

@@ -315,7 +315,7 @@
                             <i class="pi pi-users text-primary"></i>
                             <span>Resolutores Asignados</span>
                         </div>
-                        <button *ngIf="canAssign() && caso.estado !== 'CERRADO'" pButton icon="pi pi-user-plus" 
+                        <button *ngIf="canModifyAssign() && caso.estado !== 'CERRADO'" pButton icon="pi pi-user-plus" 
                             class="p-button-rounded p-button-text p-button-sm p-button-primary hover:bg-blue-50"
                             (click)="openAssignDialog()" pTooltip="Gestionar Responsables"></button>
                     </div>
@@ -327,7 +327,7 @@
                                 </div>
                                 <span class="text-sm font-semibold text-700">{{ asig.usuario?.nombres }} {{ asig.usuario?.apellidos }}</span>
                             </div>
-                            <button *ngIf="canAssign() && caso.estado !== 'CERRADO'" pButton icon="pi pi-times" 
+                            <button *ngIf="canModifyAssign() && caso.estado !== 'CERRADO'" pButton icon="pi pi-times" 
                                 class="p-button-rounded p-button-text p-button-danger p-button-sm"
                                 (click)="removeResolutor(asig.usuario?.id)" pTooltip="Retirar del caso"></button>
                         </div>
