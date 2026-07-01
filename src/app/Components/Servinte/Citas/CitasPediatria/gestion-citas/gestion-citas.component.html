@@ -1,4 +1,6 @@
-<div style="margin-top: 5%; margin-left: 5%; margin-right: 5%;">
+<app-citaspediatriaadminnavbar *ngIf="rol === 'ADMCITASPEDIATRIA' || rol === 'SUPERADMIN'"></app-citaspediatriaadminnavbar>
+<app-citaspediatriausernavbar *ngIf="rol !== 'ADMCITASPEDIATRIA' && rol !== 'SUPERADMIN'"></app-citaspediatriausernavbar>
+<div class="p-4" style="background-color: #f8fafc; min-height: 100vh;">
     <div class="card p-4 shadow-2 border-round">
         <div class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
             <div>
@@ -7,8 +9,9 @@
             </div>
             <div class="mt-3 md:mt-0 flex flex-wrap gap-2">
                 <p-button label="Crear Cita" icon="pi pi-calendar-plus" severity="success" (click)="goToCreacion()"></p-button>
-                <p-button label="Gestión Médicos" icon="pi pi-users" severity="secondary" (click)="openMedicosModal()"></p-button>
-                <p-button label="Estadísticas" icon="pi pi-chart-bar" severity="primary" (click)="goToDashboard()"></p-button>
+                <p-button *ngIf="rol === 'ADMCITASPEDIATRIA' || rol === 'SUPERADMIN'" label="Gestión Médicos" icon="pi pi-users" severity="secondary" (click)="openMedicosModal()"></p-button>
+                <p-button *ngIf="rol === 'ADMCITASPEDIATRIA' || rol === 'SUPERADMIN'" label="Gestión Especialidades" icon="pi pi-tags" severity="secondary" (click)="openEspecialidadesModal()"></p-button>
+                <p-button *ngIf="rol === 'ADMCITASPEDIATRIA' || rol === 'SUPERADMIN'" label="Estadísticas" icon="pi pi-chart-bar" severity="primary" (click)="goToDashboard()"></p-button>
                 <p-button label="Descargar Reporte" icon="pi pi-download" severity="help"
                     (click)="exportDialog = true"></p-button>
                 <p-button label="Actualizar" icon="pi pi-refresh" [loading]="loading"
@@ -83,7 +86,7 @@
             </div>
             <div class="col-12 md:col-4">
                 <label class="block font-bold mb-2">Médico Asignado</label>
-                <p-select [(ngModel)]="filterMedico" [options]="medicosFilterOptions" (onChange)="dt.filter($event.value, 'medicoNombreCompleto', 'equals')"
+                <p-select [(ngModel)]="filterMedico" [options]="medicosOptions" (onChange)="dt.filter($event.value, 'medicoNombreCompleto', 'equals')"
                     placeholder="Todos los médicos" [showClear]="true" class="w-full" optionLabel="label" optionValue="value" appendTo="body"></p-select>
             </div>
             <div class="col-12 md:col-4">
@@ -107,6 +110,7 @@
                         </th>
                         <th style="min-width: 10rem">Identificación</th>
                         <th style="min-width: 10rem">Fecha de Cita</th>
+                        <th style="min-width: 12rem">Especialidad</th>
                         <th style="min-width: 12rem">Control / Etapa</th>
                         <th style="min-width: 12rem">Médico</th>
                         <th class="text-center" style="min-width: 10rem">Estado Cita</th>
@@ -132,6 +136,9 @@
                         </td>
                         <td>
                             {{appointment.fechaCita | date:'dd/MM/yyyy'}}
+                        </td>
+                        <td>
+                            {{appointment.especialidad?.nombre || 'N/A'}}
                         </td>
                         <td>
                             {{appointment.control}}
@@ -197,6 +204,12 @@
                 </div>
 
                 <div class="flex flex-column gap-2">
+                    <label class="font-bold">Especialidad</label>
+                    <p-select [options]="especialidadesList" [(ngModel)]="editingCita.especialidadId" optionLabel="nombre"
+                        optionValue="id" placeholder="Seleccione Especialidad" appendTo="body" class="w-full"></p-select>
+                </div>
+
+                <div class="flex flex-column gap-2" *ngIf="editingCita.especialidadId === 1">
                     <label class="font-bold">Etapa / Control</label>
                     <p-select [options]="stages" [(ngModel)]="editingCita.control" optionLabel="label"
                         optionValue="value" placeholder="Seleccione Etapa" appendTo="body" class="w-full"></p-select>
@@ -309,8 +322,8 @@
             [style]="{width: '700px'}" [draggable]="false" [resizable]="false">
             
             <div class="flex flex-column gap-3 mt-2">
-                <!-- Formulario para crear médico -->
-                <p-card header="Nuevo Médico" styleClass="bg-gray-50 mb-3">
+                <!-- Formulario para crear/editar médico -->
+                <p-card [header]="editingMedicoId ? 'Editar Médico' : 'Nuevo Médico'" styleClass="bg-gray-50 mb-3">
                     <div class="grid">
                         <div class="col-12 md:col-6 mb-2">
                             <label class="block font-bold mb-1">Nombre</label>
@@ -324,7 +337,12 @@
                             <label class="block font-bold mb-1">Teléfono</label>
                             <input type="text" pInputText [(ngModel)]="newMedico.telefono" class="w-full" placeholder="Teléfono" />
                         </div>
-                        <div class="col-12 md:col-6 mb-2 flex align-items-end justify-content-end">
+                        <div class="col-12 md:col-6 mb-2">
+                            <label class="block font-bold mb-1">Especialidad</label>
+                            <p-select [options]="especialidadesOptions" [(ngModel)]="newMedico.especialidadId" optionLabel="label" optionValue="value" placeholder="Seleccione Especialidad" appendTo="body" class="w-full"></p-select>
+                        </div>
+                        <div class="col-12 mb-2 flex align-items-end justify-content-end gap-2">
+                            <p-button *ngIf="editingMedicoId" label="Cancelar" icon="pi pi-times" severity="secondary" (click)="cancelEditMedico()" [loading]="loadingMedicos"></p-button>
                             <p-button label="Guardar Médico" icon="pi pi-save" severity="success" (click)="saveMedico()" [loading]="loadingMedicos"></p-button>
                         </div>
                     </div>
@@ -335,7 +353,7 @@
                     <ng-template pTemplate="header">
                         <tr>
                             <th>Nombre Completo</th>
-                            <th>Teléfono</th>
+                            <th>Especialidad</th>
                             <th class="text-center">Estado</th>
                             <th class="text-center">Acción</th>
                         </tr>
@@ -343,11 +361,12 @@
                     <ng-template pTemplate="body" let-medico>
                         <tr>
                             <td>{{medico.nombre}} {{medico.apellido}}</td>
-                            <td>{{medico.telefono || 'N/A'}}</td>
+                            <td>{{medico.especialidad ? medico.especialidad.nombre : 'Sin asignar'}}</td>
                             <td class="text-center">
                                 <p-tag [value]="medico.estadoActivo ? 'Activo' : 'Inactivo'" [severity]="medico.estadoActivo ? 'success' : 'danger'"></p-tag>
                             </td>
                             <td class="text-center">
+                                <p-button icon="pi pi-pencil" [text]="true" severity="info" (click)="editMedico(medico)" pTooltip="Editar Médico"></p-button>
                                 <p-button [icon]="medico.estadoActivo ? 'pi pi-ban' : 'pi pi-check-circle'" 
                                           [severity]="medico.estadoActivo ? 'danger' : 'success'" 
                                           [text]="true" [rounded]="true"
@@ -366,5 +385,58 @@
                 <p-button label="Cerrar" icon="pi pi-times" severity="secondary" (click)="medicosDialog = false"></p-button>
             </ng-template>
         </p-dialog>
+        <!-- Modal Gestión de Especialidades -->
+        <p-dialog [(visible)]="especialidadesDialog" [modal]="true" header="Gestión de Especialidades - Madre Canguro"
+            [style]="{width: '700px'}" [draggable]="false" [resizable]="false">
+            
+            <div class="flex flex-column gap-3 mt-2">
+                <!-- Formulario para crear especialidad -->
+                <p-card header="Nueva Especialidad" styleClass="bg-gray-50 mb-3">
+                    <div class="grid">
+                        <div class="col-12 md:col-8 mb-2">
+                            <label class="block font-bold mb-1">Nombre de la Especialidad</label>
+                            <input type="text" pInputText [(ngModel)]="newEspecialidad.nombre" class="w-full" placeholder="Nombre" />
+                        </div>
+                        <div class="col-12 md:col-4 mb-2 flex align-items-end justify-content-end">
+                            <p-button label="Guardar" icon="pi pi-save" severity="success" (click)="saveEspecialidad()" [loading]="loadingEspecialidades"></p-button>
+                        </div>
+                    </div>
+                </p-card>
+
+                <!-- Tabla de especialidades -->
+                <p-table [value]="especialidadesList" [loading]="loadingEspecialidades" [paginator]="true" [rows]="5" styleClass="p-datatable-sm">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Nombre de la Especialidad</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Acción</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-esp>
+                        <tr>
+                            <td>{{esp.nombre}}</td>
+                            <td class="text-center">
+                                <p-tag [value]="esp.estadoActivo ? 'Activo' : 'Inactivo'" [severity]="esp.estadoActivo ? 'success' : 'danger'"></p-tag>
+                            </td>
+                            <td class="text-center">
+                                <p-button [icon]="esp.estadoActivo ? 'pi pi-ban' : 'pi pi-check-circle'" 
+                                          [severity]="esp.estadoActivo ? 'danger' : 'success'" 
+                                          [text]="true" [rounded]="true"
+                                          pTooltip="Cambiar estado"
+                                          (click)="toggleEstadoEspecialidad(esp)"></p-button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <tr><td colspan="3" class="text-center">No hay especialidades registradas.</td></tr>
+                    </ng-template>
+                </p-table>
+            </div>
+            
+            <ng-template pTemplate="footer">
+                <p-button label="Cerrar" icon="pi pi-times" severity="secondary" (click)="especialidadesDialog = false"></p-button>
+            </ng-template>
+        </p-dialog>
+
     </div>
 </div>

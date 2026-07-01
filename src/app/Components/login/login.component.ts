@@ -51,6 +51,7 @@ export class LoginComponent implements OnInit {
         sessionStorage.setItem('utoken', response.token);
         const decoded = this.getDecodedAccessToken(response.token);
         if (decoded && decoded.rol) {
+          sessionStorage.setItem('rol', decoded.rol);
           this.redirectBasedOnRole(decoded.rol);
         }
       }
@@ -82,6 +83,8 @@ export class LoginComponent implements OnInit {
       this.router.navigate(['/adminmesaservicios']);
     } else if (rol === 'INVITADO') {
       this.router.navigate(['/biomedica/home-invitado']);
+    } else if (rol === 'ADMCITASPEDIATRIA') {
+      this.router.navigate(['/servinte/citasmadrecanguro']);
     }
   }
 

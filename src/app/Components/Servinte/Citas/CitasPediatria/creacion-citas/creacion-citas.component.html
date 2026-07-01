@@ -1,3 +1,5 @@
+<app-citaspediatriaadminnavbar *ngIf="rol === 'ADMCITASPEDIATRIA' || rol === 'SUPERADMIN'"></app-citaspediatriaadminnavbar>
+<app-citaspediatriausernavbar *ngIf="rol !== 'ADMCITASPEDIATRIA' && rol !== 'SUPERADMIN'"></app-citaspediatriausernavbar>
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -56,6 +58,11 @@
                                 placeholder="Seleccione fecha" styleClass="w-full"></p-datepicker>
                         </div>
                         <div class="col-12 md:col-6 mb-3">
+                            <label for="especialidad" class="block text-500 font-medium mb-2">Especialidad</label>
+                            <p-select id="especialidad" [options]="especialidadesList" [(ngModel)]="selectedEspecialidad" (onChange)="filterMedicos()" optionLabel="label"
+                                placeholder="Seleccione Especialidad" styleClass="w-full" appendTo="body"></p-select>
+                        </div>
+                        <div class="col-12 md:col-6 mb-3" *ngIf="selectedEspecialidad?.value === 1">
                             <label for="stage" class="block text-500 font-medium mb-2">Etapa / Control</label>
                             <p-select id="stage" [options]="stages" [(ngModel)]="selectedStage" optionLabel="label"
                                 placeholder="Seleccione Etapa" styleClass="w-full" appendTo="body"></p-select>

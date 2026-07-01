@@ -1,11 +1,13 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CitaspediatriaadminnavbarComponent } from '../../../../navbars/citaspediatriaadminnavbar/citaspediatriaadminnavbar.component';
+import { CitaspediatriausernavbarComponent } from '../../../../navbars/citaspediatriausernavbar/citaspediatriausernavbar.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { SelectModule } from 'primeng/select';
@@ -19,12 +21,13 @@ import { TextareaModule } from 'primeng/textarea';
 @Component({
   selector: 'app-gestion-citas',
   standalone: true,
-  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, CardModule, TableModule, IconFieldModule, InputIconModule, SelectModule, DatePickerModule, DialogModule, TagModule, TextareaModule],
+  imports: [CitaspediatriaadminnavbarComponent, CitaspediatriausernavbarComponent, CommonModule, FormsModule, InputTextModule, ButtonModule, CardModule, TableModule, IconFieldModule, InputIconModule, SelectModule, DatePickerModule, DialogModule, TagModule, TextareaModule],
   templateUrl: './gestion-citas.component.html',
   styleUrl: './gestion-citas.component.css'
 })
 export class GestionCitasComponent implements OnInit {
 
+  rol: string | null = '';
   appointments: any[] = [];
   loading: boolean = false;
   statuses: any[] = [
@@ -78,9 +81,20 @@ export class GestionCitasComponent implements OnInit {
     nombre: '',
     apellido: '',
     telefono: '',
+    estadoActivo: true,
+    especialidadId: null
+  };
+  editingMedicoId: any = null;
+  medicosOptions: any[] = [];
+
+  especialidadesDialog: boolean = false;
+  especialidadesList: any[] = [];
+  loadingEspecialidades: boolean = false;
+  newEspecialidad: any = {
+    nombre: '',
     estadoActivo: true
   };
-  medicosFilterOptions: any[] = [];
+  especialidadesOptions: any[] = [];
 
   // Filter Models
   filterGlobalText: string = '';
@@ -88,6 +102,7 @@ export class GestionCitasComponent implements OnInit {
   filterFecha: any = null;
   filterEstado: any = null;
   filterMedico: any = null;
+  filterEspecialidad: any = null;
   filterControl: any = null;
 
   clearFilters(dt: any) {
@@ -97,6 +112,8 @@ export class GestionCitasComponent implements OnInit {
     this.filterValidacion = null;
     this.filterFecha = null;
     this.filterEstado = null;
+    this.filterMedico = null;
+    this.filterEspecialidad = null;
     this.filterMedico = null;
     this.filterControl = null;
   }
@@ -115,6 +132,7 @@ export class GestionCitasComponent implements OnInit {
 
 
   ngOnInit() {
+    this.rol = sessionStorage.getItem('rol');
     this.loadAppointments();
     this.loadMedicos();
   }
@@ -200,8 +218,13 @@ export class GestionCitasComponent implements OnInit {
   }
 
   async saveEdit() {
-    if (!this.editingCita.fechaCita || !this.editingCita.control) {
+    if (!this.editingCita.fechaCita || !this.editingCita.especialidadId) {
       Swal.fire('Atención', 'Complete todos los campos obligatorios.', 'warning');
+      return;
+    }
+
+    if (this.editingCita.especialidadId === 1 && !this.editingCita.control) {
+      Swal.fire('Atención', 'El Control/Etapa es obligatorio para Pediatría.', 'warning');
       return;
     }
 
@@ -209,9 +232,10 @@ export class GestionCitasComponent implements OnInit {
     try {
       const updateData = {
         fechaCita: this.formatDate(this.editingCita.fechaCita),
-        control: this.editingCita.control,
+        control: this.editingCita.especialidadId === 1 ? this.editingCita.control : null,
         estadoCita: this.editingCita.estadoCita,
-        validada: this.editingCita.validada
+        validada: this.editingCita.validada,
+        especialidadId: this.editingCita.especialidadId
       };
 
       await this.servinteService.updateAppointmentLocal(this.editingCita.id, updateData);
@@ -299,14 +323,17 @@ export class GestionCitasComponent implements OnInit {
   openMedicosModal() {
     this.medicosDialog = true;
     this.loadMedicos();
+    this.loadEspecialidades();
+    this.newMedico = { nombre: '', apellido: '', telefono: '', estadoActivo: true, especialidadId: null };
+    this.editingMedicoId = null;
   }
 
   async loadMedicos() {
     this.loadingMedicos = true;
     try {
       this.medicosList = await this.servinteService.getMedicosLocal();
-      this.medicosFilterOptions = this.medicosList.map(m => ({ label: `${m.nombre} ${m.apellido}`, value: `${m.nombre} ${m.apellido}` }));
-      this.medicosFilterOptions.unshift({ label: 'Sin asignar', value: 'Sin asignar' });
+      this.medicosOptions = this.medicosList.map(m => ({ label: `${m.nombre} ${m.apellido}`, value: `${m.nombre} ${m.apellido}` }));
+      this.medicosOptions.unshift({ label: 'Sin asignar', value: 'Sin asignar' });
     } catch (error) {
       console.error('Error al cargar médicos:', error);
       Swal.fire('Error', 'No se pudieron cargar los médicos.', 'error');
@@ -315,17 +342,38 @@ export class GestionCitasComponent implements OnInit {
     }
   }
 
+  editMedico(medico: any) {
+    this.editingMedicoId = medico.id;
+    this.newMedico = {
+      nombre: medico.nombre,
+      apellido: medico.apellido,
+      telefono: medico.telefono,
+      estadoActivo: medico.estadoActivo,
+      especialidadId: medico.especialidadId
+    };
+  }
+
+  cancelEditMedico() {
+    this.editingMedicoId = null;
+    this.newMedico = { nombre: '', apellido: '', telefono: '', estadoActivo: true, especialidadId: null };
+  }
+
   async saveMedico() {
-    if (!this.newMedico.nombre || !this.newMedico.apellido) {
-      Swal.fire('Atención', 'Nombre y apellido son requeridos.', 'warning');
+    if (!this.newMedico.nombre || !this.newMedico.apellido || !this.newMedico.especialidadId) {
+      Swal.fire('Atención', 'Nombre, apellido y especialidad son requeridos.', 'warning');
       return;
     }
 
     this.loadingMedicos = true;
     try {
-      await this.servinteService.createMedicoLocal(this.newMedico);
-      Swal.fire('Éxito', 'Médico creado correctamente.', 'success');
-      this.newMedico = { nombre: '', apellido: '', telefono: '', estadoActivo: true };
+      if (this.editingMedicoId) {
+        await this.servinteService.updateMedicoLocal(this.editingMedicoId, this.newMedico);
+        Swal.fire('Éxito', 'Médico actualizado correctamente.', 'success');
+      } else {
+        await this.servinteService.createMedicoLocal(this.newMedico);
+        Swal.fire('Éxito', 'Médico creado correctamente.', 'success');
+      }
+      this.cancelEditMedico();
       this.loadMedicos();
     } catch (error) {
       console.error('Error al guardar médico:', error);
@@ -346,6 +394,60 @@ export class GestionCitasComponent implements OnInit {
       Swal.fire('Error', 'No se pudo actualizar el estado.', 'error');
     } finally {
       this.loadingMedicos = false;
+    }
+  }
+
+  // --- MÉTODOS DE ESPECIALIDADES ---
+  openEspecialidadesModal() {
+    this.especialidadesDialog = true;
+    this.loadEspecialidades();
+  }
+
+  async loadEspecialidades() {
+    this.loadingEspecialidades = true;
+    try {
+      this.especialidadesList = await this.servinteService.getEspecialidadesLocal();
+      this.especialidadesOptions = this.especialidadesList.map(e => ({ label: e.nombre, value: e.id }));
+      this.especialidadesOptions.unshift({ label: 'Sin asignar', value: null });
+    } catch (error) {
+      console.error('Error al cargar especialidades:', error);
+      Swal.fire('Error', 'No se pudieron cargar las especialidades.', 'error');
+    } finally {
+      this.loadingEspecialidades = false;
+    }
+  }
+
+  async saveEspecialidad() {
+    if (!this.newEspecialidad.nombre) {
+      Swal.fire('Atención', 'El nombre es requerido.', 'warning');
+      return;
+    }
+
+    this.loadingEspecialidades = true;
+    try {
+      await this.servinteService.createEspecialidadLocal(this.newEspecialidad);
+      Swal.fire('Éxito', 'Especialidad creada correctamente.', 'success');
+      this.newEspecialidad = { nombre: '', estadoActivo: true };
+      this.loadEspecialidades();
+    } catch (error) {
+      console.error('Error al guardar especialidad:', error);
+      Swal.fire('Error', 'No se pudo guardar la especialidad.', 'error');
+    } finally {
+      this.loadingEspecialidades = false;
+    }
+  }
+
+  async toggleEstadoEspecialidad(esp: any) {
+    this.loadingEspecialidades = true;
+    try {
+      await this.servinteService.updateEspecialidadLocal(esp.id, { estadoActivo: !esp.estadoActivo });
+      Swal.fire('Éxito', 'Estado de la especialidad actualizado.', 'success');
+      this.loadEspecialidades();
+    } catch (error) {
+      console.error('Error al actualizar estado:', error);
+      Swal.fire('Error', 'No se pudo actualizar el estado.', 'error');
+    } finally {
+      this.loadingEspecialidades = false;
     }
   }
 }

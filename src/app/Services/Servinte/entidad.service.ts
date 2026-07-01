@@ -101,6 +101,22 @@ export class EntidadService {
     return firstValueFrom(this.httpClient.put<any>(url, data));
   }
 
+  // --- MÉTODOS PARA ESPECIALIDADES DE MADRE CANGURO ---
+  getEspecialidadesLocal() {
+    const url = API_URL + '/citas-pediatria-especialidades';
+    return firstValueFrom(this.httpClient.get<any[]>(url));
+  }
+
+  createEspecialidadLocal(data: any) {
+    const url = API_URL + '/citas-pediatria-especialidades';
+    return firstValueFrom(this.httpClient.post<any>(url, data));
+  }
+
+  updateEspecialidadLocal(id: number, data: any) {
+    const url = API_URL + `/citas-pediatria-especialidades/${id}`;
+    return firstValueFrom(this.httpClient.put<any>(url, data));
+  }
+
   getTriagePacientes() {
     const url = API_SERVINTE_URL + `/TriageQuirurgico`;
     return firstValueFrom(this.httpClient.get<any[]>(url));

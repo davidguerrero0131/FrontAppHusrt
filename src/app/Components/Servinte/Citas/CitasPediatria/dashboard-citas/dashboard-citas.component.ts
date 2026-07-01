@@ -10,11 +10,12 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { Router } from '@angular/router';
+import { CitaspediatriaadminnavbarComponent } from '../../../../navbars/citaspediatriaadminnavbar/citaspediatriaadminnavbar.component';
 
 @Component({
   selector: 'app-dashboard-citas',
   standalone: true,
-  imports: [CommonModule, FormsModule, ChartModule, DatePickerModule, SelectModule, CardModule, ButtonModule, TableModule, DialogModule],
+  imports: [CitaspediatriaadminnavbarComponent, CommonModule, FormsModule, ChartModule, DatePickerModule, SelectModule, CardModule, ButtonModule, TableModule, DialogModule],
   templateUrl: './dashboard-citas.component.html',
   styleUrls: ['./dashboard-citas.component.css']
 })

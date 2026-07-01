@@ -9,17 +9,19 @@ import { CommonModule } from '@angular/common';
 
 import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
+import { CitaspediatriaadminnavbarComponent } from '../../../../navbars/citaspediatriaadminnavbar/citaspediatriaadminnavbar.component';
+import { CitaspediatriausernavbarComponent } from '../../../../navbars/citaspediatriausernavbar/citaspediatriausernavbar.component';
 
 @Component({
   selector: 'app-creacion-citas',
   standalone: true,
-  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, CardModule, DatePickerModule, SelectModule],
+  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, CardModule, DatePickerModule, SelectModule, CitaspediatriaadminnavbarComponent, CitaspediatriausernavbarComponent],
   templateUrl: './creacion-citas.component.html',
   styleUrl: './creacion-citas.component.css'
 })
-export class CreacionCitasComponent {
+export class CreacionCitasComponent implements OnInit {
 
-
+  rol: string | null = '';
   patientId: string = '';
   patientData: any = null;
   pmcUnico: string = '';
@@ -29,6 +31,9 @@ export class CreacionCitasComponent {
   selectedStage: any = null;
   selectedMedico: any = null;
   medicosList: any[] = [];
+  allMedicos: any[] = [];
+  selectedEspecialidad: any = null;
+  especialidadesList: any[] = [];
 
   stages: any[] = [
     { label: 'Diario', value: 'Diario' },
@@ -52,19 +57,46 @@ export class CreacionCitasComponent {
   private servinteService = inject(EntidadService);
 
   ngOnInit() {
+    this.rol = sessionStorage.getItem('rol');
     this.loadMedicos();
+    this.loadEspecialidades();
   }
 
   async loadMedicos() {
     try {
       const medicos = await this.servinteService.getMedicosLocal();
-      // Solo médicos activos
-      this.medicosList = medicos.filter(m => m.estadoActivo).map(m => ({
-        label: `${m.nombre} ${m.apellido}`,
-        value: m.id
-      }));
+      // Guardamos todos los médicos activos
+      this.allMedicos = medicos.filter((m: any) => m.estadoActivo);
+      this.filterMedicos();
     } catch (error) {
       console.error('Error al cargar médicos:', error);
+    }
+  }
+
+  filterMedicos() {
+    if (this.selectedEspecialidad) {
+      this.medicosList = this.allMedicos
+        .filter(m => m.especialidadId === this.selectedEspecialidad.value)
+        .map(m => ({
+          label: `${m.nombre} ${m.apellido}`,
+          value: m.id
+        }));
+    } else {
+      this.medicosList = [];
+    }
+    this.selectedMedico = null; // Reset selection when specialty changes
+  }
+
+  async loadEspecialidades() {
+    try {
+      const especialidades = await this.servinteService.getEspecialidadesLocal();
+      // Solo especialidades activas
+      this.especialidadesList = especialidades.filter(e => e.estadoActivo).map(e => ({
+        label: e.nombre,
+        value: e.id
+      }));
+    } catch (error) {
+      console.error('Error al cargar especialidades:', error);
     }
   }
 
@@ -109,8 +141,13 @@ export class CreacionCitasComponent {
   }
 
   async saveAppointment() {
-    if (!this.patientData || !this.appointmentDate || !this.selectedStage || !this.pmcUnico) {
-      Swal.fire('Error', 'Debe completar todos los datos de la cita, incluyendo el PMC Único.', 'error');
+    if (!this.patientData || !this.appointmentDate || !this.selectedEspecialidad || !this.pmcUnico) {
+      Swal.fire('Error', 'Debe completar los datos de la cita (Paciente, Fecha, Especialidad y PMC Único).', 'error');
+      return;
+    }
+
+    if (this.selectedEspecialidad.value === 1 && !this.selectedStage) {
+      Swal.fire('Error', 'La Etapa/Control es obligatoria para la especialidad de Pediatría.', 'error');
       return;
     }
 
@@ -122,8 +159,9 @@ export class CreacionCitasComponent {
       const citaData = {
         patientData: this.patientData,
         appointmentDate: this.appointmentDate,
-        control: this.selectedStage.value,
-        medicoId: this.selectedMedico ? this.selectedMedico.value : null
+        control: this.selectedStage ? this.selectedStage.value : null,
+        medicoId: this.selectedMedico ? this.selectedMedico.value : null,
+        especialidadId: this.selectedEspecialidad.value
       };
 
       console.log('Enviando datos de cita al backend:', citaData);
@@ -131,14 +169,14 @@ export class CreacionCitasComponent {
       console.log('Respuesta del servidor:', res);
       Swal.fire('Éxito', res.message || 'Cita creada correctamente.', 'success');
 
-      // Reset form or redirect? 
-      // For now, let's keep it simple
+      // Reset form
       this.patientData = null;
       this.patientId = '';
       this.pmcUnico = '';
       this.appointmentDate = null;
       this.selectedStage = null;
       this.selectedMedico = null;
+      this.selectedEspecialidad = null;
 
     } catch (error: any) {
       console.error('Error al guardar cita:', error);

@@ -497,8 +497,11 @@ export class MesaCasosListComponent implements OnInit {
     if (this.checkSuperAdmin()) return true;
 
     // Admin, Agent, Resolutor of the same service
-    if (['ADMIN_SERVICIO', 'ADMINISTRADOR', 'RESOLUTOR', 'AGENTE', 'ADM', 'AG'].includes(this.userRoleCode) && this.userServiceId === caso.servicio?.id) {
-      return true;
+    if (['ADMIN_SERVICIO', 'ADMINISTRADOR', 'RESOLUTOR', 'AGENTE', 'ADM', 'AG'].includes(this.userRoleCode)) {
+      const caseServiceId = caso.servicioId || caso.servicio?.id;
+      if (this.userServiceId === caseServiceId) {
+        return true;
+      }
     }
     return false;
   }
@@ -513,9 +516,10 @@ export class MesaCasosListComponent implements OnInit {
         next: (data: any[]) => {
           // Filter users: Role (Admin/Agent) AND Active
           this.usersService = data.filter(user => {
-            const roleName = user.mesaServicioRol?.nombre;
+            const roleName = user.mesaServicioRol?.nombre?.toUpperCase();
+            const roleCode = user.mesaServicioRol?.codigo?.toUpperCase();
             const isActive = user.estado;
-            return (roleName === 'ADMINISTRADOR' || roleName === 'AGENTE') && isActive === true;
+            return (roleName === 'ADMINISTRADOR' || roleName === 'AGENTE' || roleCode === 'ADM' || roleCode === 'AG' || roleCode === 'RESOLUTOR') && isActive === true;
           });
           this.displayAssignDialog = true;
         },
