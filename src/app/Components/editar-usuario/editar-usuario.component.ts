@@ -100,7 +100,7 @@ export class EditarUsuarioComponent implements OnInit {
     this.mostrarPasswordModal = false;
   }
 
-  aplicarPassword() {
+  async aplicarPassword() {
     if (!this.nuevaContrasena || !this.confirmarContrasena) {
       Swal.fire('Error', 'Debe diligenciar ambos campos', 'error');
       return;
@@ -116,10 +116,14 @@ export class EditarUsuarioComponent implements OnInit {
       return;
     }
 
-    this.usuario.contraseña = this.nuevaContrasena;
-    this.usuario.contrasena = this.nuevaContrasena;
-    this.cerrarModalPassword();
-    Swal.fire('Éxito', 'Contraseña configurada. Guarde los cambios para aplicar.', 'success');
+    try {
+      await this.usuarioServices.cambiarContrasena({ nuevaContrasena: this.nuevaContrasena });
+      this.cerrarModalPassword();
+      Swal.fire('Éxito', 'Contraseña actualizada correctamente.', 'success');
+    } catch (error) {
+      console.error('Error al actualizar contraseña:', error);
+      Swal.fire('Error', 'No se pudo actualizar la contraseña', 'error');
+    }
   }
 
   async guardarCambios() {
