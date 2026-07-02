@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ImagingService } from '../../../../Services/Imaging/imaging.service';
 import { EntidadService } from '../../../../Services/Servinte/entidad.service';
+import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import {
   FormGroup,
@@ -20,7 +21,7 @@ const EXCEL_EXTENSION = '.xlsx';
 @Component({
   selector: 'app-reportce',
   standalone: true,
-  imports: [ReactiveFormsModule, TableModule],
+  imports: [ReactiveFormsModule, TableModule, CommonModule],
   templateUrl: './reportce.component.html',
   styleUrl: './reportce.component.css'
 })
@@ -37,81 +38,67 @@ export class ReportceComponent implements OnInit {
     private formBuilder: FormBuilder
   ) {
     this.formDate = this.formBuilder.group({
-      fechaI: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(
-            /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[012])\/\d{4}$/
-          ),
-        ],
-      ],
-      fechaF: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(
-            /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[012])\/\d{4}$/
-          ),
-        ],
-      ],
+      fechaI: ['', Validators.required],
+      fechaF: ['', Validators.required],
     });
   }
 
-  ngOnInit(): void { }
+  ngOnInit() {
+  }
 
   async updateCitesDate() {
+    // 1. Bucle: Obtener el nombre de la empresa para quienes no lo tienen
     for (let index = 0; index < this.cites.length; index++) {
       const element = this.cites[index];
-      this.entidad = [];
-      if (
-        element.Entidad == null ||
-        element.EAPB == null ||
-        element.Aseguradora == null
-      ) {
-        if (element.Aseguradora != null && element.Entidad == null) {
-          element.Entidad = element.Aseguradora;
-        }
-        if (element.Aseguradora == null && element.Entidad != null) {
-          element.Aseguradora = element.Entidad;
-        }
-        if (element.EAPB == null) {
-
-          this.entidad = await this.entidadService.getEAPBEntidad(element.Aseguradora);
-          if (this.entidad[0] != null) {
-            element.EAPB = this.entidad[0].EMPDETADM;
+      if (!element.empresa) {
+        try {
+          const entidadRes = await this.entidadService.getentidadPaciente(element.id_Unico);
+          if (entidadRes && entidadRes[0] != null) {
+            element.codigo_Empresa = entidadRes[0].EMPDETADM || entidadRes[0].EMPCOD;
+            element.empresa = entidadRes[0].EMPNOM;
           }
-          ;
+        } catch (error) {
+          console.error('Error al obtener entidad paciente para ID', element.id_Unico, error);
         }
       }
-      if (
-        element.Entidad == null &&
-        element.EAPB == null &&
-        element.Aseguradora == null
-      ) {
+    }
 
-        this.entidad = await this.entidadService.getentidadPaciente(element.Num_de_Identificacion);
-        if (this.entidad[0] != null) {
-          element.EAPB = this.entidad[0].EMPCOD;
-          element.Entidad = this.entidad[0].EMPNOM;
-          element.Aseguradora = this.entidad[0].EMPNOM;
-        };
-
-        if (element.Aseguradora != null) {
-          if (element.Tipo_Usuario == null) {
-            if (
-              element.Aseguradora.charAt(element.Aseguradora.length - 1) == 'S'
-            ) {
-              element.Tipo_Usuario = 'SUBSIDIADO';
-            }
-            if (
-              element.Aseguradora.charAt(element.Aseguradora.length - 1) == 'C'
-            ) {
-              element.Tipo_Usuario = 'CONTRIBUTIVO';
-            } else {
-              element.Tipo_Usuario = 'REGIMENES ESPECIALES';
-            }
+    // 2. Bucle: Obtener el código de empresa para quienes no lo traen, usando el nombre
+    for (let index = 0; index < this.cites.length; index++) {
+      const element = this.cites[index];
+      if (!element.codigo_Empresa && element.empresa) {
+        try {
+          const empresaObj = { nombre: element.empresa };
+          const entidadRes = await this.entidadService.getDatosEntidad(empresaObj);
+          if (entidadRes && entidadRes[0] != null) {
+            element.codigo_Empresa = entidadRes[0].EMPDETADM || entidadRes[0].EMPCOD;
+            element.EAPB = entidadRes[0].EMPDETADM;
           }
+        } catch (error) {
+          console.error('Error al obtener datos entidad para', element.empresa, error);
+        }
+      }
+    }
+
+    // 3. Bucle: Obtener/calcular régimen para todos los que no lo traen
+    for (let index = 0; index < this.cites.length; index++) {
+      const element = this.cites[index];
+      if (!element.regimen && element.empresa) {
+        try {
+          const empresaTrimmed = String(element.empresa).trim();
+          const lastChar = empresaTrimmed.charAt(empresaTrimmed.length - 1).toUpperCase();
+          
+          let tipo = 'REGIMENES ESPECIALES';
+          if (lastChar === 'S') {
+            tipo = 'SUBSIDIADO';
+          } else if (lastChar === 'C') {
+            tipo = 'CONTRIBUTIVO';
+          }
+          
+          element.tipo_Usuario = tipo;
+          element.regimen = tipo;
+        } catch (error) {
+          console.error('Error procesando régimen para', element.empresa, error);
         }
       }
     }
@@ -134,28 +121,34 @@ export class ReportceComponent implements OnInit {
     XLSX.writeFile(workbook, ReportceComponent.toExportFileName(excelFileName));
   }
 
-  filtrarporFecha() {
-    if (
-      (this.formDate.value.fechaI != null &&
-        this.formDate.value.fechaF != null) ||
-      (this.formDate.value.fechaI != '' &&
-        this.formDate.value.fechaF != '')
+  cargando: boolean = false;
 
-    ) {
-      if (
-        this.compareDatesInput(
-          this.formDate.value.fechaI,
-          this.formDate.value.fechaF
-        )
-      ) {
+  filtrarporFecha() {
+    if (this.formDate.value.fechaI && this.formDate.value.fechaF) {
+      if (this.compareDatesInput(this.formDate.value.fechaI, this.formDate.value.fechaF)) {
         let obj = {
           fechaI: this.updateDateFormat(this.formDate.value.fechaI) + '',
           fechaF: this.updateDateFormat(this.formDate.value.fechaF) + '',
         };
-        this.imagingService.getCitesDate(obj).subscribe((data) => {
-          this.cites = data.body;
-          this.updateCitesDate();
-
+        console.log(obj);
+        
+        this.cargando = true; // Activar loading
+        
+        this.imagingService.getCitesDate(obj).subscribe({
+          next: async (data) => {
+            if (data && data.body) {
+              this.cites = data.body;
+              await this.updateCitesDate();
+            } else {
+              this.cites = [];
+            }
+            this.cargando = false; // Desactivar loading cuando termina
+          },
+          error: (err) => {
+            console.error('Error al obtener citas:', err);
+            this.cargando = false;
+            Swal.fire('Error', 'Hubo un problema de conexión al buscar las citas.', 'error');
+          }
         });
       } else {
         Swal.fire({
@@ -175,14 +168,17 @@ export class ReportceComponent implements OnInit {
 
   updateDateFormat(date: String): String {
     const partes = date.split('-');
-    const [año, mes, dia] = partes;
-    return dia + '-' + mes + '-' + año;
+    if (partes.length === 3) {
+      const [año, mes, dia] = partes;
+      return dia + '-' + mes + '-' + año;
+    }
+    return date;
   }
 
   compareDatesInput(dateI: String, dateF: String): boolean {
     let dateIN: Date = new Date(dateI + "");
     let dateFN: Date = new Date(dateF + "");
-    if (dateIN < dateFN) {
+    if (dateIN <= dateFN) {
       return true;
     } else {
       return false;

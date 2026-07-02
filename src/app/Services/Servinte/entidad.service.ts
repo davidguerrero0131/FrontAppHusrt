@@ -27,6 +27,11 @@ export class EntidadService {
     return firstValueFrom(this.httpClient.get<any[]>(url));
   }
 
+  getDatosEntidad(object: any) {
+    const url = API_SERVINTE_URL + '/datosentidad';
+    return firstValueFrom(this.httpClient.post<any[]>(url, object));
+  }
+
   getConsultasPediatria(object: any) {
     const url = API_SERVINTE_URL + '/evolucionesespecialistas';
     return firstValueFrom(this.httpClient.post<any[]>(url, object));
