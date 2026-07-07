@@ -27,11 +27,15 @@ import { TabViewModule } from 'primeng/tabview';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
+import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
+import { API_URL } from '../../../../constantes';
+import { ServicioService } from '../../../../Services/appServices/general/servicio/servicio.service';
 
 @Component({
   selector: 'app-ver-reporte',
   standalone: true,
-  imports: [TableModule, IconFieldModule, InputIconModule, InputTextModule, SplitButtonModule, ButtonModule, CommonModule, Dialog, CardModule, PanelModule, TabViewModule, TagModule, TooltipModule, FormsModule],
+  imports: [TableModule, IconFieldModule, InputIconModule, InputTextModule, SplitButtonModule, ButtonModule, CommonModule, Dialog, CardModule, PanelModule, TabViewModule, TagModule, TooltipModule, FormsModule, DropdownModule, CalendarModule],
   templateUrl: './ver-reporte.component.html',
   styleUrl: './ver-reporte.component.css'
 })
@@ -60,6 +64,14 @@ export class VerReporteComponent implements OnInit {
   trasladosService = inject(TrasladosService);
   traslados: any[] = [];
 
+  servicioService = inject(ServicioService);
+  servicios: any[] = [];
+  isEditingTraslado: boolean = false;
+  trasladoEdit: any = {};
+
+  isEditingMetrologia: boolean = false;
+  metrologiaEdit: any = {};
+
   reporteServices = inject(ReportesService);
   equipoService = inject(EquiposService);
   archivosServices = inject(ArchivosService);
@@ -84,6 +96,14 @@ export class VerReporteComponent implements OnInit {
 
   constructor(private route: ActivatedRoute) {
     this.isBrowser = isPlatformBrowser(this.platformId);
+  }
+
+  async cargarServicios() {
+    try {
+      this.servicios = await this.servicioService.getAllServiciosActivos();
+    } catch (error) {
+      console.error('Error al cargar servicios', error);
+    }
   }
 
   async viewPdf(ruta: string) {
@@ -162,6 +182,8 @@ export class VerReporteComponent implements OnInit {
         console.warn('Hoja de vida no encontrada para accesorios', e);
       }
 
+      this.cargarServicios();
+
     } catch (error) {
       console.error(error);
     }
@@ -190,11 +212,100 @@ export class VerReporteComponent implements OnInit {
   viewModalTraslado(traslado: any) {
     this.trasladoSelected = traslado;
     this.modalTraslado = true;
+    this.isEditingTraslado = false;
+  }
+
+  toggleEditTraslado() {
+    this.isEditingTraslado = true;
+    this.trasladoEdit = { ...this.trasladoSelected };
+  }
+
+  cancelarEdicionTraslado() {
+    this.isEditingTraslado = false;
+    this.trasladoEdit = {};
+  }
+
+  async guardarEdicionTraslado() {
+    try {
+      Swal.fire({ title: 'Guardando...', allowOutsideClick: false });
+      Swal.showLoading();
+
+      const res = await this.trasladosService.updateTraslado(this.trasladoSelected.id, this.trasladoEdit);
+      
+      // Update local array and selected
+      this.trasladoSelected = { ...this.trasladoSelected, ...this.trasladoEdit };
+      // Refresh the specific fields that are populated via relationships if possible, 
+      // but a quick way is to just refetch the list
+      const resTraslados = await this.trasladosService.getHistorialTraslados(this.equipo.id);
+      if (resTraslados) {
+        this.traslados = resTraslados;
+        // Also update the selected item from the fresh list
+        const updatedTraslado = this.traslados.find(t => t.id === this.trasladoSelected.id);
+        if (updatedTraslado) this.trasladoSelected = updatedTraslado;
+      }
+
+      this.isEditingTraslado = false;
+
+      Swal.fire('¡Éxito!', 'Traslado actualizado correctamente', 'success');
+    } catch (error: any) {
+      console.error(error);
+      Swal.fire('Error', error.error?.error || 'No se pudo actualizar el traslado', 'error');
+    }
   }
 
   viewModalMetrologia(metrologia: any) {
     this.metrologiaSelected = metrologia;
     this.modalMetrologia = true;
+    this.isEditingMetrologia = false;
+  }
+
+  toggleEditMetrologia() {
+    this.isEditingMetrologia = true;
+    this.metrologiaEdit = { ...this.metrologiaSelected };
+    // Convertir la fecha al formato correcto (Date object o string compatible)
+    if (this.metrologiaEdit.fechaRealizado) {
+        this.metrologiaEdit.fechaRealizado = new Date(this.metrologiaEdit.fechaRealizado);
+    }
+  }
+
+  cancelarEdicionMetrologia() {
+    this.isEditingMetrologia = false;
+    this.metrologiaEdit = {};
+  }
+
+  async guardarEdicionMetrologia() {
+    try {
+      const formData = new FormData();
+      formData.append('tipoActividad', this.metrologiaEdit.tipoActividad);
+      formData.append('empresa', this.metrologiaEdit.empresa);
+      
+      let fechaToSave = this.metrologiaEdit.fechaRealizado;
+      if (fechaToSave instanceof Date) {
+          fechaToSave = fechaToSave.toISOString();
+      }
+      formData.append('fechaRealizado', fechaToSave);
+      formData.append('resultado', this.metrologiaEdit.resultado);
+      formData.append('errorMaximoIdentificado', this.metrologiaEdit.errorMaximoIdentificado);
+      formData.append('unidadMedicion', this.metrologiaEdit.unidadMedicion || '');
+      formData.append('observaciones', this.metrologiaEdit.observaciones || '');
+
+      const res = await this.metrologiaService.updateActividadMetrologica(this.metrologiaSelected.id, formData);
+      
+      this.metrologiaSelected = { ...this.metrologiaSelected, ...res };
+      
+      if (this.equipo && this.equipo.actividadesMetrologicas) {
+        const idx = this.equipo.actividadesMetrologicas.findIndex((m: any) => m.id === this.metrologiaSelected.id);
+        if (idx !== -1) {
+          this.equipo.actividadesMetrologicas[idx] = { ...this.equipo.actividadesMetrologicas[idx], ...res };
+        }
+      }
+
+      this.isEditingMetrologia = false;
+      Swal.fire('¡Éxito!', 'Actividad metrológica actualizada correctamente', 'success');
+    } catch (error: any) {
+      console.error(error);
+      Swal.fire('Error', error.error?.error || 'No se pudo actualizar la actividad', 'error');
+    }
   }
 
   onFileMetrologiaReporteSelected(event: any) {
@@ -205,36 +316,32 @@ export class VerReporteComponent implements OnInit {
     this.selectedFileMetrologiaConfirmacion = event.target.files[0];
   }
 
-  async uploadMetrologiaFiles() {
+  async uploadMetrologiaFile(tipo: 'reporte' | 'confirmacion') {
     if (!this.metrologiaSelected) return;
 
     const formData = new FormData();
 
-    if (this.selectedFileMetrologiaReporte) {
+    if (tipo === 'reporte' && this.selectedFileMetrologiaReporte) {
       formData.append('rutaReporte', this.selectedFileMetrologiaReporte);
-    }
-
-    if (this.selectedFileMetrologiaConfirmacion) {
+    } else if (tipo === 'confirmacion' && this.selectedFileMetrologiaConfirmacion) {
       formData.append('confirmacionMetrologica', this.selectedFileMetrologiaConfirmacion);
-    }
-
-    if (!this.selectedFileMetrologiaReporte && !this.selectedFileMetrologiaConfirmacion) {
-      Swal.fire('Atención', 'Seleccione al menos un archivo para subir', 'warning');
+    } else {
+      Swal.fire('Atención', 'Seleccione un archivo', 'warning');
       return;
     }
 
     try {
       const res = await this.metrologiaService.updateActividadMetrologica(this.metrologiaSelected.id, formData);
-      Swal.fire('Éxito', 'Archivos subidos correctamente', 'success');
+      Swal.fire('Éxito', 'Archivo subido correctamente', 'success');
 
       if (res.rutaReporte) this.metrologiaSelected.rutaReporte = res.rutaReporte;
       if (res.confirmacionMetrologica) this.metrologiaSelected.confirmacionMetrologica = res.confirmacionMetrologica;
 
-      this.selectedFileMetrologiaReporte = null;
-      this.selectedFileMetrologiaConfirmacion = null;
+      if (tipo === 'reporte') this.selectedFileMetrologiaReporte = null;
+      if (tipo === 'confirmacion') this.selectedFileMetrologiaConfirmacion = null;
     } catch (error) {
-      console.error('Error al subir archivos de metrología:', error);
-      Swal.fire('Error', 'No se pudieron subir los archivos', 'error');
+      console.error('Error al subir archivo:', error);
+      Swal.fire('Error', 'No se pudo subir el archivo', 'error');
     }
   }
 

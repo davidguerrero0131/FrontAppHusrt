@@ -583,8 +583,8 @@ export class EquiposRiesgoComponent implements OnInit {
 
     async registrarMetrologia() {
         if (!this.currentEquipo) return;
-        if (!this.tipoActividad || !this.empresa || !this.fechaRealizadoActividad || !this.resultado || this.errorMaximoIdentificado === null || !this.selectedFile) {
-            Swal.fire('Error', 'Todos los campos son obligatorios, incluyendo el archivo.', 'error');
+        if (!this.tipoActividad || !this.empresa || !this.fechaRealizadoActividad || !this.resultado || this.errorMaximoIdentificado === null) {
+            Swal.fire('Error', 'Todos los campos son obligatorios.', 'error');
             return;
         }
 
@@ -598,7 +598,9 @@ export class EquiposRiesgoComponent implements OnInit {
         formData.append('unidadMedicion', this.unidadMedicion);
         formData.append('observaciones', this.observaciones);
         formData.append('usuarioIdFk', getDecodedAccessToken().id);
-        formData.append('rutaReporte', this.selectedFile);
+        if (this.selectedFile) {
+            formData.append('rutaReporte', this.selectedFile);
+        }
 
         if (this.selectedFileConfirmacion) {
             formData.append('confirmacionMetrologica', this.selectedFileConfirmacion);

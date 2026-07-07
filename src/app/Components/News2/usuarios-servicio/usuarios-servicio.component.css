@@ -1,12 +1,19 @@
     /* Estilos para el contenedor */
     .grid-container {
       display: grid;
-      gap: 10px;
-      padding: 10px;
+      gap: 5px;
+      padding: 5px;
+    }
+
+    /* Configuración para pantallas extra grandes: 8 columnas */
+    @media (min-width: 1600px) {
+      .grid-container {
+        grid-template-columns: repeat(8, 1fr);
+      }
     }
 
     /* Configuración para pantallas grandes: 6 columnas */
-    @media (min-width: 1200px) {
+    @media (min-width: 1200px) and (max-width: 1599px) {
       .grid-container {
         grid-template-columns: repeat(6, 1fr);
       }

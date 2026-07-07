@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
 import { FieldsetModule } from 'primeng/fieldset';
 import { MessageService } from 'primeng/api';
@@ -21,6 +22,8 @@ import { jwtDecode } from 'jwt-decode';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
+import { firstValueFrom } from 'rxjs';
 
 import { UppercaseDirective } from '../../../../Directives/uppercase.directive';
 
@@ -29,9 +32,9 @@ import { UppercaseDirective } from '../../../../Directives/uppercase.directive';
   standalone: true,
   imports: [
     CommonModule, FormsModule, ButtonModule, InputTextModule,
-    TextareaModule, SelectModule, ToastModule, FieldsetModule,
+    TextareaModule, SelectModule, MultiSelectModule, ToastModule, FieldsetModule,
     EditorModule, FileUploadModule, UppercaseDirective,
-    IconFieldModule, InputIconModule, RouterModule, TagModule
+    IconFieldModule, InputIconModule, RouterModule, TagModule, TooltipModule
   ],
   providers: [MessageService],
   templateUrl: './mesa-caso-create.component.html',
@@ -93,6 +96,10 @@ export class MesaCasoCreateComponent implements OnInit {
 
   userId: number = 0;
   userRole: string = '';
+  userServicioIdFk: number | null = null;
+  
+  resolutores: any[] = [];
+  selectedResolutor: any[] = []; // Default to empty array for multiselect
 
   constructor(
     private mesaService: MesaService,
@@ -114,6 +121,12 @@ export class MesaCasoCreateComponent implements OnInit {
       const decoded: any = jwtDecode(token);
       this.userId = decoded.id; // Assuming payload has id
       this.userRole = decoded.rol;
+      
+      this.userService.getUserProfil(this.userId).then((user: any) => {
+        if (user) {
+          this.userServicioIdFk = user.servicioId || null;
+        }
+      }).catch(err => console.error("Error fetching user profile", err));
     }
   }
 
@@ -135,6 +148,9 @@ export class MesaCasoCreateComponent implements OnInit {
   }
 
   onServicioChange() {
+    this.resolutores = [];
+    this.selectedResolutor = [];
+    
     if (this.selectedServicio) {
       this.mesaService.getCategorias(this.selectedServicio.id, true).subscribe(data => {
         this.categorias = data;
@@ -142,6 +158,18 @@ export class MesaCasoCreateComponent implements OnInit {
         this.selectedSubcategoria = null;
         this.subcategorias = [];
       });
+      
+      // Load resolutors if user service matches destination service
+      if (this.userServicioIdFk && this.selectedServicio.id === this.userServicioIdFk) {
+        this.mesaService.getUsersByServicio(this.selectedServicio.id).subscribe((data: any[]) => {
+          this.resolutores = data.filter(user => {
+            const isActive = user.estado;
+            const roleName = user.rol?.nombre;
+            const roleCode = user.mesaServicioRol?.codigo;
+            return (roleName === 'ADMINISTRADOR' || roleName === 'AGENTE' || roleCode === 'ADM' || roleCode === 'AG' || roleCode === 'RESOLUTOR') && isActive === true;
+          });
+        });
+      }
     } else {
       this.categorias = [];
     }
@@ -218,7 +246,7 @@ export class MesaCasoCreateComponent implements OnInit {
   }
 
   submit() {
-    if (!this.caso.titulo || !this.selectedServicio || !this.selectedCategoria || !this.selectedSubcategoria || !this.selectedSumerce) {
+    if (!this.caso.titulo || !this.selectedServicio || !this.selectedCategoria || !this.selectedSubcategoria) {
       this.messageService.add({ severity: 'warn', summary: 'Faltan datos', detail: 'Complete todos los campos obligatorios' });
       return;
     }
@@ -241,7 +269,9 @@ export class MesaCasoCreateComponent implements OnInit {
       if (this.selectedTipoEquipo) formData.append('tipoEquipoId', this.selectedTipoEquipo.id);
       if (this.selectedEquipo) formData.append('equipoId', this.selectedEquipo.id);
     }
-    formData.append('sumerce', this.selectedSumerce.value);
+    // Promesa de valor is no longer mandatory, removed.
+    // if (this.selectedSumerce) formData.append('sumerce', this.selectedSumerce.value);
+    
     formData.append('creadorId', this.userId.toString());
 
     // Append files
@@ -252,15 +282,37 @@ export class MesaCasoCreateComponent implements OnInit {
     }
 
     this.mesaService.createCaso(formData).subscribe({
-      next: (res) => {
-        this.messageService.add({ severity: 'success', summary: 'Creado', detail: 'Caso creado con éxito' });
-        setTimeout(() => {
-          this.router.navigate(['/adminmesaservicios/casos']);
-        }, 1500);
+      next: async (res: any) => {
+        // Asignar responsables si fueron seleccionados
+        if (this.selectedResolutor && this.selectedResolutor.length > 0 && res && res.id) {
+            try {
+                const asignaciones = this.selectedResolutor.map((user: any) => {
+                    const payload = { usuarioId: user.id, asignadoPor: this.userId };
+                    return firstValueFrom(this.mesaService.assignResolutor(res.id, payload));
+                });
+                
+                await Promise.all(asignaciones);
+                
+                this.messageService.add({ severity: 'success', summary: 'Creado', detail: 'Caso creado y responsables asignados con éxito' });
+                this.navigateAfterCreation();
+            } catch (error) {
+                this.messageService.add({ severity: 'warn', summary: 'Creado', detail: 'Caso creado, pero hubo un error asignando responsables' });
+                this.navigateAfterCreation();
+            }
+        } else {
+            this.messageService.add({ severity: 'success', summary: 'Creado', detail: 'Caso creado con éxito' });
+            this.navigateAfterCreation();
+        }
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo crear el caso' });
       }
     });
+  }
+  
+  navigateAfterCreation() {
+      setTimeout(() => {
+          this.router.navigate(['/adminmesaservicios/casos']);
+      }, 1500);
   }
 }

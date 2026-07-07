@@ -24,6 +24,7 @@
         </div>
 
         <div class="flex gap-2">
+            <button *ngIf="isAdmin" pButton label="Ver Historial" icon="pi pi-history" class="p-button-outlined p-button-info border-round-lg px-4" (click)="displayHistoryDialog = true"></button>
             <button *ngIf="canClose() && caso.estado !== 'CERRADO'" pButton label="Finalizar Caso" icon="pi pi-check-circle"
                 class="p-button-success p-button-raised border-round-lg px-4" (click)="openCloseDialog()"></button>
         </div>
@@ -600,9 +601,21 @@
                             <p><strong>Registro Invima:</strong> {{ reportSelected?.usuario.registroInvima }}</p>
                         </div>
                         <div class="col-12 md:col-6 flex flex-column gap-2">
+                            <!-- Si YA hay PDF -->
                             <button type="button" pButton icon="pi pi-file-pdf" label="Ver Reporte Firmado (PDF)" class="p-button-danger" (click)="viewPdf(reportSelected?.rutaPdf)"
                                 *ngIf="reportSelected?.rutaPdf"></button>
-                            <button type="button" pButton icon="pi pi-file" label="Generar Formato PDF" class="p-button-secondary" (click)="descargarFormato()"
+                            
+                            <!-- Si NO hay PDF y es el creador -->
+                            <ng-container *ngIf="!reportSelected?.rutaPdf && reportSelected?.usuario?.id === userId">
+                                <button pButton type="button" label="Firmar Digitalmente en Pantalla" icon="pi pi-pencil" 
+                                    class="p-button-warning font-bold" (click)="abrirModalFirma()"></button>
+                                <hr class="w-full my-2 border-300">
+                                <label class="font-bold text-sm">O Cargar Reporte Firmado (PDF):</label>
+                                <input type="file" (change)="onFileSelected($event)" accept=".pdf" class="p-inputtext p-component p-element p-inputtext-sm w-full mb-2">
+                                <button type="button" pButton icon="pi pi-upload" label="Guardar PDF" class="p-button-primary" [disabled]="!selectedFile" (click)="subirPdf()"></button>
+                            </ng-container>
+
+                            <button type="button" pButton icon="pi pi-file" label="Generar Formato PDF (Sin Firmas)" class="p-button-secondary p-button-outlined mt-2" (click)="descargarFormato()"
                                 *ngIf="reportSelected?.realizado"></button>
                         </div>
                     </div>
@@ -610,4 +623,66 @@
             </div>
         </div>
     </div>
+</p-dialog>
+
+<p-dialog header="Firmar Reporte" [(visible)]="modalFirma" [modal]="true" [style]="{width: '90vw', maxWidth: '500px'}" [draggable]="false" [resizable]="false" (onHide)="limpiarFirma()">
+    <div class="flex flex-column gap-3 pt-2">
+        <div class="p-field">
+            <label class="font-bold block mb-1">Nombre de quien recibe</label>
+            <input type="text" pInputText [(ngModel)]="nombreFirma" class="w-full p-inputtext-sm" placeholder="Ej. Juan Pérez" />
+        </div>
+        <div class="p-field">
+            <label class="font-bold block mb-1">Cédula de quien recibe (Opcional)</label>
+            <input type="text" pInputText [(ngModel)]="cedulaFirma" class="w-full p-inputtext-sm" placeholder="Ej. 123456789" />
+        </div>
+        
+        <div class="p-field flex flex-column mt-3">
+            <label class="font-bold block mb-1 text-center">Firma Digital (Dibuje aquí su firma)</label>
+            <div class="border-2 border-solid border-300 border-round bg-white overflow-hidden relative" style="height: 200px; touch-action: none;">
+                <canvas #signatureCanvas class="w-full h-full cursor-crosshair absolute top-0 left-0"></canvas>
+            </div>
+            <div class="flex justify-content-end mt-2">
+                <button pButton type="button" label="Limpiar" icon="pi pi-eraser" class="p-button-text p-button-sm p-button-danger" (click)="limpiarFirma()"></button>
+            </div>
+        </div>
+    </div>
+    
+    <ng-template pTemplate="footer">
+        <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="modalFirma = false"></button>
+        <button pButton type="button" label="Guardar Firma y Finalizar" icon="pi pi-check" class="p-button-primary" (click)="guardarFirmaYGenerar()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="displayHistoryDialog" [style]="{width: '600px', 'max-height': '80vh'}" header="Historial de Movimientos" [modal]="true"
+    [draggable]="false" [resizable]="false" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="flex flex-column gap-3 mt-3">
+            <div *ngFor="let h of caso.historial" class="surface-ground p-3 border-round-lg shadow-1">
+                <div class="flex justify-content-between align-items-center mb-2">
+                    <span class="font-bold text-indigo-500 text-lg">{{h.evento}}</span>
+                    <span class="text-sm text-500"><i class="pi pi-clock mr-1"></i>{{ h.createdAt | date:'mediumDate' }} {{ h.createdAt | date:'shortTime' }}</span>
+                </div>
+                <div class="text-700 text-sm mb-2" *ngIf="h.usuario">
+                    <i class="pi pi-user mr-1 text-primary"></i> Realizado por: <strong>{{h.usuario.nombres}} {{h.usuario.apellidos}}</strong>
+                </div>
+                <div class="grid grid-nogutter text-sm" *ngIf="h.valorAnterior || h.valorNuevo">
+                    <div class="col-6 pr-2" *ngIf="h.valorAnterior">
+                        <div class="text-500 mb-1 text-xs uppercase font-bold">Valor Anterior</div>
+                        <div class="p-2 border-round surface-0 border-1 surface-border text-red-500 line-height-3 break-word">{{h.valorAnterior}}</div>
+                    </div>
+                    <div class="col-6" [ngClass]="{'pl-2': h.valorAnterior, 'col-12': !h.valorAnterior}" *ngIf="h.valorNuevo">
+                        <div class="text-500 mb-1 text-xs uppercase font-bold">Valor Nuevo</div>
+                        <div class="p-2 border-round surface-0 border-1 surface-border text-green-500 line-height-3 break-word">{{h.valorNuevo}}</div>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="!caso.historial || caso.historial.length === 0" class="text-center p-4">
+                <i class="pi pi-inbox text-4xl text-300 mb-2"></i>
+                <p class="text-500 m-0">No hay movimientos registrados.</p>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cerrar" icon="pi pi-times" class="p-button-text p-button-secondary w-full" (click)="displayHistoryDialog = false"></button>
+    </ng-template>
 </p-dialog>

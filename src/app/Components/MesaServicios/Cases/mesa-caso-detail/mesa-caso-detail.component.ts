@@ -1,4 +1,4 @@
-import { Component, OnInit, Optional } from '@angular/core';
+import { Component, OnInit, Optional, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -12,8 +12,10 @@ import { RatingModule } from 'primeng/rating';
 import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { InputTextModule } from 'primeng/inputtext';
 import { jwtDecode } from 'jwt-decode';
 import { FileUploadModule } from 'primeng/fileupload';
+import SignaturePad from 'signature_pad';
 import { EquiposService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { TipoEquipoService } from '../../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
 import { ParametrosService } from '../../../../Services/appServices/biomedicaServices/parametros/parametros.service';
@@ -40,7 +42,7 @@ import { API_URL } from '../../../../constantes';
     CommonModule, FormsModule, CardModule, ButtonModule, TextareaModule,
     TagModule, PanelModule, DialogModule, RatingModule, ToastModule, ConfirmDialogModule,
     FileUploadModule, SelectModule, ChipModule, RouterModule, EditorModule, ImageModule, TooltipModule,
-    AutoCompleteModule
+    AutoCompleteModule, InputTextModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './mesa-caso-detail.component.html',
@@ -60,6 +62,13 @@ export class MesaCasoDetailComponent implements OnInit {
   casoId: number = 0;
   caso: any = null;
   userId: number = 0;
+
+  modalFirma: boolean = false;
+  nombreFirma: string = '';
+  cedulaFirma: string = '';
+  signaturePad!: SignaturePad;
+  selectedFile: File | null = null;
+  @ViewChild('signatureCanvas') signatureCanvas!: ElementRef<HTMLCanvasElement>;
 
   get currentToken(): string {
     return this.userService.getToken() || '';
@@ -272,6 +281,93 @@ export class MesaCasoDetailComponent implements OnInit {
     }
   }
 
+  abrirModalFirma() {
+    this.modalFirma = true;
+    setTimeout(() => {
+      this.initSignaturePad();
+    }, 200);
+  }
+
+  initSignaturePad() {
+    const canvas = this.signatureCanvas?.nativeElement;
+    if (canvas) {
+      this.signaturePad = new SignaturePad(canvas, {
+        penColor: 'rgb(0, 0, 0)'
+      });
+      this.resizeCanvas(canvas);
+    }
+  }
+
+  resizeCanvas(canvas: HTMLCanvasElement) {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext('2d')?.scale(ratio, ratio);
+    this.signaturePad.clear();
+  }
+
+  limpiarFirma() {
+    if (this.signaturePad) {
+      this.signaturePad.clear();
+    }
+    this.nombreFirma = '';
+    this.cedulaFirma = '';
+  }
+
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0] || null;
+  }
+
+  async subirPdf() {
+    if (!this.selectedFile || !this.reportSelected) return;
+    try {
+      this.messageService.add({ severity: 'info', summary: 'Subiendo', detail: 'Por favor espere...' });
+      const res = await this.reportesService.uploadReportePdf(this.reportSelected.id, this.selectedFile);
+      this.reportSelected.rutaPdf = res.rutaPdf;
+      this.selectedFile = null;
+      this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Reporte PDF cargado correctamente' });
+    } catch (error) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo subir el PDF' });
+    }
+  }
+
+  async guardarFirmaYGenerar() {
+    if (this.signaturePad.isEmpty()) {
+      this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'Debe proporcionar una firma en el recuadro' });
+      return;
+    }
+    if (!this.nombreFirma) {
+      this.messageService.add({ severity: 'warn', summary: 'Atención', detail: 'Debe proporcionar el nombre de quien recibe' });
+      return;
+    }
+    try {
+      this.messageService.add({ severity: 'info', summary: 'Generando', detail: 'Por favor espere...' });
+      const firmaReceptorBase64 = this.signaturePad.toDataURL('image/png');
+      this.reportSelected.nombreRecibio = this.nombreFirma;
+      this.reportSelected.cedulaRecibio = this.cedulaFirma;
+
+      let blob: Blob | void;
+      if (this.reportSelected.tipoMantenimiento === 'Preventivo') {
+          blob = await this.pdfGeneratorService.generateReportePreventivo(this.reportSelected, firmaReceptorBase64, true);
+      } else {
+          blob = await this.pdfGeneratorService.generateReporteCorrectivo(this.reportSelected, firmaReceptorBase64, true);
+      }
+
+      if (blob) {
+        const file = new File([blob], `Reporte_${this.reportSelected.id}.pdf`, { type: 'application/pdf' });
+        const res = await this.reportesService.uploadReportePdf(this.reportSelected.id, file);
+        this.reportSelected.rutaPdf = res.rutaPdf;
+        this.modalFirma = false;
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'El reporte fue firmado y guardado correctamente' });
+      } else {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo generar el PDF' });
+      }
+    } catch(err) {
+      console.error(err);
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Hubo un problema al procesar la firma o subir el archivo' });
+    }
+  }
+
   iniciarEdicionEquipo() {
     this.editandoEquipo = true;
     this.selectedEquipo = this.equipoActual;
@@ -389,6 +485,12 @@ export class MesaCasoDetailComponent implements OnInit {
 
   userRoleCode: string = '';
   userServiceId: number = 0;
+  displayHistoryDialog: boolean = false;
+
+  get isAdmin(): boolean {
+    const roleCode = this.userRoleCode?.toUpperCase();
+    return ['ADMINISTRADOR', 'ADM'].includes(roleCode || '');
+  }
 
   extractUser() {
     const token = this.userService.getToken();
@@ -444,6 +546,11 @@ export class MesaCasoDetailComponent implements OnInit {
     this.mesaService.getCasoById(this.casoId).subscribe({
       next: (data) => {
         this.caso = data;
+
+        if (this.caso.historial && this.caso.historial.length > 0) {
+            const lastHistorial = this.caso.historial.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+            this.caso.ultimoModificador = lastHistorial.usuario;
+        }
 
         // Extraer informacin de equipo de la nueva estructura del backend
         if (this.caso.equipoBiomedico || this.caso.equipoIndustrial || this.caso.area || this.caso.elemento || this.caso.tipoEquipo) {

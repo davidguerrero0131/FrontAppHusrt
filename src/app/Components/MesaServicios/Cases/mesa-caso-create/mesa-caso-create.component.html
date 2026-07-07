@@ -32,10 +32,7 @@
                     <ng-template pTemplate="selectedItem" let-servicio>
                         <div class="flex align-items-center gap-3 font-bold" *ngIf="servicio">
                             <i class="pi pi-building text-blue-500 text-xl"></i>
-                            <div>
-                                <div class="text-800">{{ servicio.nombres }}</div>
-                                <div class="text-500 text-xs font-normal">Destinatario del caso</div>
-                            </div>
+                            <div class="text-800">{{ servicio.nombres }}</div>
                         </div>
                     </ng-template>
 
@@ -52,8 +49,8 @@
                 </p-select>
             </div>
 
-            <!-- Promesa SUMERCE -->
-            <div class="col-12 md:col-6">
+            <!-- Promesa SUMERCE (Oculto temporalmente) -->
+            <div class="col-12 md:col-6" *ngIf="false">
                 <label class="form-field-label"><i class="pi pi-star mr-2 text-yellow-500"></i>Promesa de Valor</label>
                 <p-select [options]="sumerceOptions" [(ngModel)]="selectedSumerce" optionLabel="label"
                     placeholder="Elige una promesa (SUMERCE)" styleClass="w-full shadow-1 border-round-xl p-inputtext-lg">
@@ -73,14 +70,13 @@
                     placeholder="Seleccione Categoría" (onChange)="onCategoriaChange()" [filter]="true" filterBy="nombre"
                     [disabled]="!selectedServicio" emptyMessage="Seleccione primero un servicio" styleClass="w-full shadow-1 border-round-xl p-inputtext-lg">
                     <ng-template pTemplate="selectedItem" let-selected>
-                        <div class="flex align-items-center gap-2" *ngIf="selected">
+                        <div class="flex align-items-center gap-2" *ngIf="selected" [pTooltip]="selected.descripcion || 'Ninguna descripción adicional disponible para esta categoría.'" tooltipPosition="top">
                             <span class="font-bold">{{selected.nombre}}</span>
                         </div>
                     </ng-template>
                     <ng-template let-cat pTemplate="item">
-                        <div class="flex flex-column w-full">
+                        <div class="flex flex-column w-full" [pTooltip]="cat.descripcion || 'Ninguna descripción adicional disponible para esta categoría.'" tooltipPosition="right">
                             <span class="font-bold border-bottom-1 border-100 pb-1 mb-1">{{ cat.nombre }}</span>
-                            <span class="text-500 text-xs line-height-2">{{ cat.descripcion || 'Ninguna descripción adicional disponible para esta categoría.' }}</span>
                         </div>
                     </ng-template>    
                 </p-select>
@@ -93,18 +89,32 @@
                     placeholder="Sub-tipo de caso" [disabled]="!selectedCategoria" [filter]="true" filterBy="nombre"
                     emptyMessage="Seleccione primero una categoría" styleClass="w-full shadow-1 border-round-xl p-inputtext-lg">
                     <ng-template pTemplate="selectedItem" let-selected>
-                        <div class="flex align-items-center gap-2" *ngIf="selected">
+                        <div class="flex align-items-center gap-2" *ngIf="selected" [pTooltip]="selected.descripcion || 'Ninguna aclaración especial'" tooltipPosition="top">
                             <span class="font-bold">{{selected.nombre}}</span>
                         </div>
                     </ng-template>
                     <ng-template let-sub pTemplate="item">
-                        <div class="flex flex-column w-full">
+                        <div class="flex flex-column w-full" [pTooltip]="sub.descripcion || 'Ninguna aclaración especial'" tooltipPosition="right">
                             <span class="font-bold border-bottom-1 border-100 pb-1 mb-1">{{ sub.nombre }}</span>
-                            <span class="text-500 text-xs line-height-2">{{ sub.descripcion || 'Ninguna aclaración especial' }}</span>
                         </div>
                     </ng-template>
                 </p-select>
             </div>
+            
+            <!-- Asignar Responsable (Solo si el servicio destino coincide con el del solicitante) -->
+            <div class="col-12 md:col-6" *ngIf="resolutores.length > 0">
+                <label class="form-field-label"><i class="pi pi-user mr-2 text-green-500"></i>Asignar Responsables</label>
+                <p-multiSelect [options]="resolutores" [(ngModel)]="selectedResolutor" optionLabel="nombres"
+                    placeholder="Seleccione responsables (Opcional)" [filter]="true" filterBy="nombres,apellidos" display="chip"
+                    [showClear]="true" emptyMessage="No hay resolutores disponibles" styleClass="w-full shadow-1 border-round-xl p-inputtext-lg">
+                    <ng-template let-user pTemplate="item">
+                        <div class="flex align-items-center gap-2 py-1">
+                            <span class="font-bold">{{ user.nombres }} {{ user.apellidos }}</span>
+                        </div>
+                    </ng-template>
+                </p-multiSelect>
+            </div>
+
             <!-- Equipo (Condicional) -->
             <div class="col-12 mt-3 p-3 surface-ground border-round-xl border-1 surface-border" *ngIf="requiereEquipo">
                 <h3 class="m-0 mb-3 text-lg text-800"><i class="pi pi-desktop mr-2 text-indigo-400"></i>Relacionar Equipo (Opcional/Requerido)</h3>

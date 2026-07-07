@@ -37,6 +37,12 @@ export class TrasladosService {
         );
     }
 
+    updateTraslado(id: number, data: any) {
+        return firstValueFrom(
+            this.http.put(`${this.baseUrl}/traslados/${id}`, data)
+        );
+    }
+
     uploadActaTraslado(id: number, file: File) {
         const formData = new FormData();
         formData.append('file', file);

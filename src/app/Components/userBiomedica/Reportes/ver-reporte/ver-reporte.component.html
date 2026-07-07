@@ -455,8 +455,14 @@
   </p-dialog>
 
   <!-- Modal para ver el detalle de Traslado -->
-  <p-dialog header="Detalle de Traslado" [(visible)]="modalTraslado" [modal]="true" [responsive]="true"
-    [style]="{width: '90vw', maxWidth: '900px'}" styleClass="standard-modal modal-lg" [baseZIndex]="10000">
+  <p-dialog [(visible)]="modalTraslado" [modal]="true" [responsive]="true"
+    [style]="{width: '90vw', maxWidth: '900px'}" styleClass="standard-modal modal-lg" [baseZIndex]="10000" (onHide)="cancelarEdicionTraslado()">
+    <ng-template pTemplate="header">
+        <div class="flex justify-content-between align-items-center w-full">
+            <span class="text-xl font-bold">Detalle de Traslado</span>
+            <button *ngIf="!isEditingTraslado && !trasladoSelected?.archivoActa && trasladoSelected?.usuarioIdFk === userId" pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-warning" (click)="toggleEditTraslado()" pTooltip="Editar Traslado" tooltipPosition="left"></button>
+        </div>
+    </ng-template>
     <div class="p-fluid p-3" *ngIf="trasladoSelected">
       
       <!-- Información del Equipo -->
@@ -503,18 +509,36 @@
           <div class="col-12 md:col-6 p-2">
               <div class="surface-card p-3 h-full border-round shadow-1 border-left-3 border-green-500">
                   <h6 class="text-green-500 mt-0 mb-3 text-lg"><i class="pi pi-sign-in mr-2"></i>Hacia: Destino</h6>
-                  <div class="mb-3">
-                      <span class="text-500 text-sm block mb-1">Servicio</span>
-                      <span class="font-medium text-800">{{ trasladoSelected.servicioDestino?.nombres || 'N/A' }}</span>
-                  </div>
-                  <div class="mb-3">
-                      <span class="text-500 text-sm block mb-1">Ubicación</span>
-                      <span class="font-medium text-800">{{ trasladoSelected.ubicacionDestino || 'N/A' }}</span>
-                  </div>
-                  <div class="mb-0">
-                      <span class="text-500 text-sm block mb-1">Ubicación Específica</span>
-                      <span class="font-medium text-800">{{ trasladoSelected.ubicacionEspecificaDestino || 'N/A' }}</span>
-                  </div>
+                  
+                  <ng-container *ngIf="!isEditingTraslado">
+                      <div class="mb-3">
+                          <span class="text-500 text-sm block mb-1">Servicio</span>
+                          <span class="font-medium text-800">{{ trasladoSelected.servicioDestino?.nombres || 'N/A' }}</span>
+                      </div>
+                      <div class="mb-3">
+                          <span class="text-500 text-sm block mb-1">Ubicación</span>
+                          <span class="font-medium text-800">{{ trasladoSelected.ubicacionDestino || 'N/A' }}</span>
+                      </div>
+                      <div class="mb-0">
+                          <span class="text-500 text-sm block mb-1">Ubicación Específica</span>
+                          <span class="font-medium text-800">{{ trasladoSelected.ubicacionEspecificaDestino || 'N/A' }}</span>
+                      </div>
+                  </ng-container>
+
+                  <ng-container *ngIf="isEditingTraslado">
+                      <div class="mb-3">
+                          <span class="text-500 text-sm block mb-1">Servicio</span>
+                          <p-dropdown [options]="servicios" [(ngModel)]="trasladoEdit.servicioDestinoIdFk" optionLabel="nombres" optionValue="id" placeholder="Seleccione un servicio" styleClass="w-full" appendTo="body"></p-dropdown>
+                      </div>
+                      <div class="mb-3">
+                          <span class="text-500 text-sm block mb-1">Ubicación</span>
+                          <input type="text" pInputText [(ngModel)]="trasladoEdit.ubicacionDestino" class="w-full p-inputtext-sm" />
+                      </div>
+                      <div class="mb-0">
+                          <span class="text-500 text-sm block mb-1">Ubicación Específica</span>
+                          <input type="text" pInputText [(ngModel)]="trasladoEdit.ubicacionEspecificaDestino" class="w-full p-inputtext-sm" />
+                      </div>
+                  </ng-container>
               </div>
           </div>
 
@@ -522,18 +546,36 @@
           <div class="col-12 md:col-6 p-2">
               <div class="surface-card p-3 h-full border-round shadow-1 border-left-3 border-orange-500">
                   <h6 class="text-orange-500 mt-0 mb-3 text-lg"><i class="pi pi-user-minus mr-2"></i>Entregado Por</h6>
-                  <div class="mb-3">
-                      <span class="text-500 text-sm block mb-1">Nombre</span>
-                      <span class="font-medium text-800">{{ trasladoSelected.entregadoPor || 'N/A' }}</span>
-                  </div>
-                  <div class="mb-3">
-                      <span class="text-500 text-sm block mb-1">Cargo</span>
-                      <span class="font-medium text-800">{{ trasladoSelected.cargoEntrega || 'N/A' }}</span>
-                  </div>
-                  <div class="mb-0">
-                      <span class="text-500 text-sm block mb-1">Cédula</span>
-                      <span class="font-medium text-800">{{ trasladoSelected.cedulaEntrega || 'N/A' }}</span>
-                  </div>
+                  
+                  <ng-container *ngIf="!isEditingTraslado">
+                      <div class="mb-3">
+                          <span class="text-500 text-sm block mb-1">Nombre</span>
+                          <span class="font-medium text-800">{{ trasladoSelected.entregadoPor || 'N/A' }}</span>
+                      </div>
+                      <div class="mb-3">
+                          <span class="text-500 text-sm block mb-1">Cargo</span>
+                          <span class="font-medium text-800">{{ trasladoSelected.cargoEntrega || 'N/A' }}</span>
+                      </div>
+                      <div class="mb-0">
+                          <span class="text-500 text-sm block mb-1">Cédula</span>
+                          <span class="font-medium text-800">{{ trasladoSelected.cedulaEntrega || 'N/A' }}</span>
+                      </div>
+                  </ng-container>
+
+                  <ng-container *ngIf="isEditingTraslado">
+                      <div class="mb-3">
+                          <span class="text-500 text-sm block mb-1">Nombre</span>
+                          <input type="text" pInputText [(ngModel)]="trasladoEdit.entregadoPor" class="w-full p-inputtext-sm" />
+                      </div>
+                      <div class="mb-3">
+                          <span class="text-500 text-sm block mb-1">Cargo</span>
+                          <input type="text" pInputText [(ngModel)]="trasladoEdit.cargoEntrega" class="w-full p-inputtext-sm" />
+                      </div>
+                      <div class="mb-0">
+                          <span class="text-500 text-sm block mb-1">Cédula</span>
+                          <input type="text" pInputText [(ngModel)]="trasladoEdit.cedulaEntrega" class="w-full p-inputtext-sm" />
+                      </div>
+                  </ng-container>
               </div>
           </div>
 
@@ -541,18 +583,36 @@
           <div class="col-12 md:col-6 p-2">
               <div class="surface-card p-3 h-full border-round shadow-1 border-left-3 border-teal-500">
                   <h6 class="text-teal-500 mt-0 mb-3 text-lg"><i class="pi pi-user-plus mr-2"></i>Recibido Por</h6>
-                  <div class="mb-3">
-                      <span class="text-500 text-sm block mb-1">Nombre</span>
-                      <span class="font-medium text-800">{{ trasladoSelected.nombreReceptor || 'N/A' }}</span>
-                  </div>
-                  <div class="mb-3">
-                      <span class="text-500 text-sm block mb-1">Cargo</span>
-                      <span class="font-medium text-800">{{ trasladoSelected.cargoReceptor || 'N/A' }}</span>
-                  </div>
-                  <div class="mb-0">
-                      <span class="text-500 text-sm block mb-1">Cédula</span>
-                      <span class="font-medium text-800">{{ trasladoSelected.cedulaRecibe || 'N/A' }}</span>
-                  </div>
+                  
+                  <ng-container *ngIf="!isEditingTraslado">
+                      <div class="mb-3">
+                          <span class="text-500 text-sm block mb-1">Nombre</span>
+                          <span class="font-medium text-800">{{ trasladoSelected.nombreReceptor || 'N/A' }}</span>
+                      </div>
+                      <div class="mb-3">
+                          <span class="text-500 text-sm block mb-1">Cargo</span>
+                          <span class="font-medium text-800">{{ trasladoSelected.cargoReceptor || 'N/A' }}</span>
+                      </div>
+                      <div class="mb-0">
+                          <span class="text-500 text-sm block mb-1">Cédula</span>
+                          <span class="font-medium text-800">{{ trasladoSelected.cedulaRecibe || 'N/A' }}</span>
+                      </div>
+                  </ng-container>
+
+                  <ng-container *ngIf="isEditingTraslado">
+                      <div class="mb-3">
+                          <span class="text-500 text-sm block mb-1">Nombre</span>
+                          <input type="text" pInputText [(ngModel)]="trasladoEdit.nombreReceptor" class="w-full p-inputtext-sm" />
+                      </div>
+                      <div class="mb-3">
+                          <span class="text-500 text-sm block mb-1">Cargo</span>
+                          <input type="text" pInputText [(ngModel)]="trasladoEdit.cargoReceptor" class="w-full p-inputtext-sm" />
+                      </div>
+                      <div class="mb-0">
+                          <span class="text-500 text-sm block mb-1">Cédula</span>
+                          <input type="text" pInputText [(ngModel)]="trasladoEdit.cedulaRecibe" class="w-full p-inputtext-sm" />
+                      </div>
+                  </ng-container>
               </div>
           </div>
           
@@ -573,17 +633,28 @@
                       </div>
                       <div class="col-12 md:col-7">
                           <span class="text-500 text-sm block mb-1">Observaciones</span>
-                          <div class="font-medium text-700 surface-100 p-3 border-round min-h-full line-height-3 text-sm">
-                              {{ trasladoSelected.observaciones || 'Sin observaciones' }}
-                          </div>
+                          <ng-container *ngIf="!isEditingTraslado">
+                              <div class="font-medium text-700 surface-100 p-3 border-round min-h-full line-height-3 text-sm">
+                                  {{ trasladoSelected.observaciones || 'Sin observaciones' }}
+                              </div>
+                          </ng-container>
+                          <ng-container *ngIf="isEditingTraslado">
+                              <textarea pInputText [(ngModel)]="trasladoEdit.observaciones" rows="4" class="w-full p-inputtext-sm" style="resize: none;"></textarea>
+                          </ng-container>
                       </div>
                   </div>
               </div>
           </div>
       </div>
 
+      <!-- Actions Edit Mode -->
+      <div *ngIf="isEditingTraslado" class="mt-4 border-top-1 surface-border pt-4 flex justify-content-end gap-2">
+          <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="cancelarEdicionTraslado()"></button>
+          <button pButton type="button" label="Guardar Cambios" icon="pi pi-check" class="p-button-primary" (click)="guardarEdicionTraslado()"></button>
+      </div>
+
       <!-- Actions -->
-      <div class="mt-4 border-top-1 surface-border pt-4">
+      <div *ngIf="!isEditingTraslado" class="mt-4 border-top-1 surface-border pt-4">
         <div *ngIf="trasladoSelected.archivoActa" class="flex justify-content-end">
           <button pButton type="button" label="Visualizar Acta PDF" icon="pi pi-eye" class="p-button-danger" (click)="visualizarActaTraslado(trasladoSelected.archivoActa)"></button>
         </div>
@@ -613,8 +684,14 @@
     </div>
   </p-dialog>
 
-  <p-dialog header="Detalle de Actividad Metrológica" [(visible)]="modalMetrologia" [modal]="true" [responsive]="true"
+  <p-dialog [(visible)]="modalMetrologia" [modal]="true" [responsive]="true"
     styleClass="standard-modal modal-lg" [baseZIndex]="10000">
+    <ng-template pTemplate="header">
+        <div class="flex justify-content-between align-items-center w-full">
+            <span class="text-xl font-bold">Detalle de Actividad Metrológica</span>
+            <button *ngIf="!isEditingMetrologia" pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-warning" (click)="toggleEditMetrologia()" pTooltip="Editar Actividad" tooltipPosition="left"></button>
+        </div>
+    </ng-template>
     <div class="p-fluid p-3" *ngIf="metrologiaSelected">
 
       <!-- Información del Equipo -->
@@ -643,7 +720,7 @@
       <div class="grid mt-2">
         <div class="col-12">
           <p-card header="Datos de la Actividad">
-            <div class="p-text-sm grid">
+            <div class="p-text-sm grid" *ngIf="!isEditingMetrologia">
               <div class="col-12 md:col-6">
                 <p><strong>Tipo de Actividad:</strong> {{ metrologiaSelected.tipoActividad }}</p>
                 <p><strong>Fecha Realizado:</strong> {{ metrologiaSelected.fechaRealizado | date:'dd/MM/yyyy' }}</p>
@@ -657,10 +734,47 @@
                 <p><strong>Registrado por:</strong> {{ metrologiaSelected.usuarioAprobo?.nombres }} {{ metrologiaSelected.usuarioAprobo?.apellidos }}</p>
               </div>
             </div>
-            <div class="p-text-sm grid mt-2">
+            <div class="p-text-sm grid mt-2" *ngIf="!isEditingMetrologia">
               <div class="col-12">
                 <p><strong>Observaciones:</strong><br/> {{ metrologiaSelected.observaciones }}</p>
               </div>
+            </div>
+
+            <!-- Modo Edicion -->
+            <div class="grid" *ngIf="isEditingMetrologia">
+              <div class="col-12 md:col-6 p-field">
+                  <label>Tipo de Actividad</label>
+                  <p-dropdown [options]="[{label: 'Calibración', value: 'Calibración'}, {label: 'Calificación', value: 'Calificación'}, {label: 'Mantenimiento Metrológico', value: 'Mantenimiento Metrológico'}]" [(ngModel)]="metrologiaEdit.tipoActividad" optionLabel="label" optionValue="value" styleClass="w-full" appendTo="body"></p-dropdown>
+              </div>
+              <div class="col-12 md:col-6 p-field">
+                  <label>Fecha Realizado</label>
+                  <p-calendar [(ngModel)]="metrologiaEdit.fechaRealizado" [showIcon]="true" dateFormat="dd/mm/yy" class="w-full" appendTo="body"></p-calendar>
+              </div>
+              <div class="col-12 md:col-6 p-field">
+                  <label>Empresa</label>
+                  <input pInputText type="text" [(ngModel)]="metrologiaEdit.empresa" class="w-full"/>
+              </div>
+              <div class="col-12 md:col-6 p-field">
+                  <label>Resultado</label>
+                  <p-dropdown [options]="[{label: 'Cumple', value: 'Cumple'}, {label: 'No Cumple', value: 'No Cumple'}]" [(ngModel)]="metrologiaEdit.resultado" optionLabel="label" optionValue="value" styleClass="w-full" appendTo="body"></p-dropdown>
+              </div>
+              <div class="col-12 md:col-6 p-field">
+                  <label>Error Máximo Identificado</label>
+                  <input pInputText type="number" [(ngModel)]="metrologiaEdit.errorMaximoIdentificado" class="w-full"/>
+              </div>
+              <div class="col-12 md:col-6 p-field">
+                  <label>Unidad de Medición</label>
+                  <input pInputText type="text" [(ngModel)]="metrologiaEdit.unidadMedicion" class="w-full"/>
+              </div>
+              <div class="col-12 p-field">
+                  <label>Observaciones</label>
+                  <textarea pInputTextarea [(ngModel)]="metrologiaEdit.observaciones" rows="3" class="w-full" style="resize: none;"></textarea>
+              </div>
+            </div>
+
+            <div *ngIf="isEditingMetrologia" class="flex justify-content-end mt-3 gap-2">
+                <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="cancelarEdicionMetrologia()"></button>
+                <button pButton type="button" label="Guardar Cambios" icon="pi pi-check" class="p-button-primary" (click)="guardarEdicionMetrologia()"></button>
             </div>
           </p-card>
         </div>
@@ -669,7 +783,7 @@
       <!-- Gestión de Archivos -->
       <div class="grid mt-3">
         <div class="col-12">
-          <p-card header="Documentación Adjunta">
+          <p-card header="Documentaci&oacute;n Adjunta">
             
             <!-- Reporte -->
             <div class="flex align-items-center justify-content-between p-2 border-bottom-1 border-300">
@@ -679,8 +793,9 @@
                 <span *ngIf="!metrologiaSelected.rutaReporte" class="text-500 italic">No cargado</span>
                 <button *ngIf="metrologiaSelected.rutaReporte" pButton icon="pi pi-eye" label="Ver PDF" class="p-button-text p-button-sm" (click)="viewPdf(metrologiaSelected.rutaReporte)"></button>
               </div>
-              <div *ngIf="!metrologiaSelected.rutaReporte && !isGuest()" class="flex align-items-center gap-2">
+              <div *ngIf="!metrologiaSelected.rutaReporte && !isGuest() && !isEditingMetrologia" class="flex align-items-center gap-2">
                 <input type="file" (change)="onFileMetrologiaReporteSelected($event)" accept=".pdf" class="p-inputtext p-component p-element p-inputtext-sm" style="max-width: 200px;">
+                <button pButton icon="pi pi-upload" class="p-button-primary p-button-sm" [disabled]="!selectedFileMetrologiaReporte" (click)="uploadMetrologiaFile('reporte')"></button>
               </div>
             </div>
 
@@ -688,19 +803,14 @@
             <div class="flex align-items-center justify-content-between p-2 mt-2">
               <div class="flex align-items-center gap-2">
                 <i class="pi pi-file-pdf text-blue-500 text-xl"></i>
-                <span class="font-bold">Confirmación Metrológica:</span>
+                <span class="font-bold">Confirmaci&oacute;n Metrol&oacute;gica:</span>
                 <span *ngIf="!metrologiaSelected.confirmacionMetrologica" class="text-500 italic">No cargada</span>
                 <button *ngIf="metrologiaSelected.confirmacionMetrologica" pButton icon="pi pi-eye" label="Ver PDF" class="p-button-text p-button-sm" (click)="viewPdf(metrologiaSelected.confirmacionMetrologica)"></button>
               </div>
-              <div *ngIf="!metrologiaSelected.confirmacionMetrologica && !isGuest()" class="flex align-items-center gap-2">
+              <div *ngIf="!metrologiaSelected.confirmacionMetrologica && !isGuest() && !isEditingMetrologia" class="flex align-items-center gap-2">
                 <input type="file" (change)="onFileMetrologiaConfirmacionSelected($event)" accept=".pdf" class="p-inputtext p-component p-element p-inputtext-sm" style="max-width: 200px;">
+                <button pButton icon="pi pi-upload" class="p-button-primary p-button-sm" [disabled]="!selectedFileMetrologiaConfirmacion" (click)="uploadMetrologiaFile('confirmacion')"></button>
               </div>
-            </div>
-
-            <!-- Botón Guardar -->
-            <div class="flex justify-content-end mt-4" *ngIf="(!metrologiaSelected.rutaReporte || !metrologiaSelected.confirmacionMetrologica) && !isGuest()">
-              <button pButton label="Guardar Archivos Seleccionados" icon="pi pi-upload" class="p-button-primary" 
-                [disabled]="!selectedFileMetrologiaReporte && !selectedFileMetrologiaConfirmacion" (click)="uploadMetrologiaFiles()"></button>
             </div>
 
           </p-card>
