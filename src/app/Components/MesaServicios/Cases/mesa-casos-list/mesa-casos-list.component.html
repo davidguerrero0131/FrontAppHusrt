@@ -149,7 +149,9 @@
 
             <ng-template pTemplate="body" let-caso>
                 <tr [pSelectableRow]="caso">
-                    <td><span class="case-id-badge">#{{ caso.id }}</span></td>
+                    <td>
+                        <span class="case-id-badge" [ngClass]="{'blinking-green': caso.estado === 'NUEVO'}">#{{ caso.id }}</span>
+                    </td>
                     <td>
                         <div class="font-bold text-900 cursor-pointer hover:text-primary transition-colors pr-3" (click)="viewCaso(caso.id)">
                             {{ caso.titulo }}
