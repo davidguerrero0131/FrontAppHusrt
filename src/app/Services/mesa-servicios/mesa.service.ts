@@ -35,7 +35,7 @@ export class MesaService {
             params: params
         };
 
-        return this.http.get<any>(`${this.apiUrl}/indicadores/estadisticas`, options);
+        return this.http.get<any>(`${this.apiUrl}/casos/estadisticas/all`, options);
     }
 
     // --- Parametrización ---
