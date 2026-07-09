@@ -207,7 +207,14 @@ export class EquiposResponsableComponent implements OnInit {
 
         return planes.map((p: any) => {
             const m = typeof p === 'object' ? p.mes : p;
-            const y = typeof p === 'object' ? p.ano : currentYear;
+            let y = currentYear;
+        if (typeof p === 'object') {
+          const rawYear = p.ano || p.a�o || p.anio || p.year;
+          if (rawYear) {
+            y = Number(rawYear);
+            if (y < 100) y += 2000;
+          }
+        }
 
             const reporte = reportes.find((r: any) => r.mesProgramado === m && (r.añoProgramado === y || !r.añoProgramado));
             let color = '';
@@ -337,3 +344,5 @@ export class EquiposResponsableComponent implements OnInit {
         }
     }
 }
+
+

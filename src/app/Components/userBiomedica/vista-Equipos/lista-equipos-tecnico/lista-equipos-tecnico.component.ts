@@ -86,7 +86,14 @@ export class ListaEquiposTecnicoComponent implements OnInit {
 
         return equipo.planesMantenimiento.map((p: any) => {
             const mesNum = typeof p === 'object' ? p.mes : p;
-            const yearNum = typeof p === 'object' ? p.ano : new Date().getFullYear();
+            let yearNum = new Date().getFullYear();
+          if (typeof p === 'object') {
+            const rawYear = p.ano || p.año || p.anio || p.year;
+            if (rawYear) {
+              yearNum = Number(rawYear);
+              if (yearNum < 100) yearNum += 2000;
+            }
+          }
 
             const reporteEncontrado = equipo.reportesMantenimiento?.find((r: any) => {
                 if (!r.fecha) return false;
@@ -102,3 +109,5 @@ export class ListaEquiposTecnicoComponent implements OnInit {
         });
     }
 }
+
+

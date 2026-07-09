@@ -191,9 +191,9 @@ export const routes: Routes = [
   { path: 'rafaia', component: RafaIaComponent },
 
   // GESTION DE CITAS DE MADRE CANGURO
-  { path: 'servinte/citasmadrecanguro', component: GestionCitasComponent },
-  { path: 'servinte/citasmadrecanguro/stats', component: DashboardCitasComponent },
-  { path: 'servinte/citasmadrecanguro/creacion', component: CreacionCitasComponent },
+  { path: 'servinte/citasmadrecanguro', component: GestionCitasComponent, canActivate: [authGuard] },
+  { path: 'servinte/citasmadrecanguro/stats', component: DashboardCitasComponent, canActivate: [authGuard] },
+  { path: 'servinte/citasmadrecanguro/creacion', component: CreacionCitasComponent, canActivate: [authGuard] },
 
 ];
 

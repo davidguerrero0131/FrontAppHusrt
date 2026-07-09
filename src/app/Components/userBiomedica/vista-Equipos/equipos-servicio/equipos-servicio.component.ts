@@ -412,7 +412,14 @@ export class EquiposServicioComponent implements OnInit {
 
     return planes.map((p: any) => {
       const m = Number(typeof p === 'object' ? p.mes : p);
-      const y = Number(typeof p === 'object' ? p.ano : currentYear);
+      let y = currentYear;
+        if (typeof p === 'object') {
+          const rawYear = p.ano || p.a�o || p.anio || p.year;
+          if (rawYear) {
+            y = Number(rawYear);
+            if (y < 100) y += 2000;
+          }
+        }
 
       // Buscar reporte preventivo que coincida con mes y año programado
       // Buscar reporte preventivo que coincida con mes y año programado
@@ -761,3 +768,4 @@ export class EquiposServicioComponent implements OnInit {
     return index;
   }
 }
+
