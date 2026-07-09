@@ -200,6 +200,9 @@ export class MantenimientoTecnicoComponent implements OnInit {
             // Actually ManteniminetoComponent passed 'reporte' directly to getReporteById. 
             // If 'reporte' is the object from the table, we should use 'reporte.id'.
             this.rutina = await this.protocolosServices.getCumplimientoProtocoloReporte(this.reportSelected.id);
+            if (!this.reportSelected.cumplimientoProtocolo || this.reportSelected.cumplimientoProtocolo.length === 0) {
+                this.reportSelected.cumplimientoProtocolo = this.rutina;
+            }
         } catch (e) {
             console.error(e);
         }
