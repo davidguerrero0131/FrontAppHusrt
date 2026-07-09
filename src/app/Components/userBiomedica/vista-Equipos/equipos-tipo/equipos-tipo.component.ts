@@ -384,7 +384,7 @@ export class EquiposTipoComponent implements OnInit {
       const m = Number(typeof p === 'object' ? p.mes : p);
       let y = currentYear;
         if (typeof p === 'object') {
-          const rawYear = p.ano || p.año || p.anio || p.year;
+          const rawYear = p.ano || p.aÃ±o || p.anio || p.year;
           if (rawYear) {
             y = Number(rawYear);
             if (y < 100) y += 2000;
@@ -779,4 +779,3 @@ export class EquiposTipoComponent implements OnInit {
     return index;
   }
 }
-

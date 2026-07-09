@@ -340,5 +340,3 @@ export class ListaEquiposComponent implements OnInit {
         }
     }
 }
-
-

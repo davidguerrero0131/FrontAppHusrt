@@ -88,7 +88,7 @@ export class ListaEquiposTecnicoComponent implements OnInit {
             const mesNum = typeof p === 'object' ? p.mes : p;
             let yearNum = new Date().getFullYear();
           if (typeof p === 'object') {
-            const rawYear = p.ano || p.año || p.anio || p.year;
+            const rawYear = p.ano || p.aÃ±o || p.anio || p.year;
             if (rawYear) {
               yearNum = Number(rawYear);
               if (yearNum < 100) yearNum += 2000;
@@ -109,5 +109,3 @@ export class ListaEquiposTecnicoComponent implements OnInit {
         });
     }
 }
-
-
