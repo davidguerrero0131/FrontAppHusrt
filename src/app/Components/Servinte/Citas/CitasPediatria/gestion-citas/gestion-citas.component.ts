@@ -92,8 +92,10 @@ export class GestionCitasComponent implements OnInit {
   loadingEspecialidades: boolean = false;
   newEspecialidad: any = {
     nombre: '',
-    estadoActivo: true
+    estadoActivo: true,
+    maxCitasDiarias: null
   };
+  editingEspecialidadId: any = null;
   especialidadesOptions: any[] = [];
 
   // Filter Models
@@ -415,6 +417,8 @@ export class GestionCitasComponent implements OnInit {
   openEspecialidadesModal() {
     this.especialidadesDialog = true;
     this.loadEspecialidades();
+    this.newEspecialidad = { nombre: '', estadoActivo: true, maxCitasDiarias: null };
+    this.editingEspecialidadId = null;
   }
 
   async loadEspecialidades() {
@@ -431,6 +435,20 @@ export class GestionCitasComponent implements OnInit {
     }
   }
 
+  editEspecialidad(esp: any) {
+    this.editingEspecialidadId = esp.id;
+    this.newEspecialidad = {
+      nombre: esp.nombre,
+      estadoActivo: esp.estadoActivo,
+      maxCitasDiarias: esp.maxCitasDiarias
+    };
+  }
+
+  cancelEditEspecialidad() {
+    this.editingEspecialidadId = null;
+    this.newEspecialidad = { nombre: '', estadoActivo: true, maxCitasDiarias: null };
+  }
+
   async saveEspecialidad() {
     if (!this.newEspecialidad.nombre) {
       Swal.fire('Atención', 'El nombre es requerido.', 'warning');
@@ -439,9 +457,14 @@ export class GestionCitasComponent implements OnInit {
 
     this.loadingEspecialidades = true;
     try {
-      await this.servinteService.createEspecialidadLocal(this.newEspecialidad);
-      Swal.fire('Éxito', 'Especialidad creada correctamente.', 'success');
-      this.newEspecialidad = { nombre: '', estadoActivo: true };
+      if (this.editingEspecialidadId) {
+        await this.servinteService.updateEspecialidadLocal(this.editingEspecialidadId, this.newEspecialidad);
+        Swal.fire('Éxito', 'Especialidad actualizada correctamente.', 'success');
+      } else {
+        await this.servinteService.createEspecialidadLocal(this.newEspecialidad);
+        Swal.fire('Éxito', 'Especialidad creada correctamente.', 'success');
+      }
+      this.cancelEditEspecialidad();
       this.loadEspecialidades();
     } catch (error) {
       console.error('Error al guardar especialidad:', error);
