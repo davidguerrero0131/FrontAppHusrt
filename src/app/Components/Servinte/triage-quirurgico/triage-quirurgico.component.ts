@@ -60,7 +60,7 @@ export class TriageQuirurgicoComponent implements OnInit, OnDestroy {
       const response: any = await this.servinteServices.getTriagePacientes();
 
       // Validamos la estructura de la respuesta
-      let rawPacientes = [];
+      let rawPacientes: any[] = [];
       if (Array.isArray(response)) {
         rawPacientes = response;
       }
@@ -75,7 +75,7 @@ export class TriageQuirurgicoComponent implements OnInit, OnDestroy {
       // Filtrar para mantener solo el registro más reciente por paciente (PACHIS)
       // Como vienen ordenados por REGCLIFEG DESC, el primero que encontremos es el más reciente
       const seenPACHIS = new Set();
-      this.pacientes = rawPacientes.filter(paciente => {
+      this.pacientes = rawPacientes.filter((paciente: any) => {
         const pachisStr = String(paciente.PACHIS).trim();
         if (!seenPACHIS.has(pachisStr)) {
           seenPACHIS.add(pachisStr);
@@ -125,6 +125,27 @@ export class TriageQuirurgicoComponent implements OnInit, OnDestroy {
     if (horas > 0) return `${horas}h ${minutos % 60}m ${segundos % 60}s`;
     if (minutos > 0) return `${minutos}m ${segundos % 60}s`;
     return `${segundos}s`;
+  }
+
+  isTimeExceeded(fechaStr: string | null | undefined, puntuacion: any): boolean {
+    if (!fechaStr) return false;
+    const fecha = new Date(fechaStr);
+    if (isNaN(fecha.getTime())) return false;
+
+    const diffMs = this.now.getTime() - fecha.getTime();
+    if (diffMs < 0) return false;
+    
+    const diffHours = diffMs / (1000 * 60 * 60);
+    const score = Number(puntuacion);
+    if (isNaN(score)) return false;
+
+    // Si es cirugía inmediata (score > 10), el tiempo máximo sería 0 (siempre alertado si pasa tiempo, pero como lleva icono parpadeante, igual lo marcamos true)
+    if (score > 10) return diffHours > 0; 
+    if (score > 8 && score <= 10) return diffHours > 1; // 1 HORA
+    if (score > 6 && score <= 8) return diffHours > 6;  // 6 HORAS
+    if (score > 4 && score <= 6) return diffHours > 12; // 12 HORAS
+    if (score > 2 && score <= 4) return diffHours > 24; // 24 HORAS
+    return diffHours > 48; // 2-4 DÍAS (Alerta a las 48h)
   }
 
   getPrioridadCirugia(puntuacion: any) {
