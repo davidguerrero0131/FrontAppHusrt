@@ -148,6 +148,18 @@ export class TriageQuirurgicoComponent implements OnInit, OnDestroy {
     return diffHours > 48; // 2-4 DÍAS (Alerta a las 48h)
   }
 
+  toggleFullScreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.warn(`Error al intentar entrar a pantalla completa: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }
+
   getPrioridadCirugia(puntuacion: any) {
     const score = Number(puntuacion);
     if (isNaN(score)) return { texto: 'Sin Clasificar', bgColor: '#6c757d', textColor: '#ffffff' }; // Gris para los no definidos

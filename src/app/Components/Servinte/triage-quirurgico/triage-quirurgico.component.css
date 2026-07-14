@@ -5,22 +5,29 @@
   padding: 10px;
 }
 
-/* Pantallas grandes: 4 columnas (tarjetas un ~40% mas anchas comparado con 6) */
+/* Pantallas extra grandes: 6 columnas */
 @media (min-width: 1400px) {
+  .grid-container {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* Pantallas grandes: 4 columnas */
+@media (min-width: 1200px) and (max-width: 1399px) {
   .grid-container {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
 /* Pantallas medianas-grandes: 3 columnas */
-@media (min-width: 1024px) and (max-width: 1399px) {
+@media (min-width: 992px) and (max-width: 1199px) {
   .grid-container {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 /* Pantallas tablet: 2 columnas */
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) and (max-width: 991px) {
   .grid-container {
     grid-template-columns: repeat(2, 1fr);
   }
