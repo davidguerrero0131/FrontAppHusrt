@@ -60,16 +60,28 @@ export class TriageQuirurgicoComponent implements OnInit, OnDestroy {
       const response: any = await this.servinteServices.getTriagePacientes();
 
       // Validamos la estructura de la respuesta
+      let rawPacientes = [];
       if (Array.isArray(response)) {
-        this.pacientes = response;
+        rawPacientes = response;
       }
       else if (response && Array.isArray(response.data)) {
-        this.pacientes = response.data;
+        rawPacientes = response.data;
       }
       else {
         console.warn('La respuesta del servidor no es un arreglo iterativo. Revisa el backend.');
-        this.pacientes = [];
+        rawPacientes = [];
       }
+
+      // Filtrar para mantener solo el registro más reciente por paciente (PACHIS)
+      // Como vienen ordenados por REGCLIFEG DESC, el primero que encontremos es el más reciente
+      const seenPACHIS = new Set();
+      this.pacientes = rawPacientes.filter(paciente => {
+        if (!seenPACHIS.has(paciente.PACHIS)) {
+          seenPACHIS.add(paciente.PACHIS);
+          return true;
+        }
+        return false;
+      });
 
       // Ordenar pacientes por puntuación de mayor a menor
       this.pacientes.sort((a, b) => {
