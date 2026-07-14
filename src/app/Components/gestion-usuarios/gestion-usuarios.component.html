@@ -101,7 +101,7 @@
       <div class="field">
         <label for="tipoId" class="font-bold">Tipo de Identificaci&oacute;n</label>
         <p-select id="tipoId" [options]="tipoIdOptions" formControlName="tipoId" optionLabel="label" optionValue="value"
-          placeholder="Seleccione"></p-select>
+          placeholder="Seleccione" appendTo="body"></p-select>
       </div>
 
       <div class="field">
@@ -137,25 +137,25 @@
       <div class="field">
         <label for="rolId" class="font-bold">Rol</label>
         <p-select id="rolId" [options]="roles" formControlName="rolId" optionLabel="nombre" optionValue="id"
-          placeholder="Seleccione un rol"></p-select>
+          placeholder="Seleccione un rol" appendTo="body"></p-select>
       </div>
 
       <div class="field">
         <label for="cargoId" class="font-bold">Cargo</label>
         <p-select id="cargoId" [options]="cargos" formControlName="cargoId" optionLabel="nombre" optionValue="id"
-          placeholder="Seleccione un cargo"></p-select>
+          placeholder="Seleccione un cargo" appendTo="body"></p-select>
       </div>
 
       <div class="field">
         <label for="servicioId" class="font-bold">Servicio</label>
         <p-select id="servicioId" [options]="servicios" formControlName="servicioId" optionLabel="nombres"
-          optionValue="id" placeholder="Seleccione un servicio" [filter]="true"></p-select>
+          optionValue="id" placeholder="Seleccione un servicio" [filter]="true" appendTo="body"></p-select>
       </div>
 
       <div class="field">
         <label for="mesaServicioRolId" class="font-bold">Rol Mesa de Servicios</label>
         <p-select id="mesaServicioRolId" [options]="mesaRoles" formControlName="mesaServicioRolId" optionLabel="nombre"
-          optionValue="id" placeholder="Seleccione un rol de mesa"></p-select>
+          optionValue="id" placeholder="Seleccione un rol de mesa" appendTo="body"></p-select>
       </div>
 
       <div class="field">
