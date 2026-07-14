@@ -105,17 +105,18 @@
 
                 <ng-template pTemplate="header">
                     <tr>
-                        <th pSortableColumn="paciente.nombre" style="min-width: 15rem">
+                        <th pSortableColumn="paciente.nombre" style="min-width: 12rem">
                             Paciente <p-sortIcon field="paciente.nombre"></p-sortIcon>
                         </th>
-                        <th style="min-width: 10rem">Identificación</th>
-                        <th style="min-width: 10rem">Fecha de Cita</th>
-                        <th style="min-width: 12rem">Especialidad</th>
-                        <th style="min-width: 12rem">Control / Etapa</th>
-                        <th style="min-width: 12rem">Médico</th>
-                        <th class="text-center" style="min-width: 10rem">Estado Cita</th>
-                        <th class="text-center" style="min-width: 10rem">Validación Servinte</th>
-                        <th class="text-center" style="min-width: 12rem">Opciones</th>
+                        <th style="min-width: 8rem">Identificación</th>
+                        <th style="min-width: 7rem">Fecha de Cita</th>
+                        <th style="min-width: 5rem">Hora</th>
+                        <th style="min-width: 10rem">Especialidad</th>
+                        <th style="min-width: 10rem">Control / Etapa</th>
+                        <th style="min-width: 10rem">Médico</th>
+                        <th class="text-center" style="min-width: 8rem">Estado Cita</th>
+                        <th class="text-center" style="min-width: 8rem">Validación Servinte</th>
+                        <th class="text-center" style="min-width: 10rem">Opciones</th>
                     </tr>
                 </ng-template>
 
@@ -136,6 +137,9 @@
                         </td>
                         <td>
                             {{appointment.fechaCita | date:'dd/MM/yyyy'}}
+                        </td>
+                        <td>
+                            {{appointment.horaCita || 'Sin hora'}}
                         </td>
                         <td>
                             {{appointment.especialidad?.nombre || 'N/A'}}

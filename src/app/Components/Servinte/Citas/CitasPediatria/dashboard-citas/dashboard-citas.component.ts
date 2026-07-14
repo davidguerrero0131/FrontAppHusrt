@@ -43,6 +43,10 @@ export class DashboardCitasComponent implements OnInit {
   atendidosChartOptions: any;
   nuevosChartData: any; // Only 'Ingreso' trend (or simple number)
   nuevosChartOptions: any;
+  especialidadChartData: any;
+  especialidadChartOptions: any;
+  medicoChartData: any;
+  medicoChartOptions: any;
 
   // Variables para Drill-down
   displayDialog: boolean = false;
@@ -202,6 +206,39 @@ export class DashboardCitasComponent implements OnInit {
         y: { beginAtZero: true, ticks: { color: '#4b5563', stepSize: 1 }, grid: { color: '#e5e7eb', drawBorder: false } }
       }
     };
+
+    // Especialidad Chart (Doughnut or Bar)
+    const especialidadLabels = this.stats.byEspecialidad?.map((s: any) => s.label) || [];
+    const especialidadValues = this.stats.byEspecialidad?.map((s: any) => Number(s.value)) || [];
+
+    this.especialidadChartData = {
+      labels: especialidadLabels,
+      datasets: [
+        {
+          data: especialidadValues,
+          backgroundColor: ['#8b5cf6', '#ec4899', '#14b8a6', '#f59e0b', '#3b82f6'],
+          hoverBackgroundColor: ['#a78bfa', '#f472b6', '#2dd4bf', '#fbbf24', '#60a5fa']
+        }
+      ]
+    };
+    this.especialidadChartOptions = { ...this.statusChartOptions }; // Reusing doughnut options
+
+    // Medico Chart (Bar)
+    const medicoLabels = this.stats.byMedico?.map((s: any) => s.label) || [];
+    const medicoValues = this.stats.byMedico?.map((s: any) => Number(s.value)) || [];
+
+    this.medicoChartData = {
+      labels: medicoLabels,
+      datasets: [
+        {
+          label: 'Citas por Médico',
+          data: medicoValues,
+          backgroundColor: '#06b6d4',
+          borderRadius: 6
+        }
+      ]
+    };
+    this.medicoChartOptions = { ...this.stageChartOptions };
   }
 
   // Handle Chart Clicks
@@ -230,6 +267,20 @@ export class DashboardCitasComponent implements OnInit {
     const dateLabel = this.nuevosChartData.labels[event.element.index];
     this.selectedPatients = this.allDetailedCitas.filter(c => c.control === 'Ingreso' && c.fechaCita.startsWith(dateLabel)).map(c => c.paciente);
     this.dialogHeader = `Nuevos Ingresos el ${dateLabel}`;
+    this.displayDialog = true;
+  }
+
+  onEspecialidadClick(event: any) {
+    const label = this.especialidadChartData.labels[event.element.index];
+    this.selectedPatients = this.allDetailedCitas.filter(c => c.especialidad && c.especialidad.nombre === label).map(c => c.paciente);
+    this.dialogHeader = `Pacientes en Especialidad: ${label}`;
+    this.displayDialog = true;
+  }
+
+  onMedicoClick(event: any) {
+    const label = this.medicoChartData.labels[event.element.index];
+    this.selectedPatients = this.allDetailedCitas.filter(c => c.medico && (c.medico.nombre + ' ' + c.medico.apellido).trim() === label).map(c => c.paciente);
+    this.dialogHeader = `Pacientes de Médico: ${label}`;
     this.displayDialog = true;
   }
 

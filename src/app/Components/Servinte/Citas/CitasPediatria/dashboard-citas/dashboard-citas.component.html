@@ -141,6 +141,36 @@
         </div>
     </div>
 
+    <!-- Gráficas de Especialidad y Médico -->
+    <div class="grid mt-2">
+        <div class="col-12 lg:col-5">
+            <p-card header="Citas por Especialidad" class="h-full border-none shadow-1">
+                <div *ngIf="stats.byEspecialidad?.length > 0; else noEspecialidadData" class="flex justify-content-center">
+                    <p-chart type="doughnut" [data]="especialidadChartData" [options]="especialidadChartOptions" class="w-full max-w-20rem" (onDataSelect)="onEspecialidadClick($event)"></p-chart>
+                </div>
+                <ng-template #noEspecialidadData>
+                    <div class="flex flex-column align-items-center justify-content-center h-20rem text-500">
+                        <i class="pi pi-star text-4xl mb-3"></i>
+                        <p>No hay datos de especialidades para este periodo.</p>
+                    </div>
+                </ng-template>
+            </p-card>
+        </div>
+        <div class="col-12 lg:col-7">
+            <p-card header="Citas por Médico" class="h-full border-none shadow-1">
+                <div *ngIf="stats.byMedico?.length > 0; else noMedicoData">
+                    <p-chart type="bar" [data]="medicoChartData" [options]="medicoChartOptions" class="h-20rem" (onDataSelect)="onMedicoClick($event)"></p-chart>
+                </div>
+                <ng-template #noMedicoData>
+                    <div class="flex flex-column align-items-center justify-content-center h-20rem text-500">
+                        <i class="pi pi-user text-4xl mb-3"></i>
+                        <p>No hay datos de médicos para este periodo.</p>
+                    </div>
+                </ng-template>
+            </p-card>
+        </div>
+    </div>
+
     <!-- Modal Drill-down de Pacientes -->
     <p-dialog [(visible)]="displayDialog" [modal]="true" [header]="dialogHeader" [style]="{width: '75vw'}" [draggable]="false" [resizable]="false">
         <p-table [value]="selectedPatients" [paginator]="true" [rows]="10" styleClass="p-datatable-sm p-datatable-striped" [tableStyle]="{'min-width': '50rem'}">

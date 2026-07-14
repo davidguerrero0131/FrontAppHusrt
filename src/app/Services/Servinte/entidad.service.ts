@@ -67,9 +67,9 @@ export class EntidadService {
     return firstValueFrom(this.httpClient.get<any[]>(url));
   }
 
-  validateAppointmentLocal(id: number) {
+  validateAppointmentLocal(id: number, horaCita?: string) {
     const url = API_URL + `/citas-pediatria/${id}/validar`;
-    return firstValueFrom(this.httpClient.put<any>(url, {}));
+    return firstValueFrom(this.httpClient.put<any>(url, { horaCita }));
   }
 
   exportAppointmentsExcel(startDate: string, endDate: string): Observable<Blob> {

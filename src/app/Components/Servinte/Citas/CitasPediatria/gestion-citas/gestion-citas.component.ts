@@ -157,17 +157,31 @@ export class GestionCitasComponent implements OnInit {
 
     const result = await Swal.fire({
       title: '¿Confirmar que la cita fue creada en Servinte?',
-      text: '¿Está seguro de marcar esta cita como creada en Servinte?',
+      html: `
+        <p>¿Está seguro de marcar esta cita como creada en Servinte?</p>
+        <div class="mt-3">
+          <label for="horaCita" class="form-label font-bold">Hora de la cita:</label>
+          <input type="time" id="horaCita" class="swal2-input" style="max-width: 100%;">
+        </div>
+      `,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Sí, Confirmar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
+      preConfirm: () => {
+        const hora = (document.getElementById('horaCita') as HTMLInputElement).value;
+        if (!hora) {
+          Swal.showValidationMessage('Debe ingresar la hora de la cita');
+        }
+        return hora;
+      }
     });
 
     if (result.isConfirmed) {
+      const horaCita = result.value;
       this.loading = true;
       try {
-        await this.servinteService.validateAppointmentLocal(appointment.id);
+        await this.servinteService.validateAppointmentLocal(appointment.id, horaCita);
         Swal.fire('Éxito', 'Cita creada correctamente en Servinte.', 'success');
         this.loadAppointments(); // Refresh list
       } catch (error) {
