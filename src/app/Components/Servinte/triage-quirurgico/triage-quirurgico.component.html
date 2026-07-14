@@ -19,7 +19,7 @@
   @else {
     <div class="grid-container">
 
-      @for (paciente of pacientes; track paciente.PACHIS) {
+      @for (paciente of pacientes; track $index) {
         <div class="grid-item">
           <div class="card" (click)="abrirModal(paciente)" style="cursor: pointer;">
             <div class="card-body">
