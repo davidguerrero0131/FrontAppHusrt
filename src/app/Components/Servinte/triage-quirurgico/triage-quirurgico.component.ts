@@ -76,8 +76,9 @@ export class TriageQuirurgicoComponent implements OnInit, OnDestroy {
       // Como vienen ordenados por REGCLIFEG DESC, el primero que encontremos es el más reciente
       const seenPACHIS = new Set();
       this.pacientes = rawPacientes.filter(paciente => {
-        if (!seenPACHIS.has(paciente.PACHIS)) {
-          seenPACHIS.add(paciente.PACHIS);
+        const pachisStr = String(paciente.PACHIS).trim();
+        if (!seenPACHIS.has(pachisStr)) {
+          seenPACHIS.add(pachisStr);
           return true;
         }
         return false;
