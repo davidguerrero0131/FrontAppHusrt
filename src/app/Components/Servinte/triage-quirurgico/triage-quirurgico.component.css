@@ -5,10 +5,10 @@
   padding: 10px;
 }
 
-/* Pantallas extra grandes: 6 columnas */
+/* Pantallas extra grandes: 8 columnas */
 @media (min-width: 1400px) {
   .grid-container {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(8, 1fr);
   }
 }
 
