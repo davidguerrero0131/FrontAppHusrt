@@ -103,6 +103,12 @@ export class MesaCasoDetailComponent implements OnInit {
   cierreMensaje: string = '';
   uploadedCloseFiles: any[] = [];
 
+  // Reabrir
+  displayReopenDialog: boolean = false;
+  reopenMotivo: string = '';
+  uploadedReopenFiles: any[] = [];
+  isReopening: boolean = false;
+
   onFileSelectClose(event: any) {
     const files = event.target.files;
     if (files) {
@@ -550,6 +556,7 @@ export class MesaCasoDetailComponent implements OnInit {
         if (this.caso.historial && this.caso.historial.length > 0) {
             const lastHistorial = this.caso.historial.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
             this.caso.ultimoModificador = lastHistorial.usuario;
+            this.caso.fechaUltimaModificacion = lastHistorial.createdAt;
         }
 
         // Extraer informacin de equipo de la nueva estructura del backend
@@ -726,6 +733,57 @@ export class MesaCasoDetailComponent implements OnInit {
     });
   }
 
+  openReopenDialog() {
+    this.reopenMotivo = '';
+    this.uploadedReopenFiles = [];
+    this.displayReopenDialog = true;
+  }
+
+  onReopenFileSelect(event: any) {
+    const files = event.target.files;
+    if (files) {
+      for (let file of files) {
+        this.uploadedReopenFiles.push(file);
+      }
+    }
+  }
+
+  removeFileReopen(index: number) {
+    this.uploadedReopenFiles.splice(index, 1);
+  }
+
+  confirmReopen() {
+    if (!this.reopenMotivo.trim()) {
+      this.messageService.add({ severity: 'warn', summary: 'Requerido', detail: 'Debe ingresar un motivo para reabrir el caso' });
+      return;
+    }
+
+    this.isReopening = true;
+    const formData = new FormData();
+    formData.append('usuarioId', this.userId.toString());
+    formData.append('motivo', this.reopenMotivo);
+
+    if (this.uploadedReopenFiles && this.uploadedReopenFiles.length > 0) {
+      for (let file of this.uploadedReopenFiles) {
+        formData.append('archivos', file);
+      }
+    }
+
+    this.mesaService.reopenCaso(this.casoId, formData).subscribe({
+      next: (res: any) => {
+        this.displayReopenDialog = false;
+        this.reopenMotivo = '';
+        this.uploadedReopenFiles = [];
+        this.isReopening = false;
+        this.messageService.add({ severity: 'success', summary: 'Reabierto', detail: 'Caso reabierto exitosamente' });
+        this.loadCaso();
+      },
+      error: (err: any) => {
+        this.isReopening = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo reabrir el caso' });
+      }
+    });
+  }
   openAssignDialog() {
     if (!this.caso) return;
     

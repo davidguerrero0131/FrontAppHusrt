@@ -92,8 +92,14 @@ export class EquiposServicioComponent implements OnInit {
   // Formulario Traslado
   selectedEquipoTraslado: any = null;
   servicioDestinoId: number | null = null;
+  ubicacionDestino: string = '';
+  ubicacionEspecificaDestino: string = '';
   nombreReceptor: string = '';
   cargoReceptor: string = '';
+  entregadoPor: string = '';
+  cedulaEntrega: string = '';
+  cargoEntrega: string = '';
+  cedulaRecibe: string = '';
   observacionesTransferencia: string = '';
   serviciosList: any[] = []; // Para llenar el dropdown
 
@@ -488,8 +494,14 @@ export class EquiposServicioComponent implements OnInit {
     this.displayTrasladoDialog = true;
     // Resetear formulario
     this.servicioDestinoId = null;
+    this.ubicacionDestino = '';
+    this.ubicacionEspecificaDestino = '';
     this.nombreReceptor = '';
     this.cargoReceptor = '';
+    this.entregadoPor = '';
+    this.cedulaEntrega = '';
+    this.cargoEntrega = '';
+    this.cedulaRecibe = '';
     this.observacionesTransferencia = '';
   }
 
@@ -509,7 +521,7 @@ export class EquiposServicioComponent implements OnInit {
 
 
   async confirmarTraslado() {
-    if (!this.selectedEquipoTraslado || !this.servicioDestinoId || !this.nombreReceptor || !this.cargoReceptor) {
+    if (!this.selectedEquipoTraslado || !this.servicioDestinoId || !this.nombreReceptor || !this.cargoReceptor || !this.entregadoPor || !this.cedulaEntrega || !this.cargoEntrega || !this.cedulaRecibe) {
       this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: 'Por favor complete todos los campos requeridos.' });
       return;
     }
@@ -518,8 +530,14 @@ export class EquiposServicioComponent implements OnInit {
       const data = {
         equipoId: this.selectedEquipoTraslado.id,
         servicioDestinoId: this.servicioDestinoId!,
+        ubicacionDestino: this.ubicacionDestino,
+        ubicacionEspecificaDestino: this.ubicacionEspecificaDestino,
         nombreReceptor: this.nombreReceptor,
         cargoReceptor: this.cargoReceptor,
+        entregadoPor: this.entregadoPor,
+        cedulaEntrega: this.cedulaEntrega,
+        cargoEntrega: this.cargoEntrega,
+        cedulaRecibe: this.cedulaRecibe,
         observaciones: this.observacionesTransferencia,
         usuarioId: getDecodedAccessToken().id
       };

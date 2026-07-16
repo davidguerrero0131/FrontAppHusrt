@@ -81,8 +81,14 @@ export class EquiposRiesgoComponent implements OnInit {
     historialUnificado: any[] = [];
     selectedEquipoTraslado: any = null;
     servicioDestinoId: number | null = null;
+    ubicacionDestino: string = '';
+    ubicacionEspecificaDestino: string = '';
     nombreReceptor: string = '';
     cargoReceptor: string = '';
+    entregadoPor: string = '';
+    cedulaEntrega: string = '';
+    cargoEntrega: string = '';
+    cedulaRecibe: string = '';
     observacionesTransferencia: string = '';
     serviciosList: any[] = [];
 
@@ -627,9 +633,16 @@ export class EquiposRiesgoComponent implements OnInit {
     abrirModalTraslado(equipo: any) {
         this.selectedEquipoTraslado = equipo;
         this.displayTrasladoDialog = true;
+        // Resetear formulario
         this.servicioDestinoId = null;
+        this.ubicacionDestino = '';
+        this.ubicacionEspecificaDestino = '';
         this.nombreReceptor = '';
         this.cargoReceptor = '';
+        this.entregadoPor = '';
+        this.cedulaEntrega = '';
+        this.cargoEntrega = '';
+        this.cedulaRecibe = '';
         this.observacionesTransferencia = '';
     }
 
@@ -647,25 +660,44 @@ export class EquiposRiesgoComponent implements OnInit {
     }
 
     async confirmarTraslado() {
-        if (!this.selectedEquipoTraslado || !this.servicioDestinoId || !this.nombreReceptor || !this.cargoReceptor) {
+        if (!this.selectedEquipoTraslado || !this.servicioDestinoId || !this.nombreReceptor || !this.cargoReceptor || !this.entregadoPor || !this.cedulaEntrega || !this.cargoEntrega || !this.cedulaRecibe) {
             this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: 'Por favor complete todos los campos requeridos.' });
             return;
         }
+
         try {
             const data = {
                 equipoId: this.selectedEquipoTraslado.id,
                 servicioDestinoId: this.servicioDestinoId!,
+                ubicacionDestino: this.ubicacionDestino,
+                ubicacionEspecificaDestino: this.ubicacionEspecificaDestino,
                 nombreReceptor: this.nombreReceptor,
                 cargoReceptor: this.cargoReceptor,
+                entregadoPor: this.entregadoPor,
+                cedulaEntrega: this.cedulaEntrega,
+                cargoEntrega: this.cargoEntrega,
+                cedulaRecibe: this.cedulaRecibe,
                 observaciones: this.observacionesTransferencia,
                 usuarioId: getDecodedAccessToken().id
             };
+
             await this.trasladosService.registrarTraslado(data);
+
             this.displayTrasladoDialog = false;
             this.cargarEquipos();
-            Swal.fire('¡Traslado Exitoso!', 'El equipo ha sido trasladado correctamente.', 'success');
+
+            Swal.fire(
+                '¡Traslado Exitoso!',
+                'El equipo ha sido trasladado correctamente.',
+                'success'
+            );
+
         } catch (error) {
-            Swal.fire('Error', 'No se pudo registrar el traslado.', 'error');
+            Swal.fire(
+                'Error',
+                'No se pudo registrar el traslado.',
+                'error'
+            );
         }
     }
 

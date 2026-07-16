@@ -257,19 +257,84 @@
 
     <!-- Formulario de Traslado -->
     <div class="grid formgrid p-2">
-      <div class="col-12 mb-3">
+      <!-- SECCIÓN ESTADO ACTUAL (LECTURA) -->
+      <div class="col-12 mb-1">
+        <span class="text-lg font-medium text-900 block">Estado Actual</span>
+        <hr class="mt-1 mb-1">
+      </div>
+
+      <div class="col-12 md:col-4 mb-3">
+        <label class="font-medium text-900 block mb-2">Servicio Actual</label>
+        <input type="text" pInputText [value]="selectedEquipoTraslado.servicio?.nombres || selectedEquipoTraslado.servicios?.nombres || 'Sin servicio'" disabled class="w-full">
+      </div>
+      <div class="col-12 md:col-4 mb-3">
+        <label class="font-medium text-900 block mb-2">Ubicación Actual</label>
+        <input type="text" pInputText [value]="selectedEquipoTraslado.ubicacion || 'Sin ubicación'" disabled class="w-full">
+      </div>
+      <div class="col-12 md:col-4 mb-3">
+        <label class="font-medium text-900 block mb-2">Ubicación Específica</label>
+        <input type="text" pInputText [value]="selectedEquipoTraslado.ubicacionEspecifica || 'N/A'" disabled class="w-full">
+      </div>
+
+      <!-- SECCIÓN NUEVO DESTINO -->
+      <div class="col-12 mt-3 mb-1">
+        <span class="text-lg font-medium text-900 block">Nuevo Destino</span>
+        <hr class="mt-1 mb-1">
+      </div>
+
+      <div class="col-12 md:col-4 mb-3">
         <label for="servicioDestino" class="font-medium text-900 block mb-2">Servicio Destino</label>
         <p-select [options]="serviciosList" [(ngModel)]="servicioDestinoId" optionLabel="nombres" optionValue="id"
           placeholder="Seleccione un servicio" [filter]="true" filterBy="nombres" appendTo="body"
           styleClass="w-full"></p-select>
       </div>
+      <div class="col-12 md:col-4 mb-3">
+        <label for="ubicacionDestino" class="font-medium text-900 block mb-2">Nueva Ubicación</label>
+        <input type="text" pInputText [(ngModel)]="ubicacionDestino" placeholder="Ej: Piso 2" class="w-full">
+      </div>
+      <div class="col-12 md:col-4 mb-3">
+        <label for="ubicacionEspecificaDestino" class="font-medium text-900 block mb-2">Ubicación Específica</label>
+        <input type="text" pInputText [(ngModel)]="ubicacionEspecificaDestino" placeholder="Ej: Consultorio 3" class="w-full">
+      </div>
 
-      <div class="col-12 md:col-6 mb-3">
-        <label for="nombreReceptor" class="font-medium text-900 block mb-2">Recibido por (Nombre)</label>
+      <!-- SECCIÓN QUIEN ENTREGA -->
+      <div class="col-12 mt-3 mb-1">
+        <span class="text-lg font-medium text-900 block">Datos de quien Entrega</span>
+        <hr class="mt-1 mb-1">
+      </div>
+
+      <div class="col-12 md:col-4 mb-3">
+        <label for="entregadoPor" class="font-medium text-900 block mb-2">Nombre completo</label>
+        <input type="text" pInputText [(ngModel)]="entregadoPor" placeholder="Nombre Completo" class="w-full">
+      </div>
+
+      <div class="col-12 md:col-4 mb-3">
+        <label for="cedulaEntrega" class="font-medium text-900 block mb-2">Cédula</label>
+        <input type="text" pInputText [(ngModel)]="cedulaEntrega" placeholder="Cédula" class="w-full">
+      </div>
+
+      <div class="col-12 md:col-4 mb-3">
+        <label for="cargoEntrega" class="font-medium text-900 block mb-2">Cargo</label>
+        <input type="text" pInputText [(ngModel)]="cargoEntrega" placeholder="Cargo" class="w-full">
+      </div>
+
+      <!-- SECCIÓN QUIEN RECIBE -->
+      <div class="col-12 mt-3 mb-1">
+        <span class="text-lg font-medium text-900 block">Datos de quien Recibe</span>
+        <hr class="mt-1 mb-1">
+      </div>
+
+      <div class="col-12 md:col-4 mb-3">
+        <label for="nombreReceptor" class="font-medium text-900 block mb-2">Nombre completo</label>
         <input type="text" pInputText [(ngModel)]="nombreReceptor" placeholder="Nombre Completo" class="w-full">
       </div>
 
-      <div class="col-12 md:col-6 mb-3">
+      <div class="col-12 md:col-4 mb-3">
+        <label for="cedulaRecibe" class="font-medium text-900 block mb-2">Cédula</label>
+        <input type="text" pInputText [(ngModel)]="cedulaRecibe" placeholder="Cédula" class="w-full">
+      </div>
+
+      <div class="col-12 md:col-4 mb-3">
         <label for="cargoReceptor" class="font-medium text-900 block mb-2">Cargo</label>
         <input type="text" pInputText [(ngModel)]="cargoReceptor" placeholder="Ej. Jefe de Enfermería" class="w-full">
       </div>

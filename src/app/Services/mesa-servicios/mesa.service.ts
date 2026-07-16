@@ -145,6 +145,10 @@ export class MesaService {
         return this.http.post<any>(`${this.apiUrl}/casos/${casoId}/cerrar`, data, this.createHeaders());
     }
 
+    reopenCaso(casoId: number, data: any): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/casos/${casoId}/reabrir`, data, this.createHeaders());
+    }
+
     rateCaso(casoId: number, data: any): Observable<any> {
         return this.http.post<any>(`${this.apiUrl}/casos/${casoId}/calificar`, data, this.createHeaders());
     }
