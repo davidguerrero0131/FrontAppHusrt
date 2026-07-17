@@ -17,6 +17,18 @@
     border: 1px solid rgba(0, 0, 0, 0.02);
 }
 
+@media screen and (max-width: 768px) {
+    .case-detail-container {
+        padding: 1rem 0.5rem;
+    }
+    .case-header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1rem;
+        gap: 1rem;
+    }
+}
+
 .case-id-badge {
     background: #edf2f7;
     color: #2d3748;

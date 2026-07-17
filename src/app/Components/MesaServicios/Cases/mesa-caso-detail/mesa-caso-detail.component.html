@@ -4,16 +4,17 @@
 
     <!-- Header Section -->
     <header class="case-header shadow-1">
-        <div class="flex align-items-center gap-4">
-            <button *ngIf="!config" pButton icon="pi pi-arrow-left" 
-                class="p-button-rounded p-button-text p-button-secondary bg-gray-50 hover:bg-gray-100"
-                routerLink="/adminmesaservicios/casos" pTooltip="Regresar al listado"></button>
-            
+        <div class="flex flex-column md:flex-row md:align-items-center gap-3 md:gap-4 w-full md:w-auto">
             <div class="flex align-items-center gap-3">
-                <div class="case-id-badge">#{{casoId}}</div>
-                <div>
+                <button *ngIf="!config" pButton icon="pi pi-arrow-left" 
+                    class="p-button-rounded p-button-text p-button-secondary bg-gray-50 hover:bg-gray-100 flex-shrink-0"
+                    routerLink="/adminmesaservicios/casos" pTooltip="Regresar al listado"></button>
+                <div class="case-id-badge flex-shrink-0">#{{casoId}}</div>
+            </div>
+            
+            <div class="flex-1 mt-2 md:mt-0">
                     <h1 class="text-2xl font-bold m-0 text-900 line-height-1">{{caso.titulo}}</h1>
-                    <div class="flex align-items-center gap-2 mt-2">
+                    <div class="flex flex-wrap align-items-center gap-2 mt-2">
                         <p-tag [value]="caso.estado" 
                             [severity]="caso.estado === 'NUEVO' ? 'info' : (caso.estado === 'RESUELTO' ? 'success' : 'warning')"
                             [class.status-pulse]="caso.estado === 'NUEVO'"></p-tag>
@@ -21,9 +22,8 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2 mt-3 md:mt-0 w-full md:w-auto justify-content-start md:justify-content-end">
             <button *ngIf="isAdmin" pButton label="Ver Historial" icon="pi pi-history" class="p-button-outlined p-button-info border-round-lg px-4" (click)="displayHistoryDialog = true"></button>
             <button *ngIf="canClose() && caso.estado !== 'CERRADO'" pButton label="Finalizar Caso" icon="pi pi-check-circle"
                 class="p-button-success p-button-raised border-round-lg px-4" (click)="openCloseDialog()"></button>
@@ -38,7 +38,9 @@
             <aside class="meta-sidebar">
                 <!-- Requester Card -->
                 <div class="meta-card">
-                    <div class="flex align-items-center gap-3 mb-3">
+                    <div class="flex align-items-center gap-3 mb-3" [class.cursor-pointer]="isAdmin"
+                         (mouseenter)="showContactInfo($event, contactPanel)" 
+                         (mouseleave)="hideContactInfo(contactPanel)">
                         <div class="user-avatar bg-indigo-500 w-3rem h-3rem text-lg shadow-2">
                             {{ getInitials(caso.creador?.nombres + ' ' + caso.creador?.apellidos) }}
                         </div>
@@ -47,6 +49,36 @@
                             <div class="font-bold text-900 text-sm">{{ caso.creador?.nombres }} {{ caso.creador?.apellidos }}</div>
                         </div>
                     </div>
+
+                    <!-- Contact Info Popup -->
+                    <p-overlayPanel #contactPanel [showCloseIcon]="false" [dismissable]="true" styleClass="w-20rem shadow-3 border-round-xl">
+                        <ng-template pTemplate>
+                            <div class="p-2">
+                                <h4 class="m-0 mb-3 text-900 border-bottom-1 surface-border pb-2 text-sm uppercase tracking-wide">Información de Contacto</h4>
+                                <div class="flex flex-column gap-3">
+                                    <div class="flex align-items-center gap-3">
+                                        <div class="w-2rem h-2rem border-circle bg-blue-50 flex align-items-center justify-content-center text-blue-600 shadow-1">
+                                            <i class="pi pi-phone text-sm"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-500 text-xs font-medium mb-1">Teléfono / Extensión</div>
+                                            <div class="text-900 font-bold text-sm">{{ caso.creador?.telefono || 'No registrado' }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex align-items-center gap-3">
+                                        <div class="w-2rem h-2rem border-circle bg-orange-50 flex align-items-center justify-content-center text-orange-600 shadow-1">
+                                            <i class="pi pi-envelope text-sm"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-500 text-xs font-medium mb-1">Correo Electrónico</div>
+                                            <div class="text-900 font-bold text-sm" style="word-break: break-all;">{{ caso.creador?.email || 'No registrado' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-overlayPanel>
+
                     
                     <div class="bg-white p-2 border-round-lg shadow-1 mt-2">
                         <div class="meta-field">
@@ -172,16 +204,12 @@
                                     <span class="meta-label text-blue-700"><i class="pi pi-tags mr-1"></i> Subcategoría</span>
                                     <span class="meta-value block mt-1">{{ caso?.subcategoria?.nombre || 'N/A' }}</span>
                                 </div>
-                                <div class="col-6 p-2 border-bottom-1 border-right-1 border-200">
+                                <div class="col-12 p-2 border-bottom-1 border-200">
                                     <span class="meta-label text-blue-700"><i class="pi pi-flag mr-1"></i> Prioridad</span>
                                     <div class="mt-1">
                                         <p-tag [value]="caso.prioridad" 
                                             [severity]="caso.prioridad === 'ALTA' || caso.prioridad === 'CRITICA' ? 'danger' : 'info'"></p-tag>
                                     </div>
-                                </div>
-                                <div class="col-6 p-2 border-bottom-1 border-200">
-                                    <span class="meta-label text-blue-700"><i class="pi pi-hashtag mr-1"></i> SUMERCE</span>
-                                    <span class="meta-value font-mono block mt-1 bg-white px-2 border-round-sm inline-block shadow-1">{{ caso.sumerce }}</span>
                                 </div>
                                 <div class="col-12 p-2">
                                     <span class="meta-label text-blue-700"><i class="pi pi-map-marker mr-1"></i> Servicio Destino</span>
@@ -205,6 +233,12 @@
                                     <p-select [options]="subcategoriasDisponibles" [(ngModel)]="selectedSubcategoria" optionLabel="nombre"
                                         placeholder="Seleccione la subcategoría" [filter]="true" filterBy="nombre"
                                         [showClear]="true" emptyMessage="Seleccione primero una categoría" styleClass="w-full">
+                                    </p-select>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <label class="form-field-label text-sm">Prioridad</label>
+                                    <p-select [options]="prioridades" [(ngModel)]="selectedPrioridad" optionLabel="label" optionValue="value"
+                                        placeholder="Seleccione la prioridad" styleClass="w-full">
                                     </p-select>
                                 </div>
                                 <div class="col-12 mt-3 flex gap-2">

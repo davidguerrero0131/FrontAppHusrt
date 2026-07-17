@@ -33,6 +33,7 @@ import { ImageModule } from 'primeng/image';
 import { TooltipModule } from 'primeng/tooltip';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { API_URL } from '../../../../constantes';
 
 @Component({
@@ -42,7 +43,7 @@ import { API_URL } from '../../../../constantes';
     CommonModule, FormsModule, CardModule, ButtonModule, TextareaModule,
     TagModule, PanelModule, DialogModule, RatingModule, ToastModule, ConfirmDialogModule,
     FileUploadModule, SelectModule, ChipModule, RouterModule, EditorModule, ImageModule, TooltipModule,
-    AutoCompleteModule, InputTextModule
+    AutoCompleteModule, InputTextModule, OverlayPanelModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './mesa-caso-detail.component.html',
@@ -165,10 +166,41 @@ export class MesaCasoDetailComponent implements OnInit {
   reportSelected: any = null;
   rutina: any[] = [];
 
+  selectedPrioridad: string = '';
+  prioridades: any[] = [
+    { label: 'BAJA', value: 'BAJA' },
+    { label: 'MEDIA', value: 'MEDIA' },
+    { label: 'ALTA', value: 'ALTA' },
+    { label: 'CRITICA', value: 'CRITICA' }
+  ];
+
+  contactHoverTimeout: any;
+
+  showContactInfo(event: Event, panel: any) {
+    if (!this.isAdmin) return;
+    if (this.contactHoverTimeout) {
+      clearTimeout(this.contactHoverTimeout);
+    }
+    this.contactHoverTimeout = setTimeout(() => {
+      panel.show(event);
+    }, 250);
+  }
+
+  hideContactInfo(panel: any) {
+    if (!this.isAdmin) return;
+    if (this.contactHoverTimeout) {
+      clearTimeout(this.contactHoverTimeout);
+    }
+    this.contactHoverTimeout = setTimeout(() => {
+      panel.hide();
+    }, 150);
+  }
+
   iniciarEdicionClasificacion() {
     this.editandoClasificacion = true;
     this.selectedCategoria = this.caso?.categoria;
     this.selectedSubcategoria = this.caso?.subcategoria;
+    this.selectedPrioridad = this.caso?.prioridad || '';
     
     if (this.caso?.servicioId || this.caso?.servicio?.id) {
       const sId = this.caso.servicioId || this.caso.servicio.id;
@@ -210,6 +242,7 @@ export class MesaCasoDetailComponent implements OnInit {
     const payload = {
         categoriaId: this.selectedCategoria.id,
         subcategoriaId: this.selectedSubcategoria ? this.selectedSubcategoria.id : null,
+        prioridad: this.selectedPrioridad,
         usuarioId: this.userId
     };
 

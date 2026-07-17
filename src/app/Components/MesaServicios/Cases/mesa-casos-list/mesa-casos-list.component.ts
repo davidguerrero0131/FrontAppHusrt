@@ -136,6 +136,8 @@ export class MesaCasosListComponent implements OnInit {
   selectedEstado: any = this.estados[0]; // Default to Abiertos y Pendientes
   selectedTipo: any = null;
   selectedSumerce: any = null;
+  selectedFechaDesde: Date | null = null;
+  selectedFechaHasta: Date | null = null;
   selectedId: any = null;
 
 
@@ -219,6 +221,13 @@ export class MesaCasosListComponent implements OnInit {
     if (this.selectedTipo?.value) filters.tipo = this.selectedTipo.value;
     if (this.selectedSumerce?.value) filters.sumerce = this.selectedSumerce.value;
 
+    if (this.selectedFechaDesde) {
+      filters.fechaDesde = this.selectedFechaDesde.toISOString();
+    }
+    if (this.selectedFechaHasta) {
+      filters.fechaHasta = this.selectedFechaHasta.toISOString();
+    }
+
     this.mesaService.getCasos(filters).subscribe({
       next: (data) => {
         this.casos = data;
@@ -252,6 +261,8 @@ export class MesaCasosListComponent implements OnInit {
     this.selectedEstado = this.estados[3]; // Todos
     this.selectedTipo = { label: 'Todos', value: null };
     this.selectedSumerce = { label: 'Todos', value: null };
+    this.selectedFechaDesde = null;
+    this.selectedFechaHasta = null;
     if (this.dtCasos) {
       this.dtCasos.clear();
     }
@@ -601,6 +612,36 @@ export class MesaCasosListComponent implements OnInit {
       }
     });
   }
+
+    exportExcel() {
+      import('xlsx').then(xlsx => {
+        const dataToExport = this.dtCasos && this.dtCasos.filteredValue ? this.dtCasos.filteredValue : this.displayCasos;
+        const exportData = dataToExport.map((c: any) => ({
+          'ID': c.id,
+          'Asunto': c.titulo,
+          'Apertura': new Date(c.fechaCreacion).toLocaleString(),
+          'Servicio Destino': c.servicio?.nombres || 'N/A',
+          'Solicitante': c.servicioSolicitante?.nombres || 'N/A',
+          'Categoría': c.categoria?.nombre || 'N/A',
+          'Estado': c.estado,
+          'Prioridad': c.prioridad || 'N/A'
+        }));
+  
+        const worksheet = xlsx.utils.json_to_sheet(exportData);
+        const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+        const excelBuffer: any = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
+        this.saveAsExcelFile(excelBuffer, "reporte_casos");
+      });
+    }
+  
+    saveAsExcelFile(buffer: any, fileName: string): void {
+      import('file-saver').then(FileSaver => {
+        let EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        let EXCEL_EXTENSION = '.xlsx';
+        const data: Blob = new Blob([buffer], { type: EXCEL_TYPE });
+        FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
+      });
+    }
 
   saveAdminEdit() {
     if (!this.editingCaso) return;

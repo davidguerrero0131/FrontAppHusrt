@@ -9,12 +9,12 @@
             <p class="text-secondary mt-2 mb-0">Monitoreo y administración de la Mesa de Servicios.</p>
         </div>
         <div class="flex gap-2">
-            <button pButton pRipple label="Buscar Caso" icon="pi pi-search" class="p-button-info shadow-2"
-                (click)="openSearchDialog()" pTooltip="Buscar un caso por ID"></button>
-            <button pButton pRipple label="Nuevo Caso" icon="pi pi-plus" class="p-button-success shadow-2"
+            <button pButton pRipple label="Buscar Caso" icon="pi pi-search" class="p-button-outlined p-button-secondary shadow-2 bg-white"
+                (click)="openSearchDialog()" pTooltip="Buscar un caso por ID" tooltipPosition="bottom"></button>
+            <button pButton pRipple label="Nuevo Caso" icon="pi pi-plus" class="p-button-primary shadow-2"
                 (click)="createNew()"></button>
             <button pButton pRipple icon="pi pi-refresh" class="p-button-secondary p-button-outlined bg-white shadow-1"
-                (click)="loadCasos()" pTooltip="Recargar datos"></button>
+                (click)="loadCasos()" pTooltip="Recargar datos" tooltipPosition="bottom"></button>
         </div>
     </div>
 
@@ -43,7 +43,7 @@
                 <i class="pi pi-spin pi-spinner"></i>
             </div>
             <div class="stat-info">
-                <div class="stat-value text-orange-500">{{ stats.enCurso }}</div>
+                <div class="stat-value text-indigo-500">{{ stats.enCurso }}</div>
                 <div class="stat-label">En Curso</div>
             </div>
         </div>
@@ -52,7 +52,7 @@
                 <i class="pi pi-check-circle"></i>
             </div>
             <div class="stat-info">
-                <div class="stat-value text-green-500">{{ stats.resueltos }}</div>
+                <div class="stat-value text-slate-600">{{ stats.resueltos }}</div>
                 <div class="stat-label">Resueltos</div>
             </div>
         </div>
@@ -71,8 +71,10 @@
             <button pButton [icon]="showFilters ? 'pi pi-filter-fill' : 'pi pi-filter'" 
                 [label]="showFilters ? 'Ocultar Filtros' : 'Filtros Avanzados'"
                 class="p-button-text p-button-secondary font-bold" (click)="showFilters = !showFilters"></button>
+            <button pButton label="Exportar" icon="pi pi-download"
+                class="p-button-text p-button-secondary font-bold" (click)="exportExcel()"></button>
             <button pButton label="Limpiar" icon="pi pi-filter-slash"
-                class="p-button-text p-button-danger font-bold" (click)="clearFilters()"></button>
+                class="p-button-text p-button-secondary font-bold" (click)="clearFilters()"></button>
         </div>
     </div>
 
@@ -80,29 +82,34 @@
     <div *ngIf="showFilters" class="advanced-filters-panel" @fadeInOut>
         <div class="grid p-fluid">
             <div class="col-12 sm:col-6 md:col-1">
-                <span class="filter-label">ID Caso</span>
-                <input pInputText type="number" [(ngModel)]="selectedId" placeholder="#" (keyup.enter)="loadCasos()">
+                <span class="filter-label">ID</span>
+                <input pInputText type="number" [(ngModel)]="selectedId" placeholder="#" (keyup.enter)="loadCasos()" class="w-full">
             </div>
             <div class="col-12 sm:col-6 md:col-3">
                 <span class="filter-label">Servicio Destino</span>
                 <p-select [options]="servicios" [(ngModel)]="selectedServicio" optionLabel="nombres"
                     placeholder="Todos los servicios" (onChange)="loadCasos()" [showClear]="!isLocalTi" appendTo="body"
-                    [filter]="true" filterBy="nombres" [disabled]="isLocalTi"></p-select>
+                    [filter]="true" filterBy="nombres" [disabled]="isLocalTi" styleClass="w-full" class="w-full"></p-select>
             </div>
             <div class="col-12 sm:col-6 md:col-2">
                 <span class="filter-label">Estado</span>
                 <p-select [options]="estados" [(ngModel)]="selectedEstado" optionLabel="label" placeholder="Cualquier estado"
-                    (onChange)="loadCasos()" [showClear]="true" appendTo="body"></p-select>
+                    (onChange)="loadCasos()" [showClear]="true" appendTo="body" styleClass="w-full" class="w-full"></p-select>
             </div>
             <div class="col-12 sm:col-6 md:col-2">
                 <span class="filter-label">Tipo</span>
                 <p-select [options]="tipos" [(ngModel)]="selectedTipo" optionLabel="label" placeholder="Cualquier tipo"
-                    (onChange)="loadCasos()" [showClear]="true" appendTo="body"></p-select>
+                    (onChange)="loadCasos()" [showClear]="true" appendTo="body" styleClass="w-full" class="w-full"></p-select>
             </div>
-            <div class="col-12 sm:col-6 md:col-4">
-                <span class="filter-label">Pilar SUMERCE</span>
-                <p-select [options]="sumerceOptions" [(ngModel)]="selectedSumerce" optionLabel="label"
-                    placeholder="Todos los pilares" (onChange)="loadCasos()" [showClear]="true" appendTo="body"></p-select>
+            <div class="col-12 sm:col-6 md:col-2">
+                <span class="filter-label">Desde</span>
+                <p-calendar [(ngModel)]="selectedFechaDesde" dateFormat="yy-mm-dd" [showIcon]="true" placeholder="Fecha inicio" 
+                    (onSelect)="loadCasos()" (onClear)="loadCasos()" [showClear]="true" appendTo="body" styleClass="w-full" class="w-full"></p-calendar>
+            </div>
+            <div class="col-12 sm:col-6 md:col-2">
+                <span class="filter-label">Hasta</span>
+                <p-calendar [(ngModel)]="selectedFechaHasta" dateFormat="yy-mm-dd" [showIcon]="true" placeholder="Fecha fin" 
+                    (onSelect)="loadCasos()" (onClear)="loadCasos()" [showClear]="true" appendTo="body" styleClass="w-full" class="w-full"></p-calendar>
             </div>
         </div>
     </div>
