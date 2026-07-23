@@ -41,6 +41,12 @@ export class EquiposService {
     )
   }
 
+  searchEquiposPorSerie(query: string) {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/buscar/series?q=${query}`)
+    )
+  }
+
   getEquipoById(id: any) {
     return firstValueFrom(
       this.httpClient.get<any>(`${this.baseUrl}/equipo/${id}`)

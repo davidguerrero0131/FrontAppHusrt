@@ -1,0 +1,121 @@
+
+::ng-deep .fc {
+  font-family: inherit;
+  --fc-border-color: #e5e7eb;
+  --fc-button-bg-color: #2b82f0;
+  --fc-button-border-color: #2b82f0;
+  --fc-button-hover-bg-color: #1e6bd6;
+  --fc-button-hover-border-color: #1e6bd6;
+  --fc-button-active-bg-color: #1754a8;
+  --fc-button-active-border-color: #1754a8;
+  --fc-event-bg-color: #3b82f6;
+  --fc-event-border-color: #3b82f6;
+  --fc-today-bg-color: #f3f8ff;
+  --fc-page-bg-color: #ffffff;
+}
+
+::ng-deep .fc-theme-standard th {
+  background-color: #f8fafc;
+  padding: 8px 0;
+  color: #334155;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+::ng-deep .fc .fc-toolbar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  text-transform: capitalize;
+}
+
+::ng-deep .fc .fc-button {
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  border-radius: 6px;
+  text-transform: capitalize;
+}
+
+::ng-deep .fc .fc-button-primary:not(:disabled).fc-button-active, 
+::ng-deep .fc .fc-button-primary:not(:disabled):active {
+  box-shadow: none !important;
+}
+
+::ng-deep .fc-event {
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 0.85em;
+  font-weight: 500;
+  border: none !important;
+}
+
+::ng-deep .calendar-container {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: white;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+
+/* Quitar color azul de los enlaces (días y números) */
+::ng-deep .fc .fc-col-header-cell-cushion, 
+::ng-deep .fc .fc-daygrid-day-number {
+  color: #475569 !important;
+  text-decoration: none !important;
+  font-weight: 600;
+  padding: 8px;
+}
+
+::ng-deep .fc .fc-daygrid-day-number {
+  color: #64748b !important;
+  font-weight: 500;
+}
+
+/* Efecto hover sobre los números de los días */
+::ng-deep .fc .fc-daygrid-day-number:hover {
+  background-color: #f1f5f9;
+  border-radius: 50%;
+}
+
+/* Suavizar el borde exterior y el grid general */
+::ng-deep .fc-scrollgrid {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+::ng-deep .fc-scrollgrid td, ::ng-deep .fc-scrollgrid th {
+  border-color: #f1f5f9 !important;
+}
+
+/* Diferenciar un poco el fin de semana */
+::ng-deep .fc-day-sun, ::ng-deep .fc-day-sat {
+  background-color: #fafaf9;
+}
+
+/* Mejorar el estilo de los eventos */
+::ng-deep .fc-event {
+  margin: 2px 4px !important;
+  padding: 4px 6px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  transition: transform 0.2s;
+}
+
+::ng-deep .fc-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  cursor: pointer;
+}
+
+/* Día actual más notorio */
+::ng-deep .fc-day-today {
+  background-color: #eff6ff !important;
+}
+
+::ng-deep .fc-day-today .fc-daygrid-day-number {
+  color: #2b82f0 !important;
+  font-weight: 800;
+}
+

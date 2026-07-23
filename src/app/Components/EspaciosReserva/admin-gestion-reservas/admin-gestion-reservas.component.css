@@ -1,0 +1,116 @@
+
+::ng-deep .fc {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --fc-border-color: #e2e8f0;
+  --fc-button-bg-color: #3b82f6;
+  --fc-button-border-color: #3b82f6;
+  --fc-button-hover-bg-color: #2563eb;
+  --fc-button-hover-border-color: #2563eb;
+  --fc-button-active-bg-color: #1d4ed8;
+  --fc-button-active-border-color: #1d4ed8;
+  --fc-event-bg-color: #3b82f6;
+  --fc-event-border-color: #3b82f6;
+  --fc-today-bg-color: #eff6ff;
+  --fc-page-bg-color: #ffffff;
+}
+
+::ng-deep .fc-theme-standard th {
+  background-color: #f8fafc;
+  padding: 12px 0;
+  color: #475569;
+  font-weight: 600;
+  text-transform: capitalize;
+  border-bottom: 2px solid #e2e8f0 !important;
+}
+
+::ng-deep .fc .fc-toolbar-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+}
+
+::ng-deep .fc .fc-button {
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  border-radius: 8px;
+  text-transform: capitalize;
+  transition: all 0.2s;
+}
+
+::ng-deep .fc .fc-button-primary:not(:disabled).fc-button-active, 
+::ng-deep .fc .fc-button-primary:not(:disabled):active {
+  box-shadow: none !important;
+  transform: translateY(1px);
+}
+
+::ng-deep .fc-event {
+  border-radius: 6px !important;
+  padding: 4px 6px !important;
+  font-size: 0.85em;
+  font-weight: 600;
+  border: none !important;
+  margin: 2px 4px !important;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+::ng-deep .fc-event:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  cursor: pointer;
+}
+
+/* Quitar color azul de los enlaces (días y números) */
+::ng-deep .fc .fc-col-header-cell-cushion, 
+::ng-deep .fc .fc-daygrid-day-number {
+  color: #475569 !important;
+  text-decoration: none !important;
+  font-weight: 600;
+  padding: 8px 10px;
+}
+
+::ng-deep .fc .fc-daygrid-day-number {
+  color: #64748b !important;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* Efecto hover sobre los números de los días */
+::ng-deep .fc .fc-daygrid-day-number:hover {
+  background-color: #f1f5f9;
+  border-radius: 50%;
+}
+
+/* Suavizar el borde exterior y el grid general */
+::ng-deep .fc-scrollgrid {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+::ng-deep .fc-scrollgrid td, ::ng-deep .fc-scrollgrid th {
+  border-color: #f1f5f9 !important;
+}
+
+/* Diferenciar un poco el fin de semana */
+::ng-deep .fc-day-sun, ::ng-deep .fc-day-sat {
+  background-color: #fafaf9;
+}
+
+/* Día actual más notorio */
+::ng-deep .fc-day-today {
+  background-color: #eff6ff !important;
+}
+
+::ng-deep .fc-day-today .fc-daygrid-day-number {
+  color: #2563eb !important;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.calendar-container {
+  min-height: 600px;
+}
+

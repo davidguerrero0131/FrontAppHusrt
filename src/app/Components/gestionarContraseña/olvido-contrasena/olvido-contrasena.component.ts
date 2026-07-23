@@ -8,11 +8,12 @@ import { Router } from '@angular/router';
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-olvido-contrasena',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, RouterModule],
   templateUrl: './olvido-contrasena.component.html',
   styleUrl: './olvido-contrasena.component.css'
 })
@@ -45,16 +46,21 @@ export class OlvidoContrasenaComponent {
         icon: "success",
         draggable: true
       });
-      // Navegamos directamente a recuperarcontraseña pasando el token interceptado
-      this.router.navigate(['/olvidocontraseña/recuperar'], { queryParams: { token: res.token } }).catch(() => {
-        // En caso de que la ruta esté en otro lugar (verificaremos el nombre de la ruta original)
-        this.router.navigate(['/recuperarcontraseña'], { queryParams: { token: res.token } });
-      });
-    } catch (error) {
+      // Almacenamos el token en sessionStorage en lugar de enviarlo por la URL
+      sessionStorage.setItem('utoken', res.token);
+      
+      // Navegamos directamente a la ruta correcta
+      this.router.navigate(['/recuperarcontraseña']);
+    } catch (error: any) {
+      let msg = 'Verifique los campos.';
+      if (error?.error?.error) {
+        msg = error.error.error;
+      }
+      
       Swal.fire({
         icon: 'warning',
-        title: 'Correo no encontrado',
-        text: 'Verifique los campos.'
+        title: 'Error al solicitar código',
+        text: msg
       })
     }
   }

@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError, retry, tap } from 'rxjs';
 import Swal from 'sweetalert2';
+import { jwtDecode } from 'jwt-decode';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const router = inject(Router);
@@ -25,7 +26,28 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             if (event instanceof HttpResponse) {
                 const newToken = event.headers.get('New-Token');
                 if (newToken && typeof sessionStorage !== 'undefined') {
-                    sessionStorage.setItem('utoken', newToken);
+                    try {
+                        const decoded: any = jwtDecode(newToken);
+                        if (decoded && decoded.exp) {
+                            const currentToken = sessionStorage.getItem('utoken');
+                            let currentExp = 0;
+                            if (currentToken) {
+                                try {
+                                    const currDecoded: any = jwtDecode(currentToken);
+                                    currentExp = currDecoded.exp || 0;
+                                } catch (e) {}
+                            }
+                            
+                            // Prevent cached responses from downgrading the token
+                            if (decoded.exp > currentExp) {
+                                sessionStorage.setItem('utoken', newToken);
+                            } else {
+                                console.warn('Recibido New-Token más antiguo o igual al actual. Ignorando (posible caché del navegador).');
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Recibido New-Token inválido o corrupto. Ignorando.');
+                    }
                 }
             }
         }),

@@ -1,0 +1,191 @@
+<div class="reservas-dashboard p-4" style="text-transform: uppercase;">
+  <div class="flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="m-0 text-3xl font-bold" style="color: #3b2c7a;">Administración de Reservas</h2>
+      <p class="text-500 mt-2">Revise y gestione el estado de todas las reservas de espacios institucionales.</p>
+    </div>
+    <button pButton label="Crear Reserva" icon="pi pi-plus" class="p-button-primary" (click)="abrirModalCrear()"></button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card mb-4" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+    <h4 class="m-0 mb-3" style="color: #3b2c7a;">Filtros de Búsqueda</h4>
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-3">
+        <label for="fechaDesde" class="block mb-2 font-semibold">Fecha Desde</label>
+        <input id="fechaDesde" type="date" pInputText class="w-full" [(ngModel)]="fechaDesde" (change)="aplicarFiltros()" />
+      </div>
+      <div class="field col-12 md:col-3">
+        <label for="fechaHasta" class="block mb-2 font-semibold">Fecha Hasta</label>
+        <input id="fechaHasta" type="date" pInputText class="w-full" [(ngModel)]="fechaHasta" (change)="aplicarFiltros()" />
+      </div>
+      <div class="field col-12 md:col-4">
+        <label for="espacioFiltro" class="block mb-2 font-semibold">Espacio</label>
+        <p-dropdown id="espacioFiltro" [options]="espacios" [(ngModel)]="espacioFiltro" optionLabel="nombre" optionValue="id" 
+          [showClear]="true" placeholder="Todos los espacios" styleClass="w-full" (onChange)="aplicarFiltros()"></p-dropdown>
+      </div>
+      <div class="field col-12 md:col-2 flex align-items-end">
+        <button pButton label="Limpiar Filtros" icon="pi pi-filter-slash" class="p-button-outlined p-button-secondary w-full" (click)="limpiarFiltros()"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+    <div class="calendar-container" *ngIf="isCalendarVisible">
+      <full-calendar [options]="calendarOptions"></full-calendar>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Detalles de la Reserva -->
+<p-dialog [(visible)]="detalleReservaDialog" [style]="{width: '650px'}" header="Detalles y Gestión de Reserva" [modal]="true" styleClass="p-fluid">
+  <div class="formgrid grid mt-3" *ngIf="reservaSeleccionada">
+    <div class="col-12 mb-3 border-bottom-1 surface-border pb-3">
+      <div class="flex align-items-center justify-content-between">
+        <h3 class="m-0 text-xl font-bold text-900">{{ reservaSeleccionada.nombreCompleto }}</h3>
+        <p-tag [severity]="reservaSeleccionada.estadoStyle || 'info'" 
+               [value]="reservaSeleccionada.estado || 'Activa'">
+        </p-tag>
+      </div>
+      <div class="text-500 mt-1" *ngIf="reservaSeleccionada.nombreEspacio">
+        Espacio: <strong>{{ reservaSeleccionada.nombreEspacio }}</strong>
+      </div>
+    </div>
+    
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Fecha</span>
+      <span>{{ reservaSeleccionada.fechaReserva }}</span>
+    </div>
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Horario</span>
+      <span>{{ reservaSeleccionada.horaInicio | slice:0:5 }} - {{ reservaSeleccionada.horaFin | slice:0:5 }}</span>
+    </div>
+    
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Teléfono</span>
+      <span>{{ reservaSeleccionada.telefono }}</span>
+    </div>
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Correo Electrónico</span>
+      <span>{{ reservaSeleccionada.correoElectronico }}</span>
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Servicio Solicitante</span>
+      <span>{{ reservaSeleccionada.servicioSolicitante }}</span>
+    </div>
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Actividad</span>
+      <span>{{ reservaSeleccionada.tipoActividad }}</span>
+    </div>
+
+    <div class="field col-12 md:col-6" *ngIf="reservaSeleccionada.institucionEducativa">
+      <span class="font-bold block text-500 mb-1">Institución Educativa</span>
+      <span>{{ reservaSeleccionada.institucionEducativa }}</span>
+    </div>
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Participantes</span>
+      <span>{{ reservaSeleccionada.cantidadParticipantes }} personas</span>
+    </div>
+
+    <div class="field col-12" *ngIf="reservaSeleccionada.estado === 'CANCELADA' || reservaSeleccionada.estado === 'CANCELADO'">
+      <div class="p-3 border-round bg-red-50 text-red-900 border-1 border-red-200 mt-2">
+        <span class="font-bold block mb-1">Motivo de Cancelación:</span>
+        <span>{{ reservaSeleccionada.motivoCancelacion || 'Sin motivo especificado' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex w-full align-items-center justify-content-between flex-wrap gap-2">
+      <!-- Botones de Acción -->
+      <div class="flex gap-2" *ngIf="reservaSeleccionada">
+        <button pButton pRipple icon="pi pi-times-circle" label="Cancelar" 
+                class="p-button-danger" 
+                (click)="confirmarCancelacion()"
+                *ngIf="reservaSeleccionada.estado !== 'CANCELADO' && reservaSeleccionada.estado !== 'CANCELADA' && reservaSeleccionada.estado !== 'FINALIZADO'">
+        </button>
+      </div>
+
+      <!-- Botón Cerrar -->
+      <div>
+        <button pButton pRipple label="Cerrar Modal" icon="pi pi-times" class="p-button-text" (click)="detalleReservaDialog = false"></button>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Modal para Solicitar Reserva -->
+<p-dialog [(visible)]="crearReservaDialog" [style]="{width: '800px'}" header="Crear Reserva de Espacio" [modal]="true" styleClass="p-fluid" appendTo="body" [draggable]="false" [resizable]="false">
+  <ng-template pTemplate="content">
+    <div class="formgrid grid mt-3">
+
+      <!-- Selección de Espacio -->
+      <div class="field col-12 mb-4">
+        <label for="espacioRes" class="font-semibold text-color block mb-2">Seleccione el Espacio *</label>
+        <p-dropdown id="espacioRes" [options]="espacios" [(ngModel)]="nuevaReserva.espacioReservaIdFk" optionLabel="nombre" optionValue="id" placeholder="Seleccione un espacio" appendTo="body" styleClass="w-full"></p-dropdown>
+      </div>
+
+      <!-- Fila 1: Fecha y Horas -->
+      <div class="col-12 mb-4">
+        <h4 style="margin: 0 0 1rem 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; color: #3b2c7a;">Horario de la Reserva</h4>
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-4">
+            <label for="fechaRes" class="font-semibold text-color block mb-2">Fecha *</label>
+            <input type="date" id="fechaRes" class="p-inputtext p-component w-full" [(ngModel)]="nuevaReserva.fechaReserva" required />
+          </div>
+          <div class="field col-12 md:col-4">
+            <label for="hInicio" class="font-semibold text-color block mb-2">Hora Inicio *</label>
+            <p-dropdown [options]="opcionesHoras" [(ngModel)]="nuevaReserva.horaInicio" id="hInicio" styleClass="w-full" [style]="{'width':'100%'}" placeholder="Seleccione hora" appendTo="body" scrollHeight="150px"></p-dropdown>
+          </div>
+          <div class="field col-12 md:col-4">
+            <label for="hFin" class="font-semibold text-color block mb-2">Hora Fin *</label>
+            <p-dropdown [options]="opcionesHoras" [(ngModel)]="nuevaReserva.horaFin" id="hFin" styleClass="w-full" [style]="{'width':'100%'}" placeholder="Seleccione hora" appendTo="body" scrollHeight="150px"></p-dropdown>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 2 -->
+      <div class="field col-12">
+        <label for="nombreCompleto" class="font-semibold text-color block mb-2">Nombre Completo Solicitante *</label>
+        <input pInputText id="nombreCompleto" [(ngModel)]="nuevaReserva.nombreCompleto" class="w-full" placeholder="Escriba su nombre completo" required />
+      </div>
+
+      <!-- Fila 3 -->
+      <div class="field col-12 md:col-6">
+        <label for="telefono" class="font-semibold text-color block mb-2">Teléfono / Extensión *</label>
+        <input pInputText id="telefono" [(ngModel)]="nuevaReserva.telefono" class="w-full" placeholder="Ej: 3001234567 o Ext 123" required />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="correo" class="font-semibold text-color block mb-2">Correo Electrónico *</label>
+        <input pInputText id="correo" type="email" [(ngModel)]="nuevaReserva.correoElectronico" class="w-full" placeholder="ejemplo@hospital.gov.co" required />
+      </div>
+
+      <!-- Fila 4 -->
+      <div class="field col-12 md:col-6">
+        <label for="servicio" class="font-semibold text-color block mb-2">Servicio Solicitante *</label>
+        <input pInputText id="servicio" [(ngModel)]="nuevaReserva.servicioSolicitante" class="w-full" placeholder="Área o Servicio" required />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="institucion" class="font-semibold text-color block mb-2">Institución *</label>
+        <input pInputText id="institucion" [(ngModel)]="nuevaReserva.institucionEducativa" class="w-full" placeholder="Nombre de la institución" required />
+      </div>
+
+      <!-- Fila 5 -->
+      <div class="field col-12 md:col-6">
+        <label for="actividad" class="font-semibold text-color block mb-2">Tipo de Actividad *</label>
+        <input pInputText id="actividad" [(ngModel)]="nuevaReserva.tipoActividad" class="w-full" placeholder="Ej: Capacitación, Reunión..." required />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="participantes" class="font-semibold text-color block mb-2">Cantidad de Participantes *</label>
+        <p-inputNumber inputId="participantes" [(ngModel)]="nuevaReserva.cantidadParticipantes" [min]="1" mode="decimal" styleClass="w-full" class="w-full"></p-inputNumber>
+      </div>
+
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="cerrarModalCrear()"></button>
+    <button pButton pRipple label="Crear Reserva" icon="pi pi-check" class="p-button-primary" (click)="guardarNuevaReserva()"></button>
+  </ng-template>
+</p-dialog>

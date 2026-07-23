@@ -24,6 +24,8 @@
                 (click)="setActivePanel('seguridad')"><i class="pi pi-shield"></i> Seguridad de la Información</a>
             <a href="javascript:void(0)" class="nav-item" [class.active]="activePanel === 'soporte' "
                 (click)="setActivePanel('soporte')"><i class="pi pi-question-circle"></i> Soporte y ayuda</a>
+            <a href="javascript:void(0)" class="nav-item" [class.active]="activePanel === 'espacios_reserva'"
+                (click)="setActivePanel('espacios_reserva')"><i class="pi pi-calendar-plus"></i> Espacios de Reserva</a>
         </nav>
 
         <div class="sidebar-widget">
@@ -575,6 +577,18 @@
             </div>
 
             <!-- Panel 4 eliminado a petición -->
+
+            <!-- Panel: Espacios de Reserva -->
+            <div *ngIf="activePanel === 'espacios_reserva'" class="fade-in">
+                <section class="dashboard-section fade-in delay-1">
+                    <div class="section-header">
+                        <h2>Espacios de Reserva</h2>
+                    </div>
+                    <div class="section-content" style="background-color: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        <app-reservas-espacios-interno></app-reservas-espacios-interno>
+                    </div>
+                </section>
+            </div>
         </div>
     </main>
 
@@ -637,3 +651,4 @@
         </div>
     </div>
 </div>
+

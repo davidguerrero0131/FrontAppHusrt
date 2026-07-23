@@ -10,21 +10,15 @@
     <h3 class="mb-3 font-semibold text-xl">B&uacute;squeda por Serie</h3>
 
     <div class="flex flex-column md:flex-row justify-content-center gap-3 align-items-center">
-      <p-select [options]="equipos" [(ngModel)]="selectedEquipo" optionLabel="serie" [filter]="true" filterBy="serie"
-        [showClear]="true" placeholder="Seleccione una serie" styleClass="w-full md:w-20rem">
-        <ng-template #selectedItem let-selectedOption>
-          <div class="flex align-items-center gap-2">
-            <i class="pi pi-box"></i>
-            <div>{{ selectedOption.serie }}</div>
-          </div>
-        </ng-template>
-        <ng-template let-equipo #item>
+      <p-autoComplete [(ngModel)]="selectedEquipo" [suggestions]="equiposFiltrados" (completeMethod)="filterEquipos($event)"
+        field="serie" [dropdown]="true" placeholder="Escriba la serie..." styleClass="w-full md:w-20rem">
+        <ng-template let-equipo pTemplate="item">
           <div class="flex align-items-center gap-2">
             <i class="pi pi-box"></i>
             <div>{{ equipo.serie }}</div>
           </div>
         </ng-template>
-      </p-select>
+      </p-autoComplete>
 
       <button pButton label="Buscar" icon="pi pi-search" (click)="buscarEquipo()" class="p-button-primary"></button>
       <button *ngIf="showCreateEquipmentButton" pButton label="Crear Equipo" icon="pi pi-plus"

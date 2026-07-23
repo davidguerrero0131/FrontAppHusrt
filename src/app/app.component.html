@@ -14,6 +14,7 @@
     <app-mesausernavbar
         *ngIf="userRole === 'MESAUSER' || userRole === 'SOL' || userRole === 'OBS'"></app-mesausernavbar>
     <app-mantenimientoadminnavbar *ngIf="userRole === 'MANTENIMIENTOADMIN'"></app-mantenimientoadminnavbar>
+    <app-adminespaciosnavbar *ngIf="userRole === 'ADMINESPACIORESERVA'"></app-adminespaciosnavbar>
 </div>
 
 <router-outlet />

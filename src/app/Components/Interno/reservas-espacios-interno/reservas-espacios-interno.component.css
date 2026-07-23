@@ -1,0 +1,97 @@
+/* FullCalendar Modernization */
+::ng-deep .fc {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #334155;
+    background: #ffffff;
+    padding: 10px;
+}
+
+::ng-deep .fc-toolbar-title {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #1e293b;
+    text-transform: capitalize;
+}
+
+::ng-deep .fc-button-primary {
+    background-color: #3b2c7a !important;
+    border-color: #3b2c7a !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    text-transform: capitalize !important;
+    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2), 0 2px 4px -1px rgba(99, 102, 241, 0.1) !important;
+    transition: all 0.2s ease;
+}
+
+::ng-deep .fc-button-primary:hover {
+    background-color: #2a1f59 !important;
+    border-color: #2a1f59 !important;
+    transform: translateY(-1px);
+}
+
+::ng-deep .fc-button-primary:not(:disabled).fc-button-active, 
+::ng-deep .fc-button-primary:not(:disabled):active {
+    background-color: #201744 !important;
+    border-color: #201744 !important;
+}
+
+::ng-deep .fc-theme-standard th {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    padding: 12px 0;
+    font-weight: 600;
+    color: #475569;
+    text-transform: capitalize;
+}
+
+::ng-deep .fc-theme-standard td, ::ng-deep .fc-theme-standard th {
+    border-color: #e2e8f0;
+}
+
+::ng-deep .fc-day-today {
+    background-color: #f1f5f9 !important;
+}
+
+::ng-deep .fc-timegrid-slot {
+    border-bottom-color: #f1f5f9;
+}
+
+::ng-deep .fc-v-event {
+    border-radius: 6px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 2px 4px;
+    background-color: #3b82f6 !important;
+    opacity: 0.9;
+    cursor: pointer;
+}
+
+::ng-deep .fc-event {
+    cursor: pointer;
+}
+
+::ng-deep .fc-event-main {
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+::ng-deep .fc-col-header-cell-cushion {
+    text-decoration: none !important;
+    color: #475569 !important;
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Fix input alignments */
+.field {
+    margin-bottom: 1.5rem;
+}

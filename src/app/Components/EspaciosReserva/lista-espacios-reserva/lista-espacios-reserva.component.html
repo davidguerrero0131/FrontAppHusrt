@@ -1,0 +1,138 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="dashboard-container">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>Parametrizaci&oacute;n de Espacios de Reserva</h1>
+      <p>Gestione los espacios disponibles para reserva en el hospital.</p>
+    </div>
+  </div>
+
+  <div class="card p-3 shadow-sm" style="border-radius: 8px;">
+    <p-table [value]="espacios" [paginator]="true" [rows]="10" [responsive]="true" [rowHover]="true" styleClass="p-datatable-sm">
+      <ng-template pTemplate="caption">
+        <div class="flex justify-content-between align-items-center">
+          <h5 class="m-0">Lista de Espacios</h5>
+          <button pButton pRipple label="Nuevo Espacio" icon="pi pi-plus" class="p-button-success" (click)="openNew()"></button>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Nombre</th>
+          <th>Ubicaci&oacute;n</th>
+          <th>Aforo M&iacute;n.</th>
+          <th>Aforo M&aacute;x.</th>
+          <th>Disponibilidad</th>
+          <th>Horario</th>
+          <th>Responsable</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-esp>
+        <tr>
+          <td>{{ esp.nombre }}</td>
+          <td>{{ esp.ubicacion }}</td>
+          <td>{{ esp.aforoMinimo }}</td>
+          <td>{{ esp.aforoMaximo }}</td>
+          <td>{{ esp.tipoDisponibilidad === 'TODOS_LOS_DIAS' ? 'Todos los días' : (esp.tipoDisponibilidad === 'ENTRE_SEMANA' ? 'Entre semana' : 'Días específicos') }}</td>
+          <td>{{ (esp.horaInicio | slice:0:5) }} - {{ (esp.horaFin | slice:0:5) }}</td>
+          <td>{{ getResponsablesNames(esp.responsables) }}</td>
+          <td>
+            <span [class]="'badge ' + (esp.estado ? 'badge-active' : 'badge-inactive')">
+              {{ esp.estado ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td>
+            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-info mr-2" (click)="editEspacio(esp)" style="margin-right: 0.5rem;"></button>
+            <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteEspacio(esp)" *ngIf="esp.estado"></button>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="text-center">No se encontraron espacios de reserva.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<p-dialog [(visible)]="espacioDialog" [style]="{width: '750px'}" header="Detalles del Espacio" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <div class="formgrid grid mt-3">
+      <!-- Fila 1: Nombre y Responsable -->
+      <div class="field col-12 md:col-6">
+        <label for="nombre" class="font-bold">Nombre</label>
+        <input type="text" pInputText id="nombre" [(ngModel)]="espacio.nombre" required autofocus class="w-full mt-2" />
+        <small class="p-error block mt-1" *ngIf="!espacio.nombre">El nombre es requerido.</small>
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="responsable" class="font-bold">Responsable(s)</label>
+        <p-multiSelect [options]="usuarios" [(ngModel)]="espacio.responsablesIds" placeholder="Seleccione usuarios responsables" [filter]="true" filterBy="label" appendTo="body" styleClass="w-full mt-2" display="chip"></p-multiSelect>
+      </div>
+
+      <!-- Fila 2: Ubicación y Disponibilidad -->
+      <div class="field col-12 md:col-6">
+        <label for="ubicacion" class="font-bold">Ubicaci&oacute;n</label>
+        <input type="text" pInputText id="ubicacion" [(ngModel)]="espacio.ubicacion" required class="w-full mt-2" />
+        <small class="p-error block mt-1" *ngIf="!espacio.ubicacion">La ubicación es requerida.</small>
+      </div>
+      <div class="field col-12 md:col-6">
+        <div class="formgrid grid">
+          <div class="field col-12" [ngClass]="espacio.tipoDisponibilidad === 'DIAS_ESPECIFICOS' ? 'md:col-6' : 'md:col-12'">
+            <label for="tipoDisponibilidad" class="font-bold">Disponibilidad</label>
+            <p-dropdown [options]="opcionesDisponibilidad" [(ngModel)]="espacio.tipoDisponibilidad" appendTo="body" styleClass="w-full mt-2"></p-dropdown>
+          </div>
+          <div class="field col-12 md:col-6" *ngIf="espacio.tipoDisponibilidad === 'DIAS_ESPECIFICOS'">
+            <label for="diasEspecificos" class="font-bold">Días</label>
+            <p-multiSelect [options]="opcionesDias" [(ngModel)]="diasSeleccionados" placeholder="Días" appendTo="body" styleClass="w-full mt-2" display="chip"></p-multiSelect>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 3: Aforo -->
+      <div class="col-12">
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <label for="aforoMinimo" class="font-bold">Aforo Mínimo</label>
+            <p-inputNumber id="aforoMinimo" [(ngModel)]="espacio.aforoMinimo" [min]="0" class="w-full" styleClass="w-full mt-2"></p-inputNumber>
+          </div>
+          <div class="field col-12 md:col-6">
+            <label for="aforoMaximo" class="font-bold">Aforo Máximo</label>
+            <p-inputNumber id="aforoMaximo" [(ngModel)]="espacio.aforoMaximo" [min]="0" class="w-full" styleClass="w-full mt-2"></p-inputNumber>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 4: Horarios -->
+      <div class="col-12">
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <label for="horaInicio" class="font-bold">Hora Inicio</label>
+            <input type="time" pInputText id="horaInicio" [(ngModel)]="espacio.horaInicio" required class="w-full mt-2" />
+          </div>
+          <div class="field col-12 md:col-6">
+            <label for="horaFin" class="font-bold">Hora Fin</label>
+            <input type="time" pInputText id="horaFin" [(ngModel)]="espacio.horaFin" required class="w-full mt-2" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 4: Estado (Edición) -->
+      <div class="field col-12 md:col-6" *ngIf="isEdit">
+        <label for="estado" class="font-bold">Estado</label>
+        <p-dropdown [options]="[{label:'Activo', value:true}, {label:'Inactivo', value:false}]" [(ngModel)]="espacio.estado" appendTo="body" styleClass="w-full mt-2"></p-dropdown>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-text" (click)="saveEspacio()"></button>
+  </ng-template>
+</p-dialog>

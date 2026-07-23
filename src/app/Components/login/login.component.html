@@ -1,40 +1,54 @@
-<div class="login-layout">
-  <div class="container pb-5">
-    <div class="row justify-content-center">
-      <div class="col-lg-5 col-md-7">
-        <div style="text-align: center; margin-top: 10%;">
-          <img src="LogoAgora.png" alt="Logo Agora" style="max-height: 150px; width: auto;">
-        </div>
-        <h1 style="text-align: center; margin-top: 2%; font-size: 40px;"><strong>Login {{
-            themeService.getThemeConfig().appName }}</strong></h1>
-        <div class="card " style="margin-top: 10%;">
-          <div class="card-body">
-            <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
-              <div class="mb-3">
-                <label for="InputEmailLogin" class="form-label"><strong>Nombre de Usuario</strong></label>
-                <input type="email" class="form-control" formControlName="usuarion" aria-describedby="emailHelp">
-              </div>
-              <div class="mb-3">
-                <label for="InputPasswordLogin" class="form-label"><strong>Contrase&ntilde;a</strong></label>
-                <input type="password" class="form-control" formControlName="contraseña">
-              </div>
-              <button type="submit" class="btn btn-primary">Iniciar sesión</button>
-            </form>
+﻿<div class="login-wrapper">
+  <!-- Elementos decorativos de fondo -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 
-          </div>
-          <div class="card-footer text-muted">
-            <div class="row mt-1">
-              <div class="col-6">
-                <a href="/olvidocontraseña"><small>Olvido su contraseña?</small></a>
-              </div>
-            </div>
-            <div class="mt-3 text-center">
-              <button type="button" class="btn btn-secondary w-100" (click)="loginInvitado()">Acceder como
-                Invitado</button>
-            </div>
-          </div>
+  <div class="login-card">
+    <div class="brand-section">
+      <img src="LogoAgora.png" alt="Logo Agora" class="logo">
+      <h1 class="app-title">Bienvenido a <span>{{ themeService.getThemeConfig().appName }}</span></h1>
+      <p class="subtitle">Ingrese sus credenciales para continuar</p>
+    </div>
+
+    <form [formGroup]="formulario" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="input-group">
+        <label for="InputEmailLogin">Nombre de Usuario</label>
+        <div class="input-wrapper">
+          <i class="pi pi-user input-icon"></i>
+          <input id="InputEmailLogin" type="email" formControlName="usuarion" placeholder="Usuario">
         </div>
       </div>
+
+      <div class="input-group">
+        <label for="InputPasswordLogin">Contraseña</label>
+        <div class="input-wrapper">
+          <i class="pi pi-lock input-icon"></i>
+          <input id="InputPasswordLogin" type="password" formControlName="contraseña" placeholder="••••••••">
+        </div>
+      </div>
+
+      <div class="forgot-password">
+        <a href="/olvidocontraseña">¿Olvidó su contraseña?</a>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="formulario.invalid">
+        <span>Iniciar Sesión</span>
+        <i class="pi pi-arrow-right"></i>
+      </button>
+    </form>
+
+    <div class="divider">
+      <span>O acceder de otra forma</span>
+    </div>
+
+    <div class="secondary-actions">
+      <button type="button" class="btn-guest" (click)="loginInvitado()">
+        <i class="pi pi-user-plus"></i> Acceder como Invitado
+      </button>
+      <button type="button" class="btn-home" routerLink="/interno">
+        <i class="pi pi-home"></i> Página de Inicio
+      </button>
     </div>
   </div>
 </div>

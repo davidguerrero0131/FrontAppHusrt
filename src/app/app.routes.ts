@@ -9,6 +9,10 @@ import { UsuariosServicioComponent } from './Components/News2/usuarios-servicio/
 import { AerolineaComponent } from './Components/Aerolinea/aerolinea/aerolinea.component';
 import { LoginComponent } from './Components/login/login.component'
 import { HomesuperadminComponent } from './Components/Homepage/homesuperadmin/homesuperadmin.component'
+import { AdminEspaciosReservaComponent } from './Components/EspaciosReserva/admin-espacios-reserva/admin-espacios-reserva.component';
+import { AdminGestionReservasComponent } from './Components/EspaciosReserva/admin-gestion-reservas/admin-gestion-reservas.component';
+import { ListaEspaciosReservaComponent } from './Components/EspaciosReserva/lista-espacios-reserva/lista-espacios-reserva.component';
+import { AdminespaciosHomeComponent } from './Components/EspaciosReserva/adminespacios-home/adminespacios-home.component';
 import { HomeadminsistemasComponent } from './Components/Homepage/homeadminsistemas/homeadminsistemas.component'
 import { HomeadminbiomedicaComponent } from './Components/Homepage/homeadminbiomedica/homeadminbiomedica.component';
 import { HomeadminmantenimientoComponent } from './Components/Homepage/homeadminmantenimiento/homeadminmantenimiento.component';
@@ -102,6 +106,12 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'updateprofil', component: EditarUsuarioComponent, canActivate: [authGuard] },
   { path: 'superadmin', component: HomesuperadminComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN'] } },
+  { path: 'adminespaciosreserva', component: AdminEspaciosReservaComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN'] } },
+  { path: 'admin/espacios-reserva', component: ListaEspaciosReservaComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN'] } },
+  { path: 'admin/gestion-reservas', component: AdminGestionReservasComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN'] } },
+
+  { path: 'adminespacios', component: AdminespaciosHomeComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'ADMINESPACIORESERVA'] } },
+  { path: 'adminespacios/gestion-reservas', component: AdminGestionReservasComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'ADMINESPACIORESERVA'] } },
   { path: 'access-denied', component: AccessDeniedComponent },
   { path: 'registro', component: RegistroComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'ADMINISTRADOR', 'ADM'] } },
   { path: 'adminsistemas', component: HomeadminsistemasComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'ADMINISTRADOR', 'AG'] } },
@@ -112,10 +122,10 @@ export const routes: Routes = [
   { path: 'adminmesaservicios/config/categorias', component: MesaCategoriasComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'ADM', 'ADMINISTRADOR', 'MESAADMIN'] } },
   { path: 'adminmesaservicios/config/roles', component: MesaRolesComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'ADM', 'ADMINISTRADOR', 'MESAADMIN'] } },
   { path: 'adminmesaservicios/indicadores', loadComponent: () => import('./Components/MesaServicios/Dashboard/mesa-indicadores/mesa-indicadores.component').then(m => m.MesaIndicadoresComponent), canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'MESAADMIN'] } },
-  { path: 'adminmesaservicios/casos', component: MesaCasosListComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'BIOMEDICAUSER', 'BIOMEDICATECNICO', 'ADM', 'AG', 'ADMINISTRADOR', 'MESAUSER', 'SOL', 'OBS', 'MESAADMIN'] } },
+  { path: 'adminmesaservicios/casos', component: MesaCasosListComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'BIOMEDICAUSER', 'BIOMEDICATECNICO', 'ADM', 'AG', 'ADMINISTRADOR', 'MESAUSER', 'SOL', 'OBS', 'MESAADMIN', 'ADMINESPACIORESERVA'] } },
   { path: 'adminmesaservicios/casos-ti', component: MesaCasosListComponent, canActivate: [authGuard], data: { isLocalTi: true, roles: ['MESAADMIN', 'SUPERADMIN'] } },
-  { path: 'adminmesaservicios/casos/novo', component: MesaCasoCreateComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'BIOMEDICAUSER', 'BIOMEDICATECNICO', 'ADM', 'AG', 'ADMINISTRADOR', 'MESAUSER', 'SOL', 'OBS', 'MESAADMIN'] } },
-  { path: 'adminmesaservicios/casos/:id', component: MesaCasoDetailComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'BIOMEDICAUSER', 'BIOMEDICATECNICO', 'ADM', 'AG', 'ADMINISTRADOR', 'MESAUSER', 'SOL', 'OBS', 'MESAADMIN'] } },
+  { path: 'adminmesaservicios/casos/novo', component: MesaCasoCreateComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'BIOMEDICAUSER', 'BIOMEDICATECNICO', 'ADM', 'AG', 'ADMINISTRADOR', 'MESAUSER', 'SOL', 'OBS', 'MESAADMIN', 'ADMINESPACIORESERVA'] } },
+  { path: 'adminmesaservicios/casos/:id', component: MesaCasoDetailComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'BIOMEDICAUSER', 'BIOMEDICATECNICO', 'ADM', 'AG', 'ADMINISTRADOR', 'MESAUSER', 'SOL', 'OBS', 'MESAADMIN', 'ADMINESPACIORESERVA'] } },
   { path: 'usermantenimiento', component: HomeusermantenimientoComponent, canActivate: [authGuard] },
   { path: 'usersistemas', component: HomeusersistemasComponent, canActivate: [authGuard] },
   { path: 'userbiomedica', component: HomeuserbiomedicaComponent, canActivate: [authGuard] },

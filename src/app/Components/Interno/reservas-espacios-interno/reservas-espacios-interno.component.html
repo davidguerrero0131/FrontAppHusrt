@@ -1,0 +1,149 @@
+<div class="reservas-container" style="padding: 1rem;">
+  <div class="header-section" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div class="selector" style="flex: 1; max-width: 400px;">
+      <label for="espacioSelector" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #334155;">Seleccionar Espacio:</label>
+      <p-dropdown 
+        id="espacioSelector"
+        [options]="espacios" 
+        [(ngModel)]="espacioSeleccionado" 
+        optionLabel="nombre" 
+        optionValue="id"
+        placeholder="Seleccione un espacio" 
+        (onChange)="onEspacioChange()"
+        [style]="{'width':'100%'}"
+        appendTo="body">
+      </p-dropdown>
+    </div>
+    <div class="actions">
+      <button pButton type="button" label="Solicitar Reserva" icon="pi pi-calendar-plus" class="p-button-primary p-button-lg" (click)="abrirModal()"></button>
+    </div>
+  </div>
+
+  <div class="calendar-wrapper" style="background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+    <div *ngIf="!espacioSeleccionado" class="empty-state" style="text-align: center; padding: 3rem 1rem; color: #64748b;">
+      <i class="pi pi-calendar" style="font-size: 3rem; margin-bottom: 1rem; color: #cbd5e1;"></i>
+      <h3>Seleccione un Espacio de Reserva</h3>
+      <p>Elija un espacio en la lista desplegable superior para ver su disponibilidad en el calendario.</p>
+    </div>
+
+    <div *ngIf="espacioSeleccionado" class="fade-in">
+      <full-calendar [options]="calendarOptions"></full-calendar>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Solicitar Reserva -->
+<p-dialog [(visible)]="displayModal" [style]="{width: '800px'}" header="Solicitar Reserva de Espacio" [modal]="true" styleClass="p-fluid" appendTo="body" [draggable]="false" [resizable]="false">
+  <ng-template pTemplate="content">
+    <div class="formgrid grid mt-3">
+      <!-- Banner Espacio -->
+      <div class="col-12 mb-3" *ngIf="getEspacioSeleccionadoCompleto() as espacio">
+        <div style="background-color: #f8fafc; border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 4px; display: flex; flex-direction: column; gap: 0.5rem;">
+          <p style="margin: 0; color: #334155; font-size: 1.05rem;">
+            <strong>Espacio seleccionado:</strong> 
+            <span style="color: #3b82f6; font-size: 1.15rem; font-weight: 700; text-transform: uppercase; margin-left: 0.5rem;">{{ espacio.nombre }}</span>
+          </p>
+          <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 0.25rem;">
+            <p style="margin: 0; color: #475569; font-size: 0.95rem;">
+              <i class="pi pi-clock" style="margin-right: 0.25rem; color: #3b82f6;"></i>
+              <strong>Disponibilidad:</strong> {{ espacio.horaInicio || 'No definida' }} a {{ espacio.horaFin || 'No definida' }}
+            </p>
+            <p style="margin: 0; color: #475569; font-size: 0.95rem;">
+              <i class="pi pi-users" style="margin-right: 0.25rem; color: #3b82f6;"></i>
+              <strong>Aforo:</strong> Min {{ espacio.aforoMinimo || 1 }} - Max {{ espacio.aforoMaximo || 'N/A' }} personas
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 1: Fecha y Horas -->
+      <div class="col-12 mt-3 mb-4">
+        <h4 style="margin: 0 0 1rem 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; color: #3b2c7a;">Horario de la Reserva</h4>
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-4">
+            <label for="fechaRes" class="font-semibold text-color block mb-2">Fecha *</label>
+            <input type="date" id="fechaRes" class="p-inputtext p-component w-full" [(ngModel)]="reserva.fechaReserva" required />
+          </div>
+          <div class="field col-12 md:col-4">
+            <label for="hInicio" class="font-semibold text-color block mb-2">Hora Inicio *</label>
+            <p-dropdown [options]="opcionesHoras" [(ngModel)]="reserva.horaInicio" id="hInicio" styleClass="w-full" [style]="{'width':'100%'}" placeholder="Seleccione hora" appendTo="body" scrollHeight="150px"></p-dropdown>
+          </div>
+          <div class="field col-12 md:col-4">
+            <label for="hFin" class="font-semibold text-color block mb-2">Hora Fin *</label>
+            <p-dropdown [options]="opcionesHoras" [(ngModel)]="reserva.horaFin" id="hFin" styleClass="w-full" [style]="{'width':'100%'}" placeholder="Seleccione hora" appendTo="body" scrollHeight="150px"></p-dropdown>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 2 -->
+      <div class="field col-12">
+        <label for="nombreCompleto" class="font-semibold text-color block mb-2">Nombre Completo Solicitante *</label>
+        <input pInputText id="nombreCompleto" [(ngModel)]="reserva.nombreCompleto" class="w-full" placeholder="Escriba su nombre completo" required />
+      </div>
+
+      <!-- Fila 3 -->
+      <div class="field col-12 md:col-6">
+        <label for="telefono" class="font-semibold text-color block mb-2">Teléfono / Extensión *</label>
+        <input pInputText id="telefono" [(ngModel)]="reserva.telefono" class="w-full" placeholder="Ej: 3001234567 o Ext 123" required />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="correo" class="font-semibold text-color block mb-2">Correo Electrónico *</label>
+        <input pInputText id="correo" type="email" [(ngModel)]="reserva.correoElectronico" class="w-full" placeholder="ejemplo@hospital.gov.co" required />
+      </div>
+
+      <!-- Fila 4 -->
+      <div class="field col-12 md:col-6">
+        <label for="servicio" class="font-semibold text-color block mb-2">Servicio Solicitante *</label>
+        <input pInputText id="servicio" [(ngModel)]="reserva.servicioSolicitante" class="w-full" placeholder="Área o Servicio" required />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="institucion" class="font-semibold text-color block mb-2">Institución *</label>
+        <input pInputText id="institucion" [(ngModel)]="reserva.institucionEducativa" class="w-full" placeholder="Nombre de la institución" required />
+      </div>
+
+      <!-- Fila 5 -->
+      <div class="field col-12 md:col-6">
+        <label for="actividad" class="font-semibold text-color block mb-2">Tipo de Actividad *</label>
+        <input pInputText id="actividad" [(ngModel)]="reserva.tipoActividad" class="w-full" placeholder="Ej: Capacitación, Reunión..." required />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="participantes" class="font-semibold text-color block mb-2">Cantidad de Participantes *</label>
+        <p-inputNumber inputId="participantes" [(ngModel)]="reserva.cantidadParticipantes" [min]="1" mode="decimal" styleClass="w-full" class="w-full"></p-inputNumber>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="cerrarModal()"></button>
+    <button pButton pRipple label="Confirmar Reserva" icon="pi pi-check" class="p-button-primary" (click)="guardarReserva()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Mini Modal para Ver Detalles del Evento -->
+<p-overlayPanel #op [showCloseIcon]="true" appendTo="body" styleClass="event-details-popup">
+  <div class="event-details-content" *ngIf="selectedEventDetails" style="padding: 0.5rem; width: 280px;">
+    <div style="margin-bottom: 1rem;">
+      <h5 style="color: #64748b; margin-bottom: 0.3rem; font-size: 0.85rem; font-weight: 600;">Espacio Reservado</h5>
+      <p style="color: #1e293b; font-size: 1rem; margin: 0; font-weight: 500;">
+        <i class="pi pi-map-marker" style="color: #6366f1; margin-right: 0.5rem;"></i>
+        {{ selectedEventDetails.espacio }}
+      </p>
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+      <h5 style="color: #64748b; margin-bottom: 0.3rem; font-size: 0.85rem; font-weight: 600;">Tipo de Actividad</h5>
+      <p style="color: #1e293b; font-size: 1rem; margin: 0; font-weight: 500;">
+        <i class="pi pi-briefcase" style="color: #6366f1; margin-right: 0.5rem;"></i>
+        {{ selectedEventDetails.actividad }}
+      </p>
+    </div>
+    
+    <div>
+      <h5 style="color: #64748b; margin-bottom: 0.3rem; font-size: 0.85rem; font-weight: 600;">Horario</h5>
+      <p style="color: #1e293b; font-size: 1rem; margin: 0; font-weight: 500;">
+        <i class="pi pi-clock" style="color: #6366f1; margin-right: 0.5rem;"></i>
+        {{ selectedEventDetails.horaInicio }} - {{ selectedEventDetails.horaFin }}
+      </p>
+    </div>
+  </div>
+</p-overlayPanel>

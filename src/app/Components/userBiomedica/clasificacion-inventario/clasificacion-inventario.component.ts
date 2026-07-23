@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 
 import { CommonModule } from '@angular/common';
 import { SelectModule } from 'primeng/select';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import Swal from 'sweetalert2';
 
@@ -15,13 +16,14 @@ import { getDecodedAccessToken } from '../../../utilidades';
 @Component({
   selector: 'app-clasificacion-inventario',
   standalone: true,
-  imports: [FormsModule, CommonModule, SelectModule, ButtonModule, RouterModule],
+  imports: [FormsModule, CommonModule, SelectModule, AutoCompleteModule, ButtonModule, RouterModule],
   templateUrl: './clasificacion-inventario.component.html',
   styleUrl: './clasificacion-inventario.component.css'
 })
 export class ClasificacionInventarioComponent implements OnInit {
 
   equipos!: any[];
+  equiposFiltrados: any[] = [];
   selectedEquipo: any | undefined;
   showCreateEquipmentButton: boolean = false;
   loading: boolean = false;
@@ -30,8 +32,18 @@ export class ClasificacionInventarioComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.equipos = await this.equipoServices.getAllEquiposSeries();
     this.checkPermissions();
+  }
+
+  async filterEquipos(event: any) {
+    const query = event.query;
+    if (query && query.length >= 2) {
+      try {
+        this.equiposFiltrados = await this.equipoServices.searchEquiposPorSerie(query);
+      } catch (error) {
+        console.error('Error buscando equipos', error);
+      }
+    }
   }
 
   checkPermissions() {

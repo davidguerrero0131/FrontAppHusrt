@@ -4,7 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
 import { isPlatformBrowser } from '@angular/common';
 
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { UserService } from '../../Services/appServices/userServices/user.service';
 import { ThemeService } from '../../Services/theme/theme.service';
 import { UppercaseDirective } from '../../Directives/uppercase.directive';
@@ -13,7 +13,7 @@ import { UppercaseDirective } from '../../Directives/uppercase.directive';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -49,6 +49,9 @@ export class LoginComponent implements OnInit {
       const response = await this.userServices.login(this.formulario.value);
       if (!response.error) {
         sessionStorage.setItem('utoken', response.token);
+        if (response.idUser) {
+          sessionStorage.setItem('idUser', response.idUser.toString());
+        }
         const decoded = this.getDecodedAccessToken(response.token);
         if (decoded && decoded.rol) {
           sessionStorage.setItem('rol', decoded.rol);
@@ -85,6 +88,8 @@ export class LoginComponent implements OnInit {
       this.router.navigate(['/biomedica/home-invitado']);
     } else if (rol === 'ADMCITASPEDIATRIA') {
       this.router.navigate(['/servinte/citasmadrecanguro']);
+    } else if (rol === 'ADMINESPACIORESERVA') {
+      this.router.navigate(['/adminespacios']);
     }
   }
 

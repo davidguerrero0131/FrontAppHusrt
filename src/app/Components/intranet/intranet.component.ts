@@ -10,6 +10,7 @@ import { EquiposService } from '../../Services/appServices/biomedicaServices/equ
 import { ReportesService } from '../../Services/appServices/biomedicaServices/reportes/reportes.service';
 import { DropdownModule } from 'primeng/dropdown';
 import { RafaIaService } from '../../Services/rafa-ia.service';
+import { ReservasEspaciosInternoComponent } from '../Interno/reservas-espacios-interno/reservas-espacios-interno.component';
 
 export interface IntranetCard {
   id: string;
@@ -26,7 +27,7 @@ export interface IntranetCard {
 @Component({
   selector: 'app-intranet',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, DropdownModule],
+  imports: [CommonModule, RouterModule, FormsModule, DropdownModule, ReservasEspaciosInternoComponent],
   templateUrl: './intranet.component.html',
   styleUrl: './intranet.component.css'
 })

@@ -1,0 +1,207 @@
+<p-toast></p-toast>
+<div class="dashboard-container">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>Hola, {{ userData?.nombres }}</h1>
+      <p>Bienvenido al panel de administración de tus espacios asignados.</p>
+    </div>
+  </div>
+
+  <div class="card p-3 shadow-sm" style="border-radius: 8px;">
+    <p-table [value]="misEspacios" [loading]="loading" [paginator]="true" [rows]="10" [responsive]="true" [rowHover]="true" styleClass="p-datatable-sm">
+      <ng-template pTemplate="caption">
+        <div class="flex justify-content-between align-items-center">
+          <h5 class="m-0">Mis Espacios a Cargo</h5>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Nombre</th>
+          <th>Ubicaci&oacute;n</th>
+          <th>Aforo M&aacute;x.</th>
+          <th>Disponibilidad</th>
+          <th>Horario</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-esp>
+        <tr class="table-row cursor-pointer" (click)="verReservas(esp)" pTooltip="Clic para ver reservas del calendario" tooltipPosition="top">
+          <td class="font-bold text-primary">{{ esp.nombre }}</td>
+          <td>{{ esp.ubicacion }}</td>
+          <td>{{ esp.aforoMaximo }}</td>
+          <td>{{ esp.tipoDisponibilidad === 'TODOS_LOS_DIAS' ? 'Todos los días' : (esp.tipoDisponibilidad === 'ENTRE_SEMANA' ? 'Entre semana' : 'Días específicos') }}</td>
+          <td>{{ (esp.horaInicio | slice:0:5) }} - {{ (esp.horaFin | slice:0:5) }}</td>
+          <td>
+            <p-tag [severity]="esp.estado ? 'success' : 'danger'" [value]="esp.estado ? 'Activo' : 'Inactivo'"></p-tag>
+          </td>
+          <td>
+            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-info mr-2" (click)="editEspacio(esp); $event.stopPropagation()" style="margin-right: 0.5rem;" pTooltip="Editar información"></button>
+            <button pButton pRipple icon="pi pi-calendar" class="p-button-rounded p-button-success" (click)="verReservas(esp); $event.stopPropagation()" pTooltip="Ver reservas"></button>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center p-4">
+            <i class="pi pi-inbox text-4xl text-500 mb-3 block"></i>
+            Aún no tienes espacios de reserva asignados a tu cargo.
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center p-4">
+            A&uacute;n no tienes espacios de reserva asignados a tu cargo.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<p-dialog [(visible)]="espacioDialog" [style]="{width: '750px'}" header="Detalles del Espacio" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <div class="formgrid grid mt-3">
+      <!-- Fila 1: Nombre -->
+      <div class="field col-12">
+        <label for="nombre" class="font-bold">Nombre</label>
+        <input type="text" pInputText id="nombre" [(ngModel)]="espacio.nombre" required autofocus class="w-full mt-2" />
+        <small class="p-error block mt-1" *ngIf="!espacio.nombre">El nombre es requerido.</small>
+      </div>
+
+      <!-- Fila 2: Ubicación y Disponibilidad -->
+      <div class="field col-12 md:col-6">
+        <label for="ubicacion" class="font-bold">Ubicación</label>
+        <input type="text" pInputText id="ubicacion" [(ngModel)]="espacio.ubicacion" required class="w-full mt-2" />
+        <small class="p-error block mt-1" *ngIf="!espacio.ubicacion">La ubicación es requerida.</small>
+      </div>
+      <div class="field col-12 md:col-6">
+        <div class="formgrid grid">
+          <div class="field col-12" [ngClass]="espacio.tipoDisponibilidad === 'DIAS_ESPECIFICOS' ? 'md:col-6' : 'md:col-12'">
+            <label for="tipoDisponibilidad" class="font-bold">Disponibilidad</label>
+            <p-dropdown [options]="opcionesDisponibilidad" [(ngModel)]="espacio.tipoDisponibilidad" appendTo="body" styleClass="w-full mt-2"></p-dropdown>
+          </div>
+          <div class="field col-12 md:col-6" *ngIf="espacio.tipoDisponibilidad === 'DIAS_ESPECIFICOS'">
+            <label for="diasEspecificos" class="font-bold">Días</label>
+            <p-multiSelect [options]="opcionesDias" [(ngModel)]="diasSeleccionados" placeholder="Días" appendTo="body" styleClass="w-full mt-2" display="chip"></p-multiSelect>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 3: Aforos -->
+      <div class="col-12">
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <label for="aforoMinimo" class="font-bold">Aforo Mínimo</label>
+            <input type="number" pInputText id="aforoMinimo" [(ngModel)]="espacio.aforoMinimo" class="w-full mt-2" />
+          </div>
+          <div class="field col-12 md:col-6">
+            <label for="aforoMaximo" class="font-bold">Aforo Máximo</label>
+            <input type="number" pInputText id="aforoMaximo" [(ngModel)]="espacio.aforoMaximo" class="w-full mt-2" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 4: Horarios -->
+      <div class="col-12">
+        <div class="formgrid grid">
+          <div class="field col-12 md:col-6">
+            <label for="horaInicio" class="font-bold">Hora Inicio</label>
+            <input type="time" pInputText id="horaInicio" [(ngModel)]="espacio.horaInicio" required class="w-full mt-2" />
+          </div>
+          <div class="field col-12 md:col-6">
+            <label for="horaFin" class="font-bold">Hora Fin</label>
+            <input type="time" pInputText id="horaFin" [(ngModel)]="espacio.horaFin" required class="w-full mt-2" />
+          </div>
+        </div>
+      </div>
+      
+      <!-- Fila 5: Estado -->
+      <div class="field col-12 md:col-6">
+        <label for="estado" class="font-bold">Estado</label>
+        <p-dropdown [options]="[{label:'Activo', value:true}, {label:'Inactivo', value:false}]" [(ngModel)]="espacio.estado" appendTo="body" styleClass="w-full mt-2"></p-dropdown>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-text" (click)="saveEspacio()"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- Modal del Calendario -->
+<p-dialog [(visible)]="calendarioDialog" [style]="{width: '95vw', height: '95vh'}" [maximizable]="true" header="Reservas: {{espacioCalendario?.nombre}}" [modal]="true" styleClass="p-fluid" (onShow)="isCalendarVisible = true" (onHide)="isCalendarVisible = false">
+  <div class="calendar-container h-full" *ngIf="isCalendarVisible">
+    <full-calendar [options]="calendarOptions"></full-calendar>
+  </div>
+</p-dialog>
+
+<!-- Modal de Detalles de la Reserva -->
+<p-dialog [(visible)]="detalleReservaDialog" [style]="{width: '600px'}" header="Detalles de la Reserva" [modal]="true" styleClass="p-fluid">
+  <div class="formgrid grid mt-3" *ngIf="reservaSeleccionada">
+    <div class="col-12 mb-3 border-bottom-1 surface-border pb-3">
+      <div class="flex align-items-center justify-content-between">
+        <h3 class="m-0 text-xl font-bold text-900">{{ reservaSeleccionada.nombreCompleto }}</h3>
+        <p-tag [severity]="reservaSeleccionada.estado === 'ACTIVA' || reservaSeleccionada.estado === 'APROBADA' ? 'success' : (reservaSeleccionada.estado === 'CANCELADA' || reservaSeleccionada.estado === 'CANCELADO' ? 'danger' : 'info')" 
+               [value]="reservaSeleccionada.estado || 'Activa'">
+        </p-tag>
+      </div>
+    </div>
+    
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Fecha</span>
+      <span>{{ reservaSeleccionada.fechaReserva }}</span>
+    </div>
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Horario</span>
+      <span>{{ reservaSeleccionada.horaInicio | slice:0:5 }} - {{ reservaSeleccionada.horaFin | slice:0:5 }}</span>
+    </div>
+    
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Teléfono</span>
+      <span>{{ reservaSeleccionada.telefono }}</span>
+    </div>
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Correo Electrónico</span>
+      <span>{{ reservaSeleccionada.correoElectronico }}</span>
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Servicio Solicitante</span>
+      <span>{{ reservaSeleccionada.servicioSolicitante }}</span>
+    </div>
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Actividad</span>
+      <span>{{ reservaSeleccionada.tipoActividad }}</span>
+    </div>
+
+    <div class="field col-12 md:col-6" *ngIf="reservaSeleccionada.institucionEducativa">
+      <span class="font-bold block text-500 mb-1">Institución Educativa</span>
+      <span>{{ reservaSeleccionada.institucionEducativa }}</span>
+    </div>
+    <div class="field col-12 md:col-6">
+      <span class="font-bold block text-500 mb-1">Participantes</span>
+      <span>{{ reservaSeleccionada.cantidadParticipantes }} personas</span>
+    </div>
+
+    <div class="field col-12" *ngIf="reservaSeleccionada.estado === 'CANCELADA' || reservaSeleccionada.estado === 'CANCELADO'">
+      <div class="p-3 border-round bg-red-50 text-red-900 border-1 border-red-200 mt-2">
+        <span class="font-bold block mb-1">Motivo de Cancelación:</span>
+        <span>{{ reservaSeleccionada.motivoCancelacion || 'Sin motivo especificado' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cerrar" icon="pi pi-times" class="p-button-text" (click)="detalleReservaDialog = false"></button>
+    <button pButton pRipple label="Cancelar Reserva" icon="pi pi-trash" class="p-button-danger" 
+            *ngIf="reservaSeleccionada && reservaSeleccionada.estado !== 'CANCELADO' && reservaSeleccionada.estado !== 'CANCELADA'"
+            (click)="confirmarCancelacion()"></button>
+  </ng-template>
+</p-dialog>

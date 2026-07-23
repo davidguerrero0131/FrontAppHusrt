@@ -6,14 +6,16 @@ import { HttpClient } from '@angular/common/http';
 import { API_URL } from '../../../constantes';
 import { UserService } from '../../../Services/appServices/userServices/user.service';
 import Swal from 'sweetalert2';
+import { jwtDecode } from 'jwt-decode';
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-cambiar-contrasena',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, RouterModule],
   templateUrl: './cambiar-contrasena.component.html',
   styleUrl: './cambiar-contrasena.component.css'
 })
@@ -43,11 +45,30 @@ export class CambiarContrasenaComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.token = this.route.snapshot.queryParamMap.get('token') || '';
-    sessionStorage.setItem('utoken', this.token);
+    // Leemos el token desde el sessionStorage para no exponerlo en la URL
+    this.token = sessionStorage.getItem('utoken') || '';
+    if (!this.token) {
+      Swal.fire('Error', 'Sesión de recuperación inválida o caducada.', 'error').then(() => {
+        this.router.navigate(['/olvidocontraseña']);
+      });
+      return;
+    }
 
-
-
+    try {
+      const decoded: any = jwtDecode(this.token);
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (decoded.exp && decoded.exp < currentTime) {
+        sessionStorage.removeItem('utoken');
+        Swal.fire('Error', 'El tiempo límite de 15 minutos ha expirado. Por favor solicite un nuevo código.', 'error').then(() => {
+          this.router.navigate(['/olvidocontraseña']);
+        });
+      }
+    } catch (e) {
+      sessionStorage.removeItem('utoken');
+      Swal.fire('Error', 'Token corrupto.', 'error').then(() => {
+        this.router.navigate(['/olvidocontraseña']);
+      });
+    }
   }
 
   async actualizarContrasena() {
@@ -73,10 +94,21 @@ export class CambiarContrasenaComponent implements OnInit {
         });
         setTimeout(() => this.router.navigate(['/login']), 1500);
       } catch (error: any) {
-        let msg = 'Token inválido o expirado.';
-        if (error?.error?.error === 'Código de seguridad incorrecto') {
-           msg = 'El código ingresado es incorrecto.';
+        // Obtenemos el error exacto del backend (evitando problemas de codificación)
+        let msg = error?.error?.error || 'Error al procesar la solicitud.';
+        
+        // Si el backend incluye detalle, lo sumamos
+        if (error?.error?.detalle) {
+          msg += '\nDetalle: ' + error.error.detalle;
         }
+
+        // Renombramos los errores más comunes para el usuario
+        if (msg.includes('incorrecto')) {
+          msg = 'El código de seguridad ingresado es incorrecto.';
+        } else if (msg.includes('inv') && msg.includes('expirado')) {
+          msg = 'El token ha expirado. Por favor, solicite un nuevo código.';
+        }
+
         Swal.fire({
           icon: 'warning',
           title: 'Error al actualizar',

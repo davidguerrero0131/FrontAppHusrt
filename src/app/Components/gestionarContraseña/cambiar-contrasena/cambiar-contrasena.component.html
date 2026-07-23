@@ -1,44 +1,64 @@
-<div class="container mt--8 pb-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-5 col-md-7">
-      <h1 style="text-align: center; margin-top: 13%; font-size: 30px;"><strong>Restablecer contraseña ORBIX</strong>
-      </h1>
+﻿<div class="login-wrapper">
+  <!-- Elementos decorativos de fondo -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 
-      <div class="card " style="margin-top: 10%;">
-        <div class="card-body">
-          <div class="container mt-5">
-            <form [formGroup]="form" (ngSubmit)="actualizarContrasena()" novalidate>
-              <div class="mb-3">
-                <label for="codigo" class="form-label">Código de Seguridad (PIN):</label>
-                <input type="text" class="form-control" id="codigo" formControlName="codigo" placeholder="Ingrese el código de 6 dígitos enviado a su correo" required />
-                <div class="text-danger" *ngIf="form.get('codigo')?.invalid && form.get('codigo')?.touched">
-                  Debe ingresar un código válido de 6 dígitos.
-                </div>
-              </div>
-              <div class="mb-3">
-                <label for="nuevaContrasena" class="form-label">Nueva contraseña:</label>
-                <input type="password" class="form-control" id="nuevaContrasena" formControlName="nuevaContrasena" required />
-                  <h1></h1>
-                <label for="nuevaContrasena" class="form-label">Confirme la Contrase&ntilde;a:</label>
-                <input type="password" class="form-control" id="nuevaContrasena2" formControlName="nuevaContrasena2"
-                  required />
-                <div class="text-danger"
-                  *ngIf="form.get('nuevaContrasena')?.invalid && form.get('nuevaContrasena')?.touched">
-                  La contraseña debe tener al menos 8 caracteres.
-                </div>
-                <div
-                  *ngIf="form.get('nuevaContrasena')?.touched && form.get('nuevaContrasena2')?.touched && !validarContrasenas()"
-                  class="text-danger">
-                  Las contraseñas no coinciden.
-                </div>
-              </div>
-              <button class="btn btn-primary" type="submit" [disabled]="!validarContrasenas()">Actualizar
-                contraseña</button>
-            </form>
-          </div>
+  <div class="login-card">
+    <div class="brand-section">
+      <img src="LogoAgora.png" alt="Logo Agora" class="logo">
+      <h1 class="app-title">Restablecer contraseña <span>ORBIX</span></h1>
+      <p class="subtitle">Ingrese el PIN y su nueva contraseña</p>
+    </div>
 
+    <form [formGroup]="form" (ngSubmit)="actualizarContrasena()" novalidate class="login-form">
+      <div class="input-group">
+        <label for="codigo">Código de Seguridad (PIN)</label>
+        <div class="input-wrapper">
+          <i class="pi pi-key input-icon"></i>
+          <input type="text" id="codigo" formControlName="codigo" placeholder="Código de 6 dígitos enviado al correo" required>
+        </div>
+        <div class="text-danger-custom" *ngIf="form.get('codigo')?.invalid && form.get('codigo')?.touched">
+          Debe ingresar un código válido de 6 dígitos.
         </div>
       </div>
+
+      <div class="input-group mt-2">
+        <label for="nuevaContrasena">Nueva contraseña</label>
+        <div class="input-wrapper">
+          <i class="pi pi-lock input-icon"></i>
+          <input type="password" id="nuevaContrasena" formControlName="nuevaContrasena" placeholder="••••••••" required>
+        </div>
+        <div class="text-danger-custom" *ngIf="form.get('nuevaContrasena')?.invalid && form.get('nuevaContrasena')?.touched">
+          La contraseña debe tener al menos 8 caracteres.
+        </div>
+      </div>
+      
+      <div class="input-group mt-2">
+        <label for="nuevaContrasena2">Confirme la contraseña</label>
+        <div class="input-wrapper">
+          <i class="pi pi-lock input-icon"></i>
+          <input type="password" id="nuevaContrasena2" formControlName="nuevaContrasena2" placeholder="••••••••" required>
+        </div>
+        <div class="text-danger-custom" *ngIf="form.get('nuevaContrasena')?.touched && form.get('nuevaContrasena2')?.touched && !validarContrasenas()">
+          Las contraseñas no coinciden.
+        </div>
+      </div>
+
+      <button class="btn-primary" type="submit" [disabled]="!validarContrasenas()">
+        <span>Actualizar contraseña</span>
+        <i class="pi pi-check-circle"></i>
+      </button>
+    </form>
+
+    <div class="divider">
+      <span>O cancelar</span>
+    </div>
+
+    <div class="secondary-actions">
+      <button type="button" class="btn-guest" routerLink="/login">
+        <i class="pi pi-arrow-left"></i> Volver al Login
+      </button>
     </div>
   </div>
 </div>

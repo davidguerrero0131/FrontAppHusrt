@@ -1,37 +1,50 @@
-<div class="container mt--8 pb-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-5 col-md-7">
-      <h1 style="text-align: center; margin-top: 13%; font-size: 30px;"><strong>Recuperar contraseña ORBIX</strong></h1>
+﻿<div class="login-wrapper">
+  <!-- Elementos decorativos de fondo -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 
-      <div class="card " style="margin-top: 10%;">
-        <div class="card-body">
+  <div class="login-card">
+    <div class="brand-section">
+      <img src="LogoAgora.png" alt="Logo Agora" class="logo">
+      <h1 class="app-title">Recuperar contraseña <span>ORBIX</span></h1>
+      <p class="subtitle">Ingrese su correo para recibir un código de verificación</p>
+    </div>
 
-          <div class="container mt-5">
+    <div *ngIf="enviado" class="alert-success-custom">
+      Si el correo está registrado, se enviará un código de verificación para restablecer tu contraseña.
+    </div>
 
-            <div *ngIf="enviado" class="alert alert-success">
-              Si el correo está registrado, se enviará un código de verificación para restablecer tu contraseña.
-            </div>
+    <div *ngIf="mensajeError" class="alert-danger-custom">
+      {{ mensajeError }}
+    </div>
 
-            <div *ngIf="mensajeError" class="alert alert-danger">
-              {{ mensajeError }}
-            </div>
-
-            <form [formGroup]="form" (ngSubmit)="enviarCorreoU()" novalidate>
-              <div class="mb-3">
-                <label for="email" class="form-label">Correo electrónico</label>
-                <input type="email" class="form-control" id="email" formControlName="email" required />
-                <div class="text-danger" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
-                  Ingresa un correo válido.
-                </div>
-              </div>
-
-              <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Enviar código</button>
-            </form>
-          </div>
-
+    <form [formGroup]="form" (ngSubmit)="enviarCorreoU()" novalidate class="login-form">
+      <div class="input-group">
+        <label for="email">Correo electrónico</label>
+        <div class="input-wrapper">
+          <i class="pi pi-envelope input-icon"></i>
+          <input type="email" id="email" formControlName="email" placeholder="ejemplo@correo.com" required>
         </div>
-
+        <div class="text-danger-custom" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+          Ingresa un correo válido.
+        </div>
       </div>
+
+      <button class="btn-primary" type="submit" [disabled]="form.invalid">
+        <span>Enviar código</span>
+        <i class="pi pi-send"></i>
+      </button>
+    </form>
+
+    <div class="divider">
+      <span>¿Recordaste tu contraseña?</span>
+    </div>
+
+    <div class="secondary-actions">
+      <button type="button" class="btn-guest" routerLink="/login">
+        <i class="pi pi-arrow-left"></i> Volver al Login
+      </button>
     </div>
   </div>
 </div>

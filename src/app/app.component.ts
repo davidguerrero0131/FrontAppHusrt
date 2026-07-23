@@ -111,6 +111,7 @@ import { SuperadminnavbarComponent } from './Components/navbars/superadminnavbar
 import { BiomedicausernavbarComponent } from './Components/navbars/biomedicausernavbar/biomedicausernavbar.component';
 import { BiomedicatecniconavbarComponent } from './Components/navbars/biomedicatecniconavbar/biomedicatecniconavbar.component';
 import { MantenimientoadminnavbarComponent } from './Components/navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+import { AdminespaciosnavbarComponent } from './Components/navbars/adminespaciosnavbar/adminespaciosnavbar.component';
 import { MesaadminnavbarComponent } from './Components/navbars/mesaadminnavbar/mesaadminnavbar.component';
 import { MesausernavbarComponent } from './Components/navbars/mesausernavbar/mesausernavbar.component';
 import { SistemasadminnavbarComponent } from './Components/navbars/sistemasadminnavbar/sistemasadminnavbar.component';
@@ -222,6 +223,7 @@ import { SessionSyncService } from './Services/auth/session-sync.service';
     BiomedicausernavbarComponent,
     BiomedicatecniconavbarComponent,
     MantenimientoadminnavbarComponent,
+    AdminespaciosnavbarComponent,
     MesaadminnavbarComponent,
     MesausernavbarComponent,
     SistemasadminnavbarComponent,
@@ -264,13 +266,8 @@ export class AppComponent implements OnInit {
       this.checkUserRole();
       this.checkLoginRoute();
 
-      // STEP 3: Si el token existe pero está expirado, limpiar y redirigir
-      if (sessionStorage.getItem('utoken') && !this.userService.isLoggedIn()) {
-        sessionStorage.removeItem('utoken');
-        sessionStorage.removeItem('idUser');
-        sessionStorage.removeItem('rol');
-        this.router.navigate(['/login']);
-      } else {
+      // STEP 3: Si el token existe pero está expirado, authGuard se encargará de redirigir con un mensaje
+      if (sessionStorage.getItem('utoken') && this.userService.isLoggedIn()) {
         this.userService.setupSessionTimer();
       }
 
