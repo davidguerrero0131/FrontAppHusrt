@@ -150,6 +150,14 @@ export class IntranetComponent implements OnInit {
       category: 'sistemas'
     },
     {
+      id: 'manual_preparaciones',
+      title: 'MANUAL DE PREPARACIONES',
+      subtitle: 'Apoyo diagnostico HUSRT',
+      url: 'https://sistemas7husrt.github.io/manual-preparaciones-sanrafael/',
+      icon: 'bi-clipboard-check',
+      category: 'sistemas'
+    },
+    {
       id: 'cirugia',
       title: 'PACIENTES SALAS DE CIRUGIA',
       subtitle: 'Estado de pacientes',
