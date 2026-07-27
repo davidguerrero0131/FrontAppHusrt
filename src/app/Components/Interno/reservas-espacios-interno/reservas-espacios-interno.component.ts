@@ -115,8 +115,11 @@ export class ReservasEspaciosInternoComponent implements OnInit {
   cargarEspacios() {
     this.espaciosService.getEspacios().subscribe({
       next: (data) => {
-        // Filtrar solo espacios activos
-        this.espacios = data.filter(e => e.estado);
+        // Filtrar solo espacios activos y agregar la propiedad con el aforo
+        this.espacios = data.filter(e => e.estado).map(e => ({
+          ...e,
+          nombreConAforo: `${e.nombre} - Max. ${e.aforoMaximo} personas`
+        }));
       },
       error: (err) => {
         console.error('Error cargando espacios:', err);
