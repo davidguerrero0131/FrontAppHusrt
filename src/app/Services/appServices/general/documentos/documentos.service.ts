@@ -23,6 +23,12 @@ export class DocumentosService {
         );
     }
 
+    getCountEquiposSimilares(idEquipo: any) {
+        return firstValueFrom(
+            this.httpClient.get<any>(`${API_URL}/equipos/similares/count/${idEquipo}`)
+        );
+    }
+
     deleteDocumento(id: any) {
         return firstValueFrom(
             this.httpClient.delete<any>(`${API_URL}/documentos/${id}`)

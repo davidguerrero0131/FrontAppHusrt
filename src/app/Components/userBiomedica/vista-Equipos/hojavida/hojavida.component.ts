@@ -295,6 +295,34 @@ export class HojavidaComponent implements OnInit {
     formData.append('equipoIdFk', this.id!);
     formData.append('tipoDocumntoIdFk', this.nuevoDocumento.tipoDocumntoIdFk);
 
+    // Verificar si es GUIA RAPIDA
+    const tipoDoc = this.tiposDocumento.find(t => t.id == this.nuevoDocumento.tipoDocumntoIdFk);
+    if (tipoDoc && tipoDoc.nombres && tipoDoc.nombres.toUpperCase().includes('GUIA RAPIDA')) {
+      try {
+        const resultCount = await this.documentosService.getCountEquiposSimilares(this.id);
+        if (resultCount && resultCount.count > 1) {
+          const confirmacion = await Swal.fire({
+            title: '¿Asociar a equipos similares?',
+            text: `Se han encontrado ${resultCount.count} equipos en total con la misma Marca y Modelo. ¿Desea asociar esta guía rápida a todos ellos automáticamente?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, asociar a todos',
+            cancelButtonText: 'No, solo a este equipo'
+          });
+          
+          if (confirmacion.isConfirmed) {
+            formData.append('aplicarATodos', 'true');
+          } else {
+            formData.append('aplicarATodos', 'false');
+          }
+        }
+      } catch (e) {
+        console.warn('Error al verificar equipos similares:', e);
+      }
+    }
+
     try {
       await this.documentosService.addDocumento(formData);
       Swal.fire('Éxito', 'Documento agregado correctamente.', 'success');
