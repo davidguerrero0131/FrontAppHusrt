@@ -49,8 +49,30 @@ export class IntranetComponent implements OnInit {
   chatMessages: { role: string, content: string, formattedContent?: string }[] = [];
   userInput: string = '';
   isChatLoading: boolean = false;
-  
-  private systemPrompt = `Eres Rafa IA, el asistente inteligente y experto de ORBIX, el portal institucional del Hospital Universitario San Rafael de Tunja (HUSRT). Tu tono es amable, profesional, servicial y empático. Responde siempre en español usando formato Markdown para dar estilo a tus respuestas (negritas, viñetas, bloques de código, etc.). Nunca inventes información sobre el hospital si no la sabes.`;
+
+  private systemPrompt = `
+Eres **Rafa IA**, el asistente virtual experto de **ORBIX**, el portal institucional del Hospital Universitario San Rafael de Tunja (HUSRT).
+
+**Tu objetivo principal:** Guiar a los colaboradores del hospital de manera rápida, amable y eficiente, entregándoles el enlace directo al recurso, reporte o aplicativo correcto, y orientándolos sobre dónde ubicarlo dentro de la plataforma.
+
+**Tu audiencia:** Personal médico, asistencial y administrativo del HUSRT. Tienen poco tiempo; tus respuestas deben ser directas, resolutivas y empáticas.
+
+**Tu Mapa de Conocimiento (Módulos y Enlaces de ORBIX):**
+Cuando el usuario necesite acceder a un sistema, entrégale el siguiente enlace exacto:
+- **Almera (Gestión Integral, sistema de gestion de calidad, sistema de gestion documental):** [Acceder a Almera](https://sgi.almeraim.com/sgi/?conid=sgihospitalsanrafaeltunja)
+- **Mesa de Servicios (Soporte GLPI):** [Reportar en GLPI](http://192.168.10.111/glpi/index.php)
+- **Sistema Orbix (Gestión de Tecnología, acceso a la informacion respecto a la tecnología de la institucion):** [Acceder a Orbix](http://localhost:4200/login)
+- **Sistema Laboratorio:** [Acceder a Laboratorio](http://192.168.10.113/login)
+- **Plataforma Virtual (Formación):** [Ir a Plataforma](https://formacionvirtual.hospitalsanrafaeltunja.gov.co/login/index.php?loginredirect=1)
+- **3CX (Sistema de Comunicaciones):** [Acceder a 3CX](https://hospitalsanrafaeldetunja.3cx.co/)
+- **Manual de Preparaciones:** [Ver Manual](https://sistemas7husrt.github.io/manual-preparaciones-sanrafael/)
+
+**Reglas Críticas de Interacción:**
+1. **Mensaje inicial:** Preséntate brevemente y pregunta directamente qué aplicativo, reporte o menú necesitan encontrar hoy.
+2. **Enrutamiento, Enlaces y Orientación Espacial:** Si el usuario busca un sistema, entrégale SIEMPRE el enlace correspondiente de tu Mapa de Conocimiento usando la sintaxis de enlace en Markdown: \`[Nombre del Sistema](URL)\`. **Además, debes describirle brevemente en qué sección, tarjeta o menú de la pantalla de inicio de ORBIX puede encontrar esta opción manualmente.**
+3. **Cero Alucinaciones:** NUNCA inventes módulos, políticas del hospital, ni enlaces que no estén explícitamente en tu Mapa de Conocimiento. Si el usuario solicita algo que no está en la lista, indícale cordialmente que no tienes la ruta y sugiérele usar la opción de "Soporte y ayuda".
+4. **Formato:** Responde SIEMPRE en español usando Markdown. Usa **negritas** para resaltar nombres clave.
+  `;
   activePanel: string = 'inicio';
   activeSumerceSubPanel: string = 'que_tan_sumerce';
 
@@ -265,6 +287,21 @@ export class IntranetComponent implements OnInit {
         { role: 'assistant', content: '¡Hola! Soy Rafa, tu asistente inteligente. ¿En qué te puedo ayudar hoy?', formattedContent: '¡Hola! Soy Rafa, tu asistente inteligente. ¿En qué te puedo ayudar hoy?' }
       ];
     }
+    if (this.isChatOpen) {
+      this.scrollToBottom();
+    }
+  }
+
+  scrollToBottom() {
+    setTimeout(() => {
+      const chatContainer = document.querySelector('.chat-messages');
+      if (chatContainer) {
+        chatContainer.scrollTo({
+          top: chatContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }, 100);
   }
 
   onKeydown(event: KeyboardEvent) {
@@ -292,8 +329,11 @@ export class IntranetComponent implements OnInit {
   formatMarkdown(text: string): string {
     if (!text) return '';
     let formatted = text;
-    
+
     formatted = formatted.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    // Parse links BEFORE other formatting to avoid breaking URLs
+    formatted = formatted.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" style="color: #3b82f6; text-decoration: underline;">$1</a>');
+
     formatted = formatted.replace(/```([\s\S]*?)```/g, '<pre class="code-block"><code>$1</code></pre>');
     formatted = formatted.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
     formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
@@ -303,7 +343,7 @@ export class IntranetComponent implements OnInit {
     formatted = formatted.replace(/\n/g, '<br>');
     formatted = formatted.replace(/<pre([^>]*)><br>/g, '<pre$1>');
     formatted = formatted.replace(/<\/ul><br>/g, '</ul>');
-    
+
     return formatted;
   }
 
@@ -323,6 +363,7 @@ export class IntranetComponent implements OnInit {
     this.userInput = '';
     this.isChatLoading = true;
     this.resetTextarea();
+    this.scrollToBottom();
 
     try {
       const apiMessages = [
@@ -331,7 +372,7 @@ export class IntranetComponent implements OnInit {
       ];
 
       const response = await this.rafaIaService.sendMessage(apiMessages).toPromise();
-      
+
       let responseContent = '';
       if (response && response.choices && response.choices.length > 0) {
         responseContent = response.choices[0].message.content;
@@ -340,26 +381,21 @@ export class IntranetComponent implements OnInit {
       }
 
       if (responseContent) {
-        this.chatMessages.push({ 
-          role: 'assistant', 
+        this.chatMessages.push({
+          role: 'assistant',
           content: responseContent,
           formattedContent: this.formatMarkdown(responseContent)
         });
+        this.scrollToBottom();
       }
     } catch (error: any) {
       console.error('Error connecting to Ollama API:', error);
       const errorMsg = `Lo siento, no me pude conectar con mi cerebro local en este momento. (Error HTTP: ${error.status} - ${error.statusText || 'Desconocido'}. Mensaje: ${error.message})`;
       this.chatMessages.push({ role: 'assistant', content: errorMsg, formattedContent: errorMsg });
+      this.scrollToBottom();
     } finally {
       this.isChatLoading = false;
-      
-      // Auto-scroll al final del chat flotante
-      setTimeout(() => {
-        const chatContainer = document.querySelector('.chat-messages');
-        if (chatContainer) {
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-      }, 50);
+      this.scrollToBottom();
     }
   }
 

@@ -209,7 +209,9 @@ export class MesaCasoCreateComponent implements OnInit {
     try {
       const [tipos, equipos] = await Promise.all([
         this.tipoEquipoService.getAllTiposEquipos(),
-        this.equipoService.getAllEquiposServicio(this.selectedServicio.id)
+        this.userServicioIdFk === 3 
+          ? this.equipoService.getAllEquipos().then(res => res.filter((e: any) => !e.estadoBaja))
+          : this.equipoService.getAllEquiposServicio(this.selectedServicio.id)
       ]);
       this.tiposEquipos = tipos.filter((t: any) => t.activo === true);
       this.equiposFiltrados = equipos;
