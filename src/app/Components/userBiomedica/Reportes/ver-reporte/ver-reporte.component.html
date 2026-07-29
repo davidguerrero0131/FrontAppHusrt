@@ -654,14 +654,14 @@
       </div>
 
       <!-- Actions -->
-      <div *ngIf="!isEditingTraslado" class="mt-4 border-top-1 surface-border pt-4">
+      <div *ngIf="!isEditingTraslado && !isGuest()" class="mt-4 border-top-1 surface-border pt-4">
         <div *ngIf="trasladoSelected.archivoActa" class="flex justify-content-end">
           <button pButton type="button" label="Visualizar Acta PDF" icon="pi pi-eye" class="p-button-danger" (click)="visualizarActaTraslado(trasladoSelected.archivoActa)"></button>
         </div>
         
         <div *ngIf="!trasladoSelected.archivoActa" class="grid align-items-center">
             <!-- Izquierda: Cargar PDF -->
-            <div class="col-12 md:col-6">
+            <div class="col-12 md:col-6" *ngIf="!isGuest()">
                 <div class="p-3 surface-100 border-round border-1 surface-border flex flex-column gap-2">
                     <span class="font-bold text-700 block"><i class="pi pi-paperclip mr-2"></i>Adjuntar Acta Escaneada (Opcional)</span>
                     <div class="p-inputgroup">
@@ -672,10 +672,10 @@
             </div>
 
             <!-- Derecha: Botones de Acción -->
-            <div class="col-12 md:col-6">
+            <div class="col-12" [ngClass]="isGuest() ? 'md:col-12' : 'md:col-6'">
                 <div class="flex flex-column gap-3 justify-content-end h-full p-2">
                     <button pButton type="button" label="Generar Acta PDF (Sin Firmas)" icon="pi pi-file-pdf" class="p-button-outlined p-button-danger w-full" (click)="descargarActaTraslado()"></button>
-                    <button pButton type="button" label="Firmar Digitalmente en Pantalla" icon="pi pi-pencil" class="p-button-warning w-full font-bold" (click)="abrirModalFirmaTraslado(trasladoSelected)"></button>
+                    <button *ngIf="!isGuest()" pButton type="button" label="Firmar Digitalmente en Pantalla" icon="pi pi-pencil" class="p-button-warning w-full font-bold" (click)="abrirModalFirmaTraslado(trasladoSelected)"></button>
                 </div>
             </div>
         </div>
@@ -689,7 +689,7 @@
     <ng-template pTemplate="header">
         <div class="flex justify-content-between align-items-center w-full">
             <span class="text-xl font-bold">Detalle de Actividad Metrológica</span>
-            <button *ngIf="!isEditingMetrologia" pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-warning" (click)="toggleEditMetrologia()" pTooltip="Editar Actividad" tooltipPosition="left"></button>
+            <button *ngIf="!isEditingMetrologia && !isGuest()" pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-warning" (click)="toggleEditMetrologia()" pTooltip="Editar Actividad" tooltipPosition="left"></button>
         </div>
     </ng-template>
     <div class="p-fluid p-3" *ngIf="metrologiaSelected">
