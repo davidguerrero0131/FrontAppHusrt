@@ -4,24 +4,36 @@
     min-height: 100vh;
 }
 
-/* Stats Grid */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+/* Unified Ribbon Premium Style */
+.dashboard-ribbon {
+    background: #ffffff;
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 4px 10px -2px rgba(0, 0, 0, 0.02);
+    border: none;
+}
+
+@media (min-width: 768px) {
+    .stat-divider::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 15%;
+        height: 70%;
+        width: 1px;
+        background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0) 100%);
+    }
 }
 
 .stat-card {
     background: white;
-    padding: 1.5rem;
-    border-radius: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
     display: flex;
     align-items: center;
-    gap: 1.25rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-    transition: transform 0.2s;
-    border: 1px solid rgba(0,0,0,0.03);
+    gap: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(0,0,0,0.04);
 }
 
 .stat-card:hover {
@@ -30,28 +42,29 @@
 }
 
 .stat-icon {
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 0.75rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: white;
+    flex-shrink: 0;
 }
 
 .stat-info .stat-value {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: #1a202c;
     line-height: 1;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.15rem;
 }
 
 .stat-info .stat-label {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: #718096;
-    font-weight: 500;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.025em;
 }
@@ -193,4 +206,36 @@
   50% {
     opacity: 0.5;
   }
+}
+
+@keyframes vibrate {
+  0% { transform: translate(0); }
+  2% { transform: translate(-2px, 0); }
+  4% { transform: translate(2px, 0); }
+  6% { transform: translate(-2px, 0); }
+  8% { transform: translate(2px, 0); }
+  10% { transform: translate(-2px, 0); }
+  12% { transform: translate(0); }
+  100% { transform: translate(0); }
+}
+
+.vibrate-effect {
+  animation: vibrate 3s infinite;
+}
+
+@keyframes star-jump {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-4px);
+  }
+}
+
+.jump-animation {
+  animation: star-jump 2.5s infinite;
+  display: inline-block;
 }

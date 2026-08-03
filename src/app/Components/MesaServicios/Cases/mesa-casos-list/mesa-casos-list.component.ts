@@ -64,6 +64,10 @@ export class MesaCasosListComponent implements OnInit {
     calificacion: 0,
     comentario: ''
   };
+  
+  displayPendingRatingWarning: boolean = false;
+  pendingRatingCount: number = 0;
+  hasShownWarning: boolean = false;
   emojis = [
     { value: 1, icon: '😠', label: 'Muy Malo' },
     { value: 2, icon: '🙁', label: 'Malo' },
@@ -79,8 +83,7 @@ export class MesaCasosListComponent implements OnInit {
   }
 
   get showTabs(): boolean {
-    if (this.isLocalTi) return false;
-    return this.userRoleCode === 'ADM' || this.userRoleCode === 'AG';
+    return this.userRoleCode === 'ADM' || this.userRoleCode === 'AG' || this.isLocalTi;
   }
 
   get casosRecibidos(): any[] {
@@ -115,6 +118,30 @@ export class MesaCasosListComponent implements OnInit {
     if (this.dtCasos) {
         this.dtCasos.reset();
     }
+  }
+
+  semaforoData = {
+    green: [] as any[],
+    yellow: [] as any[],
+    red: [] as any[]
+  };
+
+  displaySemaforoDialog: boolean = false;
+  selectedSemaforoCases: any[] = [];
+  semaforoDialogTitle: string = '';
+
+  openSemaforoDialog(type: 'green' | 'yellow' | 'red') {
+    if (type === 'green') {
+      this.semaforoDialogTitle = 'Casos pendientes con < 5 días sin respuesta';
+      this.selectedSemaforoCases = this.semaforoData.green;
+    } else if (type === 'yellow') {
+      this.semaforoDialogTitle = 'Casos pendientes con 5 a 15 días sin respuesta';
+      this.selectedSemaforoCases = this.semaforoData.yellow;
+    } else if (type === 'red') {
+      this.semaforoDialogTitle = 'Casos pendientes con > 15 días sin respuesta';
+      this.selectedSemaforoCases = this.semaforoData.red;
+    }
+    this.displaySemaforoDialog = true;
   }
 
   servicios: any[] = [];
@@ -232,6 +259,16 @@ export class MesaCasosListComponent implements OnInit {
       next: (data) => {
         this.casos = data;
         this.calculateStats();
+
+        if (!this.hasShownWarning) {
+            const unratedCases = this.casos.filter(c => c.estado === 'CERRADO' && !c.calificacion && (c.creadorId == this.userId || c.creador?.id == this.userId));
+            if (unratedCases.length > 0) {
+              this.displayPendingRatingWarning = true;
+              this.pendingRatingCount = unratedCases.length;
+            }
+            this.hasShownWarning = true;
+        }
+
         this.loading = false;
       },
       error: (err) => {
@@ -246,6 +283,30 @@ export class MesaCasosListComponent implements OnInit {
     this.stats.abiertos = this.casos.filter(c => c.estado === 'NUEVO').length;
     this.stats.enCurso = this.casos.filter(c => c.estado === 'EN_CURSO').length;
     this.stats.resueltos = this.casos.filter(c => c.estado === 'RESUELTO').length;
+
+    // Calcular Semaforo
+    this.semaforoData = { green: [], yellow: [], red: [] };
+    const hoy = new Date().getTime();
+    const openStates = ['NUEVO', 'EN_CURSO', 'EN_ESPERA'];
+
+    const casosAsignados = this.casos.filter(c => 
+      c.asignaciones && c.asignaciones.some((a: any) => a.usuarioId === this.userId)
+    );
+
+    casosAsignados.forEach(c => {
+      if (openStates.includes(c.estado) && c.fechaCreacion) {
+        const diffTime = hoy - new Date(c.fechaCreacion).getTime();
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
+        
+        if (diffDays > 15) {
+          this.semaforoData.red.push(c);
+        } else if (diffDays >= 5) {
+          this.semaforoData.yellow.push(c);
+        } else {
+          this.semaforoData.green.push(c);
+        }
+      }
+    });
   }
 
   onGlobalFilter(event: Event): void {

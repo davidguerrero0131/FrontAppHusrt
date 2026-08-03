@@ -49,32 +49,43 @@
 
     <!-- Indicadores KPI -->
     <div class="grid" *ngIf="estadisticas && !loading">
-        <div class="col-12 md:col-4">
-            <div class="card glass-card border-none shadow-sm border-round-2xl p-4 text-center">
-                <div class="border-circle bg-blue-50 text-blue-500 w-4rem h-4rem flex align-items-center justify-content-center mx-auto mb-3 shadow-2">
+        <div class="col-12 md:col-3">
+            <div class="card glass-card border-none shadow-sm border-round-2xl p-4 text-center hover:shadow-4 transition-duration-300">
+                <div class="border-circle bg-blue-50 text-blue-500 w-4rem h-4rem flex align-items-center justify-content-center mx-auto mb-3 shadow-2 transition-transform transition-duration-300 hover:scale-110">
                     <i class="pi pi-ticket text-2xl"></i>
                 </div>
                 <h3 class="text-600 font-medium m-0 mb-2">Total Casos</h3>
                 <span class="text-4xl text-900 font-bold block">{{estadisticas.resumen.total}}</span>
             </div>
         </div>
-        <div class="col-12 md:col-4">
-            <div class="card glass-card border-none shadow-sm border-round-2xl p-4 text-center">
-                <div class="border-circle bg-green-50 text-green-500 w-4rem h-4rem flex align-items-center justify-content-center mx-auto mb-3 shadow-2">
+        <div class="col-12 md:col-3">
+            <div class="card glass-card border-none shadow-sm border-round-2xl p-4 text-center hover:shadow-4 transition-duration-300">
+                <div class="border-circle bg-green-50 text-green-500 w-4rem h-4rem flex align-items-center justify-content-center mx-auto mb-3 shadow-2 transition-transform transition-duration-300 hover:scale-110">
                     <i class="pi pi-check-circle text-2xl"></i>
                 </div>
                 <h3 class="text-600 font-medium m-0 mb-2">Casos Resueltos</h3>
                 <span class="text-4xl text-900 font-bold block">{{estadisticas.resumen.resueltos}}</span>
             </div>
         </div>
-        <div class="col-12 md:col-4">
-            <div class="card glass-card border-none shadow-sm border-round-2xl p-4 text-center">
-                <div class="border-circle bg-cyan-50 text-cyan-500 w-4rem h-4rem flex align-items-center justify-content-center mx-auto mb-3 shadow-2">
+        <div class="col-12 md:col-3">
+            <div class="card glass-card border-none shadow-sm border-round-2xl p-4 text-center hover:shadow-4 transition-duration-300">
+                <div class="border-circle bg-cyan-50 text-cyan-500 w-4rem h-4rem flex align-items-center justify-content-center mx-auto mb-3 shadow-2 transition-transform transition-duration-300 hover:scale-110">
                     <i class="pi pi-clock text-2xl"></i>
                 </div>
-                <h3 class="text-600 font-medium m-0 mb-2">Tiempo Promedio Resolución</h3>
+                <h3 class="text-600 font-medium m-0 mb-2">Tiempo Promedio</h3>
                 <span class="text-4xl text-900 font-bold block">
                     {{estadisticas.resumen.tiempoPromedioResolucionHoras | number:'1.0-1'}} <span class="text-lg text-500">Horas</span>
+                </span>
+            </div>
+        </div>
+        <div class="col-12 md:col-3">
+            <div class="card glass-card border-none shadow-sm border-round-2xl p-4 text-center hover:shadow-4 transition-duration-300">
+                <div class="border-circle bg-yellow-50 text-yellow-500 w-4rem h-4rem flex align-items-center justify-content-center mx-auto mb-3 shadow-2 transition-transform transition-duration-300 hover:scale-110">
+                    <i class="pi pi-star-fill text-2xl"></i>
+                </div>
+                <h3 class="text-600 font-medium m-0 mb-2">Calificación</h3>
+                <span class="text-4xl text-900 font-bold block">
+                    {{estadisticas.resumen.promedioCalificacion || 'N/A'}} <span class="text-lg text-500">/ 5</span>
                 </span>
             </div>
         </div>
@@ -108,6 +119,16 @@
             <div class="card glass-card border-none shadow-sm border-round-2xl p-4 h-full">
                 <h3 class="text-700 font-bold mb-4 border-bottom-1 border-200 pb-2">Tiempos Promedio por Categoría</h3>
                 <p-chart type="bar" [data]="dataTiempoCategoria" [options]="chartOptionsBarHorizontal" height="350px"></p-chart>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 3 -->
+    <div class="grid mt-2" *ngIf="estadisticas && !loading && selectedServicioId == 3">
+        <div class="col-12">
+            <div class="card glass-card border-none shadow-sm border-round-2xl p-4">
+                <h3 class="text-700 font-bold mb-4 border-bottom-1 border-200 pb-2">Distribución de Casos por Tipo de Equipo</h3>
+                <p-chart type="bar" [data]="dataTipoEquipo" [options]="chartOptionsBarHorizontal" height="350px"></p-chart>
             </div>
         </div>
     </div>

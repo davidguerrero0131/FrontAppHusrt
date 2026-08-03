@@ -35,7 +35,14 @@
             "allowedCommonJsDependencies": [
               "angular2-signaturepad",
               "jspdf",
-              "jspdf-autotable"
+              "jspdf-autotable",
+              "sweetalert2",
+              "file-saver",
+              "quill",
+              "quill-delta",
+              "canvg",
+              "rgbcolor",
+              "raf"
             ]
           },
           "configurations": {

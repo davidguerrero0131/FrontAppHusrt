@@ -44,6 +44,21 @@ export class MesaIndicadoresComponent implements OnInit {
   dataServicio: any;
   dataTiempoCategoria: any;
   dataTiempoPrioridad: any;
+  dataTipoEquipo: any;
+  chartOptionsPolarArea: any;
+
+  // Paleta de colores vibrantes y modernos (Biomedica)
+  readonly colors = [
+    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6', '#f97316', '#06b6d4'
+  ];
+  readonly bgColors = [
+    'rgba(59, 130, 246, 0.7)', 'rgba(16, 185, 129, 0.7)', 'rgba(245, 158, 11, 0.7)', 'rgba(239, 68, 68, 0.7)',
+    'rgba(139, 92, 246, 0.7)', 'rgba(236, 72, 153, 0.7)', 'rgba(99, 102, 241, 0.7)', 'rgba(20, 184, 166, 0.7)',
+    'rgba(249, 115, 22, 0.7)', 'rgba(6, 182, 212, 0.7)'
+  ];
+  readonly borderColors = [
+    '#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#db2777', '#4f46e5', '#0d9488', '#ea580c', '#0891b2'
+  ];
 
   constructor(
     private mesaService: MesaService,
@@ -90,7 +105,17 @@ export class MesaIndicadoresComponent implements OnInit {
     this.chartOptionsBarHorizontal = {
       indexAxis: 'y',
       plugins: {
-        legend: { display: false }
+        legend: { display: false },
+        tooltip: {
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            titleColor: '#333',
+            bodyColor: '#333',
+            borderColor: '#ddd',
+            borderWidth: 1,
+            padding: 10,
+            boxPadding: 4,
+            usePointStyle: true
+        }
       },
       scales: {
         x: {
@@ -101,8 +126,67 @@ export class MesaIndicadoresComponent implements OnInit {
           ticks: { color: textColorSecondary },
           grid: { color: surfaceBorder, drawBorder: false }
         }
+      },
+      animation: {
+          duration: 1200,
+          easing: 'easeOutQuart'
       }
     };
+
+    this.chartOptionsPolarArea = {
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: textColor },
+          position: 'right'
+        },
+        tooltip: {
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            titleColor: '#333',
+            bodyColor: '#333',
+            borderColor: '#ddd',
+            borderWidth: 1,
+            padding: 10,
+            boxPadding: 4,
+            usePointStyle: true
+        }
+      },
+      scales: {
+        r: {
+          grid: { color: surfaceBorder }
+        }
+      },
+      animation: {
+          duration: 1200,
+          easing: 'easeOutQuart'
+      }
+    };
+
+    // Improve Pie/Donut options
+    this.chartOptionsPie.plugins.tooltip = {
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        titleColor: '#333',
+        bodyColor: '#333',
+        borderColor: '#ddd',
+        borderWidth: 1,
+        padding: 10,
+        boxPadding: 4,
+        usePointStyle: true
+    };
+    this.chartOptionsPie.animation = { duration: 1200, easing: 'easeOutQuart' };
+
+    // Improve Bar options
+    this.chartOptionsBar.plugins.tooltip = {
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        titleColor: '#333',
+        bodyColor: '#333',
+        borderColor: '#ddd',
+        borderWidth: 1,
+        padding: 10,
+        boxPadding: 4,
+        usePointStyle: true
+    };
+    this.chartOptionsBar.animation = { duration: 1200, easing: 'easeOutQuart' };
   }
 
   loadServicios() {
@@ -166,12 +250,9 @@ export class MesaIndicadoresComponent implements OnInit {
         {
           data: estadosValues,
           backgroundColor: [
-            documentStyle.getPropertyValue('--blue-500'),
-            documentStyle.getPropertyValue('--orange-500'),
-            documentStyle.getPropertyValue('--yellow-500'),
-            documentStyle.getPropertyValue('--green-500'),
-            documentStyle.getPropertyValue('--gray-500')
-          ]
+            this.colors[0], this.colors[1], this.colors[2], this.colors[3], this.colors[4], this.colors[5]
+          ],
+          borderWidth: 0
         }
       ]
     };
@@ -187,7 +268,8 @@ export class MesaIndicadoresComponent implements OnInit {
       datasets: [
         {
           label: 'Casos',
-          backgroundColor: documentStyle.getPropertyValue('--indigo-500'),
+          backgroundColor: this.colors[0],
+          borderRadius: 8,
           data: topServs.map(s => s.count)
         }
       ]
@@ -202,7 +284,8 @@ export class MesaIndicadoresComponent implements OnInit {
       datasets: [
         {
           label: 'Horas Promedio',
-          backgroundColor: documentStyle.getPropertyValue('--cyan-500'),
+          backgroundColor: this.colors[1],
+          borderRadius: 8,
           data: catValues
         }
       ]
@@ -217,8 +300,24 @@ export class MesaIndicadoresComponent implements OnInit {
       datasets: [
         {
           label: 'Horas Promedio',
-          backgroundColor: documentStyle.getPropertyValue('--pink-500'),
+          backgroundColor: this.colors[2],
+          borderRadius: 8,
           data: prioValues
+        }
+      ]
+    };
+
+    // Casos por Tipo de Equipo (Polar Area)
+    const equipoKeys = Object.keys(data.porTipoEquipo || {});
+    const equipoValues = Object.values(data.porTipoEquipo || {});
+    this.dataTipoEquipo = {
+      labels: equipoKeys,
+      datasets: [
+        {
+          data: equipoValues,
+          backgroundColor: this.colors,
+          borderRadius: 8,
+          label: 'Casos por Tipo de Equipo'
         }
       ]
     };
