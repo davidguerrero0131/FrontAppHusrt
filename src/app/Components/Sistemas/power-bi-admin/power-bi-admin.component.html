@@ -1,0 +1,122 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+<div class="card m-4 border-round-xl shadow-4 surface-card p-4">
+    <div class="flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="m-0 text-3xl font-bold text-900">Gestión de Tableros PowerBI</h2>
+            <p class="text-500 mt-1">Administra los tableros y asigna responsables.</p>
+        </div>
+        <button pButton icon="pi pi-plus" label="Nuevo Tablero" class="p-button-primary border-round-lg shadow-2" (click)="openNew()"></button>
+    </div>
+
+    <p-table [value]="dashboards" styleClass="p-datatable-striped" responsiveLayout="scroll">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+                <th class="text-center">Asignados</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-dash>
+            <tr>
+                <td>{{dash.id}}</td>
+                <td class="font-bold">{{dash.nombre}}</td>
+                <td>{{dash.descripcion || 'N/A'}}</td>
+                <td>
+                    <p-tag [value]="dash.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="dash.activo ? 'success' : 'danger'"></p-tag>
+                </td>
+                <td class="text-center">
+                    <p-tag severity="info" [value]="(dash.usuariosAsignados?.length || 0) + ' Responsables'" class="cursor-pointer" (click)="openAssign(dash)"></p-tag>
+                </td>
+                <td class="text-center">
+                    <div class="flex gap-2 justify-content-center">
+                        <button pButton icon="pi pi-users" class="p-button-rounded p-button-text p-button-info" pTooltip="Asignar Responsables" (click)="openAssign(dash)"></button>
+                        <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-warning" pTooltip="Editar" (click)="openEdit(dash)"></button>
+                        <button pButton [icon]="dash.activo ? 'pi pi-power-off' : 'pi pi-check'" class="p-button-rounded p-button-text" [ngClass]="dash.activo ? 'p-button-danger' : 'p-button-success'" [pTooltip]="dash.activo ? 'Desactivar' : 'Activar'" (click)="toggleDashboard(dash)"></button>
+                        <button pButton icon="pi pi-list" class="p-button-rounded p-button-text p-button-secondary" pTooltip="Ver Bitácora" (click)="openBitacora(dash)"></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- Modal Crear/Editar -->
+<p-dialog [(visible)]="displayDialog" [modal]="true" [style]="{width: '700px'}" header="Detalles del Tablero" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="flex flex-column gap-2 mb-4">
+            <label class="font-bold text-700">Nombre del Tablero</label>
+            <input type="text" pInputText [(ngModel)]="dashboardForm.nombre" placeholder="Ej: Tablero de Ventas" required class="w-full" />
+        </div>
+        
+        <div class="flex flex-column gap-2 mb-4">
+            <label class="font-bold text-700">Descripción</label>
+            <textarea pInputTextarea [(ngModel)]="dashboardForm.descripcion" rows="3" class="w-full" placeholder="Breve descripción del propósito del tablero..."></textarea>
+        </div>
+        
+        <div class="flex flex-column gap-2 mb-2">
+            <label class="font-bold text-700">URL o Iframe de PowerBI</label>
+            <textarea pInputTextarea [(ngModel)]="dashboardForm.url_iframe" rows="4" class="w-full" placeholder="<iframe title=... src=...></iframe> o solo la URL"></textarea>
+            <small class="text-500">Puedes pegar directamente el código del iframe proporcionado por PowerBI.</small>
+        </div>
+
+        <div class="flex flex-column gap-2 mb-2 mt-4">
+            <label class="font-bold text-700">Responsables Asignados</label>
+            <p-multiSelect [options]="usuarios" [(ngModel)]="selectedUsers" dataKey="id" optionLabel="nombres" appendTo="body" placeholder="Seleccione los usuarios" class="w-full" display="chip" [filter]="true">
+                <ng-template let-user pTemplate="item">
+                    {{ user.nombres }} {{ user.apellidos }} ({{ user.nombreUsuario }})
+                </ng-template>
+            </p-multiSelect>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="displayDialog = false"></button>
+        <button pButton label="Guardar" icon="pi pi-check" class="p-button-primary" (click)="saveDashboard()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Modal Asignar Usuarios -->
+<p-dialog [(visible)]="displayAssignDialog" [modal]="true" [style]="{width: '600px'}" header="Asignar Responsables" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        <p class="mb-4 text-700">Selecciona los usuarios que podrán visualizar este tablero.</p>
+        <div class="flex flex-column gap-2 mb-2">
+            <p-multiSelect [options]="usuarios" [(ngModel)]="selectedUsers" dataKey="id" optionLabel="nombres" appendTo="body" placeholder="Busca y selecciona los usuarios" class="w-full" display="chip" [filter]="true">
+                <ng-template let-user pTemplate="item">
+                    {{ user.nombres }} {{ user.apellidos }} ({{ user.nombreUsuario }})
+                </ng-template>
+            </p-multiSelect>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="displayAssignDialog = false"></button>
+        <button pButton label="Guardar Asignación" icon="pi pi-check" class="p-button-primary" (click)="saveAssign()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Modal Bitacora -->
+<p-dialog [(visible)]="displayBitacoraDialog" [modal]="true" [style]="{width: '700px'}" [header]="'Bitácora: ' + selectedDashboardName">
+    <p-table [value]="bitacora" styleClass="p-datatable-sm p-datatable-striped" [scrollable]="true" scrollHeight="400px">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Fecha</th>
+                <th>Acción</th>
+                <th>Usuario</th>
+                <th>Detalle</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-log>
+            <tr>
+                <td>{{log.createdAt | date:'short'}}</td>
+                <td><p-tag [value]="log.accion"></p-tag></td>
+                <td>{{log.usuario?.nombres}} {{log.usuario?.apellidos}}</td>
+                <td>{{log.detalle}}</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr><td colspan="4" class="text-center p-4">No hay registros en la bitácora.</td></tr>
+        </ng-template>
+    </p-table>
+</p-dialog>

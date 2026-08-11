@@ -60,12 +60,20 @@ export class MesaService {
         return this.http.post<any>(`${this.apiUrl}/config/categorias`, data, this.createHeaders());
     }
 
+    updateCategoria(id: number, data: any): Observable<any> {
+        return this.http.put<any>(`${this.apiUrl}/config/categorias/${id}`, data, this.createHeaders());
+    }
+
     toggleCategoria(id: number): Observable<any> {
         return this.http.put<any>(`${this.apiUrl}/config/categorias/${id}/toggle`, {}, this.createHeaders());
     }
 
     createSubcategoria(data: any): Observable<any> {
         return this.http.post<any>(`${this.apiUrl}/config/subcategorias`, data, this.createHeaders());
+    }
+
+    updateSubcategoria(id: number, data: any): Observable<any> {
+        return this.http.put<any>(`${this.apiUrl}/config/subcategorias/${id}`, data, this.createHeaders());
     }
 
     toggleSubcategoria(id: number): Observable<any> {

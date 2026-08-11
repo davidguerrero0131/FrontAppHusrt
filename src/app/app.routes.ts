@@ -89,6 +89,10 @@ import { EquiposBajaComponent } from './Components/userBiomedica/vista-Equipos/e
 import { RealidadComponent } from './Components/Aerolinea/realidad/realidad/realidad.component';
 import { RafaIaComponent } from './Components/rafa-ia/rafa-ia.component';
 import { OtrasConfiguracionesComponent } from './Components/Homepage/otras-configuraciones/otras-configuraciones.component';
+import { HomedashboardadminComponent } from './Components/Homepage/homedashboardadmin/homedashboardadmin.component';
+import { HomedashboarduserComponent } from './Components/Homepage/homedashboarduser/homedashboarduser.component';
+import { PowerBiAdminComponent } from './Components/Sistemas/power-bi-admin/power-bi-admin.component';
+import { PowerBiViewerComponent } from './Components/Sistemas/power-bi-viewer/power-bi-viewer.component';
 
 
 export const routes: Routes = [
@@ -122,15 +126,15 @@ export const routes: Routes = [
   { path: 'adminmesaservicios/config/categorias', component: MesaCategoriasComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'ADM', 'ADMINISTRADOR', 'MESAADMIN'] } },
   { path: 'adminmesaservicios/config/roles', component: MesaRolesComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'ADM', 'ADMINISTRADOR', 'MESAADMIN'] } },
   { path: 'adminmesaservicios/indicadores', loadComponent: () => import('./Components/MesaServicios/Dashboard/mesa-indicadores/mesa-indicadores.component').then(m => m.MesaIndicadoresComponent), canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'MESAADMIN'] } },
-  { path: 'adminmesaservicios/casos', component: MesaCasosListComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'BIOMEDICAUSER', 'BIOMEDICATECNICO', 'ADM', 'AG', 'ADMINISTRADOR', 'MESAUSER', 'SOL', 'OBS', 'MESAADMIN', 'ADMINESPACIORESERVA'] } },
+  { path: 'adminmesaservicios/casos', component: MesaCasosListComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'BIOMEDICAUSER', 'BIOMEDICATECNICO', 'ADM', 'AG', 'ADMINISTRADOR', 'MESAUSER', 'SOL', 'OBS', 'MESAADMIN', 'ADMINESPACIORESERVA', 'DASHBOARDADMIN', 'DASHBOARDUSER'] } },
   { path: 'adminmesaservicios/casos-ti', component: MesaCasosListComponent, canActivate: [authGuard], data: { isLocalTi: true, roles: ['MESAADMIN', 'SUPERADMIN'] } },
-  { path: 'adminmesaservicios/casos/novo', component: MesaCasoCreateComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'BIOMEDICAUSER', 'BIOMEDICATECNICO', 'ADM', 'AG', 'ADMINISTRADOR', 'MESAUSER', 'SOL', 'OBS', 'MESAADMIN', 'ADMINESPACIORESERVA'] } },
-  { path: 'adminmesaservicios/casos/:id', component: MesaCasoDetailComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'BIOMEDICAUSER', 'BIOMEDICATECNICO', 'ADM', 'AG', 'ADMINISTRADOR', 'MESAUSER', 'SOL', 'OBS', 'MESAADMIN', 'ADMINESPACIORESERVA'] } },
+  { path: 'adminmesaservicios/casos/novo', component: MesaCasoCreateComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'BIOMEDICAUSER', 'BIOMEDICATECNICO', 'ADM', 'AG', 'ADMINISTRADOR', 'MESAUSER', 'SOL', 'OBS', 'MESAADMIN', 'ADMINESPACIORESERVA', 'DASHBOARDADMIN', 'DASHBOARDUSER'] } },
+  { path: 'adminmesaservicios/casos/:id', component: MesaCasoDetailComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'BIOMEDICAADMIN', 'BIOMEDICAUSER', 'BIOMEDICATECNICO', 'ADM', 'AG', 'ADMINISTRADOR', 'MESAUSER', 'SOL', 'OBS', 'MESAADMIN', 'ADMINESPACIORESERVA', 'DASHBOARDADMIN', 'DASHBOARDUSER'] } },
   { path: 'usermantenimiento', component: HomeusermantenimientoComponent, canActivate: [authGuard] },
   { path: 'usersistemas', component: HomeusersistemasComponent, canActivate: [authGuard] },
   { path: 'userbiomedica', component: HomeuserbiomedicaComponent, canActivate: [authGuard] },
   { path: 'userbiomedica', component: HomeuserbiomedicaComponent, canActivate: [authGuard] },
-  { path: 'mesauser/home', component: HomeuserMesaComponent, canActivate: [authGuard], data: { roles: ['MESAUSER', 'SUPERADMIN', 'ADM', 'AG', 'SOL', 'OBS', 'ADMINISTRADOR'] } },
+  { path: 'mesauser/home', component: HomeuserMesaComponent, canActivate: [authGuard], data: { roles: ['MESAUSER', 'SUPERADMIN', 'ADM', 'AG', 'SOL', 'OBS', 'ADMINISTRADOR', 'DASHBOARDADMIN', 'DASHBOARDUSER'] } },
   { path: 'imagenologia/citasCE', component: ReportceComponent },
   { path: 'servinte/reportepediatria', component: ReportspediatricsComponent },
   { path: 'servinte/news2', component: UsuariosServicioComponent },
@@ -205,6 +209,11 @@ export const routes: Routes = [
   { path: 'servinte/citasmadrecanguro/stats', component: DashboardCitasComponent, canActivate: [authGuard] },
   { path: 'servinte/citasmadrecanguro/creacion', component: CreacionCitasComponent, canActivate: [authGuard] },
 
+  // PowerBI Dashboard Roles
+  { path: 'dashboardadmin', component: HomedashboardadminComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'DASHBOARDADMIN'] } },
+  { path: 'dashboardadmin/powerbi', component: PowerBiAdminComponent, canActivate: [authGuard], data: { roles: ['SUPERADMIN', 'DASHBOARDADMIN'] } },
+  { path: 'dashboarduser', component: HomedashboarduserComponent, canActivate: [authGuard], data: { roles: ['DASHBOARDUSER', 'SUPERADMIN'] } },
+  { path: 'dashboarduser/powerbi', component: PowerBiViewerComponent, canActivate: [authGuard], data: { roles: ['DASHBOARDUSER', 'SUPERADMIN'] } },
 ];
 
 

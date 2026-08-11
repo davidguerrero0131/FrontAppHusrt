@@ -1,0 +1,31 @@
+<div class="card m-4 border-round-xl shadow-4 surface-card p-4 min-h-screen">
+    <div class="mb-4">
+        <h2 class="m-0 text-3xl font-bold text-900">Mis Tableros</h2>
+        <p class="text-500 mt-1">Visualiza los tableros de PowerBI que tienes asignados.</p>
+    </div>
+
+    <div *ngIf="dashboards.length === 0" class="text-center p-6 border-round surface-100">
+        <i class="pi pi-chart-pie text-6xl text-400 mb-3 block"></i>
+        <h3 class="text-700">No tienes tableros asignados.</h3>
+        <p class="text-500">Contacta al administrador si crees que esto es un error.</p>
+    </div>
+
+    <p-tabView *ngIf="dashboards.length > 0">
+        <p-tabPanel *ngFor="let dash of dashboards" [header]="dash.nombre">
+            
+            <div *ngIf="dash.descripcion" class="mb-3 text-700">
+                <i class="pi pi-info-circle mr-2"></i> {{ dash.descripcion }}
+            </div>
+
+            <div class="w-full flex justify-content-center border-round overflow-hidden shadow-2" style="height: 75vh;">
+                <iframe 
+                    [src]="sanitizedUrls[dash.id]" 
+                    frameborder="0" 
+                    allowFullScreen="true"
+                    class="w-full h-full border-none">
+                </iframe>
+            </div>
+
+        </p-tabPanel>
+    </p-tabView>
+</div>

@@ -2,6 +2,7 @@ import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { isTokenExpired, getDecodedAccessToken } from '../../utilidades';
+import { ROLE_REDIRECTS } from '../../constantes';
 
 @Component({
     selector: 'app-redireccion-inicial',
@@ -16,37 +17,13 @@ export class RedireccionInicialComponent implements OnInit {
         if (isPlatformBrowser(this.platformId)) {
             if (!isTokenExpired()) {
                 const decoded = getDecodedAccessToken();
-                const role = decoded?.rol;
+                const role = decoded?.rol ? decoded.rol.toUpperCase().replace(/\s+/g, '') : null;
+                const targetRoute = role ? ROLE_REDIRECTS[role] : null;
 
-                switch (role) {
-                    case 'SYSTEMADMIN':
-                        this.router.navigate(['/adminsistemas']);
-                        break;
-                    case 'SUPERADMIN':
-                        this.router.navigate(['/superadmin']);
-                        break;
-                    case 'MANTENIMIENTOADMIN':
-                        this.router.navigate(['/adminmantenimiento']);
-                        break;
-                    case 'BIOMEDICAADMIN':
-                        this.router.navigate(['/adminbiomedica']);
-                        break;
-                    case 'BIOMEDICAUSER':
-                    case 'BIOMEDICATECNICO':
-                        this.router.navigate(['/userbiomedica']);
-                        break;
-                    case 'MESAUSER':
-                        this.router.navigate(['/mesauser/home']);
-                        break;
-                    case 'MESAADMIN':
-                        this.router.navigate(['/adminmesaservicios']);
-                        break;
-                    case 'INVITADO':
-                        this.router.navigate(['/biomedica/home-invitado']);
-                        break;
-                    default:
-                        this.router.navigate(['/login']);
-                        break;
+                if (targetRoute) {
+                    this.router.navigate([targetRoute]);
+                } else {
+                    this.router.navigate(['/login']);
                 }
             } else {
                 this.router.navigate(['/interno']);

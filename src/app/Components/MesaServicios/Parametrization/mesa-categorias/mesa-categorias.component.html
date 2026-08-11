@@ -71,6 +71,8 @@
                     </td>
                     <td style="text-align: center">
                         <div class="flex justify-content-center gap-2">
+                            <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-warning action-btn bg-yellow-50"
+                                (click)="openEditCategory(categoria)" pTooltip="Editar Categoría" tooltipPosition="left"></button>
                             <button pButton icon="pi pi-tags" class="p-button-rounded p-button-text p-button-info action-btn bg-blue-50"
                                 (click)="openManageSubcategories(categoria)" pTooltip="Gestión Subcategorías" tooltipPosition="left"></button>
                             <button pButton icon="pi pi-plus-circle" class="p-button-rounded p-button-text p-button-secondary action-btn bg-gray-100"
@@ -240,10 +242,14 @@
                             [severity]="sub.activo ? 'success' : 'danger'" styleClass="text-xs border-round-2xl px-2"></p-tag>
                     </td>
                     <td style="text-align: center">
-                        <button pButton [icon]="'pi pi-power-off'"
-                            [class]="'p-button-rounded p-button-text action-btn ' + (sub.activo ? 'p-button-danger bg-red-50' : 'p-button-success bg-green-50')"
-                            (click)="toggleSubcategoria(sub)" [pTooltip]="sub.activo ? 'Desactivar' : 'Activar'"
-                            tooltipPosition="left"></button>
+                        <div class="flex justify-content-center gap-2">
+                            <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info action-btn bg-blue-50"
+                                (click)="openEditSubCategory(sub)" pTooltip="Editar" tooltipPosition="left"></button>
+                            <button pButton [icon]="'pi pi-power-off'"
+                                [class]="'p-button-rounded p-button-text action-btn ' + (sub.activo ? 'p-button-danger bg-red-50' : 'p-button-success bg-green-50')"
+                                (click)="toggleSubcategoria(sub)" [pTooltip]="sub.activo ? 'Desactivar' : 'Activar'"
+                                tooltipPosition="left"></button>
+                        </div>
                     </td>
                 </tr>
             </ng-template>
@@ -261,5 +267,57 @@
     <ng-template pTemplate="footer">
         <button pButton pRipple label="Hecho" icon="pi pi-check" class="p-button-primary border-round-xl px-5 shadow-2 font-bold"
             (click)="displaySubManageDialog = false"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Dialog Edit SubCategory -->
+<p-dialog [(visible)]="displayEditSubCategoryDialog" [style]="{width: '450px'}" header="Editar Subcategoría" [modal]="true"
+    styleClass="p-fluid premium-dialog border-round-2xl shadow-8" [draggable]="false" [resizable]="false">
+    <ng-template pTemplate="content">
+        <div class="flex flex-column gap-3 pt-2">
+            <div class="field">
+                <label for="editSubName" class="font-bold text-700 block mb-2 text-sm uppercase tracking-wide">Nombre Subcategoría</label>
+                <input type="text" pInputText id="editSubName" [(ngModel)]="editingSubCategory.nombre" required autofocus
+                    class="w-full p-inputtext-lg border-round-xl" />
+                <small class="p-error block mt-2 font-medium" *ngIf="!editingSubCategory.nombre"><i class="pi pi-exclamation-circle mr-1"></i>Campo requerido.</small>
+            </div>
+            <div class="field mt-3">
+                <label for="editSubDesc" class="font-bold text-700 block mb-2 text-sm uppercase tracking-wide">Descripción</label>
+                <textarea id="editSubDesc" pInputTextarea [(ngModel)]="editingSubCategory.descripcion" rows="4"
+                    class="w-full border-round-xl"></textarea>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary font-bold"
+            (click)="displayEditSubCategoryDialog = false"></button>
+        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-primary border-round-xl px-4 shadow-2 font-bold"
+            (click)="updateSubCategory()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Dialog Edit Category -->
+<p-dialog [(visible)]="displayEditCategoryDialog" [style]="{width: '450px'}" header="Editar Categoría" [modal]="true"
+    styleClass="p-fluid premium-dialog border-round-2xl shadow-8" [draggable]="false" [resizable]="false">
+    <ng-template pTemplate="content">
+        <div class="flex flex-column gap-3 pt-2">
+            <div class="field">
+                <label for="editCatName" class="font-bold text-700 block mb-2 text-sm uppercase tracking-wide">Identificador (Nombre)</label>
+                <input type="text" pInputText id="editCatName" [(ngModel)]="editingCategory.nombre" required autofocus
+                    class="w-full p-inputtext-lg border-round-xl" />
+                <small class="p-error block mt-2 font-medium" *ngIf="!editingCategory.nombre"><i class="pi pi-exclamation-circle mr-1"></i>Campo estrictamente requerido.</small>
+            </div>
+            <div class="field mt-3">
+                <label for="editCatDesc" class="font-bold text-700 block mb-2 text-sm uppercase tracking-wide">Contexto / Detalle (Opcional)</label>
+                <textarea id="editCatDesc" pInputTextarea [(ngModel)]="editingCategory.descripcion" rows="4"
+                    class="w-full border-round-xl"></textarea>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary font-bold"
+            (click)="displayEditCategoryDialog = false"></button>
+        <button pButton pRipple label="Guardar" icon="pi pi-check" class="p-button-primary border-round-xl px-4 shadow-2 font-bold"
+            (click)="updateCategory()"></button>
     </ng-template>
 </p-dialog>

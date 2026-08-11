@@ -115,6 +115,8 @@ import { AdminespaciosnavbarComponent } from './Components/navbars/adminespacios
 import { MesaadminnavbarComponent } from './Components/navbars/mesaadminnavbar/mesaadminnavbar.component';
 import { MesausernavbarComponent } from './Components/navbars/mesausernavbar/mesausernavbar.component';
 import { SistemasadminnavbarComponent } from './Components/navbars/sistemasadminnavbar/sistemasadminnavbar.component';
+import { NavbardashboardadminComponent } from './Components/navbars/navbardashboardadmin/navbardashboardadmin.component';
+import { NavbardashboarduserComponent } from './Components/navbars/navbardashboarduser/navbardashboarduser.component';
 import { UserService } from './Services/appServices/userServices/user.service';
 import { Router, NavigationEnd } from '@angular/router';
 import { getDecodedAccessToken } from './utilidades';
@@ -227,6 +229,8 @@ import { SessionSyncService } from './Services/auth/session-sync.service';
     MesaadminnavbarComponent,
     MesausernavbarComponent,
     SistemasadminnavbarComponent,
+    NavbardashboardadminComponent,
+    NavbardashboarduserComponent,
     CommonModule
   ],
   templateUrl: './app.component.html',

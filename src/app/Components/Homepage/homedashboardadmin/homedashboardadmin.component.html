@@ -1,0 +1,20 @@
+<div class="dashboard-container">
+  <div class="hero-section" style="margin-bottom: 3rem;">
+    <div class="hero-content">
+      <h1>Panel de Administración de PowerBI</h1>
+      <p>Bienvenido al sistema de gestión de tableros de PowerBI.</p>
+    </div>
+  </div>
+  <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, 384px); justify-content: center; gap: 3rem; margin-top: 2rem;">
+    <a [routerLink]="['/dashboardadmin/powerbi']" class="dashboard-card nav-link-container">
+      <div class="card-icon-container gradient-orange">
+        <i class="pi pi-chart-bar"></i>
+      </div>
+      <div class="card-content">
+        <h3>Gestión de Tableros</h3>
+        <p>Crea tableros y asigna responsables.</p>
+        <span class="card-action">Acceder <i class="pi pi-arrow-right"></i></span>
+      </div>
+    </a>
+  </div>
+</div>

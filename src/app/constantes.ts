@@ -6,3 +6,19 @@ export const API_ENTERPRICE_URL = 'http://172.30.20.18:3003';
 // Server Rafa IA
 export const API_RAFA_IA_URL = 'http://172.30.20.18:11434/api/chat';
 export const API_RAFA_IA_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjFiMDE5ZmRlLWY5ZjAtNGE2Ni05OWQzLTI0ZWYxMjE5NTI0NiIsImV4cCI6MTc4MTgxNDgzNCwianRpIjoiNDBkNGVmMjgtZTc4ZC00ZmM5LThjODktODBkZGRmMWM5ODdkIiwiaWF0IjoxNzc5Mzk1NjM0fQ.miAPxqzyzZ1NzHMRuMq7rjajv7dwxFhIxS629NU76Fg';
+
+export const ROLE_REDIRECTS: Record<string, string> = {
+  'SYSTEMADMIN': '/adminsistemas',
+  'SUPERADMIN': '/superadmin',
+  'MANTENIMIENTOADMIN': '/adminmantenimiento',
+  'BIOMEDICAADMIN': '/adminbiomedica',
+  'BIOMEDICAUSER': '/userbiomedica',
+  'BIOMEDICATECNICO': '/userbiomedica',
+  'MESAUSER': '/mesauser/home',
+  'MESAADMIN': '/adminmesaservicios',
+  'INVITADO': '/biomedica/home-invitado',
+  'ADMCITASPEDIATRIA': '/servinte/citasmadrecanguro',
+  'ADMINESPACIORESERVA': '/adminespacios',
+  'DASHBOARDADMIN': '/dashboardadmin',
+  'DASHBOARDUSER': '/dashboarduser'
+};

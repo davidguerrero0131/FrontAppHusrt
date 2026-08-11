@@ -8,6 +8,7 @@ import { Router, RouterModule } from '@angular/router';
 import { UserService } from '../../Services/appServices/userServices/user.service';
 import { ThemeService } from '../../Services/theme/theme.service';
 import { UppercaseDirective } from '../../Directives/uppercase.directive';
+import { ROLE_REDIRECTS } from '../../constantes';
 
 
 @Component({
@@ -68,28 +69,14 @@ export class LoginComponent implements OnInit {
   }
 
   redirectBasedOnRole(rol: string) {
-    if (rol === 'SYSTEMADMIN') {
-      this.router.navigate(['/adminsistemas']);
-    } else if (rol === 'SUPERADMIN') {
-      this.router.navigate(['/superadmin']);
-    } else if (rol === 'MANTENIMIENTOADMIN') {
-      this.router.navigate(['/adminmantenimiento']);
-    } else if (rol === 'BIOMEDICAADMIN') {
-      this.router.navigate(['/adminbiomedica']);
-    } else if (rol === 'BIOMEDICAUSER') {
-      this.router.navigate(['/userbiomedica']);
-    } else if (rol === 'BIOMEDICATECNICO') {
-      this.router.navigate(['/userbiomedica']);
-    } else if (rol === 'MESAUSER') {
-      this.router.navigate(['/mesauser/home']);
-    } else if (rol === 'MESAADMIN') {
-      this.router.navigate(['/adminmesaservicios']);
-    } else if (rol === 'INVITADO') {
-      this.router.navigate(['/biomedica/home-invitado']);
-    } else if (rol === 'ADMCITASPEDIATRIA') {
-      this.router.navigate(['/servinte/citasmadrecanguro']);
-    } else if (rol === 'ADMINESPACIORESERVA') {
-      this.router.navigate(['/adminespacios']);
+    const normalizedRol = rol ? rol.toUpperCase().replace(/\s+/g, '') : '';
+    const targetRoute = ROLE_REDIRECTS[normalizedRol];
+    
+    if (targetRoute) {
+      this.router.navigate([targetRoute]);
+    } else {
+      // Default fallback if role not mapped
+      console.warn(`Rol no reconocido para redirección: ${rol}`);
     }
   }
 

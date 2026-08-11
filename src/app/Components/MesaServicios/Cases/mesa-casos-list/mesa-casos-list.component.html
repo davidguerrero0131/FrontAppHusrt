@@ -9,7 +9,7 @@
             <p class="text-secondary mt-2 mb-0">Monitoreo y administración de la Mesa de Servicios.</p>
         </div>
         <div class="flex gap-2">
-            <button pButton pRipple label="Buscar Caso" icon="pi pi-search" class="p-button-outlined p-button-secondary shadow-2 bg-white"
+            <button *ngIf="!isSolicitanteUser" pButton pRipple label="Buscar Caso" icon="pi pi-search" class="p-button-outlined p-button-secondary shadow-2 bg-white"
                 (click)="openSearchDialog()" pTooltip="Buscar un caso por ID" tooltipPosition="bottom"></button>
             <button pButton pRipple label="Nuevo Caso" icon="pi pi-plus" class="p-button-primary shadow-2"
                 (click)="createNew()"></button>

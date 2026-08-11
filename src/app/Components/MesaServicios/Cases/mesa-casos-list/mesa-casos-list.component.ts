@@ -86,19 +86,43 @@ export class MesaCasosListComponent implements OnInit {
     return this.userRoleCode === 'ADM' || this.userRoleCode === 'AG' || this.isLocalTi;
   }
 
+  get isSolicitanteUser(): boolean {
+    return ['SO', 'SOLICITANTE', 'MESAUSR'].includes(this.userRoleCode);
+  }
+
   get casosRecibidos(): any[] {
-    return this.casos.filter(c => 
-      c.servicioId === this.userServiceId || 
-      (c.asignaciones && c.asignaciones.some((a: any) => a.usuarioId === this.userId))
-    );
+    return this.casos.filter(c => {
+      // Excepción para Agentes:
+      if (this.userRoleCode === 'AG' || this.userRoleCode === 'AGENTE') {
+        if (c.estado === 'CERRADO') return false;
+        
+        const isAssignedToMe = c.asignaciones && c.asignaciones.some((a: any) => a.usuarioId === this.userId);
+        const isUnassigned = !c.asignaciones || c.asignaciones.length === 0;
+
+        if (c.estado === 'NUEVO' && isUnassigned) return true;
+        if (['EN_CURSO', 'EN_ESPERA', 'RESUELTO'].includes(c.estado) && isAssignedToMe) return true;
+
+        return false;
+      }
+      
+      // Default:
+      return c.servicioId === this.userServiceId || 
+             (c.asignaciones && c.asignaciones.some((a: any) => a.usuarioId === this.userId));
+    });
   }
 
   get casosSolicitados(): any[] {
-    return this.casos.filter(c => 
-      c.servicioSolicitanteId === this.userServiceId || 
-      c.creadorId === this.userId || 
-      c.creador?.id === this.userId
-    );
+    return this.casos.filter(c => {
+      // Excepción para Agentes: no ver casos solicitados de otros usuarios
+      if (this.userRoleCode === 'AG' || this.userRoleCode === 'AGENTE') {
+        return c.creadorId === this.userId || c.creador?.id === this.userId;
+      }
+
+      // Default:
+      return c.servicioSolicitanteId === this.userServiceId || 
+             c.creadorId === this.userId || 
+             c.creador?.id === this.userId;
+    });
   }
 
   activeTab: string = 'recibidos';

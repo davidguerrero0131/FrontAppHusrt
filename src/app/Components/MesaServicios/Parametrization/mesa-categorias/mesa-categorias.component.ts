@@ -48,6 +48,10 @@ export class MesaCategoriasComponent implements OnInit {
   displayCategoryDialog: boolean = false;
   newCategory: any = { nombre: '', descripcion: '' };
 
+  // Edit Category Dialog
+  displayEditCategoryDialog: boolean = false;
+  editingCategory: any = { id: 0, nombre: '', descripcion: '' };
+
   // Create Subcategory Dialog
   displaySubCategoryDialog: boolean = false;
   selectedCategoriaForSub: any = null;
@@ -56,6 +60,10 @@ export class MesaCategoriasComponent implements OnInit {
   // Manage Subcategories Dialog
   displaySubManageDialog: boolean = false;
   selectedCategoryForManage: any = null;
+
+  // Edit Subcategory Dialog
+  displayEditSubCategoryDialog: boolean = false;
+  editingSubCategory: any = { id: 0, nombre: '', descripcion: '' };
 
   constructor(
     private mesaService: MesaService,
@@ -176,6 +184,26 @@ export class MesaCategoriasComponent implements OnInit {
     });
   }
 
+  openEditCategory(categoria: any) {
+    this.editingCategory = { ...categoria };
+    this.displayEditCategoryDialog = true;
+  }
+
+  updateCategory() {
+    if (!this.editingCategory.nombre) return;
+
+    this.mesaService.updateCategoria(this.editingCategory.id, this.editingCategory).subscribe({
+      next: (res) => {
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Categoría actualizada' });
+        this.displayEditCategoryDialog = false;
+        this.loadCategorias();
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Falló al actualizar categoría' });
+      }
+    });
+  }
+
   openNewSubCategory(categoria: any) {
     this.selectedCategoriaForSub = categoria;
     this.newSubCategory = { nombre: '', descripcion: '', categoriaId: categoria.id };
@@ -193,6 +221,26 @@ export class MesaCategoriasComponent implements OnInit {
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Falló al crear subcategoría' });
+      }
+    });
+  }
+
+  openEditSubCategory(subcategoria: any) {
+    this.editingSubCategory = { ...subcategoria };
+    this.displayEditSubCategoryDialog = true;
+  }
+
+  updateSubCategory() {
+    if (!this.editingSubCategory.nombre) return;
+
+    this.mesaService.updateSubcategoria(this.editingSubCategory.id, this.editingSubCategory).subscribe({
+      next: (res) => {
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Subcategoría actualizada' });
+        this.displayEditSubCategoryDialog = false;
+        this.loadCategorias();
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Falló al actualizar subcategoría' });
       }
     });
   }
