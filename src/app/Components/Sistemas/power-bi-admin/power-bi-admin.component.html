@@ -21,22 +21,20 @@
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-dash>
-            <tr>
+            <tr class="cursor-pointer hover:surface-hover" (click)="openVisor(dash)">
                 <td>{{dash.id}}</td>
                 <td class="font-bold">{{dash.nombre}}</td>
                 <td>{{dash.descripcion || 'N/A'}}</td>
                 <td>
                     <p-tag [value]="dash.activo ? 'ACTIVO' : 'INACTIVO'" [severity]="dash.activo ? 'success' : 'danger'"></p-tag>
                 </td>
-                <td class="text-center">
+                <td class="text-center" (click)="$event.stopPropagation()">
                     <p-tag severity="info" [value]="(dash.usuariosAsignados?.length || 0) + ' Responsables'" class="cursor-pointer" (click)="openAssign(dash)"></p-tag>
                 </td>
-                <td class="text-center">
-                    <div class="flex gap-2 justify-content-center">
-                        <button pButton icon="pi pi-users" class="p-button-rounded p-button-text p-button-info" pTooltip="Asignar Responsables" (click)="openAssign(dash)"></button>
-                        <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-warning" pTooltip="Editar" (click)="openEdit(dash)"></button>
-                        <button pButton [icon]="dash.activo ? 'pi pi-power-off' : 'pi pi-check'" class="p-button-rounded p-button-text" [ngClass]="dash.activo ? 'p-button-danger' : 'p-button-success'" [pTooltip]="dash.activo ? 'Desactivar' : 'Activar'" (click)="toggleDashboard(dash)"></button>
-                        <button pButton icon="pi pi-list" class="p-button-rounded p-button-text p-button-secondary" pTooltip="Ver Bitácora" (click)="openBitacora(dash)"></button>
+                <td class="text-center" (click)="$event.stopPropagation()">
+                    <div class="flex justify-content-center">
+                        <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-secondary" (click)="menu.toggle($event)"></button>
+                        <p-menu #menu [model]="getMenuItems(dash)" [popup]="true" appendTo="body"></p-menu>
                     </div>
                 </td>
             </tr>
@@ -119,4 +117,11 @@
             <tr><td colspan="4" class="text-center p-4">No hay registros en la bitácora.</td></tr>
         </ng-template>
     </p-table>
+</p-dialog>
+
+<!-- Modal Visualizar Tablero -->
+<p-dialog [(visible)]="displayVisorDialog" [modal]="true" [maximizable]="true" [style]="{width: '95vw', height: '95vh'}" [header]="selectedDashboardToView?.nombre" styleClass="p-fluid">
+    <div class="w-full h-full flex justify-content-center align-items-center bg-gray-50 border-round overflow-hidden" style="min-height: 80vh;">
+        <iframe *ngIf="safeIframeUrl" [src]="safeIframeUrl" frameborder="0" allowFullScreen="true" class="w-full h-full" style="min-height: 80vh;"></iframe>
+    </div>
 </p-dialog>

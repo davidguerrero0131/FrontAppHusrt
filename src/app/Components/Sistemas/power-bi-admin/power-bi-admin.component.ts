@@ -1,16 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { MenuModule } from 'primeng/menu';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextarea } from 'primeng/inputtextarea';
 import { ToastModule } from 'primeng/toast';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { MessageService, ConfirmationService, MenuItem } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { jwtDecode } from 'jwt-decode';
 
@@ -23,7 +25,7 @@ import { UserService } from '../../../Services/appServices/userServices/user.ser
   imports: [
     CommonModule, FormsModule, TableModule, ButtonModule, DialogModule,
     InputTextModule, InputTextarea, ToastModule, MultiSelectModule,
-    TagModule, TooltipModule, ConfirmDialogModule
+    TagModule, TooltipModule, ConfirmDialogModule, MenuModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './power-bi-admin.component.html',
@@ -46,10 +48,15 @@ export class PowerBiAdminComponent implements OnInit {
   bitacora: any[] = [];
   selectedDashboardName: string = '';
 
+  displayVisorDialog: boolean = false;
+  selectedDashboardToView: any = null;
+  safeIframeUrl: SafeResourceUrl | null = null;
+
   constructor(
     private powerBiService: PowerBiService,
     private userService: UserService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
@@ -155,5 +162,49 @@ export class PowerBiAdminComponent implements OnInit {
         this.displayBitacoraDialog = true;
       }
     });
+  }
+
+  extractIframeSrc(iframeStr: string): string {
+    if (!iframeStr) return '';
+    if (!iframeStr.includes('<iframe')) return iframeStr.trim();
+    const srcMatch = iframeStr.match(/src\s*=\s*["']([^"']+)["']/i);
+    return srcMatch ? srcMatch[1] : '';
+  }
+
+  openVisor(dash: any) {
+    this.selectedDashboardToView = dash;
+    const url = this.extractIframeSrc(dash.url_iframe);
+    this.safeIframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    this.displayVisorDialog = true;
+  }
+
+  getMenuItems(dash: any): MenuItem[] {
+    return [
+      {
+        label: 'Visualizar',
+        icon: 'pi pi-eye',
+        command: () => this.openVisor(dash)
+      },
+      {
+        label: 'Asignar',
+        icon: 'pi pi-users',
+        command: () => this.openAssign(dash)
+      },
+      {
+        label: 'Editar',
+        icon: 'pi pi-pencil',
+        command: () => this.openEdit(dash)
+      },
+      {
+        label: dash.activo ? 'Desactivar' : 'Activar',
+        icon: dash.activo ? 'pi pi-power-off' : 'pi pi-check',
+        command: () => this.toggleDashboard(dash)
+      },
+      {
+        label: 'Bitácora',
+        icon: 'pi pi-list',
+        command: () => this.openBitacora(dash)
+      }
+    ];
   }
 }
