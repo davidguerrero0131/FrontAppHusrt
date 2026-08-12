@@ -51,6 +51,7 @@ export class AdminespaciosnavbarComponent implements OnInit, OnDestroy {
           routerLink: '/adminmesaservicios/casos'
         }
       ];
+    if (this.items) { this.items.push({ label: 'Portal Interno', icon: 'pi pi-building', routerLink: '/interno' }); }
 
       this.mesaService.notificationsUpdated.subscribe(() => this.fetchPendingCount());
       this.startPolling();

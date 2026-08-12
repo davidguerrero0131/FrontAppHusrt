@@ -39,6 +39,7 @@ export class IndustrialesNavbarComponent implements OnInit {
         ]
       }
     ];
+    if (this.items) { this.items.push({ label: 'Portal Interno', icon: 'pi pi-building', routerLink: '/interno' }); }
   }
 
   displayRole: string = '';

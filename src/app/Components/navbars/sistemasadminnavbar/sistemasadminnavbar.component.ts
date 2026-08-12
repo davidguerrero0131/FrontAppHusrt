@@ -52,6 +52,7 @@ export class SistemasadminnavbarComponent implements OnInit, OnDestroy {
       },
       // Add more items here if discovered
     ];
+    if (this.items) { this.items.push({ label: 'Portal Interno', icon: 'pi pi-building', routerLink: '/interno' }); }
     this.mesaService.notificationsUpdated.subscribe(() => this.fetchPendingCount());
         this.startPolling();
   }

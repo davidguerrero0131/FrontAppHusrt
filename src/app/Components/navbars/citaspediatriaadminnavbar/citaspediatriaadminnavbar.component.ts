@@ -40,6 +40,7 @@ export class CitaspediatriaadminnavbarComponent implements OnInit {
         routerLink: '/servinte/citasmadrecanguro/stats'
       }
     ];
+    if (this.items) { this.items.push({ label: 'Portal Interno', icon: 'pi pi-building', routerLink: '/interno' }); }
   }
 
   navigateToAbout() {

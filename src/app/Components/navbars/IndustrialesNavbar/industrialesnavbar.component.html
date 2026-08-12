@@ -1,14 +1,14 @@
 <div class="menubar-wrapper" *ngIf="isVisible">
   <p-menubar [model]="items" styleClass="glass-navbar border-none">
     <ng-template pTemplate="start">
-      <div class="logo-container flex align-items-center gap-2 px-2 cursor-pointer" [routerLink]="homeLink">
+  <div class="logo-container flex align-items-center gap-2 px-2 cursor-pointer" [routerLink]="homeLink">
         <img src="LogoAgora.png" height="50" alt="Logo" />
         <div class="flex flex-column">
           <span class="font-bold text-primary text-xl">Industrial</span>
           <span class="text-xs text-secondary font-medium">{{ displayRole }}</span>
         </div>
       </div>
-    </ng-template>
+</ng-template>
 
     <ng-template pTemplate="end">
       <div class="flex align-items-center gap-2">

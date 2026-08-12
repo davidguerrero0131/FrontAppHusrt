@@ -75,6 +75,7 @@ export class BiomedicausernavbarComponent implements OnInit, OnDestroy {
                 routerLink: '/adminmesaservicios/casos'
             }
         ];
+    if (this.items) { this.items.push({ label: 'Portal Interno', icon: 'pi pi-building', routerLink: '/interno' }); }
 
         const token = sessionStorage.getItem('utoken');
         if (token) {

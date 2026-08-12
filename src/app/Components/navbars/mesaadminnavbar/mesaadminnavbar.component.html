@@ -1,12 +1,12 @@
 <div class="menubar-wrapper">
     <p-menubar [model]="items" styleClass="glass-navbar border-none border-round-xl">
         <ng-template pTemplate="start">
-            <div class="flex align-items-center gap-2 mr-4 logo-container">
+  <div class="flex align-items-center gap-2 mr-4 logo-container">
                 <img src="LogoAgora.png" height="40" alt="Logo" />
                 <a class="text-xl font-bold text-color no-underline" routerLink="/adminmesaservicios"
                     style="cursor: pointer;">{{ themeService.getThemeConfig().appName || 'ORBIX' }}</a>
             </div>
-        </ng-template>
+</ng-template>
 
         <ng-template pTemplate="end">
             <div class="flex align-items-center gap-3 actions-container">

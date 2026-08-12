@@ -58,6 +58,7 @@ export class NavbardashboardadminComponent implements OnInit {
         routerLink: mesaRoute
       }
     ];
+    if (this.items) { this.items.push({ label: 'Portal Interno', icon: 'pi pi-building', routerLink: '/interno' }); }
   }
 
   navigateToAbout() {

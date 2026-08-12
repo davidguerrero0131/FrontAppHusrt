@@ -35,6 +35,7 @@ export class CitaspediatriausernavbarComponent implements OnInit {
         routerLink: '/servinte/citasmadrecanguro/creacion'
       }
     ];
+    if (this.items) { this.items.push({ label: 'Portal Interno', icon: 'pi pi-building', routerLink: '/interno' }); }
   }
 
   navigateToAbout() {

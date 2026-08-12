@@ -1,14 +1,14 @@
 <div class="card border-0 shadow-sm rounded-0 mb-4">
     <p-menubar [model]="items" styleClass="border-none bg-surface-0 border-round-xl">
         <ng-template #start>
-            <div class="flex align-items-center gap-2 mr-4 cursor-pointer" routerLink="/usersistemas">
+  <div class="flex align-items-center gap-2 mr-4 cursor-pointer" routerLink="/usersistemas">
                 <img src="LogoAgora.png" height="40" alt="Logo" />
                 <div class="flex flex-column">
                     <span class="font-bold text-primary text-lg">{{ themeService.getThemeConfig().appName }}</span>
                     <span class="text-xs text-secondary">Sistemas</span>
                 </div>
             </div>
-        </ng-template>
+</ng-template>
 
         <ng-template #end>
             <div class="flex align-items-center gap-3">

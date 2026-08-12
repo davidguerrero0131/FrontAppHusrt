@@ -1,14 +1,14 @@
 <div class="menubar-wrapper">
   <p-menubar [model]="items" styleClass="glass-navbar border-none border-round-xl">
     <ng-template pTemplate="start">
-      <a class="logo-container flex align-items-center gap-2 px-2 nav-link-container" routerLink="/dashboardadmin">
+  <a class="logo-container flex align-items-center gap-2 px-2 nav-link-container" routerLink="/dashboardadmin">
         <img src="LogoAgora.png" height="40" alt="Logo" />
         <div class="flex flex-column">
           <span class="font-bold text-primary text-lg">{{ themeService.getThemeConfig().appName }}</span>
           <span class="text-xs text-secondary">Dashboard Admin</span>
         </div>
       </a>
-    </ng-template>
+</ng-template>
 
     <ng-template pTemplate="end">
       <div class="flex align-items-center gap-2">
