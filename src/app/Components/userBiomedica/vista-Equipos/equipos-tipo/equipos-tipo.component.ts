@@ -127,7 +127,11 @@ export class EquiposTipoComponent implements OnInit {
     const equiposData = await this.equipoServices.getAllEquiposTipo(idTipo);
 
     if (['BIOMEDICAADMIN', 'BIOMEDICAUSER', 'SUPERADMIN', 'BIOMEDICATECNICO'].includes(getDecodedAccessToken().rol)) {
-      this.serviciosList = await this.servicioServices.getAllServicios();
+      const servicios = await this.servicioServices.getAllServicios();
+      this.serviciosList = servicios.map((s: any) => ({
+        ...s,
+        nombresConSede: s.sede?.nombres ? `${s.nombres} - ${s.sede.nombres}` : s.nombres
+      }));
     }
 
     this.equipos = this.mapEquipos(equiposData);

@@ -147,7 +147,7 @@
 </div>
 
 <p-dialog header="Editar Plan de Mantenimiento" [(visible)]="displayPlanDialog" [modal]="true"
-    styleClass="standard-modal modal-md" [draggable]="false" [resizable]="false">
+    [style]="{width: '70vw'}" [breakpoints]="{'1199px': '85vw', '575px': '95vw'}" styleClass="standard-modal modal-md" [draggable]="false" [resizable]="false">
     <div class="p-fluid">
       <div class="field-checkbox mb-4 flex align-items-center gap-2">
         <p-checkbox [(ngModel)]="libreMantenimiento" [binary]="true" inputId="libreMantenimiento" (onChange)="calcularFechas()"></p-checkbox>
@@ -187,7 +187,7 @@
 </p-dialog>
 
 <p-dialog header="Editar Plan de Actividades Metrol&oacute;gicas" [(visible)]="displayPlanMetrologiaDialog"
-      styleClass="standard-modal modal-md" [draggable]="false" [resizable]="false" [modal]="true">
+      [style]="{width: '70vw'}" [breakpoints]="{'1199px': '85vw', '575px': '95vw'}" styleClass="standard-modal modal-md" [draggable]="false" [resizable]="false" [modal]="true">
       <div class="p-fluid">
         <div class="field-checkbox mb-4 flex align-items-center gap-2">
           <p-checkbox [(ngModel)]="libreActividadesMetrologicas" [binary]="true" inputId="libreActividadesMetrologicas" 
@@ -235,7 +235,7 @@
 
 <!-- Modal Registrar Traslado -->
 <p-dialog header="Registrar Traslado de Equipo" [(visible)]="displayTrasladoDialog" [modal]="true"
-  [style]="{width: '50vw'}" [draggable]="false" [resizable]="false">
+  [style]="{width: '70vw'}" [breakpoints]="{'1199px': '85vw', '575px': '95vw'}" [draggable]="false" [resizable]="false">
   <div class="p-fluid" *ngIf="selectedEquipoTraslado">
     <!-- Detalles del Equipo -->
     <div class="surface-ground p-3 border-round mb-4">
@@ -293,8 +293,8 @@
 
         <div class="col-12 md:col-4 mb-3">
           <label for="servicioDestino" class="font-medium text-900 block mb-2">Servicio Destino</label>
-          <p-select [options]="serviciosList" [(ngModel)]="servicioDestinoId" optionLabel="nombres" optionValue="id"
-            placeholder="Seleccione un servicio" [filter]="true" filterBy="nombres" appendTo="body"
+          <p-select [options]="serviciosList" [(ngModel)]="servicioDestinoId" optionLabel="nombresConSede" optionValue="id"
+            placeholder="Seleccione un servicio" [filter]="true" filterBy="nombresConSede" appendTo="body"
             styleClass="w-full"></p-select>
         </div>
         <div class="col-12 md:col-4 mb-3">
@@ -365,7 +365,7 @@
 
 <!-- Modal Historial Unificado -->
 <p-dialog header="Historial del Equipo" [(visible)]="displayHistorialTrasladosDialog" [modal]="true"
-  [style]="{width: '70vw'}" [draggable]="false" [resizable]="false">
+  [style]="{width: '70vw'}" [breakpoints]="{'1199px': '85vw', '575px': '95vw'}" [draggable]="false" [resizable]="false">
   <p-table [value]="historialUnificado" [paginator]="true" [rows]="10" styleClass="p-datatable-sm"
     responsiveLayout="scroll" [showCurrentPageReport]="true"
     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
@@ -398,7 +398,7 @@
 
 <!-- Modal Registrar Actividad Metrol&oacute;gica -->
 <p-dialog header="Registrar Actividad Metrol&oacute;gica" [modal]="true" [(visible)]="modalAddActividadMetrologica"
-  styleClass="standard-modal modal-lg" [maximizable]="false" [style]="{width: '50vw'}">
+  styleClass="standard-modal modal-lg" [maximizable]="false" [style]="{width: '70vw'}" [breakpoints]="{'1199px': '85vw', '575px': '95vw'}">
 
   <div class="form-grid" style="width: 100%;" *ngIf="currentEquipo">
 
