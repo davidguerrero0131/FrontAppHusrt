@@ -34,6 +34,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { CheckboxModule } from 'primeng/checkbox';
 import { API_URL } from '../../../../constantes';
 
 @Component({
@@ -43,7 +44,7 @@ import { API_URL } from '../../../../constantes';
     CommonModule, FormsModule, CardModule, ButtonModule, TextareaModule,
     TagModule, PanelModule, DialogModule, RatingModule, ToastModule, ConfirmDialogModule,
     FileUploadModule, SelectModule, ChipModule, RouterModule, EditorModule, ImageModule, TooltipModule,
-    AutoCompleteModule, InputTextModule, OverlayPanelModule
+    AutoCompleteModule, InputTextModule, OverlayPanelModule, CheckboxModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './mesa-caso-detail.component.html',
