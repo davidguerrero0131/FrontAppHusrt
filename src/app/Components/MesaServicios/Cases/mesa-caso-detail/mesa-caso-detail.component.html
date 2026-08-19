@@ -206,9 +206,13 @@
                                 </div>
                                 <div class="col-12 p-2 border-bottom-1 border-200">
                                     <span class="meta-label text-blue-700"><i class="pi pi-flag mr-1"></i> Prioridad</span>
-                                    <div class="mt-1">
+                                    <div class="mt-1 flex align-items-center justify-content-between">
                                         <p-tag [value]="caso.prioridad" 
                                             [severity]="caso.prioridad === 'ALTA' || caso.prioridad === 'CRITICA' ? 'danger' : 'info'"></p-tag>
+                                        <div class="flex align-items-center gap-2" *ngIf="caso.disponivilidad" pTooltip="Resuelto en horario de disponibilidad" tooltipPosition="top">
+                                            <i class="pi pi-moon text-purple-600"></i>
+                                            <span class="text-xs font-bold text-purple-600">Disponibilidad</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-12 p-2">
@@ -240,6 +244,10 @@
                                     <p-select [options]="prioridades" [(ngModel)]="selectedPrioridad" optionLabel="label" optionValue="value"
                                         placeholder="Seleccione la prioridad" styleClass="w-full">
                                     </p-select>
+                                </div>
+                                <div class="col-12 mt-3 flex align-items-center gap-2">
+                                    <p-checkbox [(ngModel)]="selectedDisponivilidad" [binary]="true" inputId="dispCheck"></p-checkbox>
+                                    <label for="dispCheck" class="text-sm font-bold text-700 cursor-pointer">Fue resuelto en disponibilidad</label>
                                 </div>
                                 <div class="col-12 mt-3 flex gap-2">
                                     <button pButton label="Cancelar" icon="pi pi-times" class="p-button-secondary p-button-outlined p-button-sm w-full"
@@ -283,14 +291,15 @@
                 </div>
 
                 <!-- Calificación Card -->
-                <div class="meta-card" *ngIf="caso.estado === 'CERRADO' && caso.calificacion">
+                <div class="meta-card" *ngIf="caso.estado === 'CERRADO'">
                     <div class="meta-card-title flex justify-content-between align-items-center mb-4">
                         <div class="flex align-items-center gap-2">
                             <i class="pi pi-star-fill text-yellow-500"></i>
                             <span>Calificación del Caso</span>
                         </div>
                     </div>
-                    <div class="flex flex-column gap-3">
+                    
+                    <div *ngIf="caso.calificacion" class="flex flex-column gap-3">
                         <div class="flex align-items-center justify-content-center">
                             <div class="text-4xl line-height-1">
                                 {{ getRatingEmoji(caso.calificacion?.calificacion) }}
@@ -305,6 +314,11 @@
                         <div class="text-xs text-500 text-center mt-2">
                             <i class="pi pi-calendar mr-1"></i> {{ caso.calificacion?.fecha | date:'mediumDate' }}
                         </div>
+                    </div>
+
+                    <div *ngIf="!caso.calificacion" class="text-center py-3">
+                        <p class="text-500 text-sm m-0 mb-3 font-italic">Este caso aún no ha sido calificado.</p>
+                        <button *ngIf="caso.creadorId === userId" pButton label="Calificar Servicio" icon="pi pi-star" class="p-button-warning p-button-sm w-full font-bold" (click)="openRatingDialog()"></button>
                     </div>
                 </div>
             </aside>
@@ -762,5 +776,31 @@
     </ng-template>
     <ng-template pTemplate="footer">
         <button pButton label="Cerrar" icon="pi pi-times" class="p-button-text p-button-secondary w-full" (click)="displayHistoryDialog = false"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog header="Calificar Servicio" [(visible)]="displayRatingDialog" [modal]="true" [style]="{width: '450px'}" [closable]="true" [dismissableMask]="true">
+    <div class="flex flex-column align-items-center gap-4 py-4">
+        <h3 class="m-0 text-center text-700">¿Qué tan satisfecho está con la solución a su caso?</h3>
+        
+        <div class="flex justify-content-between w-full px-3">
+            <div *ngFor="let emoji of emojis" 
+                 class="flex flex-column align-items-center cursor-pointer transition-transform transition-duration-200"
+                 [class.scale-125]="ratingValue === emoji.value"
+                 [style.opacity]="ratingValue === 0 || ratingValue === emoji.value ? '1' : '0.5'"
+                 (click)="selectRating(emoji.value)">
+                <span class="text-5xl hover:scale-110 mb-2">{{emoji.icon}}</span>
+                <span class="text-sm font-medium" [class.text-primary]="ratingValue === emoji.value">{{emoji.label}}</span>
+            </div>
+        </div>
+
+        <div class="w-full mt-3">
+            <label class="block text-600 font-medium mb-2">Comentarios (Opcional)</label>
+            <textarea pInputTextarea [(ngModel)]="ratingComment" rows="3" class="w-full p-inputtext-sm" placeholder="Cuéntenos más sobre su experiencia..."></textarea>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text" (click)="displayRatingDialog = false"></button>
+        <button pButton label="Enviar Calificación" icon="pi pi-send" class="p-button-primary" (click)="submitRating()" [disabled]="!ratingValue"></button>
     </ng-template>
 </p-dialog>

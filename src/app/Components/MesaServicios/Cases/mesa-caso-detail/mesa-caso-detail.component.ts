@@ -166,7 +166,9 @@ export class MesaCasoDetailComponent implements OnInit {
   reportSelected: any = null;
   rutina: any[] = [];
 
+  selectedSumerce: string = '';
   selectedPrioridad: string = '';
+  selectedDisponivilidad: boolean = false;
   prioridades: any[] = [
     { label: 'BAJA', value: 'BAJA' },
     { label: 'MEDIA', value: 'MEDIA' },
@@ -201,6 +203,7 @@ export class MesaCasoDetailComponent implements OnInit {
     this.selectedCategoria = this.caso?.categoria;
     this.selectedSubcategoria = this.caso?.subcategoria;
     this.selectedPrioridad = this.caso?.prioridad || '';
+    this.selectedDisponivilidad = this.caso?.disponivilidad || false;
     
     if (this.caso?.servicioId || this.caso?.servicio?.id) {
       const sId = this.caso.servicioId || this.caso.servicio.id;
@@ -243,6 +246,7 @@ export class MesaCasoDetailComponent implements OnInit {
         categoriaId: this.selectedCategoria.id,
         subcategoriaId: this.selectedSubcategoria ? this.selectedSubcategoria.id : null,
         prioridad: this.selectedPrioridad,
+        disponivilidad: this.selectedDisponivilidad,
         usuarioId: this.userId
     };
 
@@ -626,6 +630,11 @@ export class MesaCasoDetailComponent implements OnInit {
         if (this.caso.mensajes) {
           this.caso.mensajes.sort((a: any, b: any) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
         }
+
+        // Abrir automáticamente modal de calificación si está cerrado, no tiene calificación y el usuario es el creador
+        if (this.caso.estado === 'CERRADO' && !this.caso.calificacion && this.caso.creadorId === this.userId) {
+          this.openRatingDialog();
+        }
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar el caso' });
@@ -957,5 +966,47 @@ export class MesaCasoDetailComponent implements OnInit {
       case 5: return 'Excelente';
       default: return 'Sin calificar';
     }
+  }
+
+  openRatingDialog() {
+    this.displayRatingDialog = true;
+    this.ratingValue = 0;
+    this.ratingComment = '';
+  }
+
+  emojis = [
+    { value: 1, icon: '😠', label: 'Muy Malo' },
+    { value: 2, icon: '🙁', label: 'Malo' },
+    { value: 3, icon: '😐', label: 'Regular' },
+    { value: 4, icon: '🙂', label: 'Bueno' },
+    { value: 5, icon: '🤩', label: 'Excelente' }
+  ];
+
+  selectRating(value: number) {
+    this.ratingValue = value;
+  }
+
+  submitRating() {
+    if (this.ratingValue < 1 || this.ratingValue > 5) {
+      this.messageService.add({ severity: 'warn', summary: 'Requerido', detail: 'Debe seleccionar una calificación entre 1 y 5' });
+      return;
+    }
+
+    const payload = {
+      usuarioId: this.userId,
+      calificacion: this.ratingValue,
+      comentario: this.ratingComment
+    };
+
+    this.mesaService.rateCaso(this.casoId, payload).subscribe({
+      next: (res: any) => {
+        this.displayRatingDialog = false;
+        this.messageService.add({ severity: 'success', summary: 'Gracias', detail: 'Calificación guardada exitosamente' });
+        this.loadCaso();
+      },
+      error: (err: any) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'No se pudo guardar la calificación' });
+      }
+    });
   }
 }
