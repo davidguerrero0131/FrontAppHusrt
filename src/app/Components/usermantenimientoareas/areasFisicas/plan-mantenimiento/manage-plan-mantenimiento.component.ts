@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
@@ -9,7 +10,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { TooltipModule } from 'primeng/tooltip';
 import { PlanMantenimientoService } from '../../../../Services/appServices/areasFisicas/plan-mantenimiento.service';
 import { AreasService } from '../../../../Services/appServices/areasFisicas/areas.service';
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import Swal from 'sweetalert2';
 
 import { DividerModule } from 'primeng/divider';
@@ -21,7 +22,7 @@ import { createHeaders } from '../../../../utilidades';
 @Component({
     selector: 'app-manage-plan-mantenimiento',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormsModule, InputTextModule, ButtonModule, SelectModule, InputNumberModule, TooltipModule, MantenimientoadminnavbarComponent, DividerModule],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, InputTextModule, ButtonModule, SelectModule, InputNumberModule, TooltipModule, AppNavbarComponent, DividerModule],
     templateUrl: './manage-plan-mantenimiento.component.html',
     styleUrls: ['./manage-plan-mantenimiento.component.css']
 })

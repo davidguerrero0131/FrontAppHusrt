@@ -1,9 +1,10 @@
+import { AppNavbarComponent } from '../../../../navbars/app-navbar/app-navbar.component';
 import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CitaspediatriaadminnavbarComponent } from '../../../../navbars/citaspediatriaadminnavbar/citaspediatriaadminnavbar.component';
-import { CitaspediatriausernavbarComponent } from '../../../../navbars/citaspediatriausernavbar/citaspediatriausernavbar.component';
+
+
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -21,7 +22,7 @@ import { TextareaModule } from 'primeng/textarea';
 @Component({
   selector: 'app-gestion-citas',
   standalone: true,
-  imports: [CitaspediatriaadminnavbarComponent, CitaspediatriausernavbarComponent, CommonModule, FormsModule, InputTextModule, ButtonModule, CardModule, TableModule, IconFieldModule, InputIconModule, SelectModule, DatePickerModule, DialogModule, TagModule, TextareaModule],
+  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, CardModule, TableModule, IconFieldModule, InputIconModule, SelectModule, DatePickerModule, DialogModule, TagModule, TextareaModule],
   templateUrl: './gestion-citas.component.html',
   styleUrl: './gestion-citas.component.css'
 })

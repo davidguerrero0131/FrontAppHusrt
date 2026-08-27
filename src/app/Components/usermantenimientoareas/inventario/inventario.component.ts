@@ -1,16 +1,17 @@
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
-import { MantenimientoadminnavbarComponent } from '../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { getDecodedAccessToken } from '../../../utilidades';
 
 @Component({
   selector: 'app-inventario',
   standalone: true,
-  imports: [CommonModule, ButtonModule, SelectModule, FormsModule, MantenimientoadminnavbarComponent],
+  imports: [CommonModule, ButtonModule, SelectModule, FormsModule, AppNavbarComponent],
   templateUrl: './inventario.component.html',
   styleUrl: './inventario.component.css'
 })

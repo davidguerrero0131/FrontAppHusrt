@@ -1,3 +1,5 @@
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +11,7 @@ import { firstValueFrom } from 'rxjs';
 @Component({
   selector: 'app-clasificacion-servicio-sis',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule],
   templateUrl: './clasificacion-servicio-sis.component.html',
   styleUrl: './clasificacion-servicio-sis.component.css'
 })

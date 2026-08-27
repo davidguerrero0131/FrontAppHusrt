@@ -22,17 +22,23 @@ export class AccessDeniedComponent {
             try {
                 const decoded: any = jwtDecode(token);
                 const role = decoded.rol;
+                const modulos = decoded.modulos || [];
+
+                if (modulos.length > 0) {
+                    this.router.navigate(['/homeuser']);
+                    return;
+                }
 
                 switch (role) {
                     case 'SUPERADMIN':
-                        this.router.navigate(['/superadmin']);
+                        this.router.navigate(['/homeuser']);
                         break;
                     case 'BIOMEDICAADMIN':
                         this.router.navigate(['/adminbiomedica']);
                         break;
                     case 'BIOMEDICAUSER':
                     case 'BIOMEDICATECNICO':
-                        this.router.navigate(['/userbiomedica']);
+                        this.router.navigate(['/gestion-operativa']);
                         break;
                     case 'INVITADO':
                         this.router.navigate(['/biomedica/home-invitado']);

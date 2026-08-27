@@ -5,7 +5,7 @@
         <p class="text-secondary text-lg">Preventivos asignados por realizar o completar</p>
     </div>
 
-    <div class="card border-0 shadow-sm border-round-xl surface-card p-4 mb-4">
+    <div class="premium-card mb-4">
         <div class="flex flex-column sm:flex-row justify-content-center align-items-center gap-3">
             <label class="font-bold text-lg text-700">Filtrar por Mes:</label>
             <div class="flex gap-2">
@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm border-round-xl surface-card p-4">
+    <div class="premium-card">
         <p-table #dtPendientes [value]="pendientes" dataKey="id" [paginator]="true" [rows]="10"
             [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
             [globalFilterFields]="['equipo.nombre_equipo', 'equipo.placa_inventario', 'equipo.ubicacion', 'mesProgramado', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'servicio.nombres']"

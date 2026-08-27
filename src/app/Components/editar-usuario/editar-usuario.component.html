@@ -104,7 +104,7 @@
 </div>
 
 <p-dialog header="Registrar Firma" [(visible)]="mostrarFirmaModal" [modal]="true" [style]="{width: '600px'}"
-  [draggable]="false" [resizable]="false">
+  [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
   <div class="flex flex-column align-items-center justify-content-center">
     <div style="border: 1px solid #ccc; border-radius: 5px;">
       <signature-pad [options]="signaturePadOptions"></signature-pad>
@@ -121,7 +121,7 @@
 </p-dialog>
 
 <p-dialog header="Cambiar Contrase&ntilde;a" [(visible)]="mostrarPasswordModal" [modal]="true"
-  [style]="{width: '500px', height: '600px'}" [draggable]="false" [resizable]="false">
+  [style]="{width: '500px', height: '600px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
   <div class="formgrid grid p-fluid">
     <div class="field col-12">
       <label for="contraseñaModal" class="font-medium text-900">Nueva Contrase&ntilde;a</label>

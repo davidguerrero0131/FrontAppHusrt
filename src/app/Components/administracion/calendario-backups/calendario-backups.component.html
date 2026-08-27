@@ -90,7 +90,7 @@
     [draggable]="false"
     [resizable]="false"
     [style]="{ width: '420px' }"
-    appendTo="body"
+    [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" appendTo="body"
     (onHide)="cerrarModalExport()">
 
     <ng-template pTemplate="header">
@@ -149,7 +149,7 @@
     [draggable]="false"
     [resizable]="false"
     [style]="{ width: '480px' }"
-    appendTo="body"
+    [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" appendTo="body"
     (onHide)="cerrarDetalle()">
 
     <ng-template pTemplate="header">

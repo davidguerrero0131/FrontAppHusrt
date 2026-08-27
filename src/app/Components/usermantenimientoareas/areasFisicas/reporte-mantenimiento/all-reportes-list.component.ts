@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common'; // Re-compiling to fix phantom errors
 import { Router, ActivatedRoute } from '@angular/router';
@@ -7,7 +8,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { ReporteMantenimientoService } from '../../../../Services/appServices/areasFisicas/reporte-mantenimiento.service';
 import { AreasService } from '../../../../Services/appServices/areasFisicas/areas.service';
 import { ElementosService } from '../../../../Services/appServices/areasFisicas/elementos.service';
@@ -21,7 +22,7 @@ import { InputTextModule } from 'primeng/inputtext';
 @Component({
     selector: 'app-all-reportes-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TooltipModule, TagModule, MantenimientoadminnavbarComponent, SelectModule, FormsModule, InputTextModule],
+    imports: [CommonModule, TableModule, ButtonModule, TooltipModule, TagModule, AppNavbarComponent, SelectModule, FormsModule, InputTextModule],
     templateUrl: './all-reportes-list.component.html',
     styleUrls: ['./all-reportes-list.component.css']
 })

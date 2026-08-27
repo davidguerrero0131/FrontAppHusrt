@@ -1,6 +1,4 @@
-import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { UserService } from '../../../Services/appServices/userServices/user.service';
 import { Router, RouterModule } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuItem } from 'primeng/api';
@@ -8,83 +6,116 @@ import { CommonModule } from '@angular/common';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { BadgeModule } from 'primeng/badge';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ThemeService } from '../../../Services/theme/theme.service';
-import { MesaService } from '../../../Services/mesa-servicios/mesa.service';
-import { interval, Subscription } from 'rxjs';
+import { NotificacionBackupService } from '../../../Services/appServices/biomedicaServices/backup/notificacion-backup.service';
+import { PanelAlertasBackupComponent } from '../panel-alertas-backup/panel-alertas-backup.component';
+import { getDecodedAccessToken } from '../../../utilidades';
 
 @Component({
   selector: 'app-sistemasadminnavbar',
   standalone: true,
-  imports: [MenubarModule, CommonModule, AvatarModule, ButtonModule, TooltipModule, RouterModule, BadgeModule, OverlayPanelModule],
+  imports: [MenubarModule, CommonModule, AvatarModule, ButtonModule, TooltipModule,
+            OverlayPanelModule, RouterModule, PanelAlertasBackupComponent],
   templateUrl: './sistemasadminnavbar.component.html',
   styleUrl: './sistemasadminnavbar.component.css'
 })
 export class SistemasadminnavbarComponent implements OnInit, OnDestroy {
-    userService = inject(UserService);
 
   items: MenuItem[] | undefined;
   themeService = inject(ThemeService);
-  mesaService = inject(MesaService);
-  
-  pendingCasesCount: number = 0;
-  notificaciones: any[] = [];
-  private pollingSub?: Subscription;
+  notificacionService = inject(NotificacionBackupService);
+  isSystemUser: boolean = false;
+  isTecnico: boolean = false;
 
-  constructor(private router: Router) { }
+  constructor(private router: Router) {
+    const decoded = getDecodedAccessToken();
+    this.isSystemUser = decoded?.rol === 'SYSTEMUSER';
+    this.isTecnico    = decoded?.rol === 'SISTEMASTECNICO';
+  }
 
   ngOnInit() {
-    this.items = [
-      {
-        label: 'Inicio',
-        icon: 'pi pi-home',
-        routerLink: '/adminsistemas'
-      },
-      {
-        label: 'Mesa de Servicios',
-        icon: 'pi pi-briefcase',
-        routerLink: '/adminmesaservicios/casos'
-      },
-      {
-        label: 'Usuarios',
-        icon: 'pi pi-users',
-        routerLink: '/admusuarios'
-      },
-      // Add more items here if discovered
+    this.notificacionService.iniciarPolling();
+
+    const inventarioItemsAdmin: MenuItem[] = [
+      { label: 'Tipos de Equipo',   icon: 'pi pi-th-large',   routerLink: '/adminsistemas/tiposequipo' },
+      { label: 'Dados de Baja',     icon: 'pi pi-ban',        routerLink: '/adminsistemas/equipos', queryParams: { vista: 'baja' } },
+      { label: 'Bodega',            icon: 'pi pi-inbox',      routerLink: '/adminsistemas/equipos', queryParams: { vista: 'bodega' } },
+      { label: 'Por Sede',          icon: 'pi pi-map-marker', routerLink: '/adminsistemas/equipossede' },
+      { label: 'Por Roles',         icon: 'pi pi-sitemap',    routerLink: '/adminsistemas/equiposservicio' },
     ];
-    if (this.items) { this.items.push({ label: 'Portal Interno', icon: 'pi pi-building', routerLink: '/interno' }); }
-    this.mesaService.notificationsUpdated.subscribe(() => this.fetchPendingCount());
-        this.startPolling();
-  }
 
-  ngOnDestroy() {
-    if (this.pollingSub) {
-      this.pollingSub.unsubscribe();
+    const mantenimientoItemsAdmin: MenuItem[] = [
+      { label: 'Programar Mantenimiento', icon: 'pi pi-calendar', routerLink: '/adminsistemas/planMantenimiento' },
+      { label: 'Todos los Mantenimientos', icon: 'pi pi-list',    routerLink: '/adminsistemas/mantenimientos' },
+    ];
+
+    const backupItems: MenuItem[] = [
+      { label: 'Sistemas de Información', icon: 'pi pi-list',     routerLink: '/admin/sistemasinformacion' },
+      { label: 'Calendario de Backups',   icon: 'pi pi-calendar', routerLink: '/admin/sistemasinformacion/backups' },
+    ];
+
+    const itemsAdmin: MenuItem[] = [
+      { label: 'Inicio',            icon: 'pi pi-home',      routerLink: '/adminsistemas' },
+      { label: 'Inventario',        icon: 'pi pi-box',       items: inventarioItemsAdmin },
+      { label: 'Mantenimiento',     icon: 'pi pi-wrench',    items: mantenimientoItemsAdmin },
+      { label: 'Backups',           icon: 'pi pi-database',  items: backupItems },
+      { label: 'Trazabilidad',      icon: 'pi pi-history',   routerLink: '/adminsistemas/trazabilidad' },
+      { label: 'Repuestos',         icon: 'pi pi-cog',       routerLink: '/adminsistemas/repuestos' },
+      { label: 'Parametrización',   icon: 'pi pi-sliders-h', routerLink: '/adminsistemas/parametrizacion' },
+      { label: 'Mesa de Servicios', icon: 'pi pi-briefcase', routerLink: '/adminmesaservicios/casos' },
+    ];
+
+    const inventarioItemsUser: MenuItem[] = [
+      { label: 'Tipos de Equipo',    icon: 'pi pi-th-large',   routerLink: '/adminsistemas/tiposequipo' },
+      { label: 'Por Servicio',       icon: 'pi pi-sitemap',    routerLink: '/adminsistemas/equiposservicio' },
+      { label: 'Por Sede',           icon: 'pi pi-map-marker', routerLink: '/adminsistemas/equipossede' },
+      { label: 'Equipos en Bodega',  icon: 'pi pi-inbox',      routerLink: '/adminsistemas/equipos', queryParams: { vista: 'bodega' } },
+      { label: 'Dados de Baja',      icon: 'pi pi-ban',        routerLink: '/adminsistemas/equipos', queryParams: { vista: 'baja' } },
+    ];
+
+    const itemsUser: MenuItem[] = [
+      { label: 'Inicio',          icon: 'pi pi-home',     routerLink: '/adminsistemas' },
+      { label: 'Inventario',      icon: 'pi pi-box',      items: inventarioItemsUser },
+      { label: 'Mantenimientos',  icon: 'pi pi-wrench',   routerLink: '/adminsistemas/mantenimientos' },
+      { label: 'Backups',         icon: 'pi pi-database', items: backupItems },
+      { label: 'Trazabilidad',    icon: 'pi pi-history',  routerLink: '/adminsistemas/trazabilidad' },
+      { label: 'Repuestos',       icon: 'pi pi-box',      routerLink: '/adminsistemas/repuestos' },
+      { label: 'Indicadores',     icon: 'pi pi-chart-bar',routerLink: '/adminsistemas/indicadores' },
+      { label: 'Mesa de Servicios', icon: 'pi pi-briefcase', routerLink: '/adminmesaservicios/casos' },
+    ];
+
+    const itemsTecnico: MenuItem[] = [
+      { label: 'Inicio',         icon: 'pi pi-home',      routerLink: '/adminsistemas' },
+      { label: 'Equipos',        icon: 'pi pi-desktop',   routerLink: '/adminsistemas/equipos' },
+      { label: 'Mantenimientos', icon: 'pi pi-wrench',    routerLink: '/adminsistemas/mantenimientos' },
+      { label: 'Plan Mtto.',     icon: 'pi pi-calendar',  routerLink: '/adminsistemas/planMantenimiento' },
+      { label: 'Backups',        icon: 'pi pi-database',  items: backupItems },
+      { label: 'Repuestos',      icon: 'pi pi-cog',       routerLink: '/adminsistemas/repuestos' },
+      { label: 'Mesa de Servicios', icon: 'pi pi-briefcase', routerLink: '/adminmesaservicios/casos' },
+    ];
+
+    if (this.isTecnico) {
+      this.items = itemsTecnico;
+    } else if (this.isSystemUser) {
+      this.items = itemsUser;
+    } else {
+      this.items = itemsAdmin;
     }
   }
 
-  startPolling() {
-    this.fetchPendingCount();
-    this.pollingSub = interval(60000).subscribe(() => this.fetchPendingCount());
-  }
-
-  fetchPendingCount() {
-    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('utoken')) {
-      this.mesaService.getCasosNotificaciones().subscribe({
-        next: (res: any) => {
-          this.pendingCasesCount = res.count || 0;
-          this.notificaciones = res.notificaciones || [];
-        },
-        error: (err) => console.error('Notifications Error', err)
-      });
-    }
-  }
-
-  viewPendingCases() {
-    this.router.navigate(['/adminmesaservicios/casos']);
+  ngOnDestroy(): void {
+    this.notificacionService.detenerPolling();
   }
 
   navigateToAbout() {
-        this.userService.logout();
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('utoken', '');
     }
+    this.router.navigate(['/login']);
+  }
+
+  viewUser() {
+    this.router.navigate(['/updateprofil']);
+  }
 }

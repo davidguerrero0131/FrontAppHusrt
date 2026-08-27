@@ -103,15 +103,15 @@ export class TipoEquipoService {
   }
 
   getTiposEquiposSistemas() {
-    return firstValueFrom(this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipos/sistemas`));
+    return firstValueFrom(this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipoSis`));
   }
 
   getTiposEquiposIndustrial() {
-    return firstValueFrom(this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipos/industrial`));
+    return firstValueFrom(this.httpClient.get<any[]>(`${this.baseUrl}/tiposequipoInd`));
   }
 
   getCantidadEquiposSistemas(idTipoEquipo: any) {
-    return firstValueFrom(this.httpClient.get<any>(`${this.baseUrl}/cantidadequipostipo/sistemas/${idTipoEquipo}`));
+    return firstValueFrom(this.httpClient.get<any>(`${this.baseUrl}/cantidadequipostiposis/${idTipoEquipo}`));
   }
 
   createTipoEquipo(data: any) {

@@ -456,7 +456,7 @@
 
   <!-- Modal para ver el detalle de Traslado -->
   <p-dialog [(visible)]="modalTraslado" [modal]="true" [responsive]="true"
-    [style]="{width: '90vw', maxWidth: '900px'}" styleClass="standard-modal modal-lg" [baseZIndex]="10000" (onHide)="cancelarEdicionTraslado()">
+    [style]="{width: '90vw', maxWidth: '900px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" styleClass="standard-modal modal-lg" [baseZIndex]="10000" (onHide)="cancelarEdicionTraslado()">
     <ng-template pTemplate="header">
         <div class="flex justify-content-between align-items-center w-full">
             <span class="text-xl font-bold">Detalle de Traslado</span>
@@ -820,7 +820,7 @@
     </div>
   </p-dialog>
 
-  <p-dialog header="Firmar Reporte" [(visible)]="modalFirma" [modal]="true" [style]="{width: '90vw', maxWidth: '500px'}" [draggable]="false" [resizable]="false" (onHide)="limpiarFirma()">
+  <p-dialog header="Firmar Reporte" [(visible)]="modalFirma" [modal]="true" [style]="{width: '90vw', maxWidth: '500px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false" (onHide)="limpiarFirma()">
       <div class="flex flex-column gap-3 pt-2">
           <div class="p-field">
               <label class="font-bold block mb-1">Nombre de quien recibe</label>
@@ -850,7 +850,7 @@
 
 
 
-  <p-dialog header="Firmar Acta de Traslado" [(visible)]="modalFirmaTraslado" [modal]="true" [style]="{width: '90vw', maxWidth: '850px'}" [draggable]="false" [resizable]="false" (onHide)="cerrarModalFirmaTraslado()">
+  <p-dialog header="Firmar Acta de Traslado" [(visible)]="modalFirmaTraslado" [modal]="true" [style]="{width: '90vw', maxWidth: '850px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false" (onHide)="cerrarModalFirmaTraslado()">
         
         <div class="mb-4 text-center mt-3">
             <i class="pi pi-pencil text-4xl text-primary mb-2"></i>
@@ -981,7 +981,7 @@
 
 <!-- Modal Registrar Traslado -->
 <p-dialog header="Registrar Traslado de Equipo" [(visible)]="displayTrasladoDialog" [modal]="true"
-  [style]="{width: '50vw'}" [draggable]="false" [resizable]="false">
+  [style]="{width: '50vw'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
   <div class="p-fluid" *ngIf="selectedEquipoTraslado">
     <!-- Detalles del Equipo -->
     <div class="surface-ground p-3 border-round mb-4">
@@ -1111,7 +1111,7 @@
 
 <!-- Modal Historial Unificado -->
 <p-dialog header="Historial del Equipo" [(visible)]="displayHistorialTrasladosDialog" [modal]="true"
-  [style]="{width: '70vw'}" [draggable]="false" [resizable]="false">
+  [style]="{width: '70vw'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
   <p-table [value]="historialUnificado" [paginator]="true" [rows]="10" styleClass="p-datatable-sm"
     responsiveLayout="scroll" [showCurrentPageReport]="true"
     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
@@ -1144,7 +1144,7 @@
 
 <!-- Modal Registrar Actividad Metrol&oacute;gica -->
 <p-dialog header="Registrar Actividad Metrol&oacute;gica" [modal]="true" [(visible)]="modalAddActividadMetrologica"
-  styleClass="standard-modal modal-lg" [maximizable]="false" [style]="{width: '50vw'}">
+  styleClass="standard-modal modal-lg" [maximizable]="false" [style]="{width: '50vw'}"[breakpoints]="{'1199px': '75vw', '575px': '90vw'}" >
 
   <div class="form-grid" style="width: 100%;" *ngIf="currentEquipo">
 

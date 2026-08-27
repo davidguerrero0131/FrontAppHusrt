@@ -39,8 +39,8 @@ export class LoginComponent implements OnInit {
     // Si la pestaña actual ya cargó o sincronizó un token válido, redirigir automáticamente
     if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('utoken')) {
       const decoded = this.getDecodedAccessToken(sessionStorage.getItem('utoken')!);
-      if (decoded && decoded.rol) {
-        this.redirectBasedOnRole(decoded.rol);
+      if (decoded) {
+        this.redirectBasedOnToken(decoded);
       }
     }
   }
@@ -54,9 +54,11 @@ export class LoginComponent implements OnInit {
           sessionStorage.setItem('idUser', response.idUser.toString());
         }
         const decoded = this.getDecodedAccessToken(response.token);
-        if (decoded && decoded.rol) {
-          sessionStorage.setItem('rol', decoded.rol);
-          this.redirectBasedOnRole(decoded.rol);
+        if (decoded) {
+          if (decoded.rol) {
+            sessionStorage.setItem('rol', decoded.rol);
+          }
+          this.redirectBasedOnToken(decoded);
         }
       }
     } catch {
@@ -68,16 +70,9 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  redirectBasedOnRole(rol: string) {
-    const normalizedRol = rol ? rol.toUpperCase().replace(/\s+/g, '') : '';
-    const targetRoute = ROLE_REDIRECTS[normalizedRol];
-    
-    if (targetRoute) {
-      this.router.navigate([targetRoute]);
-    } else {
-      // Default fallback if role not mapped
-      console.warn(`Rol no reconocido para redirección: ${rol}`);
-    }
+  redirectBasedOnToken(decoded: any) {
+    // A petición del usuario, todos los roles se redirigen a /homeuser
+    this.router.navigate(['/homeuser']);
   }
 
   async loginInvitado() {

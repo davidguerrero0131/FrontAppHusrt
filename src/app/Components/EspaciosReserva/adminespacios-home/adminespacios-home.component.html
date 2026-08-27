@@ -8,7 +8,7 @@
   </div>
 
   <div class="card p-3 shadow-sm" style="border-radius: 8px;">
-    <p-table [value]="misEspacios" [loading]="loading" [paginator]="true" [rows]="10" [responsive]="true" [rowHover]="true" styleClass="p-datatable-sm">
+    <p-table [scrollable]="true" [value]="misEspacios" [loading]="loading" [paginator]="true" [rows]="10" [responsive]="true" [rowHover]="true" styleClass="p-datatable-sm">
       <ng-template pTemplate="caption">
         <div class="flex justify-content-between align-items-center">
           <h5 class="m-0">Mis Espacios a Cargo</h5>
@@ -64,7 +64,7 @@
   </div>
 </div>
 
-<p-dialog [(visible)]="espacioDialog" [style]="{width: '750px'}" header="Detalles del Espacio" [modal]="true" styleClass="p-fluid">
+<p-dialog [(visible)]="espacioDialog" [style]="{width: '750px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Detalles del Espacio" [modal]="true" styleClass="p-fluid">
   <ng-template pTemplate="content">
     <div class="formgrid grid mt-3">
       <!-- Fila 1: Nombre -->
@@ -136,14 +136,14 @@
 </p-dialog>
 
 <!-- Modal del Calendario -->
-<p-dialog [(visible)]="calendarioDialog" [style]="{width: '95vw', height: '95vh'}" [maximizable]="true" header="Reservas: {{espacioCalendario?.nombre}}" [modal]="true" styleClass="p-fluid" (onShow)="isCalendarVisible = true" (onHide)="isCalendarVisible = false">
-  <div class="calendar-container h-full" *ngIf="isCalendarVisible">
-    <full-calendar [options]="calendarOptions"></full-calendar>
-  </div>
-</p-dialog>
+<p-dialog [(visible)]="calendarioDialog" [style]="{width: '95vw', height: '95vh'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [contentStyle]="{'display': 'flex', 'flex-direction': 'column', 'overflow': 'hidden'}" [maximizable]="true" header="Reservas: {{espacioCalendario?.nombre}}" [modal]="true" styleClass="p-fluid" (onShow)="isCalendarVisible = true" (onHide)="isCalendarVisible = false">
+    <div class="calendar-container w-full" style="flex: 1; min-height: 0; display: flex; flex-direction: column;" *ngIf="isCalendarVisible">
+      <full-calendar [options]="calendarOptions" style="flex: 1; min-height: 0; height: 100%; width: 100%;"></full-calendar>
+    </div>
+  </p-dialog>
 
 <!-- Modal de Detalles de la Reserva -->
-<p-dialog [(visible)]="detalleReservaDialog" [style]="{width: '600px'}" header="Detalles de la Reserva" [modal]="true" styleClass="p-fluid">
+<p-dialog [(visible)]="detalleReservaDialog" [style]="{width: '600px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Detalles de la Reserva" [modal]="true" styleClass="p-fluid">
   <div class="formgrid grid mt-3" *ngIf="reservaSeleccionada">
     <div class="col-12 mb-3 border-bottom-1 surface-border pb-3">
       <div class="flex align-items-center justify-content-between">

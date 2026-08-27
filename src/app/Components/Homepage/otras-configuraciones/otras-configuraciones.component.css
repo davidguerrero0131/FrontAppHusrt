@@ -1,0 +1,15 @@
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+:host ::ng-deep .p-dropdown {
+    max-width: 100%;
+}
+
+:host ::ng-deep .p-dropdown .p-dropdown-label {
+    white-space: normal;
+    word-break: break-word;
+}

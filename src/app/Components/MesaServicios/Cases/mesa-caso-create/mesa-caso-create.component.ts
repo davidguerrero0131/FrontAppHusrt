@@ -18,6 +18,7 @@ import { UserService } from '../../../../Services/appServices/userServices/user.
 import { ParametrosService } from '../../../../Services/appServices/biomedicaServices/parametros/parametros.service';
 import { EquiposService as EquipoService } from '../../../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { TipoEquipoService } from '../../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
+import { SysequiposService } from '../../../../Services/appServices/sistemasServices/sysequipos/sysequipos.service';
 import { jwtDecode } from 'jwt-decode';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -26,6 +27,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { firstValueFrom } from 'rxjs';
 
 import { UppercaseDirective } from '../../../../Directives/uppercase.directive';
+import { RafaIaMesaComponent } from '../rafa-ia-mesa/rafa-ia-mesa.component';
 
 @Component({
   selector: 'app-mesa-caso-create',
@@ -34,7 +36,7 @@ import { UppercaseDirective } from '../../../../Directives/uppercase.directive';
     CommonModule, FormsModule, ButtonModule, InputTextModule,
     TextareaModule, SelectModule, MultiSelectModule, ToastModule, FieldsetModule,
     EditorModule, FileUploadModule, UppercaseDirective,
-    IconFieldModule, InputIconModule, RouterModule, TagModule, TooltipModule
+    IconFieldModule, InputIconModule, RouterModule, TagModule, TooltipModule, RafaIaMesaComponent
   ],
   providers: [MessageService],
   templateUrl: './mesa-caso-create.component.html',
@@ -86,8 +88,10 @@ export class MesaCasoCreateComponent implements OnInit {
   parametrosService = inject(ParametrosService);
   equipoService = inject(EquipoService);
   tipoEquipoService = inject(TipoEquipoService);
+  sysequiposService = inject(SysequiposService);
 
   subcategoriaMantenimientoId: number | null = null;
+  subcategoriaMantenimientoSistemasId: number | null = null;
   requiereEquipo: boolean = false;
   tiposEquipos: any[] = [];
   equiposFiltrados: any[] = [];
@@ -182,6 +186,13 @@ export class MesaCasoCreateComponent implements OnInit {
         this.subcategoriaMantenimientoId = parseInt(param.valor, 10);
       }
     } catch (e) { console.log('Sin parametro subcategoria'); }
+    
+    try {
+      const paramSis = await this.parametrosService.getParametro('subcategoria_mantenimiento_sistemas');
+      if (paramSis && paramSis.valor) {
+        this.subcategoriaMantenimientoSistemasId = parseInt(paramSis.valor, 10);
+      }
+    } catch (e) { console.log('Sin parametro subcategoria sistemas'); }
   }
 
   onCategoriaChange() {
@@ -195,6 +206,9 @@ export class MesaCasoCreateComponent implements OnInit {
 
   onSubcategoriaChange() {
     if (this.selectedSubcategoria && this.selectedSubcategoria.id === this.subcategoriaMantenimientoId) {
+      this.requiereEquipo = true;
+      this.cargarEquiposServicio();
+    } else if (this.selectedSubcategoria && this.subcategoriaMantenimientoSistemasId && this.selectedSubcategoria.id === this.subcategoriaMantenimientoSistemasId) {
       this.requiereEquipo = true;
       this.cargarEquiposServicio();
     } else {
@@ -213,19 +227,37 @@ export class MesaCasoCreateComponent implements OnInit {
           ? this.equipoService.getAllEquipos().then(res => res.filter((e: any) => !e.estadoBaja))
           : this.equipoService.getAllEquiposServicio(this.selectedServicio.id)
       ]);
-      this.tiposEquipos = tipos.filter((t: any) => t.activo === true);
+      
+      let targetTipoR = 1;
+      if (this.selectedSubcategoria && this.subcategoriaMantenimientoSistemasId && this.selectedSubcategoria.id === this.subcategoriaMantenimientoSistemasId) {
+        targetTipoR = 2;
+      }
+      this.tiposEquipos = tipos.filter((t: any) => t.activo === true && t.tipoR === targetTipoR);
+      
       this.equiposFiltrados = equipos;
     } catch(e) { console.error('Error cargando equipos', e); }
   }
 
   onTipoEquipoChange() {
-    // We can filter if needed, but PrimeNg dropdown allows filter.
-    // We just clear selectedEquipo.
     this.selectedEquipo = null;
+    if (this.selectedTipoEquipo && this.selectedSubcategoria && this.subcategoriaMantenimientoSistemasId && this.selectedSubcategoria.id === this.subcategoriaMantenimientoSistemasId) {
+        this.sysequiposService.getEquipos({ id_tipo_equipo_fk: this.selectedTipoEquipo.id, activo: true, id_servicio_fk: this.selectedServicio?.id }).subscribe((res: any) => {
+           if (res.success && Array.isArray(res.data)) {
+               this.equiposFiltrados = res.data.map((eq: any) => ({
+                   ...eq,
+                   nombres: eq.nombre_equipo // Map for UI compatibility
+               }));
+           }
+        });
+    }
   }
 
   get filteredEquipos() {
     if (this.selectedTipoEquipo) {
+      if (this.selectedSubcategoria && this.subcategoriaMantenimientoSistemasId && this.selectedSubcategoria.id === this.subcategoriaMantenimientoSistemasId) {
+          // If the property is populated from SysEquipo API in onTipoEquipoChange, it returns from there.
+          return this.equiposFiltrados;
+      }
       return this.equiposFiltrados.filter(e => e.tipoEquipoIdFk === this.selectedTipoEquipo.id);
     }
     return [];

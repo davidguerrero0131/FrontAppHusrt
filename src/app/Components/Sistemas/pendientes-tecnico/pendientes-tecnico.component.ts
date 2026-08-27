@@ -16,7 +16,7 @@ import { SysReporteService } from '../../../Services/appServices/sistemasService
 import { ArchivosService } from '../../../Services/appServices/general/archivos/archivos.service';
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
-import { SysprotocoloService } from '../../../Services/appServices/sistemasServices/sysprotocolo/sysprotocolo.service';
+
 import { SysmantenimientoService } from '../../../Services/appServices/sistemasServices/sysmantenimiento/sysmantenimiento.service';
 
 @Component({
@@ -46,7 +46,7 @@ export class SisPendientesTecnicoComponent implements OnInit {
 
     reportesService = inject(SysReporteService);
     archivosServices = inject(ArchivosService);
-    protocolosServices = inject(SysprotocoloService);
+    
     mantenimientoServices = inject(SysmantenimientoService);
     router = inject(Router);
 
@@ -134,7 +134,7 @@ export class SisPendientesTecnicoComponent implements OnInit {
         this.modalReport = true;
         try {
             this.reportSelected = await this.reportesService.getById(reporte.id);
-            this.rutina = await this.protocolosServices.getCumplimientoProtocoloMantenimiento(this.reportSelected.id);
+            this.rutina = await this.mantenimientoServices.getCumplimientoProtocoloMantenimiento(this.reportSelected.id);
         } catch (e) {
             console.error(e);
         }

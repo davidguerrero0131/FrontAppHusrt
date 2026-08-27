@@ -173,8 +173,8 @@
           <h6>Seleccione los pasos realizados en el mantenimiento</h6>
         </div>
         <div formArrayName="cumplimientoProtocolo" class="w-full px-3">
-          <p-table [value]="cumplimientoProtocoloFormArray.controls" responsiveLayout="scroll" [scrollable]="true"
-            scrollHeight="400px" styleClass="p-datatable-sm" [showCurrentPageReport]="true"
+          <p-table [value]="cumplimientoProtocoloFormArray.controls" responsiveLayout="stack"
+             styleClass="p-datatable-sm" [showCurrentPageReport]="true"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
             <ng-template pTemplate="header">
               <tr>
@@ -211,7 +211,7 @@
         <h6>Registre los repuestos o insumos utilizados en el mantenimiento</h6>
       </div>
       <div formArrayName="repuestos" class="w-full px-3">
-        <p-table [value]="repuestosFormArray.controls" responsiveLayout="scroll" [scrollable]="true"
+        <p-table [value]="repuestosFormArray.controls" responsiveLayout="stack"
           scrollHeight="300px" styleClass="p-datatable-sm" [showCurrentPageReport]="true"
           currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
           <ng-template pTemplate="header">

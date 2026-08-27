@@ -110,7 +110,7 @@
   }
 </div>
 
-<p-dialog header="Detalles del Paciente" [(visible)]="displayModal" [modal]="true" [style]="{width: '90vw', maxWidth: '600px'}" [draggable]="false" [resizable]="false" [dismissableMask]="true">
+<p-dialog header="Detalles del Paciente" [(visible)]="displayModal" [modal]="true" [style]="{width: '90vw', maxWidth: '600px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false" [dismissableMask]="true">
   @if (pacienteSeleccionado) {
     <div class="p-4" style="font-size: 14px;">
       <h4 style="font-weight: bold; font-size: 1.25rem; margin-bottom: 1rem; color: #1e40af; text-align: center;">

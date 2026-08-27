@@ -6,7 +6,7 @@
         </ng-template>
     </p-toolbar>
 
-    <p-table #dt [value]="cargos" [rows]="10" [paginator]="true" [globalFilterFields]="['nombre', 'descripcion']"
+    <p-table [scrollable]="true" #dt [value]="cargos" [rows]="10" [paginator]="true" [globalFilterFields]="['nombre', 'descripcion']"
         [tableStyle]="{'min-width': '50rem'}" [rowHover]="true" dataKey="id"
         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
         [showCurrentPageReport]="true">
@@ -47,7 +47,7 @@
     </p-table>
 </div>
 
-<p-dialog [(visible)]="viewModal" [style]="{width: '600px'}" header="Detalles del Cargo" [modal]="true"
+<p-dialog [(visible)]="viewModal" [style]="{width: '600px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Detalles del Cargo" [modal]="true"
     styleClass="p-fluid">
     <ng-template pTemplate="content">
         <form [formGroup]="cargoForm" class="mt-3">

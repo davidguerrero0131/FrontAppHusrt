@@ -1,3 +1,8 @@
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { Textarea } from 'primeng/inputtextarea';
+import { CheckboxModule } from 'primeng/checkbox';
 import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, OnDestroy, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -32,7 +37,7 @@ interface CamposHV {
 @Component({
   selector: 'app-sys-equipo-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DialogModule, ButtonModule, InputTextModule, CheckboxModule, Textarea],
   templateUrl: './equipo-modal.component.html',
   styleUrls: ['./equipo-modal.component.css']
 })
@@ -128,7 +133,7 @@ export class SysEquipoModalComponent implements OnInit, OnChanges, OnDestroy {
     try {
       const tiposData = await this.tipoEquipoService.getTiposEquiposSistemas();
       if (this.destroyed) return;
-      this.tiposEquipo = (Array.isArray(tiposData) ? tiposData : []).map((t: any) => ({
+      this.tiposEquipo = (Array.isArray(tiposData) ? tiposData : []).filter((t: any) => String(t.tipoR) === '2' || String(t.tipoR) === 'Sistemas' || t.tipoR == 2).map((t: any) => ({
         id: t.id_tipo_equipo || t.id,
         nombre: t.nombre || t.nombres || 'Sin nombre',
         campo_ip:            t.campo_ip,
@@ -413,3 +418,5 @@ export class SysEquipoModalComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 }
+
+

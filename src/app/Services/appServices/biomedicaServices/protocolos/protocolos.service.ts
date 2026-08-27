@@ -48,6 +48,12 @@ export class ProtocolosService {
     )
   }
 
+  deleteProtocolo(id: any) {
+    return firstValueFrom(
+      this.httpClient.delete<any>(`${API_URL}/remprotocolo/` + id)
+    )
+  }
+
   reorderProtocolos(payload: any[]) {
     return firstValueFrom(
       this.httpClient.put<any>(`${API_URL}/protocolos/reorder`, payload)

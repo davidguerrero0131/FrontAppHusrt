@@ -16,7 +16,7 @@
     </ng-template>
   </p-toolbar>
 
-  <p-table *ngIf="isBrowser" #dt2 [value]="tiposEquipos" dataKey="id" [paginator]="true" [rows]="10" [(first)]="first"
+  <p-table [scrollable]="true" *ngIf="isBrowser" #dt2 [value]="tiposEquipos" dataKey="id" [paginator]="true" [rows]="10" [(first)]="first"
     (onPage)="onPageChange($event)" [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
     [globalFilterFields]="['id', 'nombres', 'materialConsumible', 'herramienta', 'tiempoMinutos', 'tipoR']"
     [tableStyle]="{ 'min-width': '75rem' }" styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true"
@@ -91,7 +91,7 @@
 
 <!-- Protocols Modal -->
 <p-dialog [header]="'Protocolos de ' + tipoEquipoSelected?.nombres" [(visible)]="viewProtocolsModal" [modal]="true"
-  [style]="{ width: '70vw', maxWidth: '95%' }" styleClass="p-fluid">
+  [style]="{ width: '70vw', maxWidth: '95%' }" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" styleClass="p-fluid">
 
   <div class="flex gap-2 mb-3 mt-2">
     <input type="text" pInputText [(ngModel)]="newProtocoloPaso" placeholder="Paso del nuevo protocolo"
@@ -101,7 +101,7 @@
 
   <p-tabView>
     <p-tabPanel header="Activos">
-      <p-table *ngIf="isBrowser" [value]="protocolosActivos" (onRowReorder)="onRowReorder($event)"
+      <p-table [scrollable]="true" *ngIf="isBrowser" [value]="protocolosActivos" (onRowReorder)="onRowReorder($event)"
         styleClass="p-datatable-sm">
         <ng-template pTemplate="header">
           <tr>
@@ -131,7 +131,7 @@
     </p-tabPanel>
 
     <p-tabPanel header="Inactivos">
-      <p-table *ngIf="isBrowser" [value]="protocolosInactivos" styleClass="p-datatable-sm">
+      <p-table [scrollable]="true" *ngIf="isBrowser" [value]="protocolosInactivos" styleClass="p-datatable-sm">
         <ng-template pTemplate="header">
           <tr>
             <th>Paso</th>
@@ -317,7 +317,7 @@
       class="w-auto"></button>
   </div>
 
-  <p-table *ngIf="isBrowser" [value]="condicionesIniciales" [rows]="10" [paginator]="true" styleClass="p-datatable-sm">
+  <p-table [scrollable]="true" *ngIf="isBrowser" [value]="condicionesIniciales" [rows]="10" [paginator]="true" styleClass="p-datatable-sm">
     <ng-template pTemplate="header">
       <tr>
         <th>Descripci&oacute;n</th>

@@ -1,4 +1,3 @@
-<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
 <div class="calendario-container">
   
   <div style="margin-bottom: 2%; text-align: center;">
@@ -60,7 +59,7 @@
     <div class="alert-info" *ngIf="planesNoProgramados.length === 0 && !loading">
       <i class="pi pi-info-circle mr-2"></i>No hay planes sin programar para {{ getNombreMes(mesSeleccionado) }} {{ anio }}.
     </div>
-    <p-table #dt [value]="planesNoProgramados" [loading]="loading" [paginator]="true" [rows]="15"
+    <p-table [scrollable]="true" #dt [value]="planesNoProgramados" [loading]="loading" [paginator]="true" [rows]="15"
       [globalFilterFields]="['equipo.nombres', 'equipo.placa', 'equipo.servicioInd.nombres']"
       styleClass="p-datatable-sm p-datatable-gridlines" *ngIf="planesNoProgramados.length > 0">
       <ng-template pTemplate="header">
@@ -93,7 +92,7 @@
     <div class="alert-info" *ngIf="planesProgramados.length === 0 && !loading">
       <i class="pi pi-info-circle mr-2"></i>No hay planes programados para {{ getNombreMes(mesSeleccionado) }} {{ anio }}.
     </div>
-    <p-table [value]="planesProgramados" [loading]="loading" [paginator]="true" [rows]="15"
+    <p-table [scrollable]="true" [value]="planesProgramados" [loading]="loading" [paginator]="true" [rows]="15"
       styleClass="p-datatable-sm p-datatable-gridlines" *ngIf="planesProgramados.length > 0">
       <ng-template pTemplate="header">
         <tr>

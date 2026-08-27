@@ -26,6 +26,7 @@ export class ParametrizacionBiomedicaComponent implements OnInit {
 
     isSuperAdmin: boolean = false;
     isBiomedicaAdmin: boolean = false;
+    isSystemAdmin: boolean = false;
 
     
 
@@ -46,7 +47,9 @@ export class ParametrizacionBiomedicaComponent implements OnInit {
             if (decoded?.rol === 'BIOMEDICAADMIN') {
                 this.isBiomedicaAdmin = true;
             }
-
+            if (decoded?.rol === 'SYSTEMADMIN') {
+                this.isSystemAdmin = true;
+            }
         }
     }
 

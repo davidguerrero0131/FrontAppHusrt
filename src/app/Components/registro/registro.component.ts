@@ -2,7 +2,7 @@ import { UserService } from './../../Services/appServices/userServices/user.serv
 import { CargosService } from './../../Services/appServices/general/cargos/cargos.service';
 import { ServicioService } from './../../Services/appServices/general/servicio/servicio.service';
 import { MesaService } from '../../Services/mesa-servicios/mesa.service';
-import { SuperadminnavbarComponent } from '../navbars/superadminnavbar/superadminnavbar.component';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms'
@@ -62,7 +62,7 @@ export class RegistroComponent implements OnInit {
       password: new FormControl('', [Validators.required]),
       password2: new FormControl('', [Validators.required]),
       registroInvima: new FormControl('', [Validators.required]),
-      rolId: new FormControl('', [Validators.required]),
+      rolesIds: new FormControl([], [Validators.required]),
       cargoId: new FormControl(''),
       servicioId: new FormControl('', [Validators.required]),
       mesaServicioRolId: new FormControl('', [Validators.required])
@@ -74,7 +74,11 @@ export class RegistroComponent implements OnInit {
     try {
       this.roles = await this.userService.getAllRoles();
       this.cargosService.getCargos().subscribe((res: any[]) => this.cargos = res);
-      this.servicios = await this.servicioService.getAllServicios();
+      const rawServicios = await this.servicioService.getAllServicios();
+      this.servicios = rawServicios.map((s: any) => ({
+        ...s,
+        nombreConSede: s.sede ? `${s.nombres} - ${s.sede.nombres}` : s.nombres
+      }));
       this.mesaService.getRoles().subscribe((res: any[]) => this.mesaRoles = res);
 
     } catch {
@@ -103,7 +107,8 @@ export class RegistroComponent implements OnInit {
           contrasena: this.formGroup.value.password,
           registroInvima: this.formGroup.value.registroInvima,
           estado: true,
-          rolId: this.formGroup.value.rolId,
+          rolesIds: this.formGroup.value.rolesIds,
+          rolId: this.formGroup.value.rolesIds && this.formGroup.value.rolesIds.length > 0 ? this.formGroup.value.rolesIds[0] : null,
           cargoId: this.formGroup.value.cargoId,
           servicioId: this.formGroup.value.servicioId,
           mesaServicioRolId: this.formGroup.value.mesaServicioRolId

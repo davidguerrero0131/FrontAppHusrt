@@ -14,7 +14,7 @@
     </ng-template>
   </p-toolbar>
 
-  <p-table #dt2 [value]="servicios" dataKey="id" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+  <p-table [scrollable]="true" #dt2 [value]="servicios" dataKey="id" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
     [loading]="loading" [globalFilterFields]="['nombres', 'sede.nombres', 'ubicacion', 'requiereMesaServicios']"
     [tableStyle]="{ 'min-width': '50rem' }" styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true"
     [showCurrentPageReport]="true" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
@@ -75,7 +75,7 @@
 
 <!-- Edit Modal -->
 <p-dialog header="Editar Servicio" [(visible)]="visibleEditModal" [modal]="true" [style]="{ width: '600px' }"
-  styleClass="p-fluid">
+  [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" styleClass="p-fluid">
   <form [formGroup]="formGroup" (ngSubmit)="saveServicio()" class="flex flex-column gap-3 pt-2">
 
     <div class="flex flex-column gap-2">

@@ -21,7 +21,7 @@ export class RafaIaService {
    * @param chatId ID de chat opcional para seguimiento
    * @returns Observable con la respuesta de la API
    */
-  sendMessage(messages: ChatMessage[], chatId: string = 'apphusrt_chat'): Observable<any> {
+  sendMessage(messages: ChatMessage[], chatId: string = 'apphusrt_chat', options: any = {}): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });

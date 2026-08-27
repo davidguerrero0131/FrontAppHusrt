@@ -21,11 +21,13 @@ import { TipoEquipoService } from '../../../../Services/appServices/general/tipo
 import { ParametrosService } from '../../../../Services/appServices/biomedicaServices/parametros/parametros.service';
 import { PdfGeneratorService } from '../../../../Services/appServices/biomedicaServices/pdf-generator/pdf-generator.service';
 import { ReportesService } from '../../../../Services/appServices/biomedicaServices/reportes/reportes.service';
+import { SysReporteService } from '../../../../Services/appServices/sistemasServices/sysreporte/sysreporte.service';
 import { ProtocolosService } from '../../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
 import { ArchivosService } from '../../../../Services/appServices/general/archivos/archivos.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { MesaService } from '../../../../Services/mesa-servicios/mesa.service';
 import { UserService } from '../../../../Services/appServices/userServices/user.service';
+import { ServicioService } from '../../../../Services/appServices/general/servicio/servicio.service';
 
 import { ChipModule } from 'primeng/chip';
 import { EditorModule } from 'primeng/editor';
@@ -80,6 +82,8 @@ export class MesaCasoDetailComponent implements OnInit {
   uploadedFiles: any[] = []; // Store selected files
 
   editandoClasificacion: boolean = false;
+  servicios: any[] = [];
+  selectedServicioDestino: any = null;
   categorias: any[] = [];
   subcategoriasDisponibles: any[] = [];
   selectedCategoria: any = null;
@@ -157,8 +161,10 @@ export class MesaCasoDetailComponent implements OnInit {
     private parametrosService: ParametrosService,
     private pdfGeneratorService: PdfGeneratorService,
     private reportesService: ReportesService,
+    private sysReporteService: SysReporteService,
     private protocolosService: ProtocolosService,
     private archivosService: ArchivosService,
+    private servicioService: ServicioService,
     @Optional() public config: DynamicDialogConfig
   ) { }
 
@@ -208,6 +214,8 @@ export class MesaCasoDetailComponent implements OnInit {
     
     if (this.caso?.servicioId || this.caso?.servicio?.id) {
       const sId = this.caso.servicioId || this.caso.servicio.id;
+      this.selectedServicioDestino = this.servicios.find((s: any) => s.id === sId);
+      
       this.mesaService.getCategorias(sId, true).subscribe(cat => {
         this.categorias = cat;
         if (this.selectedCategoria) {
@@ -228,6 +236,37 @@ export class MesaCasoDetailComponent implements OnInit {
     this.editandoClasificacion = false;
   }
 
+  loadServicios() {
+    this.servicioService.getAllServiciosActivos().then(data => {
+      let filtrados = data.filter((s: any) => s.requiereMesaServicios === true);
+      this.servicios = filtrados.map((s: any) => {
+        let limpio = s.nombres;
+        limpio = limpio.replace(/SERVICIO\s+HOSPITALARIO\s+DE\s+/i, '');
+        limpio = limpio.replace(/SERVICIO\s+HOSPITALARIO\s+/i, '');
+        return {
+          ...s,
+          nombres: limpio.trim()
+        };
+      });
+    });
+  }
+
+  onServicioDestinoChange() {
+    if (this.selectedServicioDestino) {
+      this.mesaService.getCategorias(this.selectedServicioDestino.id, true).subscribe(cat => {
+        this.categorias = cat;
+        this.selectedCategoria = null;
+        this.selectedSubcategoria = null;
+        this.subcategoriasDisponibles = [];
+      });
+    } else {
+      this.categorias = [];
+      this.selectedCategoria = null;
+      this.selectedSubcategoria = null;
+      this.subcategoriasDisponibles = [];
+    }
+  }
+
   onCategoriaChange() {
     if (this.selectedCategoria) {
         this.subcategoriasDisponibles = this.selectedCategoria.subcategorias || [];
@@ -244,6 +283,8 @@ export class MesaCasoDetailComponent implements OnInit {
     }
 
     const payload = {
+        servicioId: this.selectedServicioDestino ? this.selectedServicioDestino.id : undefined,
+        sedeId: this.selectedServicioDestino ? (this.selectedServicioDestino.sedeIdFk || 1) : undefined,
         categoriaId: this.selectedCategoria.id,
         subcategoriaId: this.selectedSubcategoria ? this.selectedSubcategoria.id : null,
         prioridad: this.selectedPrioridad,
@@ -265,8 +306,10 @@ export class MesaCasoDetailComponent implements OnInit {
 
   irACrearReporte() {
     if (this.equipoActual) {
-      if (this.tipoEquipoActual?.tipoR === 1 || this.tipoEquipoActual?.tipoR === 2) {
+      if (this.tipoEquipoActual?.tipoR === 1) {
         this.router.navigate(['/biomedica/nuevoreporte', this.equipoActual.id], { queryParams: { casoId: this.casoId } });
+      } else if (this.tipoEquipoActual?.tipoR === 2) {
+        this.router.navigate(['/adminsistemas/reporteMantenimiento', this.equipoActual.id_sysequipo || this.equipoActual.id], { queryParams: { casoId: this.casoId } });
       } else {
         this.router.navigate(['/mantenimiento/nuevoreporte', this.equipoActual.id], { queryParams: { casoId: this.casoId } });
       }
@@ -275,8 +318,10 @@ export class MesaCasoDetailComponent implements OnInit {
 
   irAReportesEquipo() {
     if (this.equipoActual) {
-      if (this.tipoEquipoActual?.tipoR === 1 || this.tipoEquipoActual?.tipoR === 2) {
+      if (this.tipoEquipoActual?.tipoR === 1) {
         this.router.navigate(['/biomedica/reportesequipo', this.equipoActual.id]);
+      } else if (this.tipoEquipoActual?.tipoR === 2) {
+        this.router.navigate(['/adminsistemas/reportesequipo', this.equipoActual.id_sysequipo || this.equipoActual.id]);
       } else {
         this.router.navigate(['/mantenimiento/reportesequipo', this.equipoActual.id]);
       }
@@ -284,12 +329,20 @@ export class MesaCasoDetailComponent implements OnInit {
   }
 
   async irAVerReporte() {
-    const reporteId = this.caso?.reporteMantenimiento?.id || this.caso?.biomedicaInfo?.reporteId;
+    const reporteId = this.caso?.reporteMantenimiento?.id || this.caso?.biomedicaInfo?.reporteId || this.caso?.sistemasInfo?.reporteId;
     if (reporteId) {
       try {
-        this.reportSelected = await this.reportesService.getReporteById(reporteId);
-        if (this.tipoEquipoActual?.tipoR === 1 || this.tipoEquipoActual?.tipoR === 2) {
-           this.rutina = await this.protocolosService.getCumplimientoProtocoloReporte(reporteId);
+        if (this.tipoEquipoActual?.tipoR === 2) {
+          // Fetch from Sistemas
+          const { firstValueFrom } = await import('rxjs');
+          const resp = await firstValueFrom(this.sysReporteService.getById(reporteId));
+          this.reportSelected = (resp as any)?.data || resp;
+        } else {
+          // Fetch from Biomedica/Mantenimiento
+          this.reportSelected = await this.reportesService.getReporteById(reporteId);
+          if (this.tipoEquipoActual?.tipoR === 1) {
+             this.rutina = await this.protocolosService.getCumplimientoProtocoloReporte(reporteId);
+          }
         }
         this.modalReport = true;
       } catch (error) {
@@ -452,6 +505,7 @@ export class MesaCasoDetailComponent implements OnInit {
 
   ngOnInit() {
     this.extractUser();
+    this.loadServicios();
     this.cargarParametroSubcategoria();
     if (this.config && this.config.data && this.config.data.casoId) {
       this.casoId = this.config.data.casoId;
@@ -598,9 +652,9 @@ export class MesaCasoDetailComponent implements OnInit {
         }
 
         // Extraer informacin de equipo de la nueva estructura del backend
-        if (this.caso.equipoBiomedico || this.caso.equipoIndustrial || this.caso.area || this.caso.elemento || this.caso.tipoEquipo) {
+        if (this.caso.equipoBiomedico || this.caso.equipoIndustrial || this.caso.equipoSistemas || this.caso.area || this.caso.elemento || this.caso.tipoEquipo) {
           this.requiereEquipo = true;
-          this.equipoActual = this.caso.equipoBiomedico || this.caso.equipoIndustrial || this.caso.area || this.caso.elemento;
+          this.equipoActual = this.caso.equipoBiomedico || this.caso.equipoIndustrial || this.caso.equipoSistemas || this.caso.area || this.caso.elemento;
           this.tipoEquipoActual = this.caso.tipoEquipo;
         } else if (this.caso.biomedicaInfo) {
           // Backward compatibility por si acaso
@@ -744,7 +798,8 @@ export class MesaCasoDetailComponent implements OnInit {
     }
 
     if (this.requiereEquipo) {
-      if (!this.caso.biomedicaInfo || !this.caso.biomedicaInfo.reporteId) {
+      const tieneReporte = this.caso.reporteMantenimiento?.id || this.caso.biomedicaInfo?.reporteId || this.caso.sistemasInfo?.reporteId;
+      if (!tieneReporte) {
         this.messageService.add({ severity: 'error', summary: 'Reporte Requerido', detail: 'Debe crear el reporte de mantenimiento correctivo antes de cerrar el caso.' });
         return;
       }
@@ -868,7 +923,7 @@ export class MesaCasoDetailComponent implements OnInit {
         // Identify removals
         const toRemove = this.caso.asignaciones ? this.caso.asignaciones.filter((a: any) => !selectedIds.includes(a.usuarioId)) : [];
 
-        let totalOps = toAdd.length + toRemove.length;
+        let totalOps = (toAdd.length > 0 ? 1 : 0) + toRemove.length;
         if (totalOps === 0) {
           this.displayAssignDialog = false;
           return;
@@ -892,13 +947,13 @@ export class MesaCasoDetailComponent implements OnInit {
         };
 
         // Process Additions
-        toAdd.forEach((user: any) => {
-          const payload = { usuarioId: user.id, asignadoPor: this.userId };
+        if (toAdd.length > 0) {
+          const payload = { usuariosIds: toAdd.map(u => u.id), asignadoPor: this.userId };
           this.mesaService.assignResolutor(this.casoId, payload).subscribe({
             next: () => checkFinalize(),
             error: () => { errors++; checkFinalize(); }
           });
-        });
+        }
 
         // Process Removals
         toRemove.forEach((asig: any) => {

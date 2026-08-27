@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { EquiposIndustrialesService } from '../../../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
@@ -10,14 +11,14 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
-import { MantenimientoadminnavbarComponent } from '../../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { getDecodedAccessToken } from '../../../../../utilidades';
 
 @Component({
     selector: 'app-equipos-por-tipo-industrial',
     standalone: true,
     imports: [FormsModule, CommonModule, TableModule,
-        IconFieldModule, InputIconModule, InputTextModule, ButtonModule, TagModule, MantenimientoadminnavbarComponent],
+        IconFieldModule, InputIconModule, InputTextModule, ButtonModule, TagModule, AppNavbarComponent],
     templateUrl: './equipos-por-tipo-industrial.component.html',
     styleUrl: './equipos-por-tipo-industrial.component.css'
 })

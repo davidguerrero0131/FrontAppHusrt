@@ -255,9 +255,9 @@ i,
     background: linear-gradient(-45deg, #006fe6, #009688, #4a148c, #00c853);
     background-size: 400% 400%;
     animation: movingGradient 15s ease infinite;
-    padding: 3.5rem 2rem;
+    padding: 2.5rem 2rem;
     border-radius: var(--border-radius-xl);
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     position: relative;
     overflow: hidden;
@@ -326,7 +326,7 @@ i,
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
 @media (min-width: 1400px) {
@@ -357,7 +357,7 @@ i,
 /* Card Icon Box */
 .card-icon-container {
     width: 100%;
-    padding: 2.5rem 0;
+    padding: 1.8rem 0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -395,7 +395,9 @@ i,
 .gradient-green,
 .gradient-mint,
 .gradient-red,
-.gradient-purple {
+.gradient-purple,
+.gradient-gray,
+.gradient-dark {
     background: linear-gradient(-45deg, #006fe6, #0091ea, #00bcd4, #005eb8) !important;
     background-size: 300% 300% !important;
     animation: cardMovingGradient 10s ease infinite !important;
@@ -421,17 +423,17 @@ i,
 .gradient-red i,
 .gradient-red .pi,
 .gradient-purple i,
-.gradient-purple .pi {
+.gradient-purple .pi,
+.gradient-gray i,
+.gradient-gray .pi,
+.gradient-dark i,
+.gradient-dark .pi {
     color: white !important;
-}
-
-.gradient-gray {
-    background: linear-gradient(135deg, #78909c, #546e7a);
 }
 
 /* Card Content Standard */
 .card-content {
-    padding: 1.5rem;
+    padding: 1.2rem;
     text-align: center;
     width: 100%;
     background: white;
@@ -446,7 +448,7 @@ i,
 }
 
 .card-content p {
-    margin: 0 0 1.5rem 0;
+    margin: 0 0 1rem 0;
     font-size: 0.9rem;
     color: var(--text-secondary);
     line-height: 1.5;
@@ -507,7 +509,7 @@ i,
     border-bottom: 1px solid #f1f3f5;
     background-color: #ffffff !important;
     color: var(--text-color);
-    padding: 1.5rem;
+    padding: 1.2rem;
     border-top-right-radius: var(--border-radius-lg);
     border-top-left-radius: var(--border-radius-lg);
 }
@@ -520,7 +522,7 @@ i,
 .p-dialog .p-dialog-footer {
     border-top: 1px solid #f1f3f5;
     background-color: #ffffff !important;
-    padding: 1.5rem;
+    padding: 1.2rem;
     text-align: right;
     border-bottom-right-radius: var(--border-radius-lg);
     border-bottom-left-radius: var(--border-radius-lg);
@@ -715,3 +717,54 @@ textarea:not([noUppercase]):not(.no-uppercase) {
     background: transparent !important;
     border: none !important;
 }
+@keyframes bell-ring-hover {
+  0% { transform: rotate(0); }
+  10% { transform: rotate(15deg); }
+  20% { transform: rotate(-15deg); }
+  30% { transform: rotate(10deg); }
+  40% { transform: rotate(-10deg); }
+  50% { transform: rotate(5deg); }
+  60% { transform: rotate(-5deg); }
+  70% { transform: rotate(0); }
+  100% { transform: rotate(0); }
+}
+
+
+
+.hover-shake-bell:hover {
+  animation: bell-ring-hover 1s ease-in-out infinite;
+}
+
+
+.hover-shake-bell {
+  display: inline-block !important;
+  transform-origin: top center !important;
+}
+
+.hover-shake-bell:hover, .shake-on-hover:hover .hover-shake-bell {
+  animation: bell-ring-hover 0.8s ease-in-out infinite !important;
+}
+
+/* Animaciones para los botones del Navbar */
+.hover-pop-icon {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  display: inline-block;
+}
+.hover-pop-icon:hover {
+  transform: scale(1.15) !important;
+}
+
+@keyframes pulse-danger-icon {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); color: #dc2626; }
+  100% { transform: scale(1); }
+}
+.hover-pulse-danger {
+  display: inline-block;
+  transition: color 0.3s ease !important;
+}
+.hover-pulse-danger:hover {
+  animation: pulse-danger-icon 1s infinite ease-in-out !important;
+  color: #dc2626 !important;
+}
+

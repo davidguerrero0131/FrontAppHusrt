@@ -422,7 +422,7 @@ export class CrearReporteComponent implements OnInit {
           localStorage.removeItem('idReporte');
           localStorage.removeItem('TipoMantenimiento');
           if (this.casoId) {
-            this.router.navigate(['/adminmesaservicios/casos', this.casoId]);
+            this.router.navigate(['/mesaservicios/casos', this.casoId]);
           } else {
             this.router.navigate(['/biomedica/reportesequipo/', this.equipo.id]);
           }
@@ -448,7 +448,7 @@ export class CrearReporteComponent implements OnInit {
             localStorage.removeItem('idReporte');
             localStorage.removeItem('TipoMantenimiento');
             if (this.casoId) {
-            this.router.navigate(['/adminmesaservicios/casos', this.casoId]);
+            this.router.navigate(['/mesaservicios/casos', this.casoId]);
           } else {
             this.router.navigate(['/biomedica/reportesequipo/', this.equipo.id]);
           }

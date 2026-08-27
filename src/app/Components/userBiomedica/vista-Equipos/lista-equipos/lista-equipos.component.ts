@@ -1,8 +1,9 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit, ViewChild, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TableModule } from 'primeng/table';
-import { BiomedicausernavbarComponent } from '../../../navbars/biomedicausernavbar/biomedicausernavbar.component';
+
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { Table } from 'primeng/table';
 import { IconFieldModule } from 'primeng/iconfield';

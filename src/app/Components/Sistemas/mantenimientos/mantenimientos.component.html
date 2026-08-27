@@ -65,12 +65,17 @@
   <!-- Filter Bar -->
   <div class="filter-panel glass-morphism p-3 mb-4 border-round-xl shadow-1 flex flex-wrap align-items-center gap-4">
     <div class="flex align-items-center gap-2">
-      <label class="text-700 font-semibold small">Fecha inicio:</label>
-      <input pInputText type="date" [(ngModel)]="filterFechaInicio" class="p-inputtext-sm" />
+      <label class="text-700 font-semibold small">Mes Rango:</label>
+      <p-select [options]="meses" [(ngModel)]="mesInicio" optionLabel="label" optionValue="value" 
+        placeholder="Inicio" class="p-inputtext-sm w-9rem" appendTo="body"></p-select>
+      <span class="text-400">a</span>
+      <p-select [options]="meses" [(ngModel)]="mesFin" optionLabel="label" optionValue="value" 
+        placeholder="Fin" class="p-inputtext-sm w-9rem" appendTo="body"></p-select>
     </div>
     <div class="flex align-items-center gap-2">
-      <label class="text-700 font-semibold small">Fecha fin:</label>
-      <input pInputText type="date" [(ngModel)]="filterFechaFin" class="p-inputtext-sm" />
+      <label class="text-700 font-semibold small">Año:</label>
+      <p-select [options]="anios" [(ngModel)]="anioFiltro" placeholder="Año" 
+        class="p-inputtext-sm w-7rem" appendTo="body"></p-select>
     </div>
     <button pButton icon="pi pi-search" label="Filtrar" (click)="applyFilters()" class="p-button-raised"></button>
     <button pButton icon="pi pi-times" label="Limpiar" (click)="clearFilters()"
@@ -79,17 +84,11 @@
     <div class="divider mx-2 hidden lg:block"></div>
 
     <div class="flex bg-white-alpha-40 p-1 border-round-lg shadow-inner gap-1">
-      <button pButton label="Todos" (click)="switchTab('todos')"
-        [class]="activeTab === 'todos'      ? 'p-button-sm p-button-raised' : 'p-button-sm p-button-text p-button-secondary'">
-      </button>
       <button pButton label="Preventivos" (click)="switchTab('Preventivo')"
         [class]="activeTab === 'Preventivo' ? 'p-button-sm p-button-raised' : 'p-button-sm p-button-text p-button-secondary'">
       </button>
       <button pButton label="Correctivos" (click)="switchTab('Correctivo')"
         [class]="activeTab === 'Correctivo' ? 'p-button-sm p-button-raised' : 'p-button-sm p-button-text p-button-secondary'">
-      </button>
-      <button pButton label="Predictivos" (click)="switchTab('Predictivo')"
-        [class]="activeTab === 'Predictivo' ? 'p-button-sm p-button-raised' : 'p-button-sm p-button-text p-button-secondary'">
       </button>
     </div>
   </div>
@@ -111,7 +110,7 @@
       <ng-template pTemplate="caption">
         <div class="flex justify-content-between align-items-center">
           <span class="text-xl font-bold text-800">
-            {{ activeTab === 'todos' ? 'Todos los Mantenimientos' : activeTab + 's' }}
+            Mantenimientos {{ activeTab }}s
           </span>
           <p-iconfield iconPosition="left">
             <p-inputicon><i class="pi pi-search"></i></p-inputicon>
@@ -123,13 +122,12 @@
 
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
           <th pSortableColumn="equipo.nombre_equipo">Equipo <p-sortIcon field="equipo.nombre_equipo"></p-sortIcon></th>
           <th>Serie / Placa</th>
           <th>Servicio</th>
           <th pSortableColumn="fechaRealizado">Fecha <p-sortIcon field="fechaRealizado"></p-sortIcon></th>
           <th pSortableColumn="tipoMantenimiento">Tipo <p-sortIcon field="tipoMantenimiento"></p-sortIcon></th>
-          <th>Falla</th>
+          <th *ngIf="activeTab === 'Correctivo'">Falla</th>
           <th>Técnico</th>
           <th style="width: 120px; text-align: center;">Estado</th>
           <th style="width: 150px; text-align: center;">Acciones</th>
@@ -139,8 +137,6 @@
       <ng-template pTemplate="body" let-m>
         <tr class="hover:bg-blue-50 transition-colors transition-duration-150 fila-clickable"
           (click)="openHistoricoMantenimientos(m.equipo)" title="Ver histórico de mantenimientos del equipo">
-
-          <td><code class="reporte-badge">{{ m.id }}</code></td>
 
           <td>
             <div class="flex flex-column">
@@ -178,7 +174,7 @@
             </div>
           </td>
 
-          <td><span class="text-700">{{ m.tipoFalla || '—' }}</span></td>
+          <td *ngIf="activeTab === 'Correctivo'"><span class="text-700">{{ m.tipoFalla || '—' }}</span></td>
 
           <td>
             <ng-container *ngIf="m.usuario; else sinTecnico">
@@ -232,7 +228,7 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="10" class="text-center p-5">
+          <td [attr.colspan]="activeTab === 'Correctivo' ? 9 : 8" class="text-center p-5">
             <div class="flex flex-column align-items-center gap-3">
               <i class="pi pi-box text-300" style="font-size: 3rem;"></i>
               <span class="text-500 font-medium">No se encontraron mantenimientos.</span>
@@ -356,12 +352,12 @@
             <div class="col-12 md:col-6 flex gap-2 justify-content-end">
               <button pButton icon="pi pi-file-pdf" label="PDF" class="p-button-outlined"
                 (click)="viewPdfMantenimiento(r.id)"
-                *ngIf="r.adjunto_url && (r.adjunto_url.includes('.pdf') || r.adjunto_url.includes('.PDF'))"
+                *ngIf="r.rutaPdf && (r.rutaPdf.includes('.pdf') || r.rutaPdf.includes('.PDF'))"
                 pTooltip="Ver PDF">
               </button>
               <button pButton icon="pi pi-file-word" label="DOC" class="p-button-outlined"
                 (click)="viewPdfMantenimiento(r.id)"
-                *ngIf="r.adjunto_url && (r.adjunto_url.includes('.doc') || r.adjunto_url.includes('.docx') || r.adjunto_url.includes('.DOC') || r.adjunto_url.includes('.DOCX'))"
+                *ngIf="r.rutaPdf && (r.rutaPdf.includes('.doc') || r.rutaPdf.includes('.docx') || r.rutaPdf.includes('.DOC') || r.rutaPdf.includes('.DOCX'))"
                 pTooltip="Ver Word">
               </button>
             </div>
@@ -369,6 +365,30 @@
         </p-card>
       </div>
     </div>
+
+    <!-- Protocolo Preventivo -->
+    <div class="grid mt-2" *ngIf="rutina && rutina.length > 0">
+      <div class="col-12">
+        <h5 class="font-bold mb-2" style="color: #1e293b;">Rutina de Mantenimiento</h5>
+        <p-table [value]="rutina" responsiveLayout="scroll" styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 70%">Descripción</th>
+              <th style="width: 15%">Cumplimiento</th>
+              <th style="width: 15%">Observaciones</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-protocolo>
+            <tr>
+              <td>{{ protocolo.protocolo?.paso || protocolo.paso }}</td>
+              <td>{{ protocolo.cumple === 'CUMPLE' ? 'Cumple' : (protocolo.cumple === 'NO_CUMPLE' ? 'No Cumple' : protocolo.cumple) }}</td>
+              <td>{{ protocolo.observaciones || '' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+
 
     <!-- 4. Mediciones -->
     <div class="grid mt-2" *ngIf="r.valoresMediciones && r.valoresMediciones.length > 0">
@@ -403,12 +423,14 @@
               <tr>
                 <th>Repuesto</th>
                 <th>Cantidad</th>
+                <th>Comprobante</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let rep of r.repuestos">
                 <td>{{ rep.nombreInsumo }}</td>
                 <td>{{ rep.cantidad }}</td>
+                <td>{{ rep.comprobanteEgreso ?? 'N/A' }}</td>
               </tr>
             </tbody>
           </table>

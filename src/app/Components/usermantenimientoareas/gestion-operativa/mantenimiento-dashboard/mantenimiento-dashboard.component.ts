@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +11,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { ActivatedRoute } from '@angular/router';
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { PlanMantenimientoService } from '../../../../Services/appServices/areasFisicas/plan-mantenimiento.service';
 import { InspeccionService } from '../../../../Services/appServices/areasFisicas/inspeccion.service';
 import { ObservacionesService } from '../../../../Services/appServices/areasFisicas/observaciones.service';
@@ -20,7 +21,7 @@ import Swal from 'sweetalert2';
 @Component({
     selector: 'app-mantenimiento-dashboard',
     standalone: true,
-    imports: [CommonModule, FormsModule, TableModule, ButtonModule, CalendarModule, SelectModule, IconFieldModule, InputIconModule, InputTextModule, MantenimientoadminnavbarComponent],
+    imports: [CommonModule, FormsModule, TableModule, ButtonModule, CalendarModule, SelectModule, IconFieldModule, InputIconModule, InputTextModule, AppNavbarComponent],
     templateUrl: './mantenimiento-dashboard.component.html',
     styleUrl: './mantenimiento-dashboard.component.css'
 })

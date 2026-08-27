@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../../navbars/app-navbar/app-navbar.component';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -5,13 +6,13 @@ import { Router, ActivatedRoute } from '@angular/router';
 import Swal from 'sweetalert2';
 import { PlanMantenimientoIndustrialesService } from '../../../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
 import { EquiposIndustrialesService } from '../../../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
-import { MantenimientoadminnavbarComponent } from '../../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 
 
 @Component({
   selector: 'app-editar-plan-mantenimiento',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MantenimientoadminnavbarComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, AppNavbarComponent],
   templateUrl: './editar-plan-mantenimiento.component.html',
   styleUrls: ['./editar-plan-mantenimiento.component.css']
 })

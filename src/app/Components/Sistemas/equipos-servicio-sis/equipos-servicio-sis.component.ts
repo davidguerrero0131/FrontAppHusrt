@@ -2,7 +2,12 @@ import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SplitButtonModule } from 'primeng/splitbutton';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { TableModule, Table } from 'primeng/table';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { TagModule } from 'primeng/tag';
 import { SysequiposService, SysEquipo } from '../../../Services/appServices/sistemasServices/sysequipos/sysequipos.service';
 import { ServicioService } from '../../../Services/appServices/general/servicio/servicio.service';
 import { SysplanmantenimientoService } from '../../../Services/appServices/sistemasServices/sysplanmantenimiento/sysplanmantenimiento.service';
@@ -24,7 +29,8 @@ import { getEstadoSoporte, LABELS_SOPORTE } from '../../../utils/soporte-utils';
   selector: 'app-equipos-servicio-sis',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, SplitButtonModule,
+    CommonModule, FormsModule, SplitButtonModule, RouterModule,
+    TableModule, IconFieldModule, InputIconModule, InputTextModule, TagModule,
     SysEquipoModalComponent, SysEquipoDetailModalComponent,
     SysHistorialEquipoComponent, SysDeleteConfirmationDialogComponent,
     SysReportesEquipoComponent, SysTrasladosModalComponent
@@ -34,8 +40,9 @@ import { getEstadoSoporte, LABELS_SOPORTE } from '../../../utils/soporte-utils';
 })
 export class EquiposServicioSisComponent implements OnInit, OnDestroy {
   @ViewChild(SysDeleteConfirmationDialogComponent) deleteDialog!: SysDeleteConfirmationDialogComponent;
+  @ViewChild('dt2') dt2!: Table;
 
-  equipos: SysEquipo[] = [];
+  equipos: any[] = [];
   filteredEquipos: any[] = [];
   pagedEquipos: any[] = [];
   searchTerm: string = '';
@@ -44,6 +51,8 @@ export class EquiposServicioSisComponent implements OnInit, OnDestroy {
 
   isLoading: boolean = true;
   error: string | null = null;
+  first: number = 0;
+  searchText: string = '';
 
   pageSize = 8;
   readonly pageSizeOptions = [8, 25, 50];
@@ -153,8 +162,8 @@ export class EquiposServicioSisComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.success) {
           this.equipos = Array.isArray(response.data) ? response.data : [response.data];
-          this.applyFilters();
-          this.restorePageFromUrl();
+          this.equipos = this.equipos.map(e => ({ ...e, opciones: this.buildOpciones(e) }));
+          this.filteredEquipos = this.equipos;
         } else {
           this.error = response.message || 'Error al cargar los equipos';
           this.equipos = []; this.filteredEquipos = [];
@@ -170,15 +179,16 @@ export class EquiposServicioSisComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSearch(event: Event) {
-    this.searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
-    this.applyFilters();
+  onGlobalFilter(event: Event): void {
+    const target = event.target as HTMLInputElement | null;
+    if (target) {
+      this.searchText = target.value;
+      this.dt2.filterGlobal(this.searchText, 'contains');
+    }
   }
 
-  clearSearch(input: HTMLInputElement) {
-    input.value = '';
-    this.searchTerm = '';
-    this.applyFilters();
+  onPageChange(event: any) {
+    this.first = event.first;
   }
 
   applyFilters() {
@@ -202,7 +212,7 @@ export class EquiposServicioSisComponent implements OnInit, OnDestroy {
     if (this.isReadOnly) {
       return [
         { label: 'Ver Detalles',          icon: 'pi pi-eye',             command: () => this.openDetailModal(equipo) },
-        { label: 'Ver Reportes',          icon: 'fas fa-clipboard-list', command: () => this.openReportesList(equipo) },
+        { label: 'Ver Reportes Entrega',  icon: 'fas fa-clipboard-list', command: () => this.openReportesList(equipo) },
         { label: 'Ver Historial',         icon: 'fas fa-history',        command: () => this.openHistorialModal(equipo) },
         { label: 'Registro de Traslados', icon: 'fas fa-exchange-alt',   command: () => this.openTrasladosModal(equipo) },
       ];
@@ -211,15 +221,30 @@ export class EquiposServicioSisComponent implements OnInit, OnDestroy {
       { label: 'Ver Detalles',          icon: 'pi pi-eye',             command: () => this.openDetailModal(equipo) },
       { label: 'Editar',                icon: 'pi pi-pencil',          command: () => this.openEditModal(equipo) },
       { label: 'Reporte de Entrega',    icon: 'fas fa-file-export',    command: () => this.openReporteForm(equipo) },
-      { label: 'Ver Reportes',          icon: 'fas fa-clipboard-list', command: () => this.openReportesList(equipo) },
+      { label: 'Ver Reportes Entrega',  icon: 'fas fa-clipboard-list', command: () => this.openReportesList(equipo) },
       { label: 'Ver Historial',         icon: 'fas fa-history',        command: () => this.openHistorialModal(equipo) },
       { label: 'Registro de Traslados', icon: 'fas fa-exchange-alt',   command: () => this.openTrasladosModal(equipo) },
     ];
+
+    const decoded = getDecodedAccessToken();
+    const canCreateReporte = decoded?.rol === 'SUPERADMIN' || decoded?.rol === 'SYSTEMUSER' || decoded?.rol === 'SYSTEMADMIN';
+    if (canCreateReporte) {
+      items.push({ 
+        label: 'Crear Reporte', 
+        icon: 'pi pi-plus', 
+        command: () => {
+          localStorage.removeItem('idMantenimiento');
+          localStorage.removeItem('TipoMantenimiento');
+          this.router.navigate(['/adminsistemas/reporteMantenimiento', equipo.id_sysequipo]);
+        }
+      });
+    }
+
     if (this.isAdmin) {
       items.push(
+        { label: 'Plan de Mantenimiento', icon: 'pi pi-calendar',     command: () => this.openPlanDialog(equipo) },
         { label: 'Enviar a Bodega',       icon: 'fas fa-warehouse',   command: () => this.confirmBodega(equipo) },
         { label: 'Dar de Baja',           icon: 'pi pi-ban',          command: () => this.confirmBaja(equipo) },
-        { label: 'Plan de Mantenimiento', icon: 'pi pi-calendar',     command: () => this.openPlanDialog(equipo) },
       );
     }
     return items;

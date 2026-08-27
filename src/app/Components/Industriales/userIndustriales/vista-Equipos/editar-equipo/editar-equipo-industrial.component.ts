@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../../navbars/app-navbar/app-navbar.component';
 import { ResponsableService } from '../../../../../Services/appServices/industrialesServices/responsable/responsable.service';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
@@ -9,12 +10,12 @@ import { SedeService } from '../../../../../Services/appServices/general/sede/se
 import { UppercaseDirective } from '../../../../../Directives/uppercase.directive';
 import Swal from 'sweetalert2';
 import { EquiposIndustrialesService } from '../../../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
-import { MantenimientoadminnavbarComponent } from '../../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 
 @Component({
   selector: 'app-editar-equipo-industrial',
   standalone: true,
-  imports: [CommonModule, UppercaseDirective, FormsModule, ReactiveFormsModule, MantenimientoadminnavbarComponent],
+  imports: [CommonModule, UppercaseDirective, FormsModule, ReactiveFormsModule, AppNavbarComponent],
   templateUrl: './editar-equipo-industrial.component.html',
   styleUrls: ['./editar-equipo-industrial.component.css']
 })

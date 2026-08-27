@@ -56,5 +56,29 @@
                 </div>
             </ng-template>
         </p-card>
+        <!-- Subcategoría para Mantenimientos Sistemas -->
+        <p-card styleClass="shadow-2 border-round-xl h-full">
+            <ng-template pTemplate="header">
+                <div class="p-3 border-bottom-1 surface-border flex align-items-center gap-2">
+                    <i class="pi pi-desktop text-primary text-xl"></i>
+                    <h3 class="m-0 text-xl font-semibold">Subcategoría para Equipos de Sistemas</h3>
+                </div>
+            </ng-template>
+            <p class="text-color-secondary mb-4">
+                Asigna la subcategoría de la mesa de servicios (Módulo Sistemas) que requiere relacionar equipos.
+            </p>
+            <div class="flex flex-column gap-2 mb-4">
+                <label for="subcategoriaSistemas" class="font-medium">Subcategoría (Sistemas):</label>
+                <p-dropdown [options]="subcategoriasMesaSistemas" [(ngModel)]="subcategoriaSistemasId" optionLabel="label" optionValue="value"
+                    [filter]="true" filterBy="label" [showClear]="false" placeholder="Seleccione una Subcategoría"
+                    styleClass="w-full">
+                </p-dropdown>
+            </div>
+            <ng-template pTemplate="footer">
+                <div class="flex justify-content-end">
+                    <p-button label="Guardar" icon="pi pi-save" (onClick)="guardarParametroSubcategoriaSistemas()" severity="success"></p-button>
+                </div>
+            </ng-template>
+        </p-card>
     </div>
 </div>

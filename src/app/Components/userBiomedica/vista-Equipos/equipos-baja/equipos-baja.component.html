@@ -14,7 +14,7 @@
             </p-iconField>
         </div>
 
-        <p-table #dt [value]="equipos" [rows]="10" [paginator]="true" [loading]="loading"
+        <p-table [scrollable]="true" #dt [value]="equipos" [rows]="10" [paginator]="true" [loading]="loading"
             [globalFilterFields]="['nombres', 'serie', 'placa', 'marca', 'modelo', 'servicios.nombres']"
             [rowHover]="true" dataKey="id"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} equipos"
@@ -61,9 +61,9 @@
     </div>
 </div>
 
-<p-dialog header="Pendientes de Autorización" [(visible)]="showAuthModal" [modal]="true" [style]="{width: '90vw'}" [draggable]="false" [resizable]="false">
+<p-dialog header="Pendientes de Autorización" [(visible)]="showAuthModal" [modal]="true" [style]="{width: '90vw'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
     <div class="p-2">
-        <p-table [value]="unauthorizedReports" [loading]="loadingAuth" styleClass="p-datatable-sm">
+        <p-table [scrollable]="true" [value]="unauthorizedReports" [loading]="loadingAuth" styleClass="p-datatable-sm">
             <ng-template pTemplate="header">
                 <tr>
                     <th>Equipo</th>

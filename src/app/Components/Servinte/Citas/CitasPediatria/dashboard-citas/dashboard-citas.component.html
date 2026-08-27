@@ -1,4 +1,3 @@
-<app-citaspediatriaadminnavbar></app-citaspediatriaadminnavbar>
 <div class="p-4" style="background-color: #f8fafc; min-height: 100vh;">
     <!-- Header with Breadcrumb-like nav -->
     <div class="flex flex-column md:flex-row md:align-items-center justify-content-between mb-5 gap-3">
@@ -172,8 +171,8 @@
     </div>
 
     <!-- Modal Drill-down de Pacientes -->
-    <p-dialog [(visible)]="displayDialog" [modal]="true" [header]="dialogHeader" [style]="{width: '75vw'}" [draggable]="false" [resizable]="false">
-        <p-table [value]="selectedPatients" [paginator]="true" [rows]="10" styleClass="p-datatable-sm p-datatable-striped" [tableStyle]="{'min-width': '50rem'}">
+    <p-dialog [(visible)]="displayDialog" [modal]="true" [header]="dialogHeader" [style]="{width: '75vw'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
+        <p-table [scrollable]="true" [value]="selectedPatients" [paginator]="true" [rows]="10" styleClass="p-datatable-sm p-datatable-striped" [tableStyle]="{'min-width': '50rem'}">
             <ng-template pTemplate="header">
                 <tr>
                     <th>Nombre Completo</th>

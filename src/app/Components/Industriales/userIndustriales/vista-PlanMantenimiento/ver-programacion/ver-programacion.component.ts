@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +14,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DatePicker } from 'primeng/datepicker';
 import { TagModule } from 'primeng/tag';
 
-import { MantenimientoadminnavbarComponent } from '../../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { PlanMantenimientoIndustrialesService } from '../../../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
 import { TipoEquipoService } from '../../../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
 import { ServicioService } from '../../../../../Services/appServices/general/servicio/servicio.service';
@@ -37,7 +38,7 @@ import { jwtDecode } from 'jwt-decode';
         DatePicker,
         DatePicker,
         TagModule,
-        MantenimientoadminnavbarComponent
+        AppNavbarComponent
     ],
     templateUrl: './ver-programacion.component.html',
     styleUrl: './ver-programacion.component.css'

@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -15,7 +16,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ReportesService } from '../../../Services/appServices/biomedicaServices/reportes/reportes.service';
 import { MeterGroupModule } from 'primeng/metergroup';
 import { DialogModule } from 'primeng/dialog';
-import { BiomedicausernavbarComponent } from '../../navbars/biomedicausernavbar/biomedicausernavbar.component';
+
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 

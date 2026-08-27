@@ -56,9 +56,9 @@
       </div>
 
       <div class="field col-12 md:col-6 lg:col-4">
-        <label class="font-bold">Rol</label>
-        <p-select [options]="roles" formControlName="rolId" optionLabel="nombre" optionValue="id"
-          placeholder="Seleccionar Rol" styleClass="w-full" appendTo="body"></p-select>
+        <label class="font-bold">Rol(es)</label>
+        <p-multiSelect [options]="roles" formControlName="rolesIds" optionLabel="nombre" optionValue="id"
+          placeholder="Seleccionar Roles" styleClass="w-full" appendTo="body" display="chip"></p-multiSelect>
       </div>
 
       <div class="field col-12 md:col-6 lg:col-4">
@@ -69,7 +69,7 @@
 
       <div class="field col-12 md:col-6 lg:col-4">
         <label class="font-bold">Servicio</label>
-        <p-select [options]="servicios" formControlName="servicioId" optionLabel="nombres" optionValue="id"
+        <p-select [options]="servicios" formControlName="servicioId" optionLabel="nombreConSede" optionValue="id"
           placeholder="Seleccionar Servicio" styleClass="w-full" appendTo="body" [filter]="true"></p-select>
       </div>
 

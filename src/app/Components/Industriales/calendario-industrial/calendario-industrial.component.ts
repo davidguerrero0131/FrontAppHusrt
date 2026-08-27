@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +12,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import Swal from 'sweetalert2';
-import { MantenimientoadminnavbarComponent } from '../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { PlanMantenimientoIndustrialesService } from '../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
 import { obtenerNombreMes } from '../../../utilidades';
 import { PlanMantenimientoService } from '../../../Services/appServices/areasFisicas/plan-mantenimiento.service';
@@ -23,7 +24,7 @@ import { jwtDecode } from 'jwt-decode';
   imports: [
     CommonModule, FormsModule, TableModule, ButtonModule,
     SelectModule, TagModule, IconFieldModule, InputIconModule, InputTextModule,
-    MantenimientoadminnavbarComponent
+    AppNavbarComponent
   ],
   templateUrl: './calendario-industrial.component.html',
   styleUrl: './calendario-industrial.component.css'

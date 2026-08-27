@@ -1,0 +1,86 @@
+<div class="game-wrapper">
+    <div class="container">
+
+        <!-- Botón Global para Cancelar/Terminar -->
+        <button *ngIf="currentScreen === 'game' || currentScreen === 'feedback'"
+                class="btn-abort"
+                (click)="forceEndGame()">
+            Terminar Actividad
+        </button>
+
+        <!-- PANTALLA DE INICIO -->
+        <div *ngIf="currentScreen === 'start'" id="start-screen">
+            <h1>Sistema de Integridad</h1>
+            <h2>Simulador de Decisiones Éticas</h2>
+
+            <div class="settings">
+                <label for="num-questions">¿Con cuántas situaciones deseas jugar?</label>
+                <input type="number" id="num-questions"
+                       min="1" max="20"
+                       [value]="numQuestionsInput"
+                       (change)="updateNumQuestions($event)">
+            </div>
+
+            <button class="big-red-button" (click)="startGame()">
+                🚨<br>ALERTA DE<br>INTEGRIDAD
+            </button>
+        </div>
+
+        <!-- PANTALLA DE JUEGO -->
+        <div *ngIf="currentScreen === 'game'" id="game-screen">
+            <div class="header-game">
+                <span id="question-counter">Caso {{ currentIndex + 1 }} de {{ db.length }}</span>
+                <div class="timer"
+                     [class.danger]="timeLeft <= 3 && !isReading"
+                     [class.reading]="isReading">
+                    {{ isReading ? '10' : timeLeft }}
+                </div>
+            </div>
+
+            <h2 id="situation-title">{{ currentSituation?.title }}</h2>
+            <div id="situation-text" class="situation-box">
+                {{ currentSituation?.context }}
+            </div>
+
+            <div class="options" id="options-container">
+                <button *ngFor="let opt of options"
+                        class="option-btn"
+                        [disabled]="optionsRevealed"
+                        [class.selected]="opt.selected"
+                        [ngClass]="opt.revealed ? 'revealed-' + opt.color : ''"
+                        (click)="selectAnswer(opt)">
+                    <span class="icon">{{ opt.revealed ? opt.icon : '⚪' }}</span>
+                    <span>{{ opt.text }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE FEEDBACK -->
+        <div *ngIf="currentScreen === 'feedback'" id="feedback-screen">
+            <div class="feedback-icon">{{ feedbackIcon }}</div>
+            <div class="feedback-title" [ngClass]="feedbackClass">{{ feedbackTitle }}</div>
+
+            <div class="feedback-message">
+                <strong style="color:var(--green-color);">Acción esperada:</strong>
+                {{ expectedAction }}<br><br>
+                <hr style="margin:15px 0; border:0; border-top:1px solid #ccc;">
+                <strong style="color:var(--primary-color);">Reflexión:</strong>
+                {{ feedbackMessage }}
+            </div>
+
+            <button class="btn" (click)="nextQuestion()">Siguiente Situación</button>
+        </div>
+
+        <!-- PANTALLA FINAL -->
+        <div *ngIf="currentScreen === 'end'" id="end-screen">
+            <h1>Simulación Completada</h1>
+            <h2>Tu puntuación de Integridad:</h2>
+            <div class="score">{{ score }} / {{ db.length }}</div>
+            <p style="margin-bottom: 40px; font-size:1.8rem; color:#555;">
+                Recuerda: La integridad es hacer lo correcto incluso cuando nadie nos está mirando.
+            </p>
+            <button class="btn" (click)="resetGame()">Volver al Inicio</button>
+        </div>
+
+    </div>
+</div>

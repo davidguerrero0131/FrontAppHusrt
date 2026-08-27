@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -7,13 +8,13 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
-import { MantenimientoadminnavbarComponent } from '../../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-manage-elemento',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, CheckboxModule, DropdownModule, MantenimientoadminnavbarComponent],
+    imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, CheckboxModule, DropdownModule, AppNavbarComponent],
     templateUrl: './manage-elemento.component.html',
     styleUrls: ['./manage-elemento.component.css']
 })

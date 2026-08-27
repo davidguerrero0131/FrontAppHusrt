@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
@@ -10,7 +11,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { DividerModule } from 'primeng/divider';
 import { SelectModule } from 'primeng/select';
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { ReporteMantenimientoService } from '../../../../Services/appServices/areasFisicas/reporte-mantenimiento.service';
 import { AreaElementoService } from '../../../../Services/appServices/areasFisicas/area-elemento.service';
 import { UserService } from '../../../../Services/appServices/userServices/user.service';
@@ -22,7 +23,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-manage-reporte-mantenimiento',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, InputTextModule, ButtonModule, TextareaModule, CalendarModule, CheckboxModule, RadioButtonModule, DividerModule, SelectModule, MantenimientoadminnavbarComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, InputTextModule, ButtonModule, TextareaModule, CalendarModule, CheckboxModule, RadioButtonModule, DividerModule, SelectModule, AppNavbarComponent],
   templateUrl: './manage-reporte-mantenimiento.component.html',
   styleUrls: ['./manage-reporte-mantenimiento.component.css']
 })

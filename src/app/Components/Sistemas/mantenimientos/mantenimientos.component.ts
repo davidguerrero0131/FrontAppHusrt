@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
+import { Observable, firstValueFrom } from 'rxjs';
 import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { CardModule } from 'primeng/card';
@@ -63,9 +64,9 @@ export class SisMantenimientosComponent implements OnInit {
 
   // ── UI State ──────────────────────────────────────────────────────────────
   isLoading = false;
-  isModalLoading = false;           // spinner solo para el modal
+  isModalLoading = false;
   error: string | null = null;
-  activeTab: 'todos' | 'Preventivo' | 'Correctivo' | 'Predictivo' = 'todos';
+  activeTab: 'Preventivo' | 'Correctivo' = 'Preventivo';
 
   isAdmin = false;
   isSystemUser = false;
@@ -74,14 +75,16 @@ export class SisMantenimientosComponent implements OnInit {
   users: any[] = [];
   reporteAdminSelected: any;
 
-
   // ── Filtros ───────────────────────────────────────────────────────────────
-  filterFechaInicio = '';
-  filterFechaFin = '';
+  mesInicio: number = new Date().getMonth() + 1;
+  mesFin: number = new Date().getMonth() + 1;
+  anioFiltro: number = new Date().getFullYear();
+  anios = [2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
 
   // ── Modal Ver ─────────────────────────────────────────────────────────────
   modalReport = false;
   reportSelected: SysMantenimiento | undefined = undefined;
+  rutina: any[] = [];
   selectedFile: File | null = null;
 
   // ── Modal Historial ───────────────────────────────────────────────────────
@@ -118,8 +121,11 @@ export class SisMantenimientosComponent implements OnInit {
   loadMantenimientos() {
     this.isLoading = true;
     const filters: any = {};
-    if (this.filterFechaInicio) filters.fecha_inicio = this.filterFechaInicio;
-    if (this.filterFechaFin) filters.fecha_fin = this.filterFechaFin;
+    if (this.mesInicio && this.mesFin && this.anioFiltro) {
+      filters.mesInicio = this.mesInicio;
+      filters.mesFin = this.mesFin;
+      filters.anio = this.anioFiltro;
+    }
 
     this.mantenimientoService.getAll(filters).subscribe({
       next: (res: any) => {
@@ -158,24 +164,25 @@ export class SisMantenimientosComponent implements OnInit {
   // ── Stats ──────────────────────────────────────────────────────────────────
 
   calculateStats() {
-    this.stats.total = this.mantenimientos.length;
-    this.stats.realizados = this.mantenimientos.filter(m => !!m.fechaRealizado).length;
-    this.stats.programados = this.mantenimientos.filter(m => (m as any)._status === 'PROGRAMADO').length;
-    this.stats.pendientes = this.mantenimientos.filter(m => (m as any)._status === 'PENDIENTE').length;
+    const preventivos = this.mantenimientos.filter(m => m.tipoMantenimiento === 'Preventivo');
+    this.stats.total = preventivos.length;
+    this.stats.realizados = preventivos.filter(m => !!m.fechaRealizado).length;
+    this.stats.programados = preventivos.filter(m => (m as any)._status === 'PROGRAMADO').length;
+    this.stats.pendientes = preventivos.filter(m => (m as any)._status === 'PENDIENTE').length;
+    
+    // Correctivos en el mes seleccionado
     this.stats.correctivos = this.mantenimientos.filter(m => m.tipoMantenimiento === 'Correctivo').length;
   }
 
   // ── Tabs ───────────────────────────────────────────────────────────────────
 
-  switchTab(tab: 'todos' | 'Preventivo' | 'Correctivo' | 'Predictivo') {
+  switchTab(tab: 'Preventivo' | 'Correctivo') {
     this.activeTab = tab;
     this.updateDisplayRecords();
   }
 
   updateDisplayRecords() {
-    this.displayRecords = this.activeTab === 'todos'
-      ? this.mantenimientos
-      : this.mantenimientos.filter(m => m.tipoMantenimiento === this.activeTab);
+    this.displayRecords = this.mantenimientos.filter(m => m.tipoMantenimiento === this.activeTab);
   }
 
   // ── Filtros ────────────────────────────────────────────────────────────────
@@ -183,8 +190,9 @@ export class SisMantenimientosComponent implements OnInit {
   applyFilters() { this.loadMantenimientos(); }
 
   clearFilters() {
-    this.filterFechaInicio = '';
-    this.filterFechaFin = '';
+    this.mesInicio = new Date().getMonth() + 1;
+    this.mesFin = new Date().getMonth() + 1;
+    this.anioFiltro = new Date().getFullYear();
     this.loadMantenimientos();
   }
 
@@ -206,6 +214,26 @@ export class SisMantenimientosComponent implements OnInit {
       const res: any = await this.mantenimientoService.getById(id);
       // El backend retorna { success: true, data: {...} } — desempacamos .data
       this.reportSelected = res?.data ?? res;
+      
+      try {
+        const resRutina: any = await this.mantenimientoService.getCumplimientoProtocoloMantenimiento(id);
+        this.rutina = resRutina?.data || resRutina || [];
+      } catch(e) {
+        this.rutina = [];
+      }
+
+      if (this.reportSelected && (this.reportSelected as any).movimientosStock) {
+        this.reportSelected.repuestos = (this.reportSelected as any).movimientosStock.map((mov: any) => ({
+            id: mov.id,
+            sysRepuestoIdFk: mov.id_repuesto_fk,
+            cantidad: mov.cantidad,
+            tipoRepuestoIdFk: mov.repuesto?.id_sys_tipo_repuesto_fk ?? null,
+            nombreInsumo: mov.repuesto?.nombre ?? '',
+            tipoNombre: mov.repuesto?.tipoRepuesto?.nombre ?? '',
+            comprobanteEgreso: mov.factura_ruta ?? 'N/A'
+        }));
+      }
+
       this.modalReport = true;
     } catch (err) {
       Swal.fire('Error', extractError(err, 'cargar la información del mantenimiento'), 'error');
@@ -277,8 +305,8 @@ export class SisMantenimientosComponent implements OnInit {
   async viewPdfMantenimiento(id: number | undefined) {
     if (!id) return;
     const m = this.mantenimientos.find(x => x.id === id);
-    if (m?.adjunto_url) {
-      await this.viewPdf(m.adjunto_url);
+    if (m?.rutaPdf) {
+      await this.viewPdf(m.rutaPdf);
     }
   }
 
@@ -287,8 +315,30 @@ export class SisMantenimientosComponent implements OnInit {
   }
 
   async subirPdf() {
-    Swal.fire('Próximamente', 'La subida de PDF se habilitará pronto.', 'info');
-    this.selectedFile = null;
+    if (!this.selectedFile || !this.reportSelected) {
+      Swal.fire('Atencion', 'Debes seleccionar un archivo PDF.', 'warning');
+      return;
+    }
+
+    try {
+      Swal.fire({ title: 'Subiendo PDF...', allowOutsideClick: false });
+      Swal.showLoading();
+      
+      const res: any = await firstValueFrom(
+        this.mantenimientoService.subirPdf(this.reportSelected.id!, this.selectedFile)
+      );
+
+      Swal.fire('Exito!', 'El archivo PDF ha sido subido correctamente.', 'success');
+      this.selectedFile = null;
+      
+      // Update local view model
+      this.reportSelected.rutaPdf = res.data.rutaPdf;
+      const m = this.mantenimientos.find(x => x.id === this.reportSelected?.id);
+      if (m) m.rutaPdf = res.data.rutaPdf;
+
+    } catch (err) {
+      Swal.fire('Error', 'Hubo un error al subir el PDF.', 'error');
+    }
   }
 
   // ── Eliminar ──────────────────────────────────────────────────────────────
@@ -367,7 +417,7 @@ export class SisMantenimientosComponent implements OnInit {
   async loadUsers() {
     try {
       const users = await this.userService.getAllUsers();
-      this.users = users.filter((u: any) => u.rolId === 10);
+      this.users = users.filter((u: any) => u.roles && u.roles.some((r: any) => r.nombre === 'SISTEMASTECNICO'));
     } catch (error) {
       console.error('Error cargando usuarios:', error);
     }

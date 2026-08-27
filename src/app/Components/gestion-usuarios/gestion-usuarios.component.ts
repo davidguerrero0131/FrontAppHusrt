@@ -26,13 +26,14 @@ import { MenuModule } from 'primeng/menu';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 
+import { MultiSelectModule } from 'primeng/multiselect';
 import { UppercaseDirective } from '../../Directives/uppercase.directive';
 
 @Component({
   selector: 'app-gestion-usuarios',
   standalone: true,
   imports: [TableModule, CommonModule, DialogModule, ReactiveFormsModule, InputTextModule, SelectModule, ButtonModule, SplitButtonModule, TooltipModule, ToolbarModule, TagModule, MenuModule,
-    IconFieldModule, InputIconModule, UppercaseDirective
+    IconFieldModule, InputIconModule, UppercaseDirective, MultiSelectModule
   ],
   providers: [MessageService],
   templateUrl: './gestion-usuarios.component.html',
@@ -85,7 +86,7 @@ export class GestionUsuariosComponent implements OnInit {
       tipoId: ['', Validators.required],
       numeroId: ['', Validators.required],
       registroInvima: [''],
-      rolId: ['', Validators.required],
+      rolesIds: [[], Validators.required],
       cargoId: ['', Validators.required],
       servicioId: ['', Validators.required],
       mesaServicioRolId: ['', Validators.required]
@@ -138,7 +139,7 @@ export class GestionUsuariosComponent implements OnInit {
       tipoId: user.tipoId,
       numeroId: user.numeroId,
       registroInvima: user.registroInvima,
-      rolId: user.rolId,
+      rolesIds: user.roles ? user.roles.map((r: any) => r.id) : (user.rolId ? [user.rolId] : []),
       cargoId: user.cargoId,
       servicioId: user.servicioId,
       mesaServicioRolId: user.mesaServicioRolId
@@ -170,7 +171,11 @@ export class GestionUsuariosComponent implements OnInit {
   async saveUser() {
     if (this.formGroup.valid) {
       try {
-        await this.userService.update(this.formGroup.value, this.selectedUser.id);
+        const payload = {
+          ...this.formGroup.value,
+          rolId: this.formGroup.value.rolesIds && this.formGroup.value.rolesIds.length > 0 ? this.formGroup.value.rolesIds[0] : null
+        };
+        await this.userService.update(payload, this.selectedUser.id);
         this.usuarios = await this.userService.getAllUsers();
         this.visibleEditModal = false;
         Swal.fire("Usuario Actualizado!", "", "success");

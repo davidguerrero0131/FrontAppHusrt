@@ -82,7 +82,7 @@ export class PowerBiAdminComponent implements OnInit {
 
   loadUsers() {
     this.userService.getAllUsers().then((data: any) => {
-      this.usuarios = data;
+      this.usuarios = data.filter((u: any) => u.estado === true || u.estado === 1);
     });
   }
 
@@ -96,7 +96,14 @@ export class PowerBiAdminComponent implements OnInit {
   openEdit(dash: any) {
     this.isEdit = true;
     this.dashboardForm = { ...dash };
-    this.selectedUsers = dash.usuariosAsignados ? [...dash.usuariosAsignados] : [];
+    if (dash.usuariosAsignados) {
+      this.selectedUsers = dash.usuariosAsignados.map((asignado: any) => {
+        const found = this.usuarios.find(u => u.id === asignado.id);
+        return found ? found : asignado;
+      });
+    } else {
+      this.selectedUsers = [];
+    }
     this.displayDialog = true;
   }
 
@@ -139,8 +146,19 @@ export class PowerBiAdminComponent implements OnInit {
 
   openAssign(dash: any) {
     this.selectedDashboardForAssign = dash;
-    this.selectedUsers = dash.usuariosAsignados || [];
+    if (dash.usuariosAsignados) {
+      this.selectedUsers = dash.usuariosAsignados.map((asignado: any) => {
+        const found = this.usuarios.find(u => u.id === asignado.id);
+        return found ? found : asignado;
+      });
+    } else {
+      this.selectedUsers = [];
+    }
     this.displayAssignDialog = true;
+  }
+
+  removeUser(user: any) {
+    this.selectedUsers = this.selectedUsers.filter(u => u.id !== user.id);
   }
 
   saveAssign() {

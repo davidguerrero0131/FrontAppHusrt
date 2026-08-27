@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from './Components/navbars/app-navbar/app-navbar.component';
 import { Component, PLATFORM_ID, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
@@ -106,17 +107,17 @@ import { MessageService } from 'primeng/api';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 
-import { BiomedicaadminnavbarComponent } from './Components/navbars/biomedicaadminnavbar/biomedicaadminnavbar.component';
-import { SuperadminnavbarComponent } from './Components/navbars/superadminnavbar/superadminnavbar.component';
-import { BiomedicausernavbarComponent } from './Components/navbars/biomedicausernavbar/biomedicausernavbar.component';
-import { BiomedicatecniconavbarComponent } from './Components/navbars/biomedicatecniconavbar/biomedicatecniconavbar.component';
-import { MantenimientoadminnavbarComponent } from './Components/navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
-import { AdminespaciosnavbarComponent } from './Components/navbars/adminespaciosnavbar/adminespaciosnavbar.component';
-import { MesaadminnavbarComponent } from './Components/navbars/mesaadminnavbar/mesaadminnavbar.component';
-import { MesausernavbarComponent } from './Components/navbars/mesausernavbar/mesausernavbar.component';
-import { SistemasadminnavbarComponent } from './Components/navbars/sistemasadminnavbar/sistemasadminnavbar.component';
-import { NavbardashboardadminComponent } from './Components/navbars/navbardashboardadmin/navbardashboardadmin.component';
-import { NavbardashboarduserComponent } from './Components/navbars/navbardashboarduser/navbardashboarduser.component';
+
+
+
+
+
+
+
+
+
+
+
 import { UserService } from './Services/appServices/userServices/user.service';
 import { Router, NavigationEnd } from '@angular/router';
 import { getDecodedAccessToken } from './utilidades';
@@ -220,17 +221,7 @@ import { SessionSyncService } from './Services/auth/session-sync.service';
     FocusTrapModule,
     FloatLabelModule,
 
-    BiomedicaadminnavbarComponent,
-    SuperadminnavbarComponent,
-    BiomedicausernavbarComponent,
-    BiomedicatecniconavbarComponent,
-    MantenimientoadminnavbarComponent,
-    AdminespaciosnavbarComponent,
-    MesaadminnavbarComponent,
-    MesausernavbarComponent,
-    SistemasadminnavbarComponent,
-    NavbardashboardadminComponent,
-    NavbardashboarduserComponent,
+    AppNavbarComponent,
     CommonModule
   ],
   templateUrl: './app.component.html',
@@ -297,18 +288,20 @@ export class AppComponent implements OnInit {
 
   checkLoginRoute() {
     const currentUrl = this.router.url;
-    // Hide navbar on login page or basic root if no token
-    if (currentUrl === '/login' || currentUrl === '/') {
+    // Hide navbar on login page, basic root, password recovery pages, or if not fully logged in (no role)
+    if (
+      currentUrl === '/login' || 
+      currentUrl === '/' || 
+      currentUrl.includes('login') ||
+      currentUrl.includes('olvido') || 
+      currentUrl.includes('recuperar') ||
+      currentUrl.includes('contrase') ||
+      currentUrl.includes('integridadth') ||
+      (currentUrl.includes('interno') && (!this.userService.isLoggedIn() || !this.userRole))
+    ) {
       this.showNavbar = false;
-      // If we are at root, maybe check token validity? For now, if root, hide.
-      // Actually usually root redirects to login or home. 
-      // Let's assume login page is /login.
     } else {
       this.showNavbar = true;
-    }
-
-    if (currentUrl.includes('login')) {
-      this.showNavbar = false;
     }
   }
 

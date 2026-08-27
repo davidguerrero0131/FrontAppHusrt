@@ -1,15 +1,16 @@
+import { AppNavbarComponent } from '../../../../navbars/app-navbar/app-navbar.component';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import Swal from 'sweetalert2';
 import { PlanMantenimientoIndustrialesService } from '../../../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
-import { MantenimientoadminnavbarComponent } from '../../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 
 
 @Component({
   selector: 'app-detalle-plan-mantenimiento',
   standalone: true,
-  imports: [CommonModule, MantenimientoadminnavbarComponent],
+  imports: [CommonModule, AppNavbarComponent],
   templateUrl: './detalle-plan-mantenimiento.component.html',
   styleUrls: ['./detalle-plan-mantenimiento.component.css']
 })

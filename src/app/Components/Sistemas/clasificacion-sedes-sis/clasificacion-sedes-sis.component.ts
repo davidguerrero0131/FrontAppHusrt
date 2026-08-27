@@ -1,3 +1,5 @@
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +13,7 @@ import { catchError, map } from 'rxjs/operators';
 @Component({
   selector: 'app-clasificacion-sedes-sis',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule],
   templateUrl: './clasificacion-sedes-sis.component.html',
   styleUrl: './clasificacion-sedes-sis.component.css'
 })

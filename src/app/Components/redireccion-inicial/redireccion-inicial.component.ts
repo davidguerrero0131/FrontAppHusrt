@@ -18,7 +18,15 @@ export class RedireccionInicialComponent implements OnInit {
             if (!isTokenExpired()) {
                 const decoded = getDecodedAccessToken();
                 const role = decoded?.rol ? decoded.rol.toUpperCase().replace(/\s+/g, '') : null;
-                const targetRoute = role ? ROLE_REDIRECTS[role] : null;
+                const modulos = decoded?.modulos || [];
+
+                let targetRoute = role ? ROLE_REDIRECTS[role] : null;
+
+                // Si el usuario tiene acceso a módulos (y no es solo INVITADO o un usuario sin módulos asignados en backend),
+                // lo enviamos al home unificado (antes exclusivo de superadmin).
+                if (modulos.length > 0) {
+                    targetRoute = '/homeuser';
+                }
 
                 if (targetRoute) {
                     this.router.navigate([targetRoute]);

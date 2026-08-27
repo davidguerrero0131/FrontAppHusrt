@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../../navbars/app-navbar/app-navbar.component';
 import { CommonModule, Location } from '@angular/common';
 import { Component, inject, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
@@ -12,7 +13,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { IndustrialesNavbarComponent } from '../../../../navbars/IndustrialesNavbar/industrialesnavbar.component';
-import { MantenimientoadminnavbarComponent } from '../../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import Swal from 'sweetalert2';
 import { jwtDecode } from 'jwt-decode';
 import { PlanMantenimientoIndustrialesService } from '../../../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
@@ -38,7 +39,7 @@ import { API_URL } from '../../../../../constantes';
     ButtonModule,
     TagModule,
     TooltipModule,
-    MantenimientoadminnavbarComponent
+    AppNavbarComponent
   ],
   templateUrl: './gestion-plan-mantenimiento.component.html',
   styleUrls: ['./gestion-plan-mantenimiento.component.css']

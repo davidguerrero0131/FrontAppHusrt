@@ -7,7 +7,7 @@
 </div>
 
 <div class="card" style="margin-top: 3%; width: 94%; margin-left: 3%; margin-right: 3%;">
-    <p-table #dt2 [value]="equipos" dataKey="id" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+    <p-table [scrollable]="true" #dt2 [value]="equipos" dataKey="id" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
         [loading]="loading"
         [globalFilterFields]="['nombres', 'marca', 'modelo', 'serie', 'ubicacionEspecifica', 'placa']"
         [tableStyle]="{ 'min-width': '10rem' }" [showCurrentPageReport]="true"

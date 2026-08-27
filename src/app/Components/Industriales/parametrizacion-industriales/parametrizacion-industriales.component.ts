@@ -1,16 +1,17 @@
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { MantenimientoadminnavbarComponent } from '../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { Location } from '@angular/common';
 import { getDecodedAccessToken } from '../../../utilidades';
 
 @Component({
     selector: 'app-parametrizacion-industriales',
     standalone: true,
-    imports: [CommonModule, CardModule, ButtonModule, MantenimientoadminnavbarComponent],
+    imports: [CommonModule, CardModule, ButtonModule, AppNavbarComponent],
     templateUrl: './parametrizacion-industriales.component.html',
     styleUrl: './parametrizacion-industriales.component.css'
 })

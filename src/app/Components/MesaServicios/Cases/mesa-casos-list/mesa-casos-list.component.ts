@@ -125,12 +125,20 @@ export class MesaCasosListComponent implements OnInit {
     });
   }
 
+  get misCasosAsignados(): any[] {
+    return this.casos.filter(c => 
+      (c.asignaciones && c.asignaciones.some((a: any) => a.usuarioId === this.userId)) ||
+      (c.creadorId === this.userId || c.creador?.id === this.userId)
+    );
+  }
+
   activeTab: string = 'recibidos';
 
   get displayCasos(): any[] {
     if (!this.showTabs) return this.casos;
     if (this.activeTab === 'recibidos') return this.casosRecibidos;
     if (this.activeTab === 'solicitados') return this.casosSolicitados;
+    if (this.activeTab === 'mis_casos') return this.misCasosAsignados;
     if (this.activeTab === 'global') return this.casos;
     return this.casos;
   }
@@ -359,11 +367,11 @@ export class MesaCasosListComponent implements OnInit {
   }
 
   viewCaso(id: number) {
-    this.router.navigate(['/adminmesaservicios/casos', id]);
+    this.router.navigate(['/mesaservicios/casos', id]);
   }
 
   createNew() {
-    this.router.navigate(['/adminmesaservicios/casos/novo']);
+    this.router.navigate(['/mesaservicios/casos/novo']);
   }
 
   displaySearchDialog: boolean = false;
@@ -664,36 +672,24 @@ export class MesaCasosListComponent implements OnInit {
 
         if (resolutorsToAssign.length === 0) return;
 
-        let completed = 0;
-        let errors = 0;
-
-        const finalize = () => {
-          if (completed + errors === resolutorsToAssign.length) {
-            this.displayAssignDialog = false;
-            this.assigningCaso = null;
-            this.selectedResolutor = null;
-            this.loadCasos();
-          }
-        };
-
-        resolutorsToAssign.forEach((user: any) => {
           const payload = {
-            usuarioId: user.id,
+            usuariosIds: resolutorsToAssign.map(u => u.id),
             asignadoPor: userId
           };
 
           this.mesaService.assignResolutor(this.assigningCaso.id, payload).subscribe({
             next: () => {
-              completed++;
-              finalize();
+              this.displayAssignDialog = false;
+              this.assigningCaso = null;
+              this.selectedResolutor = null;
+              this.loadCasos();
+              this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Responsable(s) asignado(s)' });
             },
             error: (err) => {
               console.error('Error assigning', err);
-              errors++;
-              finalize();
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al asignar responsable(s)' });
             }
           });
-        });
       }
     });
   }

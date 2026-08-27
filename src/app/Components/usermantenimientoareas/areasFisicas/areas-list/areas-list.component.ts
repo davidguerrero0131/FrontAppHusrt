@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { AreasService } from '../../../../Services/appServices/areasFisicas/areas.service';
 import { CommonModule, Location } from '@angular/common';
@@ -14,14 +15,14 @@ import { MenuItem } from 'primeng/api';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Table } from 'primeng/table';
 import { getDecodedAccessToken } from '../../../../utilidades';
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import Swal from 'sweetalert2';
 import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'app-areas-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule, ToolbarModule, TagModule, MenuModule, MantenimientoadminnavbarComponent],
+    imports: [CommonModule, TableModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, TooltipModule, ToolbarModule, TagModule, MenuModule, AppNavbarComponent],
     templateUrl: './areas-list.component.html',
     styleUrls: ['./areas-list.component.css']
 })

@@ -33,7 +33,7 @@
 </div>
 
 <!-- Modal para Solicitar Reserva -->
-<p-dialog [(visible)]="displayModal" [style]="{width: '800px'}" header="Solicitar Reserva de Espacio" [modal]="true" styleClass="p-fluid" appendTo="body" [draggable]="false" [resizable]="false">
+<p-dialog [(visible)]="displayModal" [style]="{width: '800px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Solicitar Reserva de Espacio" [modal]="true" styleClass="p-fluid" appendTo="body" [draggable]="false" [resizable]="false">
   <ng-template pTemplate="content">
     <div class="formgrid grid mt-3">
       <!-- Banner Espacio -->

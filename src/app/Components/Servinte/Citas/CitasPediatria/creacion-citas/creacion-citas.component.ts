@@ -1,3 +1,4 @@
+import {} from '../../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { EntidadService } from '../../../../../Services/Servinte/entidad.service';
 import Swal from 'sweetalert2';
@@ -9,13 +10,13 @@ import { CommonModule } from '@angular/common';
 
 import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
-import { CitaspediatriaadminnavbarComponent } from '../../../../navbars/citaspediatriaadminnavbar/citaspediatriaadminnavbar.component';
-import { CitaspediatriausernavbarComponent } from '../../../../navbars/citaspediatriausernavbar/citaspediatriausernavbar.component';
+
+
 
 @Component({
   selector: 'app-creacion-citas',
   standalone: true,
-  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, CardModule, DatePickerModule, SelectModule, CitaspediatriaadminnavbarComponent, CitaspediatriausernavbarComponent],
+  imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, CardModule, DatePickerModule, SelectModule],
   templateUrl: './creacion-citas.component.html',
   styleUrl: './creacion-citas.component.css'
 })

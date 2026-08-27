@@ -1,3 +1,7 @@
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
 import { Component, inject, OnInit, HostListener, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
@@ -13,13 +17,14 @@ import { getDecodedAccessToken } from '../../../utilidades';
 @Component({
   selector: 'app-clasificacion-tipo-equipo-sis',
   standalone: true,
-  imports: [FormsModule, CommonModule, SysEquipoModalComponent],
+  imports: [FormsModule, CommonModule, SysEquipoModalComponent, ButtonModule, InputTextModule, MenuModule],
   templateUrl: './clasificacion-tipo-equipo-sis.component.html',
   styleUrl: './clasificacion-tipo-equipo-sis.component.css'
 })
 export class ClasificacionTipoEquipoSisComponent implements OnInit {
 
   tiposEquipos: any[] = [];
+  totalEquiposActivos: number = 0;
   cantidadesEquipos: { [id: number]: number } = {};
   searchText: string = '';
   isLoading: boolean = true;
@@ -30,6 +35,27 @@ export class ClasificacionTipoEquipoSisComponent implements OnInit {
   isExporting: boolean = false;
   isExportMenuOpen: boolean = false;
 
+  exportItems: MenuItem[] = [
+    {
+      label: 'SIN OBSOLESCENCIA',
+      items: [
+        { label: 'Todos los equipos', command: () => this.descargarInventario('todos', false) },
+        { label: 'Equipos activos', command: () => this.descargarInventario('activo', false) },
+        { label: 'Equipos en bodega', command: () => this.descargarInventario('bodega', false) },
+        { label: 'Equipos inactivos', command: () => this.descargarInventario('inactivo', false) }
+      ]
+    },
+    {
+      label: 'CON OBSOLESCENCIA',
+      items: [
+        { label: 'Todos los equipos', command: () => this.descargarInventario('todos', true) },
+        { label: 'Equipos activos', command: () => this.descargarInventario('activo', true) },
+        { label: 'Equipos en bodega', command: () => this.descargarInventario('bodega', true) },
+        { label: 'Equipos inactivos', command: () => this.descargarInventario('inactivo', true) }
+      ]
+    }
+  ];
+
   get isReadOnly(): boolean {
     return isSistemasSoloLectura();
   }
@@ -37,20 +63,21 @@ export class ClasificacionTipoEquipoSisComponent implements OnInit {
   private tipoEquipoService = inject(TipoEquipoService);
   private sysequiposService = inject(SysequiposService);
   constructor(private router: Router) { }
+
   get isAdmin(): boolean {
     const decoded = getDecodedAccessToken();
     return decoded?.rol === 'ADMINISTRADOR' || decoded?.rol === 'SUPERADMIN' || decoded?.rol === 'SYSTEMADMIN' || decoded?.rol === 'SISTEMASTECNICO';
   }
+
   async ngOnInit() {
     if (!isPlatformBrowser(this.platformId)) return;
-    
+
     this.isLoading = true;
     this.error = null;
     try {
       this.tiposEquipos = await this.tipoEquipoService.getTiposEquiposSistemas();
-      for (const tipo of this.tiposEquipos) {
-        this.obtenerCantidad(tipo.id);
-      }
+      await Promise.all(this.tiposEquipos.map(tipo => this.obtenerCantidad(tipo.id)));
+      this.totalEquiposActivos = Object.values(this.cantidadesEquipos).reduce((sum, val) => sum + (val || 0), 0);
     } catch (err) {
       console.error('Error al cargar tipos:', err);
       this.error = 'Error al cargar los tipos de equipo.';
@@ -77,7 +104,6 @@ export class ClasificacionTipoEquipoSisComponent implements OnInit {
     sessionStorage.setItem('idTipoEquipoSis', String(idTipo));
     this.router.navigate(['/adminsistemas/equipostipo']);
   }
-
 
   openCreateModal() {
     this.isModalOpen = true;

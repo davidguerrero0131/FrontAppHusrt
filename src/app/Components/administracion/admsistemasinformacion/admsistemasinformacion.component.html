@@ -17,7 +17,7 @@
         </ng-template>
     </p-toolbar>
 
-    <p-table #dt [value]="sistemas" [rows]="10" [paginator]="true" [loading]="loading"
+    <p-table [scrollable]="true" #dt [value]="sistemas" [rows]="10" [paginator]="true" [loading]="loading"
         [globalFilterFields]="['nombre', 'tipo', 'tecnologia', 'responsableObj.nombres', 'proveedorObj.nombres']"
         [tableStyle]="{ 'min-width': '75rem' }" [rowHover]="true" dataKey="id"
         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
@@ -139,7 +139,7 @@
 <!-- Modal: Calendario de Backups -->
 <p-dialog [(visible)]="viewCalendarioBackup"
     [header]="'Backups — ' + (sistemaSeleccionado?.nombre || '')"
-    [modal]="true" [style]="{ width: '850px' }" styleClass="p-fluid">
+    [modal]="true" [style]="{ width: '850px' }" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" styleClass="p-fluid">
     <ng-template pTemplate="content">
         <div class="flex flex-column gap-4">
 
@@ -164,7 +164,7 @@
             </div>
 
             <!-- Lista de backups -->
-            <p-table [value]="backupsDelMes" [tableStyle]="{ 'min-width': '100%' }" [rowHover]="true">
+            <p-table [scrollable]="true" [value]="backupsDelMes" [tableStyle]="{ 'min-width': '100%' }" [rowHover]="true">
                 <ng-template pTemplate="header">
                     <tr>
                         <th>Fecha</th>
@@ -221,7 +221,7 @@
 
 <!-- Sub-modal: Agregar / Editar Backup -->
 <p-dialog [(visible)]="viewFormBackup" [header]="isEditingBackup ? 'Editar Backup' : 'Nuevo Backup'" [modal]="true"
-    [style]="{ width: '450px' }" styleClass="p-fluid" appendTo="body">
+    [style]="{ width: '450px' }" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" styleClass="p-fluid" appendTo="body">
     <ng-template pTemplate="content">
         <div class="flex flex-column gap-3">
             <div class="field">

@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +11,7 @@ import { CardModule } from 'primeng/card';
 import { AreasService } from '../../../../Services/appServices/areasFisicas/areas.service';
 import { ElementosService } from '../../../../Services/appServices/areasFisicas/elementos.service';
 import { AreaElementoService } from '../../../../Services/appServices/areasFisicas/area-elemento.service';
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import Swal from 'sweetalert2';
 
 import { InputTextModule } from 'primeng/inputtext';
@@ -18,7 +19,7 @@ import { InputTextModule } from 'primeng/inputtext';
 @Component({
     selector: 'app-manage-area-elementos',
     standalone: true,
-    imports: [CommonModule, FormsModule, SelectModule, CheckboxModule, ButtonModule, TooltipModule, CardModule, MantenimientoadminnavbarComponent, InputTextModule],
+    imports: [CommonModule, FormsModule, SelectModule, CheckboxModule, ButtonModule, TooltipModule, CardModule, AppNavbarComponent, InputTextModule],
     templateUrl: './manage-area-elementos.component.html',
     styleUrls: ['./manage-area-elementos.component.css']
 })

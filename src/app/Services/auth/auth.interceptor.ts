@@ -41,12 +41,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                             // Prevent cached responses from downgrading the token
                             if (decoded.exp > currentExp) {
                                 sessionStorage.setItem('utoken', newToken);
-                            } else {
-                                console.warn('Recibido New-Token más antiguo o igual al actual. Ignorando (posible caché del navegador).');
                             }
                         }
                     } catch (e) {
-                        console.warn('Recibido New-Token inválido o corrupto. Ignorando.');
+                        // Ignore corrupt tokens silently
                     }
                 }
             }

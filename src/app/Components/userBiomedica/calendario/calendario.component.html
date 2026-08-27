@@ -27,8 +27,8 @@
 </div>
 
 <p-dialog header="Meses Programados (Preventivos)" [(visible)]="showScheduledPreventiveModal" [modal]="true"
-  [style]="{width: '30vw'}">
-  <p-table *ngIf="isBrowser" [value]="scheduledPreventiveMonths" [tableStyle]="{ 'min-width': '20rem' }">
+  [style]="{width: '30vw'}"[breakpoints]="{'1199px': '75vw', '575px': '90vw'}" >
+  <p-table size="small" [stripedRows]="true" [showGridlines]="true" [scrollable]="true" *ngIf="isBrowser" [value]="scheduledPreventiveMonths" [tableStyle]="{ 'min-width': '20rem' }">
     <ng-template pTemplate="header">
       <tr>
         <th>A&ntilde;o</th>
@@ -41,7 +41,7 @@
         <td>{{ item.anio }}</td>
         <td>{{ getNombreMes(item.mes) }}</td>
         <td style="text-align: center;">
-          <button pButton icon="pi pi-sync" class="p-button-rounded p-button-info p-button-text"
+          <button *ngIf="isAdmin" pButton icon="pi pi-sync" class="p-button-rounded p-button-info p-button-text"
             (click)="programarFaltantes(item)" pTooltip="Programar Equipos Faltantes" tooltipPosition="left"></button>
         </td>
       </tr>
@@ -50,8 +50,8 @@
 </p-dialog>
 
 <p-dialog header="Meses Programados (Metrología)" [(visible)]="showScheduledMetrologyModal" [modal]="true"
-  [style]="{width: '30vw'}">
-  <p-table *ngIf="isBrowser" [value]="scheduledMetrologyMonths" [tableStyle]="{ 'min-width': '20rem' }">
+  [style]="{width: '30vw'}"[breakpoints]="{'1199px': '75vw', '575px': '90vw'}" >
+  <p-table size="small" [stripedRows]="true" [showGridlines]="true" [scrollable]="true" *ngIf="isBrowser" [value]="scheduledMetrologyMonths" [tableStyle]="{ 'min-width': '20rem' }">
     <ng-template pTemplate="header">
       <tr>
         <th>A&ntilde;o</th>
@@ -67,7 +67,7 @@
   </p-table>
 </p-dialog>
 
-<div class="panelMantenimientos" *ngIf="panelActivo === 'mensuales'">Contenido del panel Seguimiento</div>
+<div class="panelMantenimientos" *ngIf="panelActivo === 'mensuales'"></div>
 <div class="panelMantenimientos" *ngIf="panelActivo === 'mantenimientos'">
 
   <div class="filtromes flex flex-column md:flex-row align-items-center gap-3" style="margin-bottom: 2%;">
@@ -92,7 +92,7 @@
   </div>
 
   <div class="card" style="width: 90%; align-items: center; margin-left: 5%; margin-right: 5%;" *ngIf="isBrowser">
-    <p-table #dt2 [value]="equiposPlanPreventivoMes" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+    <p-table size="small" [stripedRows]="true" [showGridlines]="true" [scrollable]="true" #dt2 [value]="equiposPlanPreventivoMes" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
       [(first)]="first" (onPage)="onPageChange($event)" [loading]="loading" [paginator]="true"
       [tableStyle]="{ 'min-width': '10rem' }"
       [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'equipo.placa', 'equipo.servicios.nombres', 'equipo.ubicacionEspecifica', 'equipo.id']">
@@ -186,7 +186,7 @@
     <h1> </h1>
   </div>
   <div class="card" style="width: 90%; align-items: center; margin-left: 5%; margin-right: 5%;" *ngIf="isBrowser">
-    <p-table #dt2 [value]="equiposPlanMetrologiaMes" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+    <p-table size="small" [stripedRows]="true" [showGridlines]="true" [scrollable]="true" #dt2 [value]="equiposPlanMetrologiaMes" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
       [(first)]="first" (onPage)="onPageChange($event)" [loading]="loading" [paginator]="true"
       [tableStyle]="{ 'min-width': '10rem' }"
       [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'registro.tipoActividad', 'equipo.servicios.nombres', 'equipo.ubicacionEspecifica']">
@@ -302,7 +302,7 @@
         <div *ngIf="viewPlanMesMantenimiento">
           <h6>Mantenimientos Mes: {{nombreMes()}} </h6>
           <div class="card" *ngIf="isBrowser">
-            <p-table #dt2 [value]="equiposPlanPreventivoMes" dataKey="id" [rows]="10" [(first)]="first"
+            <p-table size="small" [stripedRows]="true" [showGridlines]="true" [scrollable]="true" #dt2 [value]="equiposPlanPreventivoMes" dataKey="id" [rows]="10" [(first)]="first"
               (onPage)="onPageChange($event)" [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
               [paginator]="true" [tableStyle]="{ 'min-width': '10rem' }"
               [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'equipo.placa', 'mesesStr', 'servicio.nombres', 'equipo.ubicacionEspecifica', 'equipo.id']">
@@ -378,7 +378,7 @@
         <div *ngIf="viewPlanMesMetrologia">
           <h6>Actividades Metrologicas Mes: {{nombreMes()}} </h6>
           <div class="card" *ngIf="isBrowser">
-            <p-table #dt2 [value]="equiposPlanMetrologiaMes" dataKey="id" [rows]="10" [(first)]="first"
+            <p-table size="small" [stripedRows]="true" [showGridlines]="true" [scrollable]="true" #dt2 [value]="equiposPlanMetrologiaMes" dataKey="id" [rows]="10" [(first)]="first"
               (onPage)="onPageChange($event)" [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
               [paginator]="true" [tableStyle]="{ 'min-width': '10rem' }"
               [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'equipo.placa', 'registro.tipoActividad', 'equipo.servicios.nombres', 'equipo.ubicacionEspecifica', 'equipo.id']">
@@ -495,7 +495,7 @@
             <h6>Plan de Mantenimientos de {{selectedTipoEquipo.nombres}} </h6>
           </div>
           <div class="card" *ngIf="isBrowser">
-            <p-table #dt2 [value]="equiposPlanMantenimientoTipoEquipo" dataKey="id" [rows]="10" [(first)]="first"
+            <p-table size="small" [stripedRows]="true" [showGridlines]="true" [scrollable]="true" #dt2 [value]="equiposPlanMantenimientoTipoEquipo" dataKey="id" [rows]="10" [(first)]="first"
               (onPage)="onPageChange($event)" [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
               [paginator]="true" [tableStyle]="{ 'min-width': '10rem' }"
               [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'mesesStr', 'equipo.placa', 'equipo.servicio.nombres', 'equipo.ubicacionEspecifica', 'equipo.id']">
@@ -579,7 +579,7 @@
             <h6>Plan de Metrologia de {{selectedTipoEquipo.nombres}} </h6>
           </div>
           <div class="card" *ngIf="isBrowser">
-            <p-table #dt2 [value]="equiposPlanAMetrologicasTipoEquipo" dataKey="id" [rows]="10" [(first)]="first"
+            <p-table size="small" [stripedRows]="true" [showGridlines]="true" [scrollable]="true" #dt2 [value]="equiposPlanAMetrologicasTipoEquipo" dataKey="id" [rows]="10" [(first)]="first"
               (onPage)="onPageChange($event)" [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
               [paginator]="true" [tableStyle]="{ 'min-width': '10rem' }"
               [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'registro.tipoActividad', 'equipo.placa', 'equipo.servicio.nombres', 'equipo.ubicacionEspecifica', 'equipo.id']">
@@ -702,7 +702,7 @@
             <h6>Plan de Mantenimientos de {{selectedServicio.nombres}} </h6>
           </div>
           <div class="card" *ngIf="isBrowser">
-            <p-table #dt2 [value]="equiposPlanMantenimientoServicio" dataKey="id" [rows]="10" [(first)]="first"
+            <p-table size="small" [stripedRows]="true" [showGridlines]="true" [scrollable]="true" #dt2 [value]="equiposPlanMantenimientoServicio" dataKey="id" [rows]="10" [(first)]="first"
               (onPage)="onPageChange($event)" [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
               [paginator]="true" [tableStyle]="{ 'min-width': '10rem' }"
               [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'equipo.placa', 'mesesStr', 'servicio.nombres', 'equipo.ubicacionEspecifica', 'equipo.id']">
@@ -781,7 +781,7 @@
             <h6>Plan de MEtrologia de {{selectedServicio.nombres}} </h6>
           </div>
           <div class="card" *ngIf="isBrowser">
-            <p-table #dt2 [value]="equiposPlanAMetrologicasServicio" dataKey="id" [rows]="10" [(first)]="first"
+            <p-table size="small" [stripedRows]="true" [showGridlines]="true" [scrollable]="true" #dt2 [value]="equiposPlanAMetrologicasServicio" dataKey="id" [rows]="10" [(first)]="first"
               (onPage)="onPageChange($event)" [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading"
               [paginator]="true" [tableStyle]="{ 'min-width': '10rem' }"
               [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'equipo.placa', 'servicio.nombres', 'equipo.ubicacionEspecifica', 'equipo.id']">

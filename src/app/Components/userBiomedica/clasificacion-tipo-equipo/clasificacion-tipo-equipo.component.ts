@@ -1,8 +1,9 @@
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { TipoEquipoService } from '../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { BiomedicausernavbarComponent } from '../../navbars/biomedicausernavbar/biomedicausernavbar.component';
+
 import { CommonModule } from '@angular/common';
 
 import { UppercaseDirective } from '../../../Directives/uppercase.directive';

@@ -13,7 +13,7 @@
         </ng-template>
     </p-toolbar>
 
-    <p-table #dt [value]="fabricantes" [rows]="10" [paginator]="true" [globalFilterFields]="['nombres', 'pais']"
+    <p-table [scrollable]="true" #dt [value]="fabricantes" [rows]="10" [paginator]="true" [globalFilterFields]="['nombres', 'pais']"
         [tableStyle]="{ 'min-width': '50rem' }" [rowHover]="true" dataKey="id"
         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
         [showCurrentPageReport]="true">

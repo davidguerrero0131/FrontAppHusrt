@@ -1,0 +1,84 @@
+<div class="menubar-wrapper">
+  <p-menubar [model]="items" styleClass="glass-navbar border-none border-round-xl">
+    <ng-template pTemplate="start">
+      <a class="logo-container flex align-items-center gap-2 px-2 nav-link-container" routerLink="/homeuser">
+        <img src="LogoAgora.png" height="40" alt="Logo" />
+        <div class="flex flex-column">
+          <span class="font-bold text-primary text-lg">{{ themeService.getThemeConfig().appName }}</span>
+          <span class="text-xs text-secondary">Super Admin</span>
+        </div>
+      </a>
+    </ng-template>
+
+    <ng-template pTemplate="end">
+      <div class="flex align-items-center pr-2">
+        <!-- Notificaciones -->
+        <i class="pi pi-bell hover-shake-bell p-overlay-badge cursor-pointer p-2 hover:surface-hover border-circle transition-colors transition-duration-150" 
+           [ngClass]="{'bell-shake': pendingCasesCount > 0}"
+           style="font-size: 1.3rem; color: #6c757d;" 
+           (click)="opNotif.toggle($event)" 
+           pTooltip="Notificaciones"
+           tooltipPosition="bottom">
+           <p-badge *ngIf="pendingCasesCount" [value]="pendingCasesCount.toString()" [style]="{'background-color': '#0ea5e9', 'color': '#ffffff', 'left': '0', 'right': 'auto', 'transform': 'scale(0.75) translate(-25%, -25%)', 'transform-origin': 'top left'}"></p-badge>
+        </i>
+
+        <p-overlayPanel #opNotif appendTo="body" styleClass="p-0 border-round-2xl shadow-4">
+            <div class="flex flex-column" style="width: 20rem">
+                <div class="flex justify-content-between align-items-center px-3 py-3 bg-gray-50 border-round-top">
+                    <span class="font-bold text-sm text-color">Notificaciones</span>
+                </div>
+                <div *ngIf="notificaciones.length === 0" class="text-500 text-xs text-center p-4">No hay notificaciones pendientes</div>
+                <div class="overflow-y-auto" style="max-height: 20rem;">
+                    <div *ngFor="let n of notificaciones" class="flex align-items-center px-3 py-2 hover:surface-hover cursor-pointer transition-colors transition-duration-150" (click)="viewCase(n.casoId); opNotif.hide()">
+                        <div class="flex flex-shrink-0 align-items-center justify-content-center border-circle w-2rem h-2rem mr-2" 
+                             [ngClass]="{'bg-yellow-100 text-yellow-600': n.tipo === 'CALIFICACION_PENDIENTE', 'bg-blue-100 text-blue-600': n.tipo !== 'CALIFICACION_PENDIENTE'}">
+                            <i class="pi text-sm" [ngClass]="{'pi-star-fill': n.tipo === 'CALIFICACION_PENDIENTE', 'pi-bell': n.tipo !== 'CALIFICACION_PENDIENTE'}"></i>
+                        </div>
+                        <div class="flex-1 overflow-hidden">
+                            <span class="font-semibold text-xs text-color block">Caso #{{n.casoId}}</span>
+                            <span class="text-xs text-color-secondary block white-space-nowrap overflow-hidden text-overflow-ellipsis">{{n.mensaje}}</span>
+                        </div>
+                        <i class="pi pi-chevron-right text-400 ml-2" style="font-size: 0.7rem;"></i>
+                    </div>
+                </div>
+                <div class="px-3 py-3 text-center" *ngIf="notificaciones.length > 0">
+                    <span class="text-xs text-primary font-medium cursor-pointer hover:underline" (click)="viewPendingCases(); opNotif.hide()">Ir a Mesa de Servicios</span>
+                </div>
+            </div>
+        </p-overlayPanel>
+
+        <!-- Perfil -->
+        <i class="pi pi-user cursor-pointer hover-pop-icon p-2 hover:surface-hover border-circle transition-colors transition-duration-150"
+           style="font-size: 1.3rem; color: #6c757d;"
+           (click)="opProfile.toggle($event)" 
+           pTooltip="Perfil"
+           tooltipPosition="bottom"></i>
+        
+        <p-overlayPanel #opProfile appendTo="body">
+          <div class="flex flex-column align-items-center gap-3 p-3" style="width: 22rem">
+            <p-avatar icon="pi pi-user" size="xlarge" shape="circle" [style]="{'background-color': '#eef2ff', 'color': '#0056b3'}"></p-avatar>
+            <div class="text-center w-full">
+              <div class="font-bold text-lg mb-1">{{ userName }}</div>
+              <div class="text-sm text-color-secondary mb-3" style="word-break: break-word;">{{ userRole }}</div>
+
+              <div class="flex flex-column text-left gap-2 surface-ground p-3 border-round text-sm">
+                <div *ngIf="userData.usuario || userData.nombreUsuario" class="flex align-items-center"><i class="pi pi-at mr-2 text-primary"></i> <span><b>Usuario:</b> {{ userData.usuario || userData.nombreUsuario }}</span></div>
+                <div *ngIf="userData.correo || userData.email" class="flex align-items-center"><i class="pi pi-envelope mr-2 text-primary"></i> <span style="word-break: break-all;"><b>Correo:</b> {{ userData.correo || userData.email }}</span></div>
+                <div *ngIf="userData.telefono" class="flex align-items-center"><i class="pi pi-phone mr-2 text-primary"></i> <span><b>Teléfono:</b> {{ userData.telefono }}</span></div>
+                <div *ngIf="userData.cargo?.nombre || userData.cargo_nombre || (userData.cargo && userData.cargo.length > 0)" class="flex align-items-center"><i class="pi pi-briefcase mr-2 text-primary"></i> <span><b>Cargo:</b> {{ userData.cargo?.nombre || userData.cargo_nombre || userData.cargo }}</span></div>
+              </div>
+            </div>
+            <p-button label="Editar Perfil" icon="pi pi-user-edit" styleClass="w-full p-button-outlined" (onClick)="viewUser(); opProfile.hide()"></p-button>
+          </div>
+        </p-overlayPanel>
+
+        <!-- Cerrar Sesión -->
+        <i class="pi pi-sign-out cursor-pointer hover-pulse-danger p-2 hover:surface-hover border-circle transition-colors transition-duration-150"
+           style="font-size: 1.3rem; color: #ef4444;"
+           (click)="navigateToAbout()"
+           pTooltip="Cerrar Sesión"
+           tooltipPosition="bottom"></i>
+      </div>
+    </ng-template>
+  </p-menubar>
+</div>

@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 import { CommonModule, Location } from '@angular/common';
 import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { TableModule } from 'primeng/table';
@@ -12,7 +13,7 @@ import { ImageModule } from 'primeng/image';
 import { TooltipModule } from 'primeng/tooltip';
 
 import { IndustrialesNavbarComponent } from '../../navbars/IndustrialesNavbar/industrialesnavbar.component';
-import { MantenimientoadminnavbarComponent } from '../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 
 
 import { EquiposIndustrialesService } from '../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';

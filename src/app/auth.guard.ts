@@ -26,11 +26,17 @@ export const authGuard: CanActivateFn = async (route, state) => {
       // Only check roles in the browser where localStorage is available
       if (isPlatformBrowser(platformId)) {
         const decodedToken = getDecodedAccessToken();
-        const userRole = decodedToken && decodedToken.rol ? decodedToken.rol.toUpperCase().replace(/\s+/g, '') : null;
-        const mesaRole = decodedToken && decodedToken.mesaRol ? decodedToken.mesaRol.toUpperCase().replace(/\s+/g, '') : null;
-
-        // Check if ANY of the user's roles (General or Mesa) are in the required list
-        const hasPermission = requiredRoles.includes(userRole) || (mesaRole && requiredRoles.includes(mesaRole));
+        
+        let hasPermission = false;
+        if (decodedToken) {
+          const userRoles = decodedToken.roles || (decodedToken.rol ? [decodedToken.rol] : []);
+          hasPermission = userRoles.some((r: string) => requiredRoles.includes(r.toUpperCase().replace(/\s+/g, '')));
+          
+          if (!hasPermission && decodedToken.mesaRol) {
+             const mesaRole = decodedToken.mesaRol.toUpperCase().replace(/\s+/g, '');
+             hasPermission = requiredRoles.includes(mesaRole);
+          }
+        }
 
         if (!hasPermission) {
           router.navigate(['/access-denied']);

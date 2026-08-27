@@ -1,9 +1,10 @@
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MantenimientoadminnavbarComponent } from '../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 
 import { ChartModule } from 'primeng/chart';
 import { CardModule } from 'primeng/card';
@@ -65,7 +66,7 @@ interface Reporte {
         MeterGroupModule,
         DropdownModule,
         InputTextModule,
-        MantenimientoadminnavbarComponent // Navbar import
+        AppNavbarComponent // Navbar import
     ],
     templateUrl: `./indicadores-industriales.component.html`,
 })

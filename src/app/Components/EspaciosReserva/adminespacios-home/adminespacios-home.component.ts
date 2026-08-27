@@ -91,7 +91,7 @@ export class AdminespaciosHomeComponent implements OnInit {
     },
     events: [],
     locale: 'es',
-    contentHeight: 'auto',
+    height: '100%',
     dayMaxEvents: true,
     eventDisplay: 'block',
     eventClick: this.onEventClick.bind(this)

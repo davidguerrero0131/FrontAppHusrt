@@ -14,16 +14,20 @@ export const roleGuard: CanActivateFn = (route, state) => {
     const tokenData = getDecodedAccessToken();
     const expectedRoles = route.data['roles'] as Array<string>;
 
-    if (tokenData && expectedRoles.includes(tokenData.rol)) {
-        return true;
-    } else {
-        Swal.fire({
-            icon: 'error',
-            title: 'Acceso Denegado',
-            text: 'No tienes permisos para acceder a esta sección.'
-        });
-        // Redirigir según rol o al login
-        router.navigate(['/login']);
-        return false;
+    if (tokenData) {
+        const userRoles = tokenData.roles || (tokenData.rol ? [tokenData.rol] : []);
+        const hasRole = userRoles.some((r: string) => expectedRoles.includes(r));
+        if (hasRole) {
+            return true;
+        }
     }
+    
+    Swal.fire({
+        icon: 'error',
+        title: 'Acceso Denegado',
+        text: 'No tienes permisos para acceder a esta sección.'
+    });
+    // Redirigir según rol o al login
+    router.navigate(['/login']);
+    return false;
 };

@@ -49,4 +49,10 @@ export function getDecodedAccessToken(): any {
   }
 }
 
+
+export function isSistemasSoloLectura(): boolean {
+  const decoded = getDecodedAccessToken();
+  return decoded?.rol === 'SYSTEMUSER';
+}
+
 export function createHeaders(): { headers: HttpHeaders } { return { headers: new HttpHeaders({ 'authorization': sessionStorage.getItem('utoken')! }) } }

@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
@@ -13,7 +14,7 @@ import { TableModule } from 'primeng/table';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { InspeccionService } from '../../../../Services/appServices/areasFisicas/inspeccion.service';
 import { AreasService } from '../../../../Services/appServices/areasFisicas/areas.service';
 import { AreaElementoService } from '../../../../Services/appServices/areasFisicas/area-elemento.service';
@@ -25,7 +26,7 @@ import { getDecodedAccessToken } from '../../../../utilidades';
 @Component({
     selector: 'app-manage-inspeccion',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormsModule, InputTextModule, ButtonModule, SelectModule, CalendarModule, TooltipModule, TableModule, RadioButtonModule, CheckboxModule, DialogModule, ManageReporteMantenimientoComponent, TextareaModule, MantenimientoadminnavbarComponent],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, InputTextModule, ButtonModule, SelectModule, CalendarModule, TooltipModule, TableModule, RadioButtonModule, CheckboxModule, DialogModule, ManageReporteMantenimientoComponent, TextareaModule, AppNavbarComponent],
     templateUrl: './manage-inspeccion.component.html',
     styleUrls: ['./manage-inspeccion.component.css']
 })

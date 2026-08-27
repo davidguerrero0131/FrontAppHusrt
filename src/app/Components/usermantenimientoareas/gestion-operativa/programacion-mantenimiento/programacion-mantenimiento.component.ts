@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -8,7 +9,7 @@ import { API_URL } from '../../../../constantes';
 import { createHeaders } from '../../../../utilidades';
 import Swal from 'sweetalert2';
 
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { AreasService } from '../../../../Services/appServices/areasFisicas/areas.service';
 import { PlanMantenimientoService } from '../../../../Services/appServices/areasFisicas/plan-mantenimiento.service';
 import { ServicioService } from '../../../../Services/appServices/general/servicio/servicio.service';
@@ -27,7 +28,7 @@ import { TooltipModule } from 'primeng/tooltip';
   imports: [
     CommonModule, 
     ReactiveFormsModule,
-    MantenimientoadminnavbarComponent,
+    AppNavbarComponent,
     ButtonModule,
     CardModule,
     SelectModule,

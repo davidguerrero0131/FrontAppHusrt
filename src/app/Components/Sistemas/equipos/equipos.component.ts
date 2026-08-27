@@ -2,6 +2,12 @@ import { Component, OnInit, ViewChild, ElementRef, inject, PLATFORM_ID } from '@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SplitButtonModule } from 'primeng/splitbutton';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { DialogModule } from 'primeng/dialog';
 import { Router, ActivatedRoute } from '@angular/router';
 import { SysequiposService, SysEquipo } from '../../../Services/appServices/sistemasServices/sysequipos/sysequipos.service';
 import { SysplanmantenimientoService } from '../../../Services/appServices/sistemasServices/sysplanmantenimiento/sysplanmantenimiento.service';
@@ -27,6 +33,12 @@ import { forkJoin, Observable } from 'rxjs';
     CommonModule,
     FormsModule,
     SplitButtonModule,
+    TableModule,
+    ButtonModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    DialogModule,
     SysEquipoModalComponent,
     SysEquipoDetailModalComponent,
     SysDeleteConfirmationDialogComponent,
@@ -482,7 +494,19 @@ export class SisEquiposComponent implements OnInit {
     const opcionHistorial   = { label: 'Ver Historial',         icon: 'fas fa-history',        command: () => this.openHistorialModal(equipo) };
     const opcionTraslados   = { label: 'Registro de Traslados', icon: 'fas fa-exchange-alt',   command: () => this.openTrasladosModal(equipo) };
     const opcionReporte     = { label: 'Reporte de Entrega',    icon: 'fas fa-file-export',    command: () => this.openReporteForm(equipo) };
-    const opcionVerReportes = { label: 'Ver Reportes',          icon: 'fas fa-clipboard-list', command: () => this.openReportesList(equipo) };
+    const opcionVerReportes = { label: 'Ver Reportes Entrega',  icon: 'fas fa-clipboard-list', command: () => this.openReportesList(equipo) };
+
+    const decoded = getDecodedAccessToken();
+    const canCreateReporte = decoded?.rol === 'SUPERADMIN' || decoded?.rol === 'SYSTEMUSER' || decoded?.rol === 'SYSTEMADMIN';
+    const opcionCrearReporte = { 
+      label: 'Crear Reporte', 
+      icon: 'pi pi-plus', 
+      command: () => {
+        localStorage.removeItem('idMantenimiento');
+        localStorage.removeItem('TipoMantenimiento');
+        this.router.navigate(['/adminsistemas/reporteMantenimiento', equipo.id_sysequipo]);
+      }
+    };
 
     if (this.isReadOnly) {
       const opcionesLectura = [
@@ -498,35 +522,47 @@ export class SisEquiposComponent implements OnInit {
     }
 
     if (this.selectedView === 'all') {
-      return [
+      const items: MenuItem[] = [
         { label: 'Ver Detalles', icon: 'pi pi-eye', command: () => this.openDetailModal(equipo) },
-        { label: 'Editar', icon: 'pi pi-pencil', command: () => this.openEditModal(equipo) },
+        { label: 'Editar', icon: 'pi pi-pencil', command: () => this.openEditModal(equipo) }
+      ];
+      if (canCreateReporte) items.push(opcionCrearReporte);
+      items.push(
         { label: 'Plan de Mantenimiento', icon: 'pi pi-calendar', command: () => this.openPlanDialog(equipo) },
         opcionReporte,
         opcionVerReportes,
         opcionHistorial,
         opcionTraslados,
         { label: 'Enviar a Bodega / Baja', icon: 'pi pi-trash', command: () => this.confirmDelete(equipo) }
-      ];
+      );
+      return items;
     } else if (this.selectedView === 'bodega') {
-      return [
+      const items: MenuItem[] = [
         { label: 'Ver Detalles', icon: 'pi pi-eye', command: () => this.openDetailModal(equipo) },
-        { label: 'Reactivar', icon: 'pi pi-power-off', command: () => this.reactivarEquipo(equipo) },
+        { label: 'Reactivar', icon: 'pi pi-power-off', command: () => this.reactivarEquipo(equipo) }
+      ];
+      if (canCreateReporte) items.push(opcionCrearReporte);
+      items.push(
         opcionReporte,
         opcionVerReportes,
         opcionHistorial,
         opcionTraslados,
         { label: 'Dar de Baja', icon: 'pi pi-trash', command: () => this.confirmDelete(equipo) }
-      ];
+      );
+      return items;
     } else {
-      return [
-        { label: 'Ver Detalles',       icon: 'pi pi-eye',            command: () => this.openDetailModal(equipo) },
+      const items: MenuItem[] = [
+        { label: 'Ver Detalles',       icon: 'pi pi-eye',            command: () => this.openDetailModal(equipo) }
+      ];
+      if (canCreateReporte) items.push(opcionCrearReporte);
+      items.push(
         opcionReporte,
         opcionVerReportes,
         opcionTraslados,
         { label: 'Descargar PDF Baja', icon: 'fas fa-file-contract', command: () => this.descargarPdfBaja(equipo) },
         opcionHistorial
-      ];
+      );
+      return items;
     }
   }
 
@@ -846,3 +882,4 @@ export class SisEquiposComponent implements OnInit {
     });
   }
 }
+

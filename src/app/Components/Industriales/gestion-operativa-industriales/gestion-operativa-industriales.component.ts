@@ -1,16 +1,17 @@
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { getDecodedAccessToken } from '../../../utilidades';
 import { IndustrialesNavbarComponent } from '../../navbars/IndustrialesNavbar/industrialesnavbar.component';
-import { MantenimientoadminnavbarComponent } from '../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
     selector: 'app-gestion-operativa-industriales',
     standalone: true,
-    imports: [CommonModule, MantenimientoadminnavbarComponent, ButtonModule, TooltipModule],
+    imports: [CommonModule, AppNavbarComponent, ButtonModule, TooltipModule],
     templateUrl: './gestion-operativa-industriales.component.html',
     styleUrls: ['./gestion-operativa-industriales.component.css']
 })

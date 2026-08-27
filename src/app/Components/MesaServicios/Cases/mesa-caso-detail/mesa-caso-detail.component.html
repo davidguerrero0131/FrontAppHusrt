@@ -8,7 +8,7 @@
             <div class="flex align-items-center gap-3">
                 <button *ngIf="!config" pButton icon="pi pi-arrow-left" 
                     class="p-button-rounded p-button-text p-button-secondary bg-gray-50 hover:bg-gray-100 flex-shrink-0"
-                    routerLink="/adminmesaservicios/casos" pTooltip="Regresar al listado"></button>
+                    routerLink="/mesaservicios/casos" pTooltip="Regresar al listado"></button>
                 <div class="case-id-badge flex-shrink-0">#{{casoId}}</div>
             </div>
             
@@ -113,9 +113,9 @@
                         <!-- Vista de Solo Lectura -->
                         <div *ngIf="!editandoEquipo && equipoActual" class="col-12">
                             <div class="flex flex-column gap-2 bg-white p-2 border-round-xl shadow-1">
-                                <span class="font-bold text-sm">{{equipoActual.nombres}}</span>
+                                <span class="font-bold text-sm">{{equipoActual.nombres || equipoActual.nombre_equipo}}</span>
                                 <div class="flex gap-3 text-sm text-600">
-                                    <span><i class="pi pi-tag mr-1"></i> Placa: {{equipoActual.placaInvima || 'N/A'}}</span>
+                                    <span><i class="pi pi-tag mr-1"></i> Placa: {{equipoActual.placaInvima || equipoActual.placa_inventario || 'N/A'}}</span>
                                     <span><i class="pi pi-box mr-1"></i> Serie: {{equipoActual.serie || 'N/A'}}</span>
                                 </div>
                                 <div class="flex gap-3 text-sm text-600 mt-1">
@@ -130,11 +130,11 @@
                                 </div>
                             </div>
                             <div class="mt-3 flex gap-2">
-                                <button *ngIf="!(caso.reporteMantenimiento?.id || caso.biomedicaInfo?.reporteId) && caso.estado !== 'CERRADO'" pButton label="Crear Reporte Técnico" icon="pi pi-file-edit" class="p-button-success p-button-sm w-full"
+                                <button *ngIf="!(caso.reporteMantenimiento?.id || caso.biomedicaInfo?.reporteId || caso.sistemasInfo?.reporteId) && caso.estado !== 'CERRADO'" pButton label="Crear Reporte Técnico" icon="pi pi-file-edit" class="p-button-success p-button-sm w-full"
                                     (click)="irACrearReporte()"></button>
-                                <button *ngIf="(caso.reporteMantenimiento?.id || caso.biomedicaInfo?.reporteId)" pButton label="Ver Reporte de este caso" icon="pi pi-eye" class="p-button-info p-button-sm w-full"
+                                <button *ngIf="(caso.reporteMantenimiento?.id || caso.biomedicaInfo?.reporteId || caso.sistemasInfo?.reporteId)" pButton label="Ver Reporte de este caso" icon="pi pi-eye" class="p-button-info p-button-sm w-full"
                                     (click)="irAVerReporte()"></button>
-                                <button *ngIf="(caso.reporteMantenimiento?.id || caso.biomedicaInfo?.reporteId) && canAssign()" pButton label="Reportes del Equipo" icon="pi pi-list" class="p-button-secondary p-button-sm w-full"
+                                <button *ngIf="(caso.reporteMantenimiento?.id || caso.biomedicaInfo?.reporteId || caso.sistemasInfo?.reporteId) && canAssign()" pButton label="Reportes del Equipo" icon="pi pi-list" class="p-button-secondary p-button-sm w-full"
                                     (click)="irAReportesEquipo()"></button>
                             </div>
                         </div>
@@ -225,24 +225,31 @@
                         <!-- Vista en modo edición -->
                         <div *ngIf="editandoClasificacion" class="col-12">
                             <div class="grid p-fluid bg-white p-2 border-round-lg shadow-1">
-                                <div class="col-12">
+                                <div class="col-12" *ngIf="isAdmin">
+                                    <label class="form-field-label text-sm">Servicio Destino</label>
+                                    <p-select [options]="servicios" [(ngModel)]="selectedServicioDestino" optionLabel="nombres"
+                                        placeholder="Seleccione el servicio" [filter]="true" filterBy="nombres"
+                                        styleClass="w-full" appendTo="body" (onChange)="onServicioDestinoChange()">
+                                    </p-select>
+                                </div>
+                                <div class="col-12" [ngClass]="{'mt-2': isAdmin}">
                                     <label class="form-field-label text-sm">Categoría</label>
                                     <p-select [options]="categorias" [(ngModel)]="selectedCategoria" optionLabel="nombre"
                                         placeholder="Seleccione la categoría" [filter]="true" filterBy="nombre"
-                                        styleClass="w-full" (onChange)="onCategoriaChange()">
+                                        styleClass="w-full" appendTo="body" (onChange)="onCategoriaChange()">
                                     </p-select>
                                 </div>
                                 <div class="col-12 mt-2">
                                     <label class="form-field-label text-sm">Subcategoría</label>
                                     <p-select [options]="subcategoriasDisponibles" [(ngModel)]="selectedSubcategoria" optionLabel="nombre"
                                         placeholder="Seleccione la subcategoría" [filter]="true" filterBy="nombre"
-                                        [showClear]="true" emptyMessage="Seleccione primero una categoría" styleClass="w-full">
+                                        [showClear]="true" emptyMessage="Seleccione primero una categoría" styleClass="w-full" appendTo="body">
                                     </p-select>
                                 </div>
                                 <div class="col-12 mt-2">
                                     <label class="form-field-label text-sm">Prioridad</label>
                                     <p-select [options]="prioridades" [(ngModel)]="selectedPrioridad" optionLabel="label" optionValue="value"
-                                        placeholder="Seleccione la prioridad" styleClass="w-full">
+                                        placeholder="Seleccione la prioridad" styleClass="w-full" appendTo="body">
                                     </p-select>
                                 </div>
                                 <div class="col-12 mt-3 flex align-items-center gap-2">
@@ -425,7 +432,7 @@
 <!-- Reused Dialogs with better styling -->
 
 <!-- Close Case Dialog -->
-<p-dialog [(visible)]="displayCloseDialog" [style]="{width: '500px'}" header="Finalizar y Cerrar Caso" [modal]="true"
+<p-dialog [(visible)]="displayCloseDialog" [style]="{width: '500px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Finalizar y Cerrar Caso" [modal]="true"
     [draggable]="false" [resizable]="false" class="p-fluid">
     <ng-template pTemplate="content">
         <div class="bg-blue-50 p-3 border-round-md mb-4 flex gap-3 align-items-center">
@@ -465,7 +472,7 @@
 </p-dialog>
 
 <!-- Reopen Case Dialog -->
-<p-dialog [(visible)]="displayReopenDialog" [style]="{width: '500px'}" header="Reabrir Caso" [modal]="true"
+<p-dialog [(visible)]="displayReopenDialog" [style]="{width: '500px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Reabrir Caso" [modal]="true"
     [draggable]="false" [resizable]="false" class="p-fluid">
     <ng-template pTemplate="content">
         <div class="bg-orange-50 p-3 border-round-md mb-4 flex gap-3 align-items-center">
@@ -504,7 +511,7 @@
 </p-dialog>
 
 <!-- Assignment Dialog -->
-<p-dialog [(visible)]="displayAssignDialog" [style]="{width: '450px'}" header="Asignar Responsables" [modal]="true"
+<p-dialog [(visible)]="displayAssignDialog" [style]="{width: '450px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Asignar Responsables" [modal]="true"
     [draggable]="false" [resizable]="false" class="p-fluid">
     <ng-template pTemplate="content">
         <p class="text-500 mb-4">Seleccione uno o más funcionarios para atender este caso.</p>
@@ -717,7 +724,7 @@
     </div>
 </p-dialog>
 
-<p-dialog header="Firmar Reporte" [(visible)]="modalFirma" [modal]="true" [style]="{width: '90vw', maxWidth: '500px'}" [draggable]="false" [resizable]="false" (onHide)="limpiarFirma()">
+<p-dialog header="Firmar Reporte" [(visible)]="modalFirma" [modal]="true" [style]="{width: '90vw', maxWidth: '500px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false" (onHide)="limpiarFirma()">
     <div class="flex flex-column gap-3 pt-2">
         <div class="p-field">
             <label class="font-bold block mb-1">Nombre de quien recibe</label>
@@ -745,7 +752,7 @@
     </ng-template>
 </p-dialog>
 
-<p-dialog [(visible)]="displayHistoryDialog" [style]="{width: '600px', 'max-height': '80vh'}" header="Historial de Movimientos" [modal]="true"
+<p-dialog [(visible)]="displayHistoryDialog" [style]="{width: '600px', 'max-height': '80vh'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Historial de Movimientos" [modal]="true"
     [draggable]="false" [resizable]="false" class="p-fluid">
     <ng-template pTemplate="content">
         <div class="flex flex-column gap-3 mt-3">
@@ -779,7 +786,7 @@
     </ng-template>
 </p-dialog>
 
-<p-dialog header="Calificar Servicio" [(visible)]="displayRatingDialog" [modal]="true" [style]="{width: '450px'}" [closable]="true" [dismissableMask]="true">
+<p-dialog header="Calificar Servicio" [(visible)]="displayRatingDialog" [modal]="true" [style]="{width: '450px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [closable]="true" [dismissableMask]="true">
     <div class="flex flex-column align-items-center gap-4 py-4">
         <h3 class="m-0 text-center text-700">¿Qué tan satisfecho está con la solución a su caso?</h3>
         

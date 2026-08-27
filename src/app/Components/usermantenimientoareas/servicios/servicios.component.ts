@@ -1,10 +1,11 @@
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { MantenimientoadminnavbarComponent } from '../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { getDecodedAccessToken } from '../../../utilidades';
 import { ServicioService } from '../../../Services/appServices/general/servicio/servicio.service';
 import { AreasService } from '../../../Services/appServices/areasFisicas/areas.service';
@@ -12,7 +13,7 @@ import { AreasService } from '../../../Services/appServices/areasFisicas/areas.s
 @Component({
   selector: 'app-servicios',
   standalone: true,
-  imports: [CommonModule, ButtonModule, InputTextModule, FormsModule, MantenimientoadminnavbarComponent],
+  imports: [CommonModule, ButtonModule, InputTextModule, FormsModule, AppNavbarComponent],
   templateUrl: './servicios.component.html',
   styleUrl: './servicios.component.css'
 })

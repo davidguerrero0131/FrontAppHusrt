@@ -14,7 +14,7 @@
         </ng-template>
     </p-toolbar>
 
-    <p-table #dt2 [value]="tiposEquipos" dataKey="id" [paginator]="true" [rows]="10"
+    <p-table [scrollable]="true" #dt2 [value]="tiposEquipos" dataKey="id" [paginator]="true" [rows]="10"
         [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [globalFilterFields]="['nombres']"
         [tableStyle]="{ 'min-width': '75rem' }" styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true">
 
@@ -85,7 +85,7 @@
 
 <!-- Protocols Modal -->
 <p-dialog [header]="'Protocolos de ' + tipoEquipoSelected?.nombres" [(visible)]="viewProtocolsModal" [modal]="true"
-    [style]="{ width: '70vw', maxWidth: '95%' }" styleClass="p-fluid">
+    [style]="{ width: '70vw', maxWidth: '95%' }" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" styleClass="p-fluid">
 
     <div class="flex gap-2 mb-3">
         <input type="text" pInputText [(ngModel)]="newProtocoloPaso" placeholder="Paso del nuevo protocolo"
@@ -94,7 +94,7 @@
             class="w-auto"></button>
     </div>
 
-    <p-table [value]="protocoloTipoEquipo" [rows]="5" [paginator]="true" styleClass="p-datatable-sm">
+    <p-table [scrollable]="true" [value]="protocoloTipoEquipo" [rows]="5" [paginator]="true" styleClass="p-datatable-sm">
         <ng-template pTemplate="header">
             <tr>
                 <th>Paso</th>

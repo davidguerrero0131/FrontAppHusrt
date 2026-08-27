@@ -99,6 +99,6 @@ export class ThemeCustomizerComponent implements OnInit {
     }
 
     goBack() {
-        this.router.navigate(['/superadmin']);
+        this.router.navigate(['/homeuser']);
     }
 }

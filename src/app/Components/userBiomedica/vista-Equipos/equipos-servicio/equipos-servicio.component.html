@@ -234,7 +234,7 @@
 
 <!-- Modal Registrar Traslado -->
 <p-dialog header="Registrar Traslado de Equipo" [(visible)]="displayTrasladoDialog" [modal]="true"
-  [style]="{width: '50vw'}" [draggable]="false" [resizable]="false">
+  [style]="{width: '50vw'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
   <div class="p-fluid" *ngIf="selectedEquipoTraslado">
     <!-- Detalles del Equipo -->
     <div class="surface-ground p-3 border-round mb-4">
@@ -364,7 +364,7 @@
 
 <!-- Modal Historial Unificado -->
 <p-dialog header="Historial del Equipo" [(visible)]="displayHistorialTrasladosDialog" [modal]="true"
-  [style]="{width: '70vw'}" [draggable]="false" [resizable]="false">
+  [style]="{width: '70vw'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
   <p-table [value]="historialUnificado" [paginator]="true" [rows]="10" styleClass="p-datatable-sm"
     responsiveLayout="scroll" [showCurrentPageReport]="true"
     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros">
@@ -397,7 +397,7 @@
 
 <!-- Modal Registrar Actividad Metrol&oacute;gica -->
 <p-dialog header="Registrar Actividad Metrol&oacute;gica" [modal]="true" [(visible)]="modalAddActividadMetrologica"
-  styleClass="standard-modal modal-lg" [maximizable]="false" [style]="{width: '50vw'}">
+  styleClass="standard-modal modal-lg" [maximizable]="false" [style]="{width: '50vw'}"[breakpoints]="{'1199px': '75vw', '575px': '90vw'}" >
 
   <div class="form-grid" style="width: 100%;" *ngIf="currentEquipo">
 

@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../../navbars/app-navbar/app-navbar.component';
 import { ResponsableService } from '../../../../../Services/appServices/industrialesServices/responsable/responsable.service';
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
@@ -13,12 +14,12 @@ import { DialogModule } from "primeng/dialog";
 import { ButtonModule } from "primeng/button";
 import { DatePicker } from 'primeng/datepicker';
 import { DropdownModule } from 'primeng/dropdown';
-import { MantenimientoadminnavbarComponent } from '../../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 
 @Component({
   selector: 'app-crear-equipo-industrial',
   standalone: true,
-  imports: [CommonModule, UppercaseDirective, DialogModule, ButtonModule, FormsModule, DatePicker, ReactiveFormsModule, DropdownModule, MantenimientoadminnavbarComponent],
+  imports: [CommonModule, UppercaseDirective, DialogModule, ButtonModule, FormsModule, DatePicker, ReactiveFormsModule, DropdownModule, AppNavbarComponent],
   templateUrl: './crear-equipo-industrial.component.html',
   styleUrls: ['./crear-equipo-industrial.component.css']
 })

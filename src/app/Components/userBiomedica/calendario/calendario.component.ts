@@ -47,6 +47,11 @@ export class CalendarioComponent implements OnInit {
     return token?.rol !== 'BIOMEDICATECNICO';
   }
 
+  get isAdmin(): boolean {
+    const token = getDecodedAccessToken();
+    return token?.roles?.includes('BIOMEDICAADMIN') || token?.rol === 'BIOMEDICAADMIN';
+  }
+
   constructor() {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }

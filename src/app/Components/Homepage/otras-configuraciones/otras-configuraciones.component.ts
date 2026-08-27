@@ -33,15 +33,20 @@ export class OtrasConfiguracionesComponent implements OnInit {
     subcategoriasMesa: any[] = [];
     subcategoriaMantenimientoId: any;
 
+    subcategoriasMesaSistemas: any[] = [];
+    subcategoriaSistemasId: any;
+
     constructor() {
         this.checkRole();
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.cargarUsuarios();
         this.cargarParametroGarantia();
         this.cargarSubcategoriasMesa();
         this.cargarParametroSubcategoria();
+        this.cargarSubcategoriasSistemas();
+        this.cargarParametroSubcategoriaSistemas();
     }
 
     checkRole() {
@@ -55,10 +60,9 @@ export class OtrasConfiguracionesComponent implements OnInit {
 
     async cargarUsuarios() {
         try {
-            const users = await this.userService.getAllUsers();
-            // Filter only users with servicioId = 3 (Biomedica) and estado = true
-            this.usuarios = users.filter(u => u.estado === true && u.servicioId === 3).map(u => ({
-                label: `${u.nombres} ${u.apellidos} - ${u.numIdentificacion}`,
+            const data = await this.userService.getAllUsers();
+            this.usuarios = data.filter((u: any) => u.estado === true && u.servicioId === 3).map((u: any) => ({
+                label: `${u.nombres} ${u.apellidos}${u.numIdentificacion ? ' - ' + u.numIdentificacion : ''}`,
                 value: u.id
             }));
         } catch (error) {
@@ -82,9 +86,9 @@ export class OtrasConfiguracionesComponent implements OnInit {
         try {
             if (!this.usuarioGarantiaId) return;
             await this.parametrosService.updateParametro('usuario_garantia', this.usuarioGarantiaId.toString());
-            Swal.fire('Éxito', 'Usuario de garantía actualizado correctamente', 'success');
+            Swal.fire('Éxito', 'Parámetro actualizado', 'success');
         } catch (error) {
-            console.error('Error guardando parámetro de garantía', error);
+            console.error('Error guardando parámetro', error);
             Swal.fire('Error', 'No se pudo guardar el parámetro', 'error');
         }
     }
@@ -111,6 +115,28 @@ export class OtrasConfiguracionesComponent implements OnInit {
         }
     }
 
+    async cargarSubcategoriasSistemas() {
+        try {
+            // Servicio Sistemas = 45
+            this.mesaService.getCategorias(45, true).subscribe((categorias: any[]) => {
+                const subcategorias: any[] = [];
+                categorias.forEach(cat => {
+                    if (cat.subcategorias) {
+                        cat.subcategorias.forEach((sub: any) => {
+                            subcategorias.push({
+                                label: `${cat.nombre} - ${sub.nombre}`,
+                                value: sub.id
+                            });
+                        });
+                    }
+                });
+                this.subcategoriasMesaSistemas = subcategorias;
+            });
+        } catch (error) {
+            console.error('Error cargando subcategorías sistemas', error);
+        }
+    }
+
     async cargarParametroSubcategoria() {
         try {
             const param = await this.parametrosService.getParametro('subcategoria_mantenimiento_equipo');
@@ -129,6 +155,28 @@ export class OtrasConfiguracionesComponent implements OnInit {
             Swal.fire('Éxito', 'Subcategoría para mantenimientos actualizada', 'success');
         } catch (error) {
             console.error('Error guardando parámetro de subcategoría', error);
+            Swal.fire('Error', 'No se pudo guardar la subcategoría', 'error');
+        }
+    }
+
+    async cargarParametroSubcategoriaSistemas() {
+        try {
+            const param = await this.parametrosService.getParametro('subcategoria_mantenimiento_sistemas');
+            if (param && param.valor) {
+                this.subcategoriaSistemasId = parseInt(param.valor, 10);
+            }
+        } catch (error) {
+            console.log('Parámetro de subcategoría sistemas no encontrado');
+        }
+    }
+
+    async guardarParametroSubcategoriaSistemas() {
+        try {
+            if (!this.subcategoriaSistemasId) return;
+            await this.parametrosService.updateParametro('subcategoria_mantenimiento_sistemas', this.subcategoriaSistemasId.toString());
+            Swal.fire('Éxito', 'Subcategoría Sistemas actualizada', 'success');
+        } catch (error) {
+            console.error('Error guardando parámetro de subcategoría sistemas', error);
             Swal.fire('Error', 'No se pudo guardar la subcategoría', 'error');
         }
     }

@@ -1,0 +1,53 @@
+
+<div class="floating-chat-container" [class.open]="isChatOpen">
+    <!-- Chat Button -->
+    <button class="chat-toggle-btn" (click)="toggleChat()" *ngIf="!isChatOpen">
+      <div class="chat-tooltip">¿Dudas sobre tu caso?</div>
+      <img src="rafa.png" alt="Rafa IA" class="rafa-avatar-btn">
+    </button>
+  
+    <!-- Chat Window -->
+    <div class="chat-window" *ngIf="isChatOpen">
+      <div class="chat-header">
+        <div class="header-info">
+          <img src="rafa.png" alt="Rafa IA" class="rafa-avatar-header">
+          <div>
+            <h3>Rafa IA</h3>
+            <p>Asistente Inteligente ORBIX</p>
+          </div>
+        </div>
+        <button class="close-btn" (click)="toggleChat()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+  
+      <div class="chat-messages" #scrollMe>
+        <div *ngFor="let msg of chatMessages; let i = index">
+          <div class="message-wrapper" [ngClass]="msg.role === 'user' ? 'user-wrapper' : 'bot-wrapper'">
+            <div class="message-content" [ngClass]="msg.role === 'user' ? 'user-message' : 'bot-message'">
+              <div class="message-text" [innerHTML]="msg.formattedContent"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div class="message-wrapper bot-wrapper" *ngIf="isChatLoading">
+          <div class="message-content bot-message loading">
+            <i class="pi pi-spin pi-spinner"></i> Analizando...
+          </div>
+        </div>
+      </div>
+  
+      <div class="chat-input-area">
+        <textarea 
+          placeholder="Escribe tu mensaje... (Shift+Enter para nueva línea)" 
+          [(ngModel)]="userInput" 
+          (keydown)="onKeydown($event)"
+          [disabled]="isChatLoading"
+          rows="1"></textarea>
+        <button class="send-btn" (click)="sendMessage()" [disabled]="!userInput.trim() || isChatLoading">
+          <i class="pi pi-send"></i>
+        </button>
+      </div>
+    </div>
+  </div>

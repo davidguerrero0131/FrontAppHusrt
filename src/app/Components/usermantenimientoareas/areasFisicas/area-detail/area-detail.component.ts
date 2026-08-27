@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,7 +12,7 @@ import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { TableModule } from 'primeng/table';
 import { DividerModule } from 'primeng/divider';
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { TimelineModule } from 'primeng/timeline';
 import { MesaService } from '../../../../Services/mesa-servicios/mesa.service';
 import { firstValueFrom } from 'rxjs';
@@ -27,7 +28,7 @@ import { firstValueFrom } from 'rxjs';
     TableModule,
     DividerModule,
     TimelineModule,
-    MantenimientoadminnavbarComponent
+    AppNavbarComponent
   ],
   templateUrl: './area-detail.component.html',
   styleUrls: ['./area-detail.component.css']

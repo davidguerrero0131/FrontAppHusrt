@@ -39,7 +39,7 @@
   <div class="panelMantenimientos" *ngIf="panelActividadesMetrologicas">
 
     <div class="card">
-      <p-table #dt2 [value]="actividadesMetrologicas" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+      <p-table [scrollable]="true" #dt2 [value]="actividadesMetrologicas" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
         [loading]="loading" [paginator]="true" [tableStyle]="{ 'min-width': '10rem' }"
         [globalFilterFields]="['equipo.nombres', 'usuario.nombres', 'equipo.serie', 'equipo.placa', 'servicio.nombres']"
         [showCurrentPageReport]="true"
@@ -150,7 +150,7 @@
 
 
         <div class="card">
-          <p-table #dt2 [value]="actividadesMetrologicas" dataKey="id" [rows]="10"
+          <p-table [scrollable]="true" #dt2 [value]="actividadesMetrologicas" dataKey="id" [rows]="10"
             [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
             [tableStyle]="{ 'min-width': '10rem' }"
             [globalFilterFields]="['equipo.nombres', 'usuario.nombres', 'equipo.serie', 'equipo.placa', 'servicio.nombres']"
@@ -250,7 +250,7 @@
       <div class="derecha" *ngIf="panelPendientes" style=" background-color: #d1e7dd;">
 
         <div class="card">
-          <p-table #dt2 [value]="actividadesMetrologicas" dataKey="id" [rows]="10"
+          <p-table [scrollable]="true" #dt2 [value]="actividadesMetrologicas" dataKey="id" [rows]="10"
             [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
             [tableStyle]="{ 'min-width': '10rem' }"
             [globalFilterFields]="['equipo.nombres', 'usuario.nombres', 'equipo.serie', 'equipo.placa', 'servicio.nombres']"

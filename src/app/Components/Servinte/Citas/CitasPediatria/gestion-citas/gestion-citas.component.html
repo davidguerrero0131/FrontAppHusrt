@@ -1,5 +1,3 @@
-<app-citaspediatriaadminnavbar *ngIf="rol === 'ADMCITASPEDIATRIA' || rol === 'SUPERADMIN'"></app-citaspediatriaadminnavbar>
-<app-citaspediatriausernavbar *ngIf="rol !== 'ADMCITASPEDIATRIA' && rol !== 'SUPERADMIN'"></app-citaspediatriausernavbar>
 <div class="p-4" style="background-color: #f8fafc; min-height: 100vh;">
     <div class="card p-4 shadow-2 border-round">
         <div class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
@@ -21,7 +19,7 @@
 
         <!-- Modal de Exportación -->
         <p-dialog [(visible)]="exportDialog" [modal]="true" header="Descargar Reporte de Citas"
-            [style]="{width: '450px'}" [draggable]="false" [resizable]="false">
+            [style]="{width: '450px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
             <div class="flex flex-column gap-4 p-2">
                 <p class="m-0 text-500">Seleccione el periodo de tiempo que desea exportar a Excel.</p>
 
@@ -192,7 +190,7 @@
 
         <!-- Modal de Edición -->
         <p-dialog [(visible)]="editDialog" [modal]="true" header="Editar Cita" [style]="{width: '500px'}"
-            [draggable]="false" [resizable]="false">
+            [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
             <div class="flex flex-column gap-4 p-2" *ngIf="editingCita">
                 <div class="flex flex-column gap-1">
                     <label class="font-bold text-700">Paciente</label>
@@ -237,7 +235,7 @@
 
         <!-- Modal de Edición de Estado (Para ya validadas) -->
         <p-dialog [(visible)]="editStatusDialog" [modal]="true" header="Actualizar Estado de Cita"
-            [style]="{width: '400px'}" [draggable]="false" [resizable]="false">
+            [style]="{width: '400px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
             <div class="flex flex-column gap-4 p-2" *ngIf="editingCita">
                 <div class="p-3 bg-blue-50 border-round border-left-3 border-blue-500">
                     <div class="text-700 font-bold mb-1">Paciente:</div>
@@ -274,7 +272,7 @@
 
         <!-- Modal de Detalle de Paciente -->
         <p-dialog [(visible)]="patientDialog" [modal]="true" header="Información del Paciente"
-            [style]="{width: '500px'}" [draggable]="false" [resizable]="false">
+            [style]="{width: '500px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
             <div class="p-2" *ngIf="selectedPatient">
                 <div class="grid">
                     <div class="col-12 mb-3">
@@ -323,7 +321,7 @@
 
         <!-- Modal Gestión de Médicos -->
         <p-dialog [(visible)]="medicosDialog" [modal]="true" header="Gestión de Médicos - Madre Canguro"
-            [style]="{width: '700px'}" [draggable]="false" [resizable]="false">
+            [style]="{width: '700px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
             
             <div class="flex flex-column gap-3 mt-2">
                 <!-- Formulario para crear/editar médico -->
@@ -353,7 +351,7 @@
                 </p-card>
 
                 <!-- Tabla de médicos -->
-                <p-table [value]="medicosList" [loading]="loadingMedicos" [paginator]="true" [rows]="5" styleClass="p-datatable-sm">
+                <p-table [scrollable]="true" [value]="medicosList" [loading]="loadingMedicos" [paginator]="true" [rows]="5" styleClass="p-datatable-sm">
                     <ng-template pTemplate="header">
                         <tr>
                             <th>Nombre Completo</th>
@@ -391,7 +389,7 @@
         </p-dialog>
         <!-- Modal Gestión de Especialidades -->
         <p-dialog [(visible)]="especialidadesDialog" [modal]="true" header="Gestión de Especialidades - Madre Canguro"
-            [style]="{width: '700px'}" [draggable]="false" [resizable]="false">
+            [style]="{width: '700px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
             
             <div class="flex flex-column gap-3 mt-2">
                 <!-- Formulario para crear especialidad -->
@@ -413,7 +411,7 @@
                 </p-card>
 
                 <!-- Tabla de especialidades -->
-                <p-table [value]="especialidadesList" [loading]="loadingEspecialidades" [paginator]="true" [rows]="5" styleClass="p-datatable-sm">
+                <p-table [scrollable]="true" [value]="especialidadesList" [loading]="loadingEspecialidades" [paginator]="true" [rows]="5" styleClass="p-datatable-sm">
                     <ng-template pTemplate="header">
                         <tr>
                             <th>Nombre de la Especialidad</th>

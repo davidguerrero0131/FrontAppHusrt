@@ -92,8 +92,7 @@ export class EquiposBajaComponent implements OnInit {
 
     canAuthorize(): boolean {
         const role = this.permissionsService.getUserRole();
-        const cargoId = this.permissionsService.getUserCargoId();
-        return (role === 'BIOMEDICAADMIN' && cargoId === 4) || role === 'SUPERADMIN';
+        return role === 'BIOMEDICAADMIN' || role === 'SUPERADMIN';
     }
 
     async abrirModalAutorizacion() {

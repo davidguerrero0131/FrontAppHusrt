@@ -332,7 +332,7 @@
 
 <!-- Dialog Historial -->
 <p-dialog [(visible)]="displayHistorial" [header]="'Historial de Acciones - ' + equipoHistorialNombre" [modal]="true"
-  [style]="{width: '60vw'}" [resizable]="false" [draggable]="false" [closable]="true">
+  [style]="{width: '60vw'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [resizable]="false" [draggable]="false" [closable]="true">
 
   <p-table [value]="historialSeleccionado" [rows]="5" [paginator]="true" responsiveLayout="scroll"
     styleClass="p-datatable-sm p-datatable-gridlines">
@@ -368,7 +368,7 @@
 
 <!-- Dialog Registrar Traslado -->
 <p-dialog header="Registrar Traslado de Equipo" [(visible)]="displayTrasladoDialog" [modal]="true"
-  [style]="{width: '50vw'}" [draggable]="false" [resizable]="false">
+  [style]="{width: '50vw'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
 
   <div class="p-fluid" *ngIf="selectedEquipoTraslado">
     <div class="field mb-3">
@@ -416,7 +416,7 @@
 <!-- Dialog Detalle Equipo -->
 <p-dialog [(visible)]="displayDetalleDialog"
   [header]="'Detalle del Equipo' + (equipoDetalle ? ' - ' + equipoDetalle.nombres : '')" [modal]="true"
-  [style]="{width: '80vw'}" [resizable]="false" [draggable]="false" [closable]="true" [maximizable]="true">
+  [style]="{width: '80vw'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [resizable]="false" [draggable]="false" [closable]="true" [maximizable]="true">
 
   <!-- Loading -->
   <div *ngIf="loadingDetalle" class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
@@ -570,7 +570,7 @@
 <!-- Dialog Hoja de Vida -->
 <p-dialog [(visible)]="displayHojaVidaDialog"
   [header]="'Hoja de Vida' + (hvEquipoInfo ? ' - ' + hvEquipoInfo.nombres : '')" [modal]="true"
-  [style]="{width: '85vw'}" [resizable]="false" [draggable]="false" [closable]="true" [maximizable]="true">
+  [style]="{width: '85vw'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [resizable]="false" [draggable]="false" [closable]="true" [maximizable]="true">
 
   <!-- Loading -->
   <div *ngIf="loadingHojaVida" class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
@@ -790,7 +790,7 @@
 
 <!-- Dialog Historial de Reportes -->
 <p-dialog [(visible)]="displayReportesDialog" [header]="'Historial de Reportes - ' + reportesEquipoNombre"
-  [modal]="true" [style]="{width: '80vw'}" [resizable]="false" [draggable]="false" [closable]="true"
+  [modal]="true" [style]="{width: '80vw'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [resizable]="false" [draggable]="false" [closable]="true"
   [maximizable]="true">
 
   <!-- Loading -->
@@ -890,7 +890,7 @@
 
 <!-- Modal: Resumen del Reporte -->
 <p-dialog header="Resumen del Reporte" [(visible)]="displayResumenReporteDialog" [modal]="true"
-  [style]="{width: '50vw'}" [draggable]="false" [resizable]="false">
+  [style]="{width: '50vw'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
   <div *ngIf="reporteSeleccionado" class="p-fluid">
     <div class="field grid">
       <label class="col-12 md:col-4 font-bold">Fecha Realizado:</label>
@@ -962,7 +962,7 @@
 
 <!-- Dialog: Formulario de Baja -->
 <p-dialog header="Reporte de Baja de Equipo Industrial" [(visible)]="displayBajaDialog" [modal]="true"
-  [style]="{width: '500px'}" [draggable]="false" [resizable]="false">
+  [style]="{width: '500px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
 
   <div class="p-fluid" *ngIf="equipoBajaSeleccionado">
     <div class="alert alert-warning mb-3">
@@ -1006,7 +1006,7 @@
 
 <!-- Dialog: Resumen de Reporte de Baja -->
 <p-dialog header="Resumen de Baja Técnica" [(visible)]="displayResumenBajaDialog" [modal]="true"
-  [style]="{width: '500px'}" [draggable]="false" [resizable]="false">
+  [style]="{width: '500px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
 
   <div *ngIf="reporteBajaSeleccionado" class="p-fluid">
     <div class="text-center mb-4">

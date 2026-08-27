@@ -2,6 +2,7 @@ import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { CalendarModule } from 'primeng/calendar';
 import { InputMaskModule } from 'primeng/inputmask';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -20,9 +21,9 @@ import { UserService } from '../../../Services/appServices/userServices/user.ser
 import { SysmantenimientoService } from '../../../Services/appServices/sistemasServices/sysmantenimiento/sysmantenimiento.service';
 import { TipoEquipoService } from '../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
 import { UppercaseDirective } from '../../../Directives/uppercase.directive';
-import { SysprotocoloService } from '../../../Services/appServices/sistemasServices/sysprotocolo/sysprotocolo.service';
 import { SysTipoRepuestosService, SysTipoRepuesto } from '../../../Services/appServices/sistemasServices/systiporepuestos/systiporepuestos.service';
 import { SysRepuestosService, SysRepuesto } from '../../../Services/appServices/sistemasServices/sysrepuestos/sysrepuestos.service';
+import { ProtocolosService } from '../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
 
 @Component({
   selector: 'app-reporte-mantenimiento',
@@ -36,6 +37,7 @@ import { SysRepuestosService, SysRepuesto } from '../../../Services/appServices/
   styleUrl: './reporte-mantenimiento.component.css'
 })
 export class CrearMantenimientoComponent implements OnInit {
+  casoId: number | null = null;
 
   // ─── Propiedades ────────────────────────────────────────────────────────────
   mantenimiento!: any;
@@ -58,12 +60,12 @@ export class CrearMantenimientoComponent implements OnInit {
   // ─── Servicios ──────────────────────────────────────────────────────────────
   private platformId = inject(PLATFORM_ID);
   sysequiposervices = inject(SysequiposService);
-  sysprotocoloservices = inject(SysprotocoloService);
   userServices = inject(UserService);
   mantenimientoServices = inject(SysmantenimientoService);
   tipoEquipoService = inject(TipoEquipoService);
   tipoRepuestosService = inject(SysTipoRepuestosService);
   sysRepuestosService = inject(SysRepuestosService);
+  protocolosService = inject(ProtocolosService);
   router = inject(Router);
 
   // ─── Opciones de formulario ──────────────────────────────────────────────────
@@ -118,11 +120,13 @@ export class CrearMantenimientoComponent implements OnInit {
 
     // Escucha cambios en tipoMantenimiento para ajustar campos
     this.mantenimientoForm.get('tipoMantenimiento')?.valueChanges.subscribe((val) => {
+      this.tipoMantenimiento = val;
       if (val === 'Preventivo') {
         this.mantenimientoForm.get('tipoFalla')?.setValue('Sin Falla');
         this.mantenimientoForm.get('tipoFalla')?.disable();
         this.mantenimientoForm.get('motivo')?.setValue('Programado para mantenimiento preventivo');
         this.mantenimientoForm.get('motivo')?.disable();
+        this.iniCumplimientoProtocolo();
       } else {
         this.mantenimientoForm.get('tipoFalla')?.enable();
         this.mantenimientoForm.get('motivo')?.enable();
@@ -155,6 +159,8 @@ export class CrearMantenimientoComponent implements OnInit {
     if (!isPlatformBrowser(this.platformId)) return;
 
     this.id = Number(this.route.snapshot.paramMap.get('id'));
+    const casoIdStr = sessionStorage.getItem('reporteCasoId') || this.route.snapshot.queryParamMap.get('casoId');
+    this.casoId = casoIdStr ? Number(casoIdStr) : null;
     const idMantenimiento = Number(localStorage.getItem('idMantenimiento'));
 
     await this.loadInitialData(idMantenimiento);
@@ -196,9 +202,7 @@ export class CrearMantenimientoComponent implements OnInit {
 
         // Carga cumplimiento de protocolo
         if (this.mantenimiento.id) {
-          this.mantenimiento.cumplimientoProtocolo = await this.sysprotocoloservices
-            .getCumplimientoProtocoloMantenimiento(this.mantenimiento.id)
-            .catch(() => []);
+          // this.mantenimiento.cumplimientoProtocolo = []
         }
       } catch (error) {
         console.error('Error cargando datos iniciales del mantenimiento:', error);
@@ -236,7 +240,7 @@ export class CrearMantenimientoComponent implements OnInit {
 
       if (tipoEquipoId) {
         const [protocolos, allMediciones] = await Promise.all([
-          this.sysprotocoloservices.getActivosByTipoEquipo(tipoEquipoId).catch(() => []),
+          this.protocolosService.getProtocoloActivoTipoEquipo(tipoEquipoId).catch(() => []),
           this.tipoEquipoService.getMediciones(tipoEquipoId).catch(() => [])
         ]);
         this.protocolos = protocolos;
@@ -492,7 +496,7 @@ export class CrearMantenimientoComponent implements OnInit {
         sysReporteIdFk: mantenimientoId,
         observaciones: protocolo.observaciones
       };
-      return this.sysprotocoloservices.addCumplimientoProtocolo(cp);
+      return firstValueFrom(this.mantenimientoServices.addCumplimientoProtocolo(cp));
     });
     await Promise.all(promises);
   }
@@ -807,24 +811,9 @@ export class CrearMantenimientoComponent implements OnInit {
   }
 
   goBack(): void {
-    Swal.fire({
-      title: '¿Quieres guardar los cambios?',
-      showDenyButton: true,
-      showCancelButton: true,
-      confirmButtonText: 'Guardar',
-      denyButtonText: 'No guardar',
-      cancelButtonText: 'Cancelar',
-      icon: 'question'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.onSubmit();
-      } else if (result.isDenied) {
-        Swal.fire('Los cambios no se guardan', '', 'info');
-        localStorage.removeItem('idMantenimiento');
-        localStorage.removeItem('TipoMantenimiento');
-        this.location.back();
-      }
-    });
+    localStorage.removeItem('idMantenimiento');
+    localStorage.removeItem('TipoMantenimiento');
+    this.location.back();
   }
   private navegarPostGuardado(): void {
     const token = getDecodedAccessToken();

@@ -1,297 +1,180 @@
-<br>
-<div class="container" [attr.inert]="(isDeleteOptionsDialogOpen || isModalOpen || isDetailModalOpen || isReactivarModalOpen || isHistorialModalOpen || isPlanDialogOpen || isReporteFormOpen || isReportesListOpen) ? '' : null">
-  <div class="page-header">
-    <div>
-      @if (selectedView === 'bodega') {
-        <h1>Equipos en bodega</h1>
-        <p class="subtitle">Equipos de sistemas actualmente en bodega.</p>
-      } @else if (selectedView === 'baja') {
-        <h1>Equipos dados de baja</h1>
-        <p class="subtitle">Equipos de sistemas que han sido dados de baja.</p>
-      } @else {
-        <h1>Inventario de Equipos</h1>
-        <p class="subtitle">Listado general de equipos de sistemas.</p>
-      }
-    </div>
-    <div class="header-actions">
-      @if (selectedView === 'all') {
-        <button class="btn btn-success" (click)="descargarInventario()" [disabled]="isDownloading">
-          @if (isDownloading) {
-            <span class="btn-spinner-sm"></span> Descargando...
-          } @else {
-            <i class="pi pi-file-excel"></i> Descargar Inventario
-          }
-        </button>
-      }
-      @if (!isReadOnly) {
-        <button class="btn btn-primary" (click)="openCreateModal()">
-          <span>+ Nuevo Equipo</span>
-        </button>
-      }
-    </div>
-  </div>
+<!-- Contenedor principal -->
+<div class="p-mx-5 p-mt-4 p-p-4 bg-white shadow-2 border-round" [attr.inert]="(isDeleteOptionsDialogOpen || isModalOpen || isDetailModalOpen || isReactivarModalOpen || isHistorialModalOpen || isPlanDialogOpen || isReporteFormOpen || isReportesListOpen) ? '' : null">
 
-  <!-- Barra de búsqueda y filtros -->
-  <div class="toolbar">
-    <div class="search-box">
-      <span class="search-icon"><i class="fas fa-search"></i></span>
-      <input #searchInput type="text" name="equipment-search" autocomplete="off"
-        placeholder="Buscar por nombre, marca, modelo, serie o ubicación..."
-        (input)="onSearch($event)" [disabled]="isLoading" />
-      @if (searchTerm) {
-        <button class="search-clear-btn" type="button" (click)="clearSearch()">
-          <i class="fas fa-times"></i>
-        </button>
-      }
-    </div>
-    @if (selectedView === 'all') {
-      <div class="filters">
-        <select #estadoSelect class="filter-select" (change)="onEstadoChange($event)" [disabled]="isLoading">
-          <option value="">Todos los estados</option>
-          <option value="1">Activos</option>
-          <option value="0">Inactivos</option>
-        </select>
-      </div>
+  <!-- Títulos -->
+  <div class="text-center mb-4" style="margin-top: 2%;">
+    @if (selectedView === 'bodega') {
+      <h1 style="text-transform: uppercase;">Equipos en Bodega</h1>
+      <h6>Todos los equipos de sistemas actualmente en bodega</h6>
+    } @else if (selectedView === 'baja') {
+      <h1 style="text-transform: uppercase;">Equipos Dados de Baja</h1>
+      <h6>Todos los equipos de sistemas que han sido dados de baja</h6>
+    } @else {
+      <h1 style="text-transform: uppercase;">Inventario de Equipos</h1>
+      <h6>Listado general de todos los equipos de sistemas</h6>
     }
   </div>
 
-  <!-- Tabla de equipos -->
-  <div class="table-container">
+  <!-- Tabla -->
+  <div class="card" style="margin-top: 3%; width: 96%; margin-left: 2%; margin-right: 2%;">
+    
+    <!-- Toolbar de Filtros y Botones -->
+    <div class="flex flex-column md:flex-row justify-content-between align-items-center mb-4 mt-3" style="padding: 0 1rem; gap: 1rem;">
+      <!-- Buscador y Filtros -->
+      <div class="flex gap-2 w-full md:w-auto">
+        <p-iconField iconPosition="left" class="w-full md:w-auto">
+          <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+          <input type="text" pInputText placeholder="Buscar equipo..." class="w-full md:w-20rem" [disabled]="isLoading" (input)="onSearch($event)" [value]="searchTerm" />
+        </p-iconField>
+        @if (selectedView === 'all') {
+          <select #estadoSelect class="p-inputtext p-component" (change)="onEstadoChange($event)" [disabled]="isLoading" style="min-width: 150px;">
+            <option value="">Todos los estados</option>
+            <option value="1">Activos</option>
+            <option value="0">Inactivos</option>
+          </select>
+        }
+      </div>
+      
+      <!-- Botones de Acción -->
+      <div class="flex gap-2 w-full md:w-auto justify-content-end">
+        @if (selectedView === 'all') {
+          <p-button label="Descargar Excel" icon="pi pi-file-excel" severity="success" [loading]="isDownloading" (onClick)="descargarInventario()"></p-button>
+        }
+        @if (!isReadOnly) {
+          <p-button label="Nuevo Equipo" icon="pi pi-plus" (onClick)="openCreateModal()"></p-button>
+        }
+      </div>
+    </div>
+
     @if (isLoading) {
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <p>Cargando equipos...</p>
-      </div>
-    } @else if (error && pagedEquipos.length === 0) {
-      <div class="error-state">
-        <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
-        <p>{{ error }}</p>
-        <button class="btn btn-primary" (click)="loadEquipos()">Reintentar</button>
-      </div>
-    } @else {
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Marca</th>
-            <th>Modelo</th>
-            <th>Serie</th>
-            <th>Placa</th>
-            <th>Sede</th>
-            <th>Servicio</th>
-            @if (selectedView === 'bodega') {
-              <th>Tipo Bodega</th>
-              <th>Ubic. Anterior</th>
-              <th>Motivo Bodega</th>
-            } @else if (selectedView === 'baja') {
-              <th>Ubic. Anterior</th>
-              <th>Motivo Baja</th>
-            } @else {
-              <th>Ubicación Específica</th>
-            }
-            <th class="col-opciones">Opciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (equipo of pagedEquipos; track equipo.id_sysequipo) {
-            <tr class="fila-clickable" (click)="onRowClick($event, equipo)" title="Ver histórico de mantenimientos">
-              <td><strong>{{ equipo.nombre_equipo }}</strong></td>
+        <div class="flex flex-column align-items-center justify-content-center p-5">
+          <i class="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
+          <p class="text-gray-600">Cargando equipos...</p>
+        </div>
+      } @else if (error && filteredEquipos.length === 0) {
+        <div class="flex flex-column align-items-center justify-content-center p-5">
+          <i class="pi pi-exclamation-triangle text-4xl text-red-500 mb-3"></i>
+          <p class="text-gray-600">{{ error }}</p>
+          <p-button label="Reintentar" (onClick)="loadEquipos()"></p-button>
+        </div>
+      } @else {
+        <p-table [value]="filteredEquipos" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,25,50,100]" [responsive]="true">
+                    <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="nombre_equipo">Nombre <p-sortIcon field="nombre_equipo"></p-sortIcon></th>
+              <th pSortableColumn="marca">Marca <p-sortIcon field="marca"></p-sortIcon></th>
+              <th pSortableColumn="modelo">Modelo <p-sortIcon field="modelo"></p-sortIcon></th>
+              <th pSortableColumn="serie">Serie <p-sortIcon field="serie"></p-sortIcon></th>
+              <th pSortableColumn="placa_inventario">Placa <p-sortIcon field="placa_inventario"></p-sortIcon></th>
+              <th pSortableColumn="servicio.sede.nombres">Sede <p-sortIcon field="servicio.sede.nombres"></p-sortIcon></th>
+              <th pSortableColumn="servicio.nombres">Servicio <p-sortIcon field="servicio.nombres"></p-sortIcon></th>
+              @if (selectedView === 'bodega') {
+                <th pSortableColumn="ubic_bod">Ubic. Bodega <p-sortIcon field="ubic_bod"></p-sortIcon></th>
+                <th pSortableColumn="ubicacion_anterior">Ubic. Anterior <p-sortIcon field="ubicacion_anterior"></p-sortIcon></th>
+                <th pSortableColumn="bodega.motivo">Motivo <p-sortIcon field="bodega.motivo"></p-sortIcon></th>
+              } @else if (selectedView === 'baja') {
+                <th pSortableColumn="ubicacion_anterior">Ubic. Anterior <p-sortIcon field="ubicacion_anterior"></p-sortIcon></th>
+                <th pSortableColumn="baja.justificacion_baja">Motivo Baja <p-sortIcon field="baja.justificacion_baja"></p-sortIcon></th>
+              } @else {
+                <th pSortableColumn="ubicacion_especifica">Ubicación Específica <p-sortIcon field="ubicacion_especifica"></p-sortIcon></th>
+              }
+              <th style="width: 8rem; text-align: center;">Opciones</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-equipo>
+            <tr class="cursor-pointer hover:surface-100 transition-colors transition-duration-150" (click)="onRowClick($event, equipo)" title="Ver hist�rico de mantenimientos">
+              <td class="font-bold">{{ equipo.nombre_equipo }}</td>
               <td>{{ equipo.marca || 'N/A' }}</td>
               <td>{{ equipo.modelo || 'N/A' }}</td>
-              <td><code class="serie-badge">{{ formatSerie(equipo.serie) }}</code></td>
+              <td><span class="bg-blue-50 text-blue-700 px-2 py-1 border-round text-sm border-1 border-blue-200 font-mono">{{ formatSerie(equipo.serie) }}</span></td>
               <td>{{ equipo.placa_inventario || 'N/A' }}</td>
               <td>{{ equipo.servicio?.sede?.nombres || 'N/A' }}</td>
               <td>{{ equipo.servicio?.nombres || 'N/A' }}</td>
               @if (selectedView === 'bodega') {
                 <td>
                   @if (equipo.ubic_bod) {
-                    <span class="badge-bodega">{{ equipo.ubic_bod }}</span>
+                    <span class="bg-yellow-50 text-yellow-700 px-2 py-1 border-round text-sm border-1 border-yellow-200">{{ equipo.ubic_bod }}</span>
                   } @else {
-                    <span class="text-muted">Sin especificar</span>
+                    <span class="text-gray-500">Sin especificar</span>
                   }
                 </td>
                 <td>{{ equipo.ubicacion_anterior || 'N/A' }}</td>
-                <td>{{ equipo.bodega?.motivo || 'Sin motivo registrado' }}</td>
+                <td>{{ equipo.bodega?.motivo || 'Sin motivo' }}</td>
               } @else if (selectedView === 'baja') {
                 <td>{{ equipo.ubicacion_anterior || 'N/A' }}</td>
-                <td>{{ equipo.baja?.justificacion_baja || 'Sin motivo registrado' }}</td>
+                <td>{{ equipo.baja?.justificacion_baja || 'Sin motivo' }}</td>
               } @else {
                 <td>{{ equipo.ubicacion_especifica || 'N/A' }}</td>
               }
-              <td class="col-opciones">
+              <td class="text-center">
                 <p-splitButton label="HV" icon="pi pi-file" [model]="equipo.opciones"
                   (onClick)="verHojaVida(equipo)" appendTo="body"
                   severity="secondary" size="small">
                 </p-splitButton>
               </td>
             </tr>
-          }
-          @if (!isLoading && pagedEquipos.length === 0 && !error) {
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
             <tr>
-              <td [attr.colspan]="selectedView === 'all' ? 9 : selectedView === 'bodega' ? 11 : 10" class="empty-state">
-                <div class="empty-icon"><i class="fas fa-boxes"></i></div>
-                <p>No se encontraron equipos</p>
+              <td [attr.colspan]="selectedView === 'all' ? 9 : selectedView === 'bodega' ? 11 : 10" class="text-center p-5">
+                <i class="pi pi-box text-4xl text-gray-400 mb-3"></i>
+                <p class="text-gray-500 m-0">No se encontraron equipos</p>
               </td>
             </tr>
+          </ng-template>
+        </p-table>
+      }
+    </div>
+</div>
+
+<app-sys-equipo-modal [isOpen]="isModalOpen" [equipo]="selectedEquipo" (closed)="closeModal()" (saved)="onEquipoSaved()"></app-sys-equipo-modal>
+<app-sys-delete-dialog [isOpen]="isDeleteOptionsDialogOpen" [itemName]="equipoToDeleteWithOptions?.nombre_equipo || ''" [itemType]="'equipo'" [isAdmin]="isAdmin" [hideBodegaOption]="selectedView === 'bodega'" [equipo]="equipoToDeleteWithOptions" (closed)="closeDeleteOptionsDialog()" (confirmed)="handleDeleteOptionsConfirm($event)"></app-sys-delete-dialog>
+<app-sys-equipo-detail-modal [isOpen]="isDetailModalOpen" [equipo]="equipoToView" [isAdmin]="isAdmin" (closed)="closeDetailModal()" (editRequested)="onEditFromDetail($event)"></app-sys-equipo-detail-modal>
+<app-sys-reactivar-equipo-modal [isOpen]="isReactivarModalOpen" [equipoNombre]="equipoToReactivar?.nombre_equipo || ''" [equipo]="equipoToReactivar" (closed)="closeReactivarModal()" (confirmed)="handleReactivarConfirm($event)"></app-sys-reactivar-equipo-modal>
+<app-sys-historial-equipo [isOpen]="isHistorialModalOpen" [equipo]="equipoToHistorial" (closed)="closeHistorialModal()"></app-sys-historial-equipo>
+<app-sys-traslados-modal [isOpen]="isTrasladosModalOpen" [equipo]="equipoToTraslados" (closed)="closeTrasladosModal()"></app-sys-traslados-modal>
+<app-sys-reportes-equipo [isOpen]="isReportesListOpen" [equipo]="equipoForReportesList" (closed)="closeReportesList()"></app-sys-reportes-equipo>
+
+@if (isPlanDialogOpen) {
+  <p-dialog [(visible)]="isPlanDialogOpen" [modal]="true" [header]="'Plan de mantenimiento'" [style]="{width: '35rem'}" (onHide)="closePlanDialog()">
+    <p class="m-0 mb-4 text-gray-600">{{ currentEquipoPlan?.nombre_equipo }}</p>
+    
+    <div class="grid p-fluid">
+      <div class="col-12 mb-3">
+        <label class="block mb-2 font-medium">Intervenciones por a�o</label>
+        <select class="p-inputtext p-component w-full" [(ngModel)]="intervencionesAnuales" (ngModelChange)="calcularFechas()">
+          @for (opt of intervencionOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
           }
-        </tbody>
-      </table>
-    } <!-- end @else -->
-
-  </div>
-
-  <!-- Paginación -->
-  @if (!isLoading && !error && filteredEquipos.length > 0) {
-    <div class="ppc-wrap">
-      <span class="ppc-report">
-        Mostrando {{ (currentPage - 1) * pageSize + 1 }} a {{ min(currentPage * pageSize, filteredEquipos.length) }} de {{ filteredEquipos.length }} registros
-      </span>
-      <div class="ppc-nav">
-        <button class="ppc-btn" (click)="goToPage(1)" [disabled]="currentPage === 1"><i class="fas fa-angle-double-left"></i></button>
-        <button class="ppc-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1"><i class="fas fa-angle-left"></i></button>
-        @for (p of getPagesArray(); track p) {
-          <button class="ppc-btn ppc-page" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
-        }
-        <button class="ppc-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages"><i class="fas fa-angle-right"></i></button>
-        <button class="ppc-btn" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages"><i class="fas fa-angle-double-right"></i></button>
+        </select>
       </div>
-      <div class="ppc-rpp">
-        <select (change)="onPageSizeChange($event)">
-          @for (opt of pageSizeOptions; track opt) {
-            <option [value]="opt" [selected]="opt === pageSize">{{ opt }}</option>
+      <div class="col-12 md:col-6 mb-3">
+        <label class="block mb-2 font-medium">Mes de inicio</label>
+        <select class="p-inputtext p-component w-full" [(ngModel)]="mesInicio" (ngModelChange)="calcularFechas()">
+          @for (m of monthOptions; track m.value) {
+            <option [value]="m.value">{{ m.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-12 md:col-6 mb-3">
+        <label class="block mb-2 font-medium">A�o de inicio</label>
+        <select class="p-inputtext p-component w-full" [(ngModel)]="anioInicio" (ngModelChange)="calcularFechas()">
+          @for (a of anioOptions; track a) {
+            <option [value]="a">{{ a }}</option>
           }
         </select>
       </div>
     </div>
-  }
-</div>
-<br>
-
-<!-- Modal Crear/Editar Equipo -->
-<app-sys-equipo-modal
-  [isOpen]="isModalOpen"
-  [equipo]="selectedEquipo"
-  (closed)="closeModal()"
-  (saved)="onEquipoSaved()"
-></app-sys-equipo-modal>
-
-<!-- Modal Confirmación de Eliminación -->
-<app-sys-delete-dialog
-  [isOpen]="isDeleteOptionsDialogOpen"
-  [itemName]="equipoToDeleteWithOptions?.nombre_equipo || ''"
-  [itemType]="'equipo'"
-  [isAdmin]="isAdmin"
-  [hideBodegaOption]="selectedView === 'bodega'"
-  [equipo]="equipoToDeleteWithOptions"
-  (closed)="closeDeleteOptionsDialog()"
-  (confirmed)="handleDeleteOptionsConfirm($event)"
-></app-sys-delete-dialog>
-
-<!-- Modal Vista Detallada -->
-<app-sys-equipo-detail-modal
-  [isOpen]="isDetailModalOpen"
-  [equipo]="equipoToView"
-  [isAdmin]="isAdmin"
-  (closed)="closeDetailModal()"
-  (editRequested)="onEditFromDetail($event)"
-></app-sys-equipo-detail-modal>
-
-<!-- Modal Reactivar Equipo -->
-<app-sys-reactivar-equipo-modal
-  [isOpen]="isReactivarModalOpen"
-  [equipoNombre]="equipoToReactivar?.nombre_equipo || ''"
-  [equipo]="equipoToReactivar"
-  (closed)="closeReactivarModal()"
-  (confirmed)="handleReactivarConfirm($event)"
-></app-sys-reactivar-equipo-modal>
-
-<!-- Modal Historial del Equipo -->
-<app-sys-historial-equipo
-  [isOpen]="isHistorialModalOpen"
-  [equipo]="equipoToHistorial"
-  (closed)="closeHistorialModal()"
-></app-sys-historial-equipo>
-
-
-<!-- Modal Registro de Traslados -->
-<app-sys-traslados-modal
-  [isOpen]="isTrasladosModalOpen"
-  [equipo]="equipoToTraslados"
-  (closed)="closeTrasladosModal()"
-></app-sys-traslados-modal>
-
-<!-- Modal Ver Reportes del Equipo -->
-<app-sys-reportes-equipo
-  [isOpen]="isReportesListOpen"
-  [equipo]="equipoForReportesList"
-  (closed)="closeReportesList()"
-></app-sys-reportes-equipo>
-
-<!-- Modal Plan de Mantenimiento -->
-@if (isPlanDialogOpen) {
-  <div class="modal-overlay">
-    <div class="plan-modal" (click)="$event.stopPropagation()">
-
-      <div class="plan-modal-header">
-        <div>
-          <h2>Plan de mantenimiento</h2>
-          <p class="plan-equipo-nombre">{{ currentEquipoPlan?.nombre_equipo }}</p>
-        </div>
-        <button class="modal-close-btn" (click)="closePlanDialog()">
-          <i class="fas fa-times"></i>
-        </button>
+    
+    @if (calculatedMonthsText) {
+      <div class="bg-blue-50 text-blue-800 p-3 border-round border-1 border-blue-200 mt-2">
+        <span class="font-bold">Ciclo calculado:</span> {{ calculatedMonthsText }}
       </div>
-
-      <div class="plan-modal-body">
-
-        <div class="plan-field">
-          <label>Intervenciones por año</label>
-          <select [(ngModel)]="intervencionesAnuales" (ngModelChange)="calcularFechas()">
-            @for (opt of intervencionOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="plan-row">
-          <div class="plan-field">
-            <label>Mes de inicio</label>
-            <select [(ngModel)]="mesInicio" (ngModelChange)="calcularFechas()">
-              @for (m of monthOptions; track m.value) {
-                <option [value]="m.value">{{ m.label }}</option>
-              }
-            </select>
-          </div>
-          <div class="plan-field">
-            <label>Año de inicio</label>
-            <select [(ngModel)]="anioInicio" (ngModelChange)="calcularFechas()">
-              @for (a of anioOptions; track a) {
-                <option [value]="a">{{ a }}</option>
-              }
-            </select>
-          </div>
-        </div>
-
-        @if (calculatedMonthsText) {
-          <div class="plan-cycle-banner">
-           
-            <div>
-              <span class="plan-cycle-label">Ciclo calculado:</span>
-              <span class="plan-cycle-text">{{ calculatedMonthsText }}</span>
-            </div>
-          </div>
-        }
-
-      </div>
-
-      <div class="plan-modal-footer">
-        <button class="btn btn-secondary" (click)="closePlanDialog()" [disabled]="isSavingPlan">Cancelar</button>
-        <button class="btn btn-primary" (click)="savePlan()" [disabled]="isSavingPlan || selectedPlanes.length === 0">
-          @if (isSavingPlan) { <span class="btn-spinner-sm"></span> Guardando... }
-          @else {  Guardar Plan }
-        </button>
-      </div>
-
-    </div>
-  </div>
+    }
+    
+    <ng-template pTemplate="footer">
+      <p-button label="Cancelar" icon="pi pi-times" severity="secondary" (onClick)="closePlanDialog()" [disabled]="isSavingPlan"></p-button>
+      <p-button label="Guardar Plan" icon="pi pi-check" (onClick)="savePlan()" [loading]="isSavingPlan" [disabled]="selectedPlanes.length === 0"></p-button>
+    </ng-template>
+  </p-dialog>
 }

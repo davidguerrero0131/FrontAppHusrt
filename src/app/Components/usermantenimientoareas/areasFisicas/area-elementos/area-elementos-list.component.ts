@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,14 +11,14 @@ import { TagModule } from 'primeng/tag';
 import { BadgeModule } from 'primeng/badge';
 import { AreasService } from '../../../../Services/appServices/areasFisicas/areas.service';
 import { AreaElementoService } from '../../../../Services/appServices/areasFisicas/area-elemento.service';
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import Swal from 'sweetalert2';
 import { getDecodedAccessToken } from '../../../../utilidades';
 
 @Component({
     selector: 'app-area-elementos-list',
     standalone: true,
-    imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, TagModule, BadgeModule, MantenimientoadminnavbarComponent],
+    imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, TagModule, BadgeModule, AppNavbarComponent],
     templateUrl: './area-elementos-list.component.html',
     styleUrls: ['./area-elementos-list.component.css']
 })

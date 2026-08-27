@@ -1,16 +1,17 @@
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { MantenimientoadminnavbarComponent } from '../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { ChequeosIndustrialesService } from '../../../Services/chequeos-industriales.service';
 import { getDecodedAccessToken } from '../../../utilidades';
 
 @Component({
     selector: 'app-parametrizacion',
     standalone: true,
-    imports: [CommonModule, ButtonModule, TooltipModule, MantenimientoadminnavbarComponent],
+    imports: [CommonModule, ButtonModule, TooltipModule, AppNavbarComponent],
     templateUrl: './parametrizacion.component.html',
     styleUrl: './parametrizacion.component.css'
 })

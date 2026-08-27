@@ -15,7 +15,7 @@
             </ng-template>
         </p-toolbar>
 
-        <p-table #dt [value]="tiposDocumento" [rows]="10" [paginator]="true" [globalFilterFields]="['nombres']"
+        <p-table [scrollable]="true" #dt [value]="tiposDocumento" [rows]="10" [paginator]="true" [globalFilterFields]="['nombres']"
             [rowHover]="true" dataKey="id"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
             [showCurrentPageReport]="true" styleClass="p-datatable-striped p-datatable-sm">
@@ -57,7 +57,7 @@
     </div>
 </div>
 
-<p-dialog [(visible)]="tipoDocumentoDialog" [style]="{width: '450px'}" header="Detalles Tipo Documento" [modal]="true"
+<p-dialog [(visible)]="tipoDocumentoDialog" [style]="{width: '450px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Detalles Tipo Documento" [modal]="true"
     styleClass="p-fluid">
     <ng-template pTemplate="content">
         <div class="field">

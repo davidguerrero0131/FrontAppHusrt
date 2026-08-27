@@ -1,4 +1,3 @@
-<app-mantenimientoadminnavbar></app-mantenimientoadminnavbar>
 <div style="margin-top: 3%; margin-left: 5%; margin-right: 5%; background-color: white;">
 
     <div style="margin-bottom: 2%;">
@@ -80,7 +79,7 @@
             </div>
 
             <div class="card" style="width: 90%; align-items: center; margin-left: 5%; margin-right: 5%;">
-                <p-table #dt2 [value]="equiposPlanPreventivoMes" dataKey="id" [rows]="10"
+                <p-table [scrollable]="true" #dt2 [value]="equiposPlanPreventivoMes" dataKey="id" [rows]="10"
                     [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
                     [tableStyle]="{ 'min-width': '10rem' }"
                     [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'equipo.servicioInd.nombres', 'equipo.ubicacionEspecifica']">
@@ -190,7 +189,7 @@
                         <div>
                             <h6>Mantenimientos Mes: {{nombreMes()}} </h6>
                             <div class="card">
-                                <p-table #dt2 [value]="equiposPlanPreventivoMes" dataKey="id" [rows]="10"
+                                <p-table [scrollable]="true" #dt2 [value]="equiposPlanPreventivoMes" dataKey="id" [rows]="10"
                                     [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
                                     [tableStyle]="{ 'min-width': '10rem' }"
                                     [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'equipo.servicioInd.nombres', 'equipo.ubicacionEspecifica']">
@@ -279,7 +278,7 @@
                                 <h6>Plan de Mantenimientos de {{selectedTipoEquipo.nombres}} </h6>
                             </div>
                             <div class="card">
-                                <p-table #dt2 [value]="equiposPlanMantenimientoTipoEquipo" dataKey="id" [rows]="10"
+                                <p-table [scrollable]="true" #dt2 [value]="equiposPlanMantenimientoTipoEquipo" dataKey="id" [rows]="10"
                                     [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
                                     [tableStyle]="{ 'min-width': '10rem' }"
                                     [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'mes', 'equipo.placa', 'equipo.servicioInd.nombres', 'equipo.ubicacionEspecifica']">
@@ -347,7 +346,7 @@
                                 <h6>Plan de Mantenimientos de {{selectedServicio.nombres}} </h6>
                             </div>
                             <div class="card">
-                                <p-table #dt2 [value]="equiposPlanMantenimientoServicio" dataKey="id" [rows]="10"
+                                <p-table [scrollable]="true" #dt2 [value]="equiposPlanMantenimientoServicio" dataKey="id" [rows]="10"
                                     [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
                                     [tableStyle]="{ 'min-width': '10rem' }"
                                     [globalFilterFields]="['equipo.nombres', 'equipo.marca', 'equipo.serie', 'equipo.placa', 'servicioInd.nombres', 'equipo.ubicacionEspecifica']">

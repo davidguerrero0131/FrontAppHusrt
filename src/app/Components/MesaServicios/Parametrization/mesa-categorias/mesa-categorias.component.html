@@ -37,7 +37,7 @@
             </ng-template>
         </p-toolbar>
 
-        <p-table *ngIf="isBrowser" [value]="categorias" dataKey="id" 
+        <p-table [scrollable]="true" *ngIf="isBrowser" [value]="categorias" dataKey="id" 
             styleClass="modern-datatable p-datatable-lg" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 50, 100, 1000]" [showCurrentPageReport]="true"
             [(first)]="first" (onPage)="onPageChange($event)"
             currentPageReportTemplate="{first} a {last} de {totalRecords} categorías">
@@ -95,7 +95,7 @@
                                 <h4 class="m-0 text-700 font-bold uppercase tracking-wide text-sm">Registro de Subtipos: {{categoria.nombre}}</h4>
                             </div>
                             
-                            <p-table *ngIf="isBrowser" [value]="categoria.subcategorias" dataKey="id"
+                            <p-table [scrollable]="true" *ngIf="isBrowser" [value]="categoria.subcategorias" dataKey="id"
                                 styleClass="sub-datatable p-datatable-sm bg-white">
                                 <ng-template pTemplate="header">
                                     <tr>
@@ -145,7 +145,7 @@
 </div>
 
 <!-- Forms and Modals ... Same structures but improved UI classes -->
-<p-dialog [(visible)]="displayCategoryDialog" [style]="{width: '450px'}" header="Registrar Categoría" [modal]="true"
+<p-dialog [(visible)]="displayCategoryDialog" [style]="{width: '450px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Registrar Categoría" [modal]="true"
     styleClass="p-fluid premium-dialog border-round-2xl shadow-8" [draggable]="false" [resizable]="false">
     <ng-template pTemplate="content">
         <div class="flex flex-column gap-3 pt-2">
@@ -171,7 +171,7 @@
 </p-dialog>
 
 <!-- Dialog New SubCategory -->
-<p-dialog [(visible)]="displaySubCategoryDialog" [style]="{width: '450px'}" header="Registrar Subcategoría" [modal]="true"
+<p-dialog [(visible)]="displaySubCategoryDialog" [style]="{width: '450px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Registrar Subcategoría" [modal]="true"
     styleClass="p-fluid premium-dialog border-round-2xl shadow-8" [draggable]="false" [resizable]="false">
     <ng-template pTemplate="content">
         <div class="flex flex-column gap-3 pt-2">
@@ -206,7 +206,7 @@
 
 <!-- Dialog Manage Subcategories -->
 <p-dialog [(visible)]="displaySubManageDialog" [style]="{width: '750px'}"
-    header="Control de Subtipos" [modal]="true" styleClass="p-fluid premium-dialog border-round-2xl shadow-8" [draggable]="false" [resizable]="false">
+    [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Control de Subtipos" [modal]="true" styleClass="p-fluid premium-dialog border-round-2xl shadow-8" [draggable]="false" [resizable]="false">
     <ng-template pTemplate="header">
         <div class="flex align-items-center gap-2">
             <i class="pi pi-tags text-2xl text-primary"></i>
@@ -223,7 +223,7 @@
                 (click)="openNewSubCategory(selectedCategoryForManage)"></button>
         </div>
 
-        <p-table *ngIf="isBrowser" [value]="selectedCategoryForManage?.subcategorias"
+        <p-table [scrollable]="true" *ngIf="isBrowser" [value]="selectedCategoryForManage?.subcategorias"
             styleClass="modern-datatable p-datatable-sm" [rowHover]="true">
             <ng-template pTemplate="header">
                 <tr>
@@ -271,7 +271,7 @@
 </p-dialog>
 
 <!-- Dialog Edit SubCategory -->
-<p-dialog [(visible)]="displayEditSubCategoryDialog" [style]="{width: '450px'}" header="Editar Subcategoría" [modal]="true"
+<p-dialog [(visible)]="displayEditSubCategoryDialog" [style]="{width: '450px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Editar Subcategoría" [modal]="true"
     styleClass="p-fluid premium-dialog border-round-2xl shadow-8" [draggable]="false" [resizable]="false">
     <ng-template pTemplate="content">
         <div class="flex flex-column gap-3 pt-2">
@@ -297,7 +297,7 @@
 </p-dialog>
 
 <!-- Dialog Edit Category -->
-<p-dialog [(visible)]="displayEditCategoryDialog" [style]="{width: '450px'}" header="Editar Categoría" [modal]="true"
+<p-dialog [(visible)]="displayEditCategoryDialog" [style]="{width: '450px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Editar Categoría" [modal]="true"
     styleClass="p-fluid premium-dialog border-round-2xl shadow-8" [draggable]="false" [resizable]="false">
     <ng-template pTemplate="content">
         <div class="flex flex-column gap-3 pt-2">

@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -6,7 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { ObservacionesService } from '../../../../Services/appServices/areasFisicas/observaciones.service';
 import { PlanMantenimientoService } from '../../../../Services/appServices/areasFisicas/plan-mantenimiento.service';
 import { getDecodedAccessToken } from '../../../../utilidades';
@@ -23,7 +24,7 @@ import { lastValueFrom } from 'rxjs';
 @Component({
   selector: 'app-mis-tareas',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, TagModule, TooltipModule, DialogModule, TextareaModule, DropdownModule, FormsModule, MantenimientoadminnavbarComponent],
+  imports: [CommonModule, TableModule, ButtonModule, TagModule, TooltipModule, DialogModule, TextareaModule, DropdownModule, FormsModule, AppNavbarComponent],
   templateUrl: './mis-tareas.component.html',
   styleUrl: './mis-tareas.component.css'
 })

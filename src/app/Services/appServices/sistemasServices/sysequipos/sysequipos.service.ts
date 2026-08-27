@@ -1,37 +1,117 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, firstValueFrom } from 'rxjs';
 import { API_URL } from '../../../../constantes';
-import { createHeaders } from '../../../../utilidades';
 
 export interface SysEquipo {
-  id?: number;
-  nombre?: string;
-  [key: string]: any;
+  id_sysequipo?: number;
+  nombre_equipo: string;
+  marca?: string;
+  modelo?: string;
+  serie?: string;
+  placa_inventario?: string;
+  codigo?: string;
+  ubicacion?: string;
+  ubicacion_especifica?: string;
+  ubicacion_anterior?: string;
+  ubic_bod?: string;
+  activo?: number;
+  ano_ingreso?: number;
+  dias_mantenimiento?: number;
+  periodicidad?: number;
+  estado_baja?: number;
+  administrable?: number;
+  direccionamiento_Vlan?: string;
+  numero_puertos?: number;
+  mtto?: number;
+  id_servicio_fk?: number;
+  id_servicio_anterior_fk?: number;
+  id_tipo_equipo_fk?: number;
+  id_usuario_fk?: number;
+  servicio?: any;
+  tipoEquipo?: any;
+  usuario?: any;
+  hojaVida?: any;
+  baja?: any;
+  bodega?: { tipo_bodega?: string; motivo?: string; fecha_ingreso?: string; [key: string]: any };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface SysEquipoResponse {
+  success: boolean;
+  data: SysEquipo | SysEquipo[];
+  message?: string;
+  count?: number;
+}
+
+@Injectable({ providedIn: 'root' })
 export class SysequiposService {
-  private httpClient = inject(HttpClient);
-  private baseUrl = API_URL;
+  private http = inject(HttpClient);
+  private apiUrl = `${API_URL}/sysequipo`;
 
-  constructor() { }
-
-  getEquipos(): Promise<any[]> {
-    return firstValueFrom(this.httpClient.get<any[]>(`${this.baseUrl}/api/sistemas/equipos`, createHeaders()));
+  getEquipos(filters?: { activo?: boolean; id_servicio_fk?: number; id_tipo_equipo_fk?: number; search?: string; includeAll?: boolean; }): Observable<SysEquipoResponse> {
+    let params = new HttpParams();
+    if (filters) {
+      if (filters.activo !== undefined) params = params.set('activo', filters.activo.toString());
+      if (filters.id_servicio_fk) params = params.set('id_servicio_fk', filters.id_servicio_fk.toString());
+      if (filters.id_tipo_equipo_fk) params = params.set('id_tipo_equipo_fk', filters.id_tipo_equipo_fk.toString());
+      if (filters.search) params = params.set('search', filters.search);
+      if (filters.includeAll) params = params.set('includeAll', 'true');
+    }
+    return this.http.get<SysEquipoResponse>(this.apiUrl, { params });
   }
 
-  createEquipo(equipo: any): Promise<any> {
-    return firstValueFrom(this.httpClient.post<any>(`${this.baseUrl}/api/sistemas/equipos`, equipo, createHeaders()));
+  getEquipoById(id: any) {
+    return firstValueFrom(
+      this.http.get<any>(`${this.apiUrl}/${id}`)
+    )
   }
 
-  updateEquipo(id: number, equipo: any): Promise<any> {
-    return firstValueFrom(this.httpClient.put<any>(`${this.baseUrl}/api/sistemas/equipos/${id}`, equipo, createHeaders()));
+  createEquipo(equipo: any): Observable<SysEquipoResponse> {
+    return this.http.post<SysEquipoResponse>(this.apiUrl, equipo);
   }
 
-  exportarInventario(tipo?: string, obsolescencia?: boolean, otro?: boolean): Promise<Blob> {
-    return firstValueFrom(this.httpClient.get(`${this.baseUrl}/api/sistemas/exportar`, { responseType: 'blob', ...createHeaders() }));
+  updateEquipo(id: number, equipo: Partial<SysEquipo>): Observable<SysEquipoResponse> {
+    return this.http.patch<SysEquipoResponse>(`${this.apiUrl}/${id}`, equipo);
+  }
+
+  enviarABodega(id: number, motivo?: string, tipoBodega?: string, nombre_receptor?: string, cargo_receptor?: string, observaciones?: string): Observable<SysEquipoResponse> {
+    return this.http.post<SysEquipoResponse>(`${this.apiUrl}/${id}/bodega`, { motivo, tipo_bodega: tipoBodega, nombre_receptor, cargo_receptor, observaciones });
+  }
+
+  darDeBaja(id: number, data: { justificacion_baja: string; accesorios_reutilizables?: string; id_usuario?: number; password: string; }): Observable<SysEquipoResponse> {
+    return this.http.post<SysEquipoResponse>(`${this.apiUrl}/${id}/hard-delete`, data);
+  }
+
+  getEquiposEnBodega(): Observable<SysEquipoResponse> {
+    return this.http.get<SysEquipoResponse>(`${this.apiUrl}/bodega`);
+  }
+
+  getEquiposDadosDeBaja(): Observable<SysEquipoResponse> {
+    return this.http.get<SysEquipoResponse>(`${this.apiUrl}/dados-baja`);
+  }
+
+  reactivarEquipo(id: number, data?: { ubicacion?: string; ubicacion_especifica?: string; nombre_receptor?: string; cargo_receptor?: string; observaciones?: string; servicioDestinoId?: number }): Observable<SysEquipoResponse> {
+    return this.http.patch<SysEquipoResponse>(`${this.apiUrl}/${id}/reactivar`, data || {});
+  }
+
+  getTiposEquipoSistemas(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/tiposequipo`);
+  }
+
+  getTraslados(id: number): Promise<any> {
+    return firstValueFrom(
+      this.http.get<any>(`${this.apiUrl}/${id}/traslados`)
+    );
+  }
+
+  exportarInventario(tipo: 'todos' | 'bodega' | 'activo' | 'inactivo', obsolescencia: boolean = true, completo: boolean = false): Promise<Blob> {
+    return firstValueFrom(
+      this.http.get(`${this.apiUrl}/exportar`, {
+        params: { tipo, obsolescencia: String(obsolescencia), completo: String(completo) },
+        responseType: 'blob'
+      })
+    );
   }
 }

@@ -1,10 +1,11 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ChartModule } from 'primeng/chart';
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { InspeccionService } from '../../../../Services/appServices/areasFisicas/inspeccion.service';
 import { ReporteMantenimientoService } from '../../../../Services/appServices/areasFisicas/reporte-mantenimiento.service';
 import { ObservacionesService } from '../../../../Services/appServices/areasFisicas/observaciones.service';
@@ -12,7 +13,7 @@ import { ObservacionesService } from '../../../../Services/appServices/areasFisi
 @Component({
   selector: 'app-indicadores-areas-fisicas',
   standalone: true,
-  imports: [CommonModule, ButtonModule, TooltipModule, ChartModule, MantenimientoadminnavbarComponent],
+  imports: [CommonModule, ButtonModule, TooltipModule, ChartModule, AppNavbarComponent],
   templateUrl: './indicadores-areas-fisicas.component.html',
   styleUrl: './indicadores-areas-fisicas.component.css'
 })

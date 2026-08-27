@@ -1,5 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { SysRepuestosService, SysRepuesto } from '../../../Services/appServices/sistemasServices/sysrepuestos/sysrepuestos.service';
 import { SysTipoRepuestosService, SysTipoRepuesto } from '../../../Services/appServices/sistemasServices/systiporepuestos/systiporepuestos.service';
@@ -17,7 +21,7 @@ const ROLES_PERMITIDOS = ['SUPERADMIN', 'ADMINISTRADOR', 'SYSTEMADMIN', 'SYSTEMU
 @Component({
   selector: 'app-sis-repuestos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DialogModule, ButtonModule, TableModule],
   templateUrl: './repuestos.component.html',
   styleUrls: ['./repuestos.component.css']
 })
@@ -30,6 +34,8 @@ export class SisRepuestosComponent implements OnInit {
   filteredTiposGrid: SysTipoRepuesto[] = [];
   auditoria: SysAuditoriaRepuesto[] = [];
   filteredAuditoria: SysAuditoriaRepuesto[] = [];
+  auditoriaRepuestosFiltered: SysAuditoriaRepuesto[] = [];
+  auditoriaTiposFiltered: SysAuditoriaRepuesto[] = [];
   movimientos: SysMovimientoStock[] = [];
   filteredMovimientos: SysMovimientoStock[] = [];
   alertasStockBajo: SysRepuesto[] = [];
@@ -413,32 +419,32 @@ export class SisRepuestosComponent implements OnInit {
   // ─── Filtros y paginación Auditoría ───────────────────────
 
   applyAuditFilter(): void {
-    const repuestosFiltered = this.auditoria.filter(a => a.tabla_origen === 'SysRepuesto' && this.matchesAuditSearch(a, 'repuestos'));
-    const tiposFiltered = this.auditoria.filter(a => a.tabla_origen === 'SysTipoRepuesto' && this.matchesAuditSearch(a, 'tipos'));
+    this.auditoriaRepuestosFiltered = this.auditoria.filter(a => a.tabla_origen === 'SysRepuesto' && this.matchesAuditSearch(a, 'repuestos'));
+    this.auditoriaTiposFiltered = this.auditoria.filter(a => a.tabla_origen === 'SysTipoRepuesto' && this.matchesAuditSearch(a, 'tipos'));
 
     this.auditPageRepuestos = 1;
-    this.auditTotalPagesRepuestos = Math.max(1, Math.ceil(repuestosFiltered.length / this.pageSize));
-    this.pagedAuditoriaRepuestos = repuestosFiltered.slice(0, this.pageSize);
+    this.auditTotalPagesRepuestos = Math.max(1, Math.ceil(this.auditoriaRepuestosFiltered.length / this.pageSize));
+    this.pagedAuditoriaRepuestos = this.auditoriaRepuestosFiltered.slice(0, this.pageSize);
 
     this.auditPageTipos = 1;
-    this.auditTotalPagesTipos = Math.max(1, Math.ceil(tiposFiltered.length / this.pageSize));
-    this.pagedAuditoriaTipos = tiposFiltered.slice(0, this.pageSize);
+    this.auditTotalPagesTipos = Math.max(1, Math.ceil(this.auditoriaTiposFiltered.length / this.pageSize));
+    this.pagedAuditoriaTipos = this.auditoriaTiposFiltered.slice(0, this.pageSize);
   }
 
   goToAuditPageRepuestos(page: number): void {
     if (page < 1 || page > this.auditTotalPagesRepuestos) return;
     this.auditPageRepuestos = page;
-    const repuestosFiltered = this.auditoria.filter(a => a.tabla_origen === 'SysRepuesto' && this.matchesAuditSearch(a, 'repuestos'));
+    this.auditoriaRepuestosFiltered = this.auditoria.filter(a => a.tabla_origen === 'SysRepuesto' && this.matchesAuditSearch(a, 'repuestos'));
     const start = (page - 1) * this.pageSize;
-    this.pagedAuditoriaRepuestos = repuestosFiltered.slice(start, start + this.pageSize);
+    this.pagedAuditoriaRepuestos = this.auditoriaRepuestosFiltered.slice(start, start + this.pageSize);
   }
 
   goToAuditPageTipos(page: number): void {
     if (page < 1 || page > this.auditTotalPagesTipos) return;
     this.auditPageTipos = page;
-    const tiposFiltered = this.auditoria.filter(a => a.tabla_origen === 'SysTipoRepuesto' && this.matchesAuditSearch(a, 'tipos'));
+    this.auditoriaTiposFiltered = this.auditoria.filter(a => a.tabla_origen === 'SysTipoRepuesto' && this.matchesAuditSearch(a, 'tipos'));
     const start = (page - 1) * this.pageSize;
-    this.pagedAuditoriaTipos = tiposFiltered.slice(start, start + this.pageSize);
+    this.pagedAuditoriaTipos = this.auditoriaTiposFiltered.slice(start, start + this.pageSize);
   }
 
   getAuditPagesArray(totalPages: number, currentPage: number): number[] {
@@ -1025,3 +1031,4 @@ export class SisRepuestosComponent implements OnInit {
     return map[accion] || 'badge-secondary';
   }
 }
+

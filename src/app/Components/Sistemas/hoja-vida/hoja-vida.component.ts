@@ -1,3 +1,4 @@
+import { ButtonModule } from 'primeng/button';
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,10 +18,23 @@ import Swal from 'sweetalert2';
 import { extractError } from '../../../utils/error-utils';
 import { getEstadoSoporte, calcularFechaFinSoporte, EstadoSoporte, LABELS_SOPORTE } from '../../../utils/soporte-utils';
 
+import { CardModule } from 'primeng/card';
+import { AccordionModule } from 'primeng/accordion';
+import { DividerModule } from 'primeng/divider';
+import { ImageModule } from 'primeng/image';
+import { TableModule } from 'primeng/table';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
+
 @Component({
   selector: 'app-sys-hoja-vida',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule, FormsModule, ButtonModule, CardModule, AccordionModule,
+    DividerModule, ImageModule, TableModule, DialogModule, InputTextModule,
+    TooltipModule
+  ],
   templateUrl: './hoja-vida.component.html',
   styleUrl: './hoja-vida.component.css'
 })
@@ -301,6 +315,7 @@ export class SysHojaVidaComponent implements OnInit {
       fd.append('activo', 'true');
       fd.append('equipoIdFk', String(this.equipoId));
       fd.append('tipoDocumntoIdFk', this.nuevoDocumento.tipoDocumntoIdFk);
+      fd.append('origen', 'sistemas');
       await this.documentosSvc.addDocumento(fd);
       this.modalAddDocumento = false;
       await this.cargarDocumentos();
@@ -356,3 +371,4 @@ export class SysHojaVidaComponent implements OnInit {
     }
   }
 }
+

@@ -1,205 +1,180 @@
-<div class="page-wrapper">
+<!-- Contenedor principal -->
+<div class="p-mx-5 p-mt-4 p-p-4 bg-white shadow-2 border-round">
 
   <!-- Encabezado -->
-  <div class="page-header">
-    <div class="header-top">
-      <div>
-        <h1>Nueva Entrega</h1>
-        <p class="subtitle">Complete los datos correspondientes</p>
-      </div>
-    </div>
+  <div class="text-center mb-5" style="margin-top: 2%;">
+    <h1 style="text-transform: uppercase; color: var(--primary-color);">Nueva Entrega</h1>
+    <h6 class="text-500">Complete los datos correspondientes para registrar la entrega</h6>
+  </div>
+
+  <div class="card" style="padding: 1rem 2rem 2rem 2rem;">
     @if (equipo) {
-      <div class="equipo-info-strip">
-        <div class="equipo-info-item equipo-info-item--name">
-          <span class="info-value">{{ equipo.nombre_equipo || 'Equipo' }}</span>
+      <div class="surface-ground p-4 border-round border-1 surface-border mb-5">
+        <div class="flex align-items-center mb-4">
+          <i class="pi pi-desktop text-2xl text-primary mr-3"></i>
+          <span class="text-xl font-bold text-900">{{ equipo.nombre_equipo || 'Equipo' }}</span>
         </div>
-        <div class="info-divider"></div>
-        <div class="equipo-info-item">
-          <span class="info-label">Placa inventario</span>
-          <span class="info-value">{{ equipo.placa_inventario || '—' }}</span>
-        </div>
-        <div class="info-divider"></div>
-        <div class="equipo-info-item">
-          <span class="info-label">Tipo</span>
-          <span class="info-value">{{ equipo.tipoEquipo?.nombres || equipo.tipoEquipo?.nombre || '—' }}</span>
-        </div>
-        <div class="info-divider"></div>
-        <div class="equipo-info-item">
-          <span class="info-label">Servicio</span>
-          <span class="info-value">{{ equipo.servicio?.nombres || '—' }}</span>
-        </div>
-        <div class="info-divider"></div>
-        <div class="equipo-info-item">
-          <span class="info-label">Ubicación</span>
-          <span class="info-value">{{ equipo.ubicacion || '—' }}</span>
-        </div>
-        <div class="info-divider"></div>
-        <div class="equipo-info-item">
-          <span class="info-label">Marca / Modelo</span>
-          <span class="info-value">{{ equipo.marca || '—' }} / {{ equipo.modelo || '—' }}</span>
-        </div>
-        <div class="info-divider"></div>
-        <div class="equipo-info-item">
-          <span class="info-label">Periodicidad</span>
-          <span class="info-value">{{ equipo.periodicidad || '—' }}</span>
+        <div class="grid">
+          <div class="col-12 md:col-6 lg:col-3 mb-3">
+            <span class="block text-500 font-semibold text-sm uppercase mb-1">Placa Inventario</span>
+            <span class="text-900 font-medium text-lg">{{ equipo.placa_inventario || '--' }}</span>
+          </div>
+          <div class="col-12 md:col-6 lg:col-3 mb-3">
+            <span class="block text-500 font-semibold text-sm uppercase mb-1">Tipo</span>
+            <span class="text-900 font-medium text-lg">{{ equipo.tipoEquipo?.nombres || equipo.tipoEquipo?.nombre || '--' }}</span>
+          </div>
+          <div class="col-12 md:col-6 lg:col-3 mb-3">
+            <span class="block text-500 font-semibold text-sm uppercase mb-1">Marca</span>
+            <span class="text-900 font-medium text-lg">{{ equipo.marca || '--' }}</span>
+          </div>
+          <div class="col-12 md:col-6 lg:col-3 mb-3">
+            <span class="block text-500 font-semibold text-sm uppercase mb-1">Modelo</span>
+            <span class="text-900 font-medium text-lg">{{ equipo.modelo || '--' }}</span>
+          </div>
+          <div class="col-12 md:col-6 lg:col-3 mb-3">
+            <span class="block text-500 font-semibold text-sm uppercase mb-1">Serie</span>
+            <span class="text-900 font-medium text-lg">{{ equipo.serie || '--' }}</span>
+          </div>
+          <div class="col-12 md:col-6 lg:col-3 mb-3">
+            <span class="block text-500 font-semibold text-sm uppercase mb-1">Servicio</span>
+            <span class="text-900 font-medium text-lg">{{ equipo.servicio?.nombres || '--' }}</span>
+          </div>
+          <div class="col-12 md:col-12 lg:col-6 mb-3">
+            <span class="block text-500 font-semibold text-sm uppercase mb-1">Ubicación</span>
+            <span class="text-900 font-medium text-lg">{{ equipo.ubicacion || '--' }}</span>
+          </div>
         </div>
       </div>
     }
-  </div>
 
-  <div class="page-content">
     <form (ngSubmit)="onSubmit()" #f="ngForm">
-
       <fieldset [disabled]="!!savedReporteId" style="border:none;padding:0;margin:0;">
-      <div class="form-grid">
+        <div class="grid p-fluid">
+          <!-- Columna izquierda -->
+          <div class="col-12 md:col-6 pr-md-4">
+            
+            <p-fieldset legend="Datos de Reporte" styleClass="mb-4 shadow-1">
+              <div class="p-fluid formgrid grid">
+                <div class="field col-12 md:col-6">
+                  <label class="font-medium block mb-2">Fecha <span class="text-red-500">*</span></label>
+                  <input type="date" pInputText class="w-full" name="fecha" [(ngModel)]="form.fecha" required />
+                </div>
+                <div class="field col-12 md:col-6">
+                  <label class="font-medium block mb-2">Hora de llamado</label>
+                  <input type="time" pInputText class="w-full" name="hora_llamado" [(ngModel)]="form.hora_llamado" />
+                </div>
+              </div>
+              <div class="p-fluid formgrid grid">
+                <div class="field col-12 md:col-6">
+                  <label class="font-medium block mb-2">Hora de inicio</label>
+                  <input type="time" pInputText class="w-full" name="hora_inicio" [(ngModel)]="form.hora_inicio" />
+                </div>
+                <div class="field col-12 md:col-6">
+                  <label class="font-medium block mb-2">Hora de terminación</label>
+                  <input type="time" pInputText class="w-full" name="hora_terminacion" [(ngModel)]="form.hora_terminacion" />
+                </div>
+              </div>
+            </p-fieldset>
 
-        <!-- Columna izquierda -->
-        <div class="form-col">
+            <p-fieldset legend="Procedencia" styleClass="mb-4 shadow-1">
+              <div class="p-fluid formgrid grid">
+                <div class="field col-12 md:col-6">
+                  <label class="font-medium block mb-2">Servicio anterior</label>
+                  <select class="p-inputtext p-component w-full" name="servicio_anterior" [(ngModel)]="form.servicio_anterior">
+                    <option value="">Seleccionar servicio...</option>
+                    @for (s of servicios; track s.id) {
+                      <option [value]="s.nombres || s.nombre">{{ s.nombres || s.nombre }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="field col-12 md:col-6">
+                  <label class="font-medium block mb-2">Ubicación anterior</label>
+                  <input type="text" pInputText class="w-full" name="ubicacion_anterior" [(ngModel)]="form.ubicacion_anterior" placeholder="Ej: Sala 3" />
+                </div>
+              </div>
+            </p-fieldset>
 
-          <!-- Datos del Reporte -->
-          <div class="form-section">
-            <h3 class="section-title"> Datos de reporte</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Fecha <span class="required">*</span></label>
-                <input type="date" name="fecha" [(ngModel)]="form.fecha" required />
+            <p-fieldset legend="Destino" styleClass="mb-4 shadow-1">
+              <div class="p-fluid formgrid grid">
+                <div class="field col-12 md:col-6">
+                  <label class="font-medium block mb-2">Servicio destino <span class="text-red-500">*</span></label>
+                  <select class="p-inputtext p-component w-full" name="servicio_nuevo" [(ngModel)]="form.servicio_nuevo" required>
+                    <option value="">Seleccionar servicio...</option>
+                    @for (s of servicios; track s.id) {
+                      <option [value]="s.nombres || s.nombre">{{ s.nombres || s.nombre }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="field col-12 md:col-6">
+                  <label class="font-medium block mb-2">Ubicación nueva</label>
+                  <input type="text" pInputText class="w-full" name="ubicacion_nueva" [(ngModel)]="form.ubicacion_nueva" placeholder="Ej: Habitación 10" />
+                </div>
               </div>
-              <div class="form-group">
-                <label>Hora de llamado</label>
-                <input type="time" name="hora_llamado" [(ngModel)]="form.hora_llamado" />
+              <div class="p-fluid formgrid grid">
+                <div class="field col-12">
+                  <label class="font-medium block mb-2">Ubicación específica</label>
+                  <input type="text" pInputText class="w-full" name="ubicacion_especifica" [(ngModel)]="form.ubicacion_especifica" placeholder="Ej: Puesto 2" />
+                </div>
               </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Hora de inicio</label>
-                <input type="time" name="hora_inicio" [(ngModel)]="form.hora_inicio" />
-              </div>
-              <div class="form-group">
-                <label>Hora de terminación</label>
-                <input type="time" name="hora_terminacion" [(ngModel)]="form.hora_terminacion" />
-              </div>
-            </div>
+            </p-fieldset>
+
           </div>
 
-          <!-- Procedencia -->
-          <div class="form-section">
-            <h3 class="section-title"> Procedencia</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Servicio anterior</label>
-                <select name="servicio_anterior" [(ngModel)]="form.servicio_anterior">
-                  <option value="">Seleccionar servicio...</option>
-                  @for (s of servicios; track s.id_servicio) {
-                    <option [value]="s.nombres || s.nombre">{{ s.nombres || s.nombre }}</option>
-                  }
-                </select>
+          <!-- Columna derecha -->
+          <div class="col-12 md:col-6 pl-md-4">
+            
+            <p-fieldset legend="Personal" styleClass="mb-4 shadow-1">
+              <div class="p-fluid formgrid grid">
+                <div class="field col-12 md:col-6">
+                  <label class="font-medium block mb-2">Realizado por <span class="text-red-500">*</span></label>
+                  <input type="text" pInputText class="w-full" name="realizado_por" [(ngModel)]="form.realizado_por" required placeholder="Nombre del técnico" />
+                </div>
+                <div class="field col-12 md:col-6">
+                  <label class="font-medium block mb-2">Recibido por</label>
+                  <input type="text" pInputText class="w-full" name="recibido_por" [(ngModel)]="form.recibido_por" placeholder="Nombre del receptor" />
+                </div>
               </div>
-              <div class="form-group">
-                <label>Ubicación anterior</label>
-                <input type="text" name="ubicacion_anterior" [(ngModel)]="form.ubicacion_anterior" placeholder="Ej: Sala 3" />
-              </div>
-            </div>
-          </div>
+            </p-fieldset>
 
-          <!-- Destino -->
-          <div class="form-section">
-            <h3 class="section-title"> Destino</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Servicio destino <span class="required">*</span></label>
-                <select name="servicio_nuevo" [(ngModel)]="form.servicio_nuevo" required>
-                  <option value="">Seleccionar servicio...</option>
-                  @for (s of servicios; track s.id_servicio) {
-                    <option [value]="s.nombres || s.nombre">{{ s.nombres || s.nombre }}</option>
-                  }
-                </select>
+            <p-fieldset legend="Equipo que se retira" styleClass="mb-4 shadow-1">
+              <div class="p-fluid formgrid grid">
+                <div class="field col-12">
+                  <label class="font-medium text-600 mb-2 block">Seleccione el equipo que sale de servicio (opcional)</label>
+                  <select class="p-inputtext p-component w-full" name="equipo_retirado" [(ngModel)]="equipoRetirado">
+                    <option value="">Ninguno / No aplica</option>
+                    @for (eq of equiposList; track eq.id_sysequipo) {
+                      <option [value]="eq.nombre_equipo + (eq.placa_inventario ? ' - ' + eq.placa_inventario : '')">
+                        {{ eq.nombre_equipo }}{{ eq.placa_inventario ? ' - ' + eq.placa_inventario : '' }}{{ eq.servicio?.nombres ? ' (' + eq.servicio.nombres + ')' : '' }}
+                      </option>
+                    }
+                  </select>
+                </div>
               </div>
-              <div class="form-group">
-                <label>Ubicación nueva</label>
-                <input type="text" name="ubicacion_nueva" [(ngModel)]="form.ubicacion_nueva" placeholder="Ej: Habitación 10" />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group full-width">
-                <label>Ubicación específica</label>
-                <input type="text" name="ubicacion_especifica" [(ngModel)]="form.ubicacion_especifica" placeholder="Ej: Puesto 2" />
-              </div>
-            </div>
-          </div>
+            </p-fieldset>
 
+            <p-fieldset legend="Observaciones" styleClass="mb-4 shadow-1">
+              <div class="p-fluid formgrid grid">
+                <div class="field col-12">
+                  <textarea class="p-inputtext p-component w-full" name="observaciones" [(ngModel)]="form.observaciones" rows="5"
+                    placeholder="Observaciones adicionales sobre la entrega..."></textarea>
+                </div>
+              </div>
+            </p-fieldset>
+
+          </div>
         </div>
-
-        <!-- Columna derecha -->
-        <div class="form-col">
-
-          <!-- Personal -->
-          <div class="form-section">
-            <h3 class="section-title">Personal</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Realizado por <span class="required">*</span></label>
-                <input type="text" name="realizado_por" [(ngModel)]="form.realizado_por" required placeholder="Nombre del técnico" />
-              </div>
-              <div class="form-group">
-                <label>Recibido por</label>
-                <input type="text" name="recibido_por" [(ngModel)]="form.recibido_por" placeholder="Nombre del receptor" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Equipo que se retira -->
-          <div class="form-section">
-            <h3 class="section-title"> Equipo que se retira</h3>
-            <div class="form-group full-width">
-              <label>Seleccione el equipo que sale de servicio (opcional)</label>
-              <select name="equipo_retirado" [(ngModel)]="equipoRetirado">
-                <option value="">Ninguno / No aplica</option>
-                @for (eq of equiposList; track eq.id_sysequipo) {
-                  <option [value]="eq.nombre_equipo + (eq.placa_inventario ? ' — ' + eq.placa_inventario : '')">
-                    {{ eq.nombre_equipo }}{{ eq.placa_inventario ? ' — ' + eq.placa_inventario : '' }}{{ eq.servicio?.nombres ? ' (' + eq.servicio.nombres + ')' : '' }}
-                  </option>
-                }
-              </select>
-            </div>
-          </div>
-
-          <!-- Observaciones -->
-          <div class="form-section">
-            <h3 class="section-title"> Observaciones</h3>
-            <div class="form-group full-width">
-              <textarea name="observaciones" [(ngModel)]="form.observaciones" rows="5"
-                placeholder="Observaciones adicionales sobre la entrega..."></textarea>
-            </div>
-          </div>
-
-        </div>
-      </div>
       </fieldset>
 
       <!-- Acciones -->
-      <div class="page-footer">
-        <button type="button" class="btn btn-outline" (click)="volver()">
-           Cancelar
-        </button>
+      <div class="flex justify-content-end gap-3 mt-5 pt-4 border-top-1 surface-border">
+        <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" [outlined]="true" (onClick)="volver()"></p-button>
+        
         @if (savedReporteId) {
-          <button type="button" class="btn btn-success" (click)="nuevoReporte()">
-            <i class="fas fa-plus"></i> Nuevo reporte
-          </button>
-          <button type="button" class="btn btn-download" (click)="descargarPdf()" [disabled]="isDownloadingPdf">
-            @if (isDownloadingPdf) {
-              <i class="fas fa-spinner fa-spin"></i> Generando...
-            } @else {
-              <i class="fas fa-download"></i> Descargar PDF
-            }
-          </button>
+          <p-button label="Nuevo reporte" icon="pi pi-plus" severity="info" (onClick)="nuevoReporte()"></p-button>
+          <p-button label="Descargar PDF" icon="pi pi-file-pdf" severity="danger" (onClick)="descargarPdf()" [loading]="isDownloadingPdf"></p-button>
+        } @else {
+          <p-button label="Guardar Entrega" icon="pi pi-save" type="submit" [disabled]="isSubmitting || f.invalid" [loading]="isSubmitting"></p-button>
         }
-        <button type="submit" class="btn btn-primary" [disabled]="isSubmitting || f.invalid || !!savedReporteId">
-          @if (isSubmitting) {
-            <i class="fas fa-spinner fa-spin"></i> Guardando...
-          } @else {
-           Guardar reporte
-          }
-        </button>
       </div>
 
     </form>

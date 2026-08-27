@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,14 +14,14 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TabViewModule } from 'primeng/tabview';
 import { FilterService, FilterMatchMode } from 'primeng/api';
 import { PlanMantenimientoService } from '../../../../Services/appServices/areasFisicas/plan-mantenimiento.service';
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { ProgramacionMantenimientoComponent } from '../../gestion-operativa/programacion-mantenimiento/programacion-mantenimiento.component';
 import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-plan-mantenimiento-list',
     standalone: true,
-    imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, SelectModule, TagModule, CalendarModule, ToolbarModule, TabViewModule, MantenimientoadminnavbarComponent, ProgramacionMantenimientoComponent],
+    imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule, SelectModule, TagModule, CalendarModule, ToolbarModule, TabViewModule, AppNavbarComponent, ProgramacionMantenimientoComponent],
     templateUrl: './plan-mantenimiento-list.component.html',
     styleUrls: ['./plan-mantenimiento-list.component.css']
 })

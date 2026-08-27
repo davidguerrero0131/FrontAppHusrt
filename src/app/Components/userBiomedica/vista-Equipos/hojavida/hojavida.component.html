@@ -255,7 +255,7 @@
       </p-accordion>
 
       <p-dialog header="Agregar Documento" [(visible)]="modalAddDocumento" [modal]="true" [style]="{width: '50vw'}"
-        [draggable]="false" [resizable]="false">
+        [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [draggable]="false" [resizable]="false">
         <div class="p-fluid">
           <div class="field">
             <label for="nombreDoc">Nombre del Documento</label>

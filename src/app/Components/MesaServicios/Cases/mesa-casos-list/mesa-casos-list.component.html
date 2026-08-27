@@ -172,6 +172,9 @@
                 <p-tab value="solicitados">
                     <i class="pi pi-send mr-2"></i> Casos Solicitados ({{casosSolicitados.length}})
                 </p-tab>
+                <p-tab value="mis_casos" *ngIf="userRoleCode === 'ADM' || userRole === 'MESAADMIN'">
+                    <i class="pi pi-user mr-2"></i> Mis Casos ({{misCasosAsignados.length}})
+                </p-tab>
                 <p-tab value="global" *ngIf="isSuperAdminUser">
                     <i class="pi pi-globe mr-2"></i> Todos los Casos ({{casos.length}})
                 </p-tab>
@@ -277,7 +280,7 @@
 
 <!-- Admin Dialog - Modernized -->
 <p-dialog [header]="'Gesti&oacute;n Administrativa'" [(visible)]="displayAdminDialog"
-    [modal]="true" [style]="{width: '500px'}" styleClass="p-fluid shadow-lg">
+    [modal]="true" [style]="{width: '500px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" styleClass="p-fluid shadow-lg">
     <div class="p-4 pt-0">
         <div class="surface-50 border-round-lg p-3 mb-4 flex align-items-center gap-3">
             <div class="case-id-badge font-bold">#{{ editingCaso?.id }}</div>
@@ -313,7 +316,7 @@
 </p-dialog>
 
 <!-- Assignment Dialog - Modernized -->
-<p-dialog [(visible)]="displayAssignDialog" [style]="{width: '450px'}" header="Asignar Responsables" [modal]="true"
+<p-dialog [(visible)]="displayAssignDialog" [style]="{width: '450px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Asignar Responsables" [modal]="true"
     class="p-fluid shadow-lg">
     <div class="p-4 pt-0">
         <p class="text-secondary mb-4">Seleccione uno o más funcionarios para asignar este requerimiento.</p>
@@ -352,7 +355,7 @@
 </p-dialog>
 
 <!-- Search Dialog -->
-<p-dialog [(visible)]="displaySearchDialog" [style]="{width: '700px'}" header="Búsqueda Global de Casos" [modal]="true" class="p-fluid shadow-lg">
+<p-dialog [(visible)]="displaySearchDialog" [style]="{width: '700px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Búsqueda Global de Casos" [modal]="true" class="p-fluid shadow-lg">
     <div class="p-4 pt-0">
         <p class="text-secondary mb-3">Busca casos directamente por su ID o parte de su asunto / título. (Ignora tu asignación actual)</p>
         <div class="flex gap-2 mb-3">
@@ -391,7 +394,7 @@
 </p-dialog>
 
 <!-- Rating Dialog -->
-<p-dialog header="Calificar Servicio" [(visible)]="displayRatingDialog" [modal]="true" [style]="{width: '450px'}" [closable]="true" [dismissableMask]="true">
+<p-dialog header="Calificar Servicio" [(visible)]="displayRatingDialog" [modal]="true" [style]="{width: '450px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [closable]="true" [dismissableMask]="true">
     <div class="flex flex-column align-items-center gap-4 py-4">
         <h3 class="m-0 text-center text-700">¿Qué tan satisfecho está con la solución a su caso?</h3>
         
@@ -418,7 +421,7 @@
 </p-dialog>
 
 <!-- Semaforo Details Dialog -->
-<p-dialog [(visible)]="displaySemaforoDialog" [style]="{width: '700px'}" [header]="semaforoDialogTitle" [modal]="true" class="p-fluid shadow-lg">
+<p-dialog [(visible)]="displaySemaforoDialog" [style]="{width: '700px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [header]="semaforoDialogTitle" [modal]="true" class="p-fluid shadow-lg">
     <div class="p-4 pt-0">
         <div *ngIf="selectedSemaforoCases.length > 0">
             <p-table [value]="selectedSemaforoCases" [paginator]="true" [rows]="5" styleClass="p-datatable-sm" responsiveLayout="scroll">
@@ -452,7 +455,7 @@
 </p-dialog>
 
 <!-- Modal de Casos Pendientes de Calificar -->
-<p-dialog [(visible)]="displayPendingRatingWarning" [modal]="true" [style]="{width: '400px'}" [closable]="true" [draggable]="false" [resizable]="false">
+<p-dialog [(visible)]="displayPendingRatingWarning" [modal]="true" [style]="{width: '400px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [closable]="true" [draggable]="false" [resizable]="false">
     <ng-template pTemplate="header">
         <span class="text-xl font-bold text-yellow-600"><i class="pi pi-exclamation-triangle mr-2 text-xl"></i> Atención</span>
     </ng-template>

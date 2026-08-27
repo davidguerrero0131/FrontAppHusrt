@@ -114,6 +114,12 @@ export class UserService {
     )
   }
 
+  getUsersSistemas() {
+    return firstValueFrom(
+      this.httpClient.get<any[]>(`${this.baseUrl}/usersSistemas`)
+    )
+  }
+
   private sessionTimer: any;
   private warningTimer: any;
 

@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../../navbars/app-navbar/app-navbar.component';
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -6,13 +7,13 @@ import { HojaDeVidaIndustrialService } from '../../../../../Services/appServices
 import { EquiposIndustrialesService } from '../../../../../Services/appServices/industrialesServices/equipos/equiposIndustriales.service';
 import Swal from 'sweetalert2';
 import { UppercaseDirective } from '../../../../../Directives/uppercase.directive';
-import { MantenimientoadminnavbarComponent } from '../../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 
 
 @Component({
     selector: 'app-editar-hoja-de-vida-equipo',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormsModule, UppercaseDirective, MantenimientoadminnavbarComponent],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, UppercaseDirective, AppNavbarComponent],
     templateUrl: './editar-hoja-de-vida-equipo.component.html',
     styleUrls: ['./editar-hoja-de-vida-equipo.component.css']
 })

@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../../navbars/app-navbar/app-navbar.component';
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,18 +11,27 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { Router } from '@angular/router';
-import { CitaspediatriaadminnavbarComponent } from '../../../../navbars/citaspediatriaadminnavbar/citaspediatriaadminnavbar.component';
+
 
 @Component({
   selector: 'app-dashboard-citas',
   standalone: true,
-  imports: [CitaspediatriaadminnavbarComponent, CommonModule, FormsModule, ChartModule, DatePickerModule, SelectModule, CardModule, ButtonModule, TableModule, DialogModule],
+  imports: [CommonModule, FormsModule, ChartModule, DatePickerModule, SelectModule, CardModule, ButtonModule, TableModule, DialogModule],
   templateUrl: './dashboard-citas.component.html',
   styleUrls: ['./dashboard-citas.component.css']
 })
 export class DashboardCitasComponent implements OnInit {
   private servinteService = inject(EntidadService);
   private router = inject(Router);
+  rol: string = '';
+
+  constructor() {
+    const token = sessionStorage.getItem('utoken');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      this.rol = payload.rol || '';
+    }
+  }
 
   loading: boolean = false;
   startDate: any = null;

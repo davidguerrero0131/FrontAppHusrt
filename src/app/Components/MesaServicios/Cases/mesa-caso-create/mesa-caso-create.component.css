@@ -1,5 +1,5 @@
 .dashboard-container {
-    padding: 2rem;
+    padding: 1.25rem;
     min-height: 80vh;
 }
 
@@ -28,8 +28,8 @@
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,1);
     box-shadow: 0 15px 35px -5px rgba(0,0,0,0.05);
-    border-radius: 1.25rem;
-    padding: 2rem;
+    border-radius: 1rem;
+    padding: 1.25rem;
     position: relative;
     z-index: 2;
     margin: 0 1rem 2rem 1rem;
@@ -39,8 +39,8 @@
     background: white;
     border: 1px solid #e2e8f0;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-    border-radius: 1.25rem;
-    padding: 2rem;
+    border-radius: 1rem;
+    padding: 1.25rem;
     margin: 0 1rem 2rem 1rem;
 }
 
@@ -78,11 +78,17 @@
 
 .footer-actions {
     position: sticky;
-    bottom: 0;
+    bottom: 20px;
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);
-    border-top: 1px solid #e2e8f0;
-    padding: 1.5rem 2rem;
-    border-radius: 0 0 1.5rem 1.5rem;
+    border: 1px solid #e2e8f0;
+    padding: 1rem 1.5rem;
+    border-radius: 1.5rem;
     z-index: 10;
 }
+
+.hero-section {
+    padding: 1.5rem 1rem !important;
+    margin-bottom: 1.5rem !important;
+}
+

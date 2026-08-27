@@ -1,9 +1,10 @@
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit, ViewChild, PLATFORM_ID, ElementRef } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TabsModule } from 'primeng/tabs';
 import { PdfGeneratorService } from '../../../Services/appServices/biomedicaServices/pdf-generator/pdf-generator.service';
 import { CommonModule, Location, isPlatformBrowser } from '@angular/common';
-import { BiomedicausernavbarComponent } from "../../navbars/biomedicausernavbar/biomedicausernavbar.component";
+
 import { ArchivosService } from '../../../Services/appServices/general/archivos/archivos.service'
 import Swal from 'sweetalert2';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -156,7 +157,7 @@ export class ManteniminetoComponent implements OnInit {
   async loadUsers() {
     try {
       const users = await this.userService.getAllUsers();
-      this.users = users.filter((user: any) => user.rolId === 7 || user.rolId === 6);
+      this.users = users.filter((user: any) => user.roles && user.roles.some((r: any) => r.nombre === 'BIOMEDICATECNICO' || r.nombre === 'BIOMEDICAUSER' || r.id === 6 || r.id === 7));
     } catch (error) {
       console.error('Error loading users', error);
     }

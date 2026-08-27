@@ -14,7 +14,7 @@
     </ng-template>
   </p-toolbar>
 
-  <p-table #dt2 [value]="usuarios" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
+  <p-table [scrollable]="true" #dt2 [value]="usuarios" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
     [paginator]="true"
     [globalFilterFields]="['nombres', 'apellidos', 'email', 'telefono', 'nombreUsuario', 'cargo.nombre', 'servicio.nombres', 'mesaServicioRol.nombre', 'rol.nombre', 'registroInvima']"
     [tableStyle]="{ 'min-width': '75rem' }" styleClass="p-datatable-striped p-datatable-sm" [rowHover]="true"
@@ -94,7 +94,7 @@
 
 <!-- Edit Modal -->
 <p-dialog header="Editar Usuario" [(visible)]="visibleEditModal" [modal]="true" [style]="{ width: '900px' }"
-  styleClass="p-fluid">
+  [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" styleClass="p-fluid">
   <form [formGroup]="formGroup" (ngSubmit)="saveUser()" class="pt-2">
 
     <div class="form-grid">
@@ -135,9 +135,9 @@
       </div>
 
       <div class="field">
-        <label for="rolId" class="font-bold">Rol</label>
-        <p-select id="rolId" [options]="roles" formControlName="rolId" optionLabel="nombre" optionValue="id"
-          placeholder="Seleccione un rol" appendTo="body"></p-select>
+        <label for="rolesIds" class="font-bold">Rol(es)</label>
+        <p-multiSelect id="rolesIds" [options]="roles" formControlName="rolesIds" optionLabel="nombre" optionValue="id"
+          placeholder="Seleccione uno o más roles" appendTo="body" display="chip"></p-multiSelect>
       </div>
 
       <div class="field">
@@ -174,7 +174,7 @@
 
 <!-- View Modal -->
 <p-dialog header="Detalles del Usuario" [(visible)]="visibleViewModal" [modal]="true" [style]="{ width: '700px' }"
-  styleClass="p-fluid shadow-6 border-round-xl">
+  [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" styleClass="p-fluid shadow-6 border-round-xl">
   <div class="p-4" *ngIf="selectedUser">
     <div class="flex flex-column gap-4">
       <!-- User Info Grid -->
@@ -249,7 +249,7 @@
 
 <!-- Password Modal -->
 <p-dialog header="Cambiar Contrase&ntilde;a" [(visible)]="visiblePasswordModal" [modal]="true" [style]="{ width: '400px' }"
-  styleClass="p-fluid">
+  [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" styleClass="p-fluid">
   <form [formGroup]="passwordFormGroup" (ngSubmit)="savePassword()" class="flex flex-column gap-3 pt-2">
     <div class="flex flex-column gap-2">
       <label for="newPassword" class="font-bold">Nueva Contrase&ntilde;a</label>

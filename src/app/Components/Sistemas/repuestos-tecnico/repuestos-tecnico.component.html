@@ -1,8 +1,8 @@
-<div class="card" style="padding: 2rem; margin: 2rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-  <h2>Historial de Repuestos Usados</h2>
+<div class="premium-card mb-4">
+  <h1 class="text-2xl font-bold m-0">Historial de Repuestos Usados</h1>
   <p class="text-secondary mt-2 mb-4">A continuación se muestran los repuestos que has utilizado en los mantenimientos de equipos.</p>
   
-  <p-table [value]="repuestosUsados" [loading]="loading" [paginator]="true" [rows]="10" [responsive]="true" styleClass="p-datatable-striped">
+  <p-table [value]="repuestosUsados" [loading]="loading" [paginator]="true" [rows]="10" [responsive]="true" styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped">
     <ng-template pTemplate="header">
       <tr>
         <th>Fecha de Uso</th>
@@ -32,3 +32,4 @@
     </ng-template>
   </p-table>
 </div>
+

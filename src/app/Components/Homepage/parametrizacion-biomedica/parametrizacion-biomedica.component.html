@@ -111,8 +111,21 @@
                 <i class="pi pi-briefcase"></i>
             </div>
             <div class="card-content">
-                <h3>Gesti&oacute;n de Equipos</h3>
+                <h3>Gesti&oacute;n de Equipos Biom&eacute;dicos</h3>
                 <p>Administración general de equipos biomédicos.</p>
+                <span class="card-action">Gestionar <i class="pi pi-cog"></i></span>
+            </div>
+        </a>
+
+        <!-- Gestion de Equipos Informaticos -->
+        <a [routerLink]="['/adminsistemas/equipos']" class="dashboard-card nav-link-container"
+            *ngIf="isSystemAdmin || isSuperAdmin">
+            <div class="card-icon-container gradient-blue">
+                <i class="pi pi-desktop"></i>
+            </div>
+            <div class="card-content">
+                <h3>Gestión de equipos de TI</h3>
+                <p>Administración general de equipos de TI</p>
                 <span class="card-action">Gestionar <i class="pi pi-cog"></i></span>
             </div>
         </a>

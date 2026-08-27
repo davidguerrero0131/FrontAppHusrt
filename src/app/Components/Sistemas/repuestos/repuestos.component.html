@@ -63,11 +63,7 @@
     </div>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
       <div class="dropdown" style="position: relative; display: inline-block; overflow: visible;">
-        <button *ngIf="isAdmin" class="btn-secondary" (click)="toggleExportOptions('repuestos')"
-          title="Exportar tabla actual">
-          <i class="pi pi-download"></i> Exportar <i class="pi pi-chevron-down"
-            style="font-size: 0.8rem; margin-left: 0.2rem;"></i>
-        </button>
+        <p-button label="Exportar" icon="pi pi-download" severity="secondary" [outlined]="true" (onClick)="toggleExportOptions('repuestos')"></p-button>
         <div class="dropdown-content" *ngIf="showExportOptionsRepuestos"
           style="position: absolute; background-color: white; min-width: 150px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 100; border-radius: 8px; right: 0; top: 110%; overflow: visible; border: 1px solid #e5e7eb;">
           <a style="color: #374151; padding: 10px 16px; text-decoration: none; display: flex; align-items: center; gap: 8px; cursor: pointer; border-bottom: 1px solid #f3f4f6; font-size: 0.9rem;"
@@ -80,59 +76,35 @@
           </a>
         </div>
       </div>
-      <button *ngIf="isAdmin" class="btn-primary" (click)="openCreateModal()">
+      <p-button *ngIf="isAdmin" (onClick)="openCreateModal()">
         <i class="pi pi-plus"></i> Nuevo Repuesto
-      </button>
+      </p-button>
     </div>
   </div>
 
   <!-- Tabla -->
   <div class="table-card">
     <div class="table-responsive">
-      <table>
-        <thead>
+      
+      <p-table [value]="filteredRepuestos" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [loading]="isLoading" [globalFilterFields]="['id_sysrepuesto','nombre','tipoRepuesto.nombre','numero_parte','numero_serie','proveedor','cantidad_stock','is_active']"
+        [scrollable]="true" [tableStyle]="{ 'min-width': '60rem' }" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines">
+        <ng-template pTemplate="header">
           <tr>
-            <th>Código</th>
-            <th>Nombre</th>
-            <th>Tipo</th>
-            <th>N° Parte</th>
-            <th>N° Serie</th>
-            <th>Proveedor</th>
-            <th>Stock</th>
-            <th>Estado</th>
+            <th pSortableColumn="id_sysrepuesto">Código <p-sortIcon field="id_sysrepuesto"></p-sortIcon></th>
+            <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+            <th pSortableColumn="tipoRepuesto.nombre">Tipo <p-sortIcon field="tipoRepuesto.nombre"></p-sortIcon></th>
+            <th pSortableColumn="numero_parte">N° Parte <p-sortIcon field="numero_parte"></p-sortIcon></th>
+            <th pSortableColumn="numero_serie">N° Serie <p-sortIcon field="numero_serie"></p-sortIcon></th>
+            <th pSortableColumn="proveedor">Proveedor <p-sortIcon field="proveedor"></p-sortIcon></th>
+            <th pSortableColumn="cantidad_stock">Stock <p-sortIcon field="cantidad_stock"></p-sortIcon></th>
+            <th pSortableColumn="is_active">Estado <p-sortIcon field="is_active"></p-sortIcon></th>
             <th>Acciones</th>
           </tr>
-        </thead>
-        <tbody>
-          <!-- Loading -->
-          <tr *ngIf="isLoading">
-            <td colspan="9">
-              <div class="state-box">
-                <i class="pi pi-spin pi-spinner"></i>
-                <p>Cargando repuestos...</p>
-              </div>
-            </td>
-          </tr>
-          <!-- Error -->
-          <tr *ngIf="!isLoading && error">
-            <td colspan="9">
-              <div class="state-box">
-                <i class="pi pi-exclamation-triangle" style="color:#ef4444"></i>
-                <p>{{ error }}</p>
-              </div>
-            </td>
-          </tr>
-          <!-- Empty -->
-          <tr *ngIf="!isLoading && !error && pagedRepuestos.length === 0">
-            <td colspan="9">
-              <div class="state-box">
-                <i class="pi pi-inbox"></i>
-                <p>No hay repuestos registrados.</p>
-              </div>
-            </td>
-          </tr>
-          <!-- Data rows -->
-          <tr *ngFor="let r of pagedRepuestos">
+        </ng-template>
+        <ng-template pTemplate="body" let-r><tr>
             <td><span class="code-badge">#{{ r.id_sysrepuesto }}</span></td>
             <td>
               <strong>{{ r.nombre }}</strong>
@@ -154,54 +126,19 @@
               </span>
             </td>
             <td style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;">
-              <button class="btn-icon" title="Ver Detalles" (click)="openDetallesModal(r)">
-                <i class="pi pi-eye" style="color:var(--primary-color)"></i>
-              </button>
-              <button *ngIf="isAdmin" class="btn-icon" title="Editar" (click)="openEditModal(r)">
-                <i class="pi pi-pencil"></i>
-              </button>
-              <button *ngIf="isAdmin" class="btn-stock" (click)="openMovimientoModal(r)" title="Ingreso / Egreso">
-                <i class="pi pi-arrows-v"></i> Stock
-              </button>
-              <button *ngIf="r.is_active && isAdmin" class="btn-outline-danger" (click)="toggleRepuesto(r)"
-                title="Dar de baja">
-                <i class="pi pi-arrow-down"></i> Dar de baja
-              </button>
-              <button *ngIf="!r.is_active && isAdmin" class="btn-outline-success" (click)="toggleRepuesto(r)"
-                title="Restaurar">
-                <i class="pi pi-refresh"></i> Restaurar
-              </button>
+              <p-button icon="pi pi-eye" severity="secondary" [rounded]="true" [text]="true" styleClass="p-button-sm" title="Ver Detalles" (onClick)="openDetallesModal(r)"></p-button>
+              <p-button icon="pi pi-pencil" severity="secondary" [rounded]="true" [text]="true" styleClass="p-button-sm" *ngIf="isAdmin" title="Editar" (onClick)="openEditModal(r)"></p-button>
+              <p-button label="Stock" icon="pi pi-arrows-v" severity="secondary" [outlined]="true" styleClass="p-button-sm" *ngIf="isAdmin" (onClick)="openMovimientoModal(r)" title="Ingreso / Egreso"></p-button>
+              <p-button label="Dar de baja" icon="pi pi-arrow-down" severity="danger" [outlined]="true" styleClass="p-button-sm" *ngIf="r.is_active && isAdmin" (onClick)="toggleRepuesto(r)" title="Dar de baja"></p-button>
+              <p-button label="Restaurar" icon="pi pi-refresh" severity="success" [outlined]="true" styleClass="p-button-sm" *ngIf="!r.is_active && isAdmin" (onClick)="toggleRepuesto(r)" title="Restaurar"></p-button>
             </td>
-          </tr>
-        </tbody>
-      </table>
+          </tr></ng-template>
+        <ng-template pTemplate="emptymessage"><tr><td colspan="10" class="text-center p-4">No se encontraron registros.</td></tr></ng-template>
+      </p-table>
     </div>
 
     <!-- Paginación -->
-    <div class="pagination-bar" *ngIf="!isLoading && filteredRepuestos.length > 0">
-      <span class="pagination-info">
-        Mostrando {{ (currentPage - 1) * pageSize + 1 }}–{{ min(currentPage * pageSize, filteredRepuestos.length) }}
-        de {{ filteredRepuestos.length }} repuestos
-      </span>
-      <div class="pagination-btns">
-        <button class="pg-btn" (click)="goToPage(1)" [disabled]="currentPage === 1">
-          <i class="pi pi-angle-double-left"></i>
-        </button>
-        <button class="pg-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
-          <i class="pi pi-angle-left"></i>
-        </button>
-        <button *ngFor="let p of getPagesArray()" class="pg-btn" [class.active]="p === currentPage"
-          (click)="goToPage(p)">
-          {{ p }}
-        </button>
-        <button class="pg-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
-          <i class="pi pi-angle-right"></i>
-        </button>
-        <button class="pg-btn" (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">
-          <i class="pi pi-angle-double-right"></i>
-        </button>
-      </div>
-    </div>
+    
   </div>
 </div>
 
@@ -222,14 +159,10 @@
     </select>
     <input type="date" [(ngModel)]="filtroFechaDesde" class="filtro-date" title="Desde" />
     <input type="date" [(ngModel)]="filtroFechaHasta" class="filtro-date" title="Hasta" />
-    <button class="btn-primary" (click)="aplicarFiltrosMovimientos()"><i class="pi pi-filter"></i> Filtrar</button>
-    <button class="btn-secondary" (click)="limpiarFiltrosMovimientos()"><i class="pi pi-times"></i> Limpiar</button>
+    <p-button (onClick)="aplicarFiltrosMovimientos()"><i class="pi pi-filter"></i> Filtrar</p-button>
+    <p-button label="Limpiar" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="limpiarFiltrosMovimientos()"></p-button>
     <div class="dropdown" style="position: relative; display: inline-block; overflow: visible;">
-      <button *ngIf="isAdmin" class="btn-secondary" (click)="toggleExportOptions('movimientos')"
-        title="Exportar historial">
-        <i class="pi pi-download"></i> Exportar <i class="pi pi-chevron-down"
-          style="font-size: 0.8rem; margin-left: 0.2rem;"></i>
-      </button>
+      <p-button label="Exportar" icon="pi pi-download" severity="secondary" [outlined]="true" (onClick)="toggleExportOptions('movimientos')"></p-button>
       <div class="dropdown-content" *ngIf="showExportOptionsMovimientos"
         style="position: absolute; background-color: white; min-width: 150px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 100; border-radius: 8px; right: 0; top: 110%; overflow: visible; border: 1px solid #e5e7eb;">
         <a style="color: #374151; padding: 10px 16px; text-decoration: none; display: flex; align-items: center; gap: 8px; cursor: pointer; border-bottom: 1px solid #f3f4f6; font-size: 0.9rem;"
@@ -246,36 +179,26 @@
 
   <div class="table-card">
     <div class="table-responsive">
-      <table>
-        <thead>
+      
+      <p-table [value]="filteredMovimientos" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [loading]="isLoading" [globalFilterFields]="['id','repuesto.nombre','tipo','cantidad','stock_antes','stock_despues','usuario','fecha_movimiento']"
+        [scrollable]="true" [tableStyle]="{ 'min-width': '60rem' }" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines">
+        <ng-template pTemplate="header">
           <tr>
-            <th>ID Mov.</th>
-            <th>Repuesto</th>
-            <th>Tipo</th>
-            <th>Cantidad</th>
-            <th>Stock Antes</th>
-            <th>Stock Después</th>
-            <th>Usuario</th>
-            <th>Fecha</th>
+            <th pSortableColumn="id">ID Mov. <p-sortIcon field="id"></p-sortIcon></th>
+            <th pSortableColumn="repuesto.nombre">Repuesto <p-sortIcon field="repuesto.nombre"></p-sortIcon></th>
+            <th pSortableColumn="tipo">Tipo <p-sortIcon field="tipo"></p-sortIcon></th>
+            <th pSortableColumn="cantidad">Cantidad <p-sortIcon field="cantidad"></p-sortIcon></th>
+            <th pSortableColumn="stock_antes">Stock Antes <p-sortIcon field="stock_antes"></p-sortIcon></th>
+            <th pSortableColumn="stock_despues">Stock Después <p-sortIcon field="stock_despues"></p-sortIcon></th>
+            <th pSortableColumn="usuario">Usuario <p-sortIcon field="usuario"></p-sortIcon></th>
+            <th pSortableColumn="fecha_movimiento">Fecha <p-sortIcon field="fecha_movimiento"></p-sortIcon></th>
             <th>Detalles</th>
           </tr>
-        </thead>
-        <tbody>
-          <tr *ngIf="isLoadingMovimientos">
-            <td colspan="10">
-              <div class="state-box"><i class="pi pi-spin pi-spinner"></i>
-                <p>Cargando auditoría de stock...</p>
-              </div>
-            </td>
-          </tr>
-          <tr *ngIf="!isLoadingMovimientos && pagedMovimientos.length === 0">
-            <td colspan="10">
-              <div class="state-box"><i class="pi pi-inbox"></i>
-                <p>No hay movimientos registrados.</p>
-              </div>
-            </td>
-          </tr>
-          <tr *ngFor="let m of pagedMovimientos">
+        </ng-template>
+        <ng-template pTemplate="body" let-m><tr>
             <td><span class="code-badge">#{{ m.id }}</span></td>
             <td>
               <strong>{{ m.repuesto?.nombre || 'Desconocido' }}</strong>
@@ -296,33 +219,14 @@
             <td><span class="user-badge"><i class="pi pi-user"></i>{{ m.usuario }}</span></td>
             <td style="font-size:0.85rem;white-space:nowrap">{{ m.fecha_movimiento | date:'dd/MM/yy HH:mm' }}</td>
             <td style="text-align: center;">
-              <button class="btn-icon" (click)="openMovimientoDetallesModal(m)" title="Ver Detalles">
-                <i class="pi pi-eye" style="color: var(--primary-color, #6366f1);"></i>
-              </button>
+              <p-button icon="pi pi-eye" severity="secondary" [rounded]="true" [text]="true" styleClass="p-button-sm"    (onClick)="openMovimientoDetallesModal(m)" title="Ver Detalles"></p-button>
             </td>
-          </tr>
-        </tbody>
-      </table>
+          </tr></ng-template>
+        <ng-template pTemplate="emptymessage"><tr><td colspan="10" class="text-center p-4">No se encontraron registros.</td></tr></ng-template>
+      </p-table>
     </div>
 
-    <div class="pagination-bar" *ngIf="!isLoadingMovimientos && filteredMovimientos.length > 0">
-      <span class="pagination-info">
-        Mostrando {{ (movPage - 1) * pageSize + 1 }}–{{ min(movPage * pageSize, filteredMovimientos.length) }}
-        de {{ filteredMovimientos.length }} movimientos
-      </span>
-      <div class="pagination-btns">
-        <button class="pg-btn" (click)="goToMovPage(1)" [disabled]="movPage === 1"><i
-            class="pi pi-angle-double-left"></i></button>
-        <button class="pg-btn" (click)="goToMovPage(movPage - 1)" [disabled]="movPage === 1"><i
-            class="pi pi-angle-left"></i></button>
-        <button *ngFor="let p of getMovPagesArray()" class="pg-btn" [class.active]="p === movPage"
-          (click)="goToMovPage(p)">{{ p }}</button>
-        <button class="pg-btn" (click)="goToMovPage(movPage + 1)" [disabled]="movPage === movTotalPages"><i
-            class="pi pi-angle-right"></i></button>
-        <button class="pg-btn" (click)="goToMovPage(movTotalPages)" [disabled]="movPage === movTotalPages"><i
-            class="pi pi-angle-double-right"></i></button>
-      </div>
-    </div>
+    
   </div>
 </div>
 
@@ -335,32 +239,28 @@
       <i class="pi pi-search"></i>
       <input type="text" placeholder="BUSCAR TIPOS..." (input)="onSearchTipos($event)" />
     </div>
-    <button *ngIf="isAdmin" class="btn-primary" (click)="openCreateTipoModal()">
+    <p-button *ngIf="isAdmin" (onClick)="openCreateTipoModal()">
       <i class="pi pi-plus"></i> Nuevo Tipo
-    </button>
+    </p-button>
   </div>
   <div class="table-card">
     <div class="table-responsive">
-      <table>
-        <thead>
+      
+      <p-table [value]="searchTipos ? filteredTiposGrid : activosTipos" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [loading]="isLoading" [globalFilterFields]="['id_sys_tipo_repuesto','nombre','descripcion','is_active']"
+        [scrollable]="true" [tableStyle]="{ 'min-width': '60rem' }" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines">
+        <ng-template pTemplate="header">
           <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Estado</th>
+            <th pSortableColumn="id_sys_tipo_repuesto">ID <p-sortIcon field="id_sys_tipo_repuesto"></p-sortIcon></th>
+            <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+            <th pSortableColumn="descripcion">Descripción <p-sortIcon field="descripcion"></p-sortIcon></th>
+            <th pSortableColumn="is_active">Estado <p-sortIcon field="is_active"></p-sortIcon></th>
             <th>Acciones</th>
           </tr>
-        </thead>
-        <tbody>
-          <tr *ngIf="tipos.length === 0">
-            <td colspan="7">
-              <div class="state-box">
-                <i class="pi pi-tags"></i>
-                <p>No hay tipos de repuestos activos.</p>
-              </div>
-            </td>
-          </tr>
-          <tr *ngFor="let t of (searchTipos ? filteredTiposGrid : activosTipos)">
+        </ng-template>
+        <ng-template pTemplate="body" let-t><tr>
             <td><span class="code-badge">#{{ t.id_sys_tipo_repuesto }}</span></td>
             <td><strong>{{ t.nombre }}</strong></td>
             <td>{{ t.descripcion || '—' }}</td>
@@ -371,16 +271,13 @@
               </span>
             </td>
             <td style="display:flex;gap:0.4rem;flex-wrap:wrap;">
-              <button *ngIf="t.is_active && isAdmin" class="btn-icon" title="Editar" (click)="openEditTipoModal(t)"><i
-                  class="pi pi-pencil"></i></button>
-              <button *ngIf="t.is_active && isAdmin" class="btn-outline-danger" (click)="toggleTipo(t)"
-                title="Inactivar"><i class="pi pi-ban"></i> Inactivar</button>
-              <button *ngIf="!t.is_active && isAdmin" class="btn-outline-success" (click)="toggleTipo(t)"
-                title="Activar"><i class="pi pi-check"></i> Activar</button>
+              <p-button icon="pi pi-pencil" severity="secondary" [rounded]="true" [text]="true" styleClass="p-button-sm"  *ngIf="t.is_active && isAdmin"   title="Editar" (onClick)="openEditTipoModal(t)"></p-button>
+              <p-button label="Inactivar" icon="pi pi-ban" severity="danger" [outlined]="true" styleClass="p-button-sm" *ngIf="t.is_active && isAdmin" (onClick)="toggleTipo(t)" title="Inactivar"></p-button>
+              <p-button label="Activar" icon="pi pi-check" severity="success" [outlined]="true" styleClass="p-button-sm" *ngIf="!t.is_active && isAdmin" (onClick)="toggleTipo(t)" title="Activar"></p-button>
             </td>
-          </tr>
-        </tbody>
-      </table>
+          </tr></ng-template>
+        <ng-template pTemplate="emptymessage"><tr><td colspan="10" class="text-center p-4">No se encontraron registros.</td></tr></ng-template>
+      </p-table>
     </div>
   </div>
 </div>
@@ -397,7 +294,7 @@
 
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
     <!-- Repuestos -->
-    <div class="table-card">
+    <div class="table-card" style="min-width: 0;">
       <div class="section-header">
         <h3><i class="pi pi-box mr-1"></i> Repuestos</h3>
         <div class="search-box compact">
@@ -406,26 +303,23 @@
         </div>
       </div>
       <div class="table-responsive">
-        <table>
-          <thead>
+        
+      <p-table [value]="filteredInactivosRepuestos" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [loading]="isLoading" [globalFilterFields]="['nombre','tipoRepuesto.nombre','numero_parte','usuario_inactivacion','fecha_inactivacion']"
+        [scrollable]="true" [tableStyle]="{ 'min-width': '35rem' }" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines">
+        <ng-template pTemplate="header">
             <tr>
-              <th>Nombre</th>
-              <th>Tipo</th>
-              <th>N° Parte</th>
-              <th>Inactivado por</th>
-              <th>Fecha</th>
+              <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+              <th pSortableColumn="tipoRepuesto.nombre">Tipo <p-sortIcon field="tipoRepuesto.nombre"></p-sortIcon></th>
+              <th pSortableColumn="numero_parte">N° Parte <p-sortIcon field="numero_parte"></p-sortIcon></th>
+              <th pSortableColumn="usuario_inactivacion">Inactivado por <p-sortIcon field="usuario_inactivacion"></p-sortIcon></th>
+              <th pSortableColumn="fecha_inactivacion">Fecha <p-sortIcon field="fecha_inactivacion"></p-sortIcon></th>
               <th>Acciones</th>
             </tr>
-          </thead>
-          <tbody>
-            <tr *ngIf="!isLoading && pagedInactivosRepuestos.length === 0">
-              <td colspan="6">
-                <div class="state-box"><i class="pi pi-inbox"></i>
-                  <p>No hay repuestos dados de baja.</p>
-                </div>
-              </td>
-            </tr>
-            <tr *ngFor="let r of pagedInactivosRepuestos">
+          </ng-template>
+        <ng-template pTemplate="body" let-r><tr>
               <td><strong>{{ r.nombre }}</strong></td>
               <td>{{ r.tipoRepuesto?.nombre || getTipoNombre(r.id_sys_tipo_repuesto_fk) }}</td>
               <td>{{ r.numero_parte || '—' }}</td>
@@ -433,31 +327,17 @@
               <td><span style="font-size:0.82rem;color:#6b7280;font-weight:500;">{{ r.fecha_inactivacion |
                   date:'dd/MM/yyyy' }}</span></td>
               <td>
-                <button *ngIf="isAdmin" class="btn-outline-success" (click)="toggleRepuesto(r)" title="Restaurar"><i
-                    class="pi pi-refresh"></i> Restaurar</button>
+                <p-button label="Restaurar" icon="pi pi-refresh" severity="success" [outlined]="true" styleClass="p-button-sm"  *ngIf="isAdmin"   (onClick)="toggleRepuesto(r)" title="Restaurar"></p-button>
               </td>
-            </tr>
-          </tbody>
-        </table>
+            </tr></ng-template>
+        <ng-template pTemplate="emptymessage"><tr><td colspan="10" class="text-center p-4">No se encontraron registros.</td></tr></ng-template>
+      </p-table>
       </div>
-      <div class="pagination-bar" *ngIf="!isLoading && filteredInactivosRepuestos.length > 0">
-        <div class="pagination-btns" style="margin:0 auto">
-          <button class="pg-btn" (click)="goToInactivosPage(1)" [disabled]="inactivosCurrentPage === 1"><i
-              class="pi pi-angle-double-left"></i></button>
-          <button class="pg-btn" (click)="goToInactivosPage(inactivosCurrentPage - 1)"
-            [disabled]="inactivosCurrentPage === 1"><i class="pi pi-angle-left"></i></button>
-          <button *ngFor="let p of getInactivosPagesArray()" class="pg-btn" [class.active]="p === inactivosCurrentPage"
-            (click)="goToInactivosPage(p)">{{ p }}</button>
-          <button class="pg-btn" (click)="goToInactivosPage(inactivosCurrentPage + 1)"
-            [disabled]="inactivosCurrentPage === inactivosTotalPages"><i class="pi pi-angle-right"></i></button>
-          <button class="pg-btn" (click)="goToInactivosPage(inactivosTotalPages)"
-            [disabled]="inactivosCurrentPage === inactivosTotalPages"><i class="pi pi-angle-double-right"></i></button>
-        </div>
-      </div>
+      
     </div>
 
     <!-- Tipos -->
-    <div class="table-card">
+    <div class="table-card" style="min-width: 0;">
       <div class="section-header">
         <h3><i class="pi pi-tags mr-1"></i> Tipos de Repuesto</h3>
         <div class="search-box compact">
@@ -466,37 +346,33 @@
         </div>
       </div>
       <div class="table-responsive">
-        <table>
-          <thead>
+        
+      <p-table [value]="inactivosTipos" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [loading]="isLoading" [globalFilterFields]="['nombre','descripcion','usuario_inactivacion','fecha_inactivacion']"
+        [scrollable]="true" [tableStyle]="{ 'min-width': '35rem' }" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines">
+        <ng-template pTemplate="header">
             <tr>
-              <th>Nombre</th>
-              <th>Descripción</th>
-              <th>Inactivado por</th>
-              <th>Fecha</th>
+              <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+              <th pSortableColumn="descripcion">Descripción <p-sortIcon field="descripcion"></p-sortIcon></th>
+              <th pSortableColumn="usuario_inactivacion">Inactivado por <p-sortIcon field="usuario_inactivacion"></p-sortIcon></th>
+              <th pSortableColumn="fecha_inactivacion">Fecha <p-sortIcon field="fecha_inactivacion"></p-sortIcon></th>
               <th>Acciones</th>
             </tr>
-          </thead>
-          <tbody>
-            <tr *ngIf="inactivosTipos.length === 0">
-              <td colspan="5">
-                <div class="state-box"><i class="pi pi-inbox"></i>
-                  <p>No hay tipos de repuesto inactivados.</p>
-                </div>
-              </td>
-            </tr>
-            <tr *ngFor="let t of inactivosTipos">
+          </ng-template>
+        <ng-template pTemplate="body" let-t><tr>
               <td><strong>{{ t.nombre }}</strong></td>
               <td>{{ t.descripcion || '—' }}</td>
               <td><span class="user-badge"><i class="pi pi-user"></i>{{ t.usuario_inactivacion || '—' }}</span></td>
               <td><span style="font-size:0.82rem;color:#6b7280;font-weight:500;">{{ t.fecha_inactivacion |
                   date:'dd/MM/yyyy' }}</span></td>
               <td>
-                <button *ngIf="isAdmin" class="btn-outline-success" (click)="toggleTipo(t)" title="Activar"><i
-                    class="pi pi-check"></i> Activar</button>
+                <p-button label="Activar" icon="pi pi-check" severity="success" [outlined]="true" styleClass="p-button-sm"  *ngIf="isAdmin"   (onClick)="toggleTipo(t)" title="Activar"></p-button>
               </td>
-            </tr>
-          </tbody>
-        </table>
+            </tr></ng-template>
+        <ng-template pTemplate="emptymessage"><tr><td colspan="10" class="text-center p-4">No se encontraron registros.</td></tr></ng-template>
+      </p-table>
       </div>
     </div>
   </div>
@@ -510,13 +386,11 @@
     <span style="font-size:0.85rem;color:var(--text-color-secondary)">
       <i class="pi pi-history mr-1"></i> Historial detallado de registro, edición y activación/inactivación.
     </span>
-    <button class="btn-secondary" (click)="loadAuditoria()">
-      <i class="pi pi-refresh"></i> Actualizar
-    </button>
+    <p-button label="Actualizar" icon="pi pi-refresh" severity="secondary" [outlined]="true" (onClick)="loadAuditoria()"></p-button>
   </div>
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
     <!-- Historial Repuestos -->
-    <div class="table-card">
+    <div class="table-card" style="min-width: 0;">
       <div class="section-header">
         <h3><i class="pi pi-box mr-1"></i> Cambios en Repuestos</h3>
         <div class="search-box compact">
@@ -525,30 +399,22 @@
         </div>
       </div>
       <div class="table-responsive">
-        <table>
-          <thead>
+        
+      <p-table [value]="auditoriaRepuestosFiltered" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [loading]="isLoading" [globalFilterFields]="['fecha_hora','usuario','nombre_item','accion']"
+        [scrollable]="true" [tableStyle]="{ 'min-width': '35rem' }" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines">
+        <ng-template pTemplate="header">
             <tr>
-              <th>Fecha</th>
-              <th>Usuario</th>
-              <th>Ítem</th>
-              <th>Acción</th>
+              <th pSortableColumn="fecha_hora">Fecha <p-sortIcon field="fecha_hora"></p-sortIcon></th>
+              <th pSortableColumn="usuario">Usuario <p-sortIcon field="usuario"></p-sortIcon></th>
+              <th pSortableColumn="nombre_item">Ítem <p-sortIcon field="nombre_item"></p-sortIcon></th>
+              <th pSortableColumn="accion">Acción <p-sortIcon field="accion"></p-sortIcon></th>
               <th>Detalles</th>
             </tr>
-          </thead>
-          <tbody>
-            <tr *ngIf="isLoadingAudit">
-              <td colspan="5">
-                <div class="state-box"><i class="pi pi-spin pi-spinner"></i></div>
-              </td>
-            </tr>
-            <tr *ngIf="!isLoadingAudit && pagedAuditoriaRepuestos.length===0">
-              <td colspan="5">
-                <div class="state-box">
-                  <p>No hay registros...</p>
-                </div>
-              </td>
-            </tr>
-            <tr *ngFor="let a of pagedAuditoriaRepuestos">
+          </ng-template>
+        <ng-template pTemplate="body" let-a><tr>
               <td style="white-space:nowrap;font-size:0.82rem;">{{ a.fecha_hora | date:'dd/MM/yyyy HH:mm' }}</td>
               <td><span class="user-badge"><i class="pi pi-user"></i>{{ a.usuario }}</span></td>
               <td
@@ -556,17 +422,15 @@
                 [title]="a.nombre_item"><strong>{{ a.nombre_item || '—' }}</strong></td>
               <td><span class="badge" [ngClass]="getAccionClass(a.accion)">{{ getAccionLabel(a.accion) }}</span></td>
               <td>
-                <button class="btn-icon" (click)="verDetalleAuditoria(a)" title="Ver Detalle">
-                  <i class="pi pi-eye" style="color:var(--primary-color)"></i>
-                </button>
+                <p-button icon="pi pi-eye" severity="secondary" [rounded]="true" [text]="true" styleClass="p-button-sm" (onClick)="verDetalleAuditoria(a)" title="Ver Detalle"></p-button>
               </td>
-            </tr>
-          </tbody>
-        </table>
+            </tr></ng-template>
+        <ng-template pTemplate="emptymessage"><tr><td colspan="10" class="text-center p-4">No se encontraron registros.</td></tr></ng-template>
+      </p-table>
       </div>
     </div>
     <!-- Historial Tipos -->
-    <div class="table-card">
+    <div class="table-card" style="min-width: 0;">
       <div class="section-header">
         <h3><i class="pi pi-tags mr-1"></i> Cambios en Tipos</h3>
         <div class="search-box compact">
@@ -575,30 +439,22 @@
         </div>
       </div>
       <div class="table-responsive">
-        <table>
-          <thead>
+        
+      <p-table [value]="auditoriaTiposFiltered" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [loading]="isLoading" [globalFilterFields]="['fecha_hora','usuario','nombre_item','accion']"
+        [scrollable]="true" [tableStyle]="{ 'min-width': '35rem' }" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines">
+        <ng-template pTemplate="header">
             <tr>
-              <th>Fecha</th>
-              <th>Usuario</th>
-              <th>Ítem</th>
-              <th>Acción</th>
+              <th pSortableColumn="fecha_hora">Fecha <p-sortIcon field="fecha_hora"></p-sortIcon></th>
+              <th pSortableColumn="usuario">Usuario <p-sortIcon field="usuario"></p-sortIcon></th>
+              <th pSortableColumn="nombre_item">Ítem <p-sortIcon field="nombre_item"></p-sortIcon></th>
+              <th pSortableColumn="accion">Acción <p-sortIcon field="accion"></p-sortIcon></th>
               <th>Detalles</th>
             </tr>
-          </thead>
-          <tbody>
-            <tr *ngIf="isLoadingAudit">
-              <td colspan="5">
-                <div class="state-box"><i class="pi pi-spin pi-spinner"></i></div>
-              </td>
-            </tr>
-            <tr *ngIf="!isLoadingAudit && pagedAuditoriaTipos.length===0">
-              <td colspan="5">
-                <div class="state-box">
-                  <p>No hay registros...</p>
-                </div>
-              </td>
-            </tr>
-            <tr *ngFor="let a of pagedAuditoriaTipos">
+          </ng-template>
+        <ng-template pTemplate="body" let-a><tr>
               <td style="white-space:nowrap;font-size:0.82rem;">{{ a.fecha_hora | date:'dd/MM/yyyy HH:mm' }}</td>
               <td><span class="user-badge"><i class="pi pi-user"></i>{{ a.usuario }}</span></td>
               <td
@@ -606,13 +462,11 @@
                 [title]="a.nombre_item"><strong>{{ a.nombre_item || '—' }}</strong></td>
               <td><span class="badge" [ngClass]="getAccionClass(a.accion)">{{ getAccionLabel(a.accion) }}</span></td>
               <td>
-                <button class="btn-icon" (click)="verDetalleAuditoria(a)" title="Ver Detalle">
-                  <i class="pi pi-eye" style="color:var(--primary-color)"></i>
-                </button>
+                <p-button icon="pi pi-eye" severity="secondary" [rounded]="true" [text]="true" styleClass="p-button-sm" (onClick)="verDetalleAuditoria(a)" title="Ver Detalle"></p-button>
               </td>
-            </tr>
-          </tbody>
-        </table>
+            </tr></ng-template>
+        <ng-template pTemplate="emptymessage"><tr><td colspan="10" class="text-center p-4">No se encontraron registros.</td></tr></ng-template>
+      </p-table>
       </div>
     </div>
   </div>
@@ -621,12 +475,9 @@
 <!-- ══════════════════════════════════════════════════════
      MODAL — CREAR / EDITAR REPUESTO
 ═══════════════════════════════════════════════════════ -->
-<div class="modal-overlay" *ngIf="isRepuestoModalOpen">
-  <div class="modal-card" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3>{{ isEditMode ? 'Editar Repuesto' : 'Nuevo Repuesto' }}</h3>
-      <button class="btn-close" (click)="closeRepuestoModal()"><i class="pi pi-times"></i></button>
-    </div>
+<p-dialog [(visible)]="isRepuestoModalOpen" [modal]="true" [style]="{width: '600px'}" (onHide)="closeRepuestoModal()">
+  <ng-template pTemplate="header"><h3 style="margin:0">{{ isEditMode ? 'Editar Repuesto' : 'Nuevo Repuesto' }}</h3></ng-template>
+  <div>
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group full-width">
@@ -679,24 +530,21 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" (click)="closeRepuestoModal()">Cancelar</button>
-      <button class="btn-primary" (click)="guardarRepuesto()" [disabled]="isSaving">
+      <p-button label="Cancelar" icon="" severity="secondary" [outlined]="true" (onClick)="closeRepuestoModal()"></p-button>
+      <p-button (onClick)="guardarRepuesto()" [disabled]="isSaving">
         <i class="pi" [ngClass]="isSaving ? 'pi-spin pi-spinner' : 'pi-save'"></i>
         {{ isSaving ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar') }}
-      </button>
+      </p-button>
     </div>
   </div>
-</div>
+</p-dialog>
 
 <!-- ══════════════════════════════════════════════════════
      MODAL — MOVIMIENTO DE STOCK (INGRESO / EGRESO)
 ═══════════════════════════════════════════════════════ -->
-<div class="modal-overlay" *ngIf="isMovimientoModalOpen">
-  <div class="modal-card" style="max-width: 500px;" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3><i class="pi pi-arrows-v"></i> Movimiento de Stock</h3>
-      <button class="btn-close" (click)="closeMovimientoModal()"><i class="pi pi-times"></i></button>
-    </div>
+<p-dialog [(visible)]="isMovimientoModalOpen" [modal]="true" [style]="{width: '500px'}" (onHide)="closeMovimientoModal()">
+  <ng-template pTemplate="header"><h3 style="margin:0"><i class="pi pi-arrows-v"></i> Movimiento de Stock</h3></ng-template>
+  <div>
     <div class="modal-body">
 
       <div *ngIf="repuestoParaMovimiento"
@@ -794,24 +642,21 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" (click)="closeMovimientoModal()">Cancelar</button>
-      <button class="btn-primary" (click)="guardarMovimiento()" [disabled]="isSavingMovimiento">
+      <p-button label="Cancelar" icon="" severity="secondary" [outlined]="true" (onClick)="closeMovimientoModal()"></p-button>
+      <p-button (onClick)="guardarMovimiento()" [disabled]="isSavingMovimiento">
         <i class="pi" [ngClass]="isSavingMovimiento ? 'pi-spin pi-spinner' : 'pi-check'"></i>
         {{ isSavingMovimiento ? 'Registrando...' : 'Confirmar' }}
-      </button>
+      </p-button>
     </div>
   </div>
-</div>
+</p-dialog>
 
 <!-- ══════════════════════════════════════════════════════
      MODAL — CREAR / EDITAR TIPO
 ═══════════════════════════════════════════════════════ -->
-<div class="modal-overlay" *ngIf="isTipoModalOpen">
-  <div class="modal-card" style="max-width:520px" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3>{{ isTipoEditMode ? 'Editar Tipo' : 'Nuevo Tipo' }}</h3>
-      <button class="btn-close" (click)="closeTipoModal()"><i class="pi pi-times"></i></button>
-    </div>
+<p-dialog [(visible)]="isTipoModalOpen" [modal]="true" [style]="{width: '520px'}" (onHide)="closeTipoModal()">
+  <ng-template pTemplate="header"><h3 style="margin:0">{{ isTipoEditMode ? 'Editar Tipo' : 'Nuevo Tipo' }}</h3></ng-template>
+  <div>
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group full-width">
@@ -832,23 +677,20 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" (click)="closeTipoModal()">Cancelar</button>
-      <button class="btn-primary" (click)="guardarTipo()">
+      <p-button label="Cancelar" icon="" severity="secondary" [outlined]="true" (onClick)="closeTipoModal()"></p-button>
+      <p-button (onClick)="guardarTipo()">
         <i class="pi pi-save"></i> Guardar
-      </button>
+      </p-button>
     </div>
   </div>
-</div>
+</p-dialog>
 
 <!-- ══════════════════════════════════════════════════════
      MODAL — DETALLES DEL REPUESTO
 ═══════════════════════════════════════════════════════ -->
-<div class="modal-overlay" *ngIf="isDetallesModalOpen">
-  <div class="modal-card" style="max-width: 650px;" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3><i class="pi pi-id-card" style="color:var(--primary-color)"></i> Detalles del Repuesto</h3>
-      <button class="btn-close" (click)="closeDetallesModal()"><i class="pi pi-times"></i></button>
-    </div>
+<p-dialog [(visible)]="isDetallesModalOpen" [modal]="true" [style]="{width: '650px'}" (onHide)="closeDetallesModal()">
+  <ng-template pTemplate="header"><h3 style="margin:0"><i class="pi pi-id-card" style="color:var(--primary-color)"></i> Detalles del Repuesto</h3></ng-template>
+  <div>
     <div class="modal-body" *ngIf="repuestoDetalle" style="padding-top: 0;">
       <div
         style="background-color: #f8fafc; padding: 1.5rem; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 1rem;">
@@ -922,17 +764,14 @@
       </div>
     </div>
   </div>
-</div>
+</p-dialog>
 
 <!-- ══════════════════════════════════════════════════════
      MODAL — DETALLES DEL MOVIMIENTO DE STOCK
 ═══════════════════════════════════════════════════════ -->
-<div class="modal-overlay" *ngIf="isMovimientoDetallesModalOpen && movimientoDetalle">
-  <div class="modal-card detalles-card" (click)="$event.stopPropagation()" style="max-width: 600px;">
-    <div class="modal-header">
-      <h3>Detalles del Movimiento <span style="color: #64748b; font-size: 1rem;">#{{ movimientoDetalle.id }}</span></h3>
-      <button class="btn-close" (click)="closeMovimientoDetallesModal()"><i class="pi pi-times"></i></button>
-    </div>
+<p-dialog [(visible)]="isMovimientoDetallesModalOpen" [modal]="true" [style]="{width: '600px'}" (onHide)="closeMovimientoDetallesModal()" *ngIf="isMovimientoDetallesModalOpen && movimientoDetalle">
+  <ng-template pTemplate="header"><h3 style="margin:0">Detalles del Movimiento <span style="color: #64748b; font-size: 1rem;">#{{ movimientoDetalle.id }}</span></h3></ng-template>
+  <div>
     <div class="modal-body" style="padding: 1.5rem;">
       <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem;">
 
@@ -1034,10 +873,7 @@
                 style="margin: 0; font-size: 0.8rem; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">
                 <i class="pi pi-file-pdf" style="color: #ef4444;"></i> Factura de compra</p>
               <div style="margin: 0.5rem 0 0 0;" *ngIf="movimientoDetalle.factura_ruta">
-                <button class="btn-secondary" (click)="descargarFacturaMovimiento(movimientoDetalle)"
-                  title="Descargar Factura adjunta">
-                  Descargar Documento PDF
-                </button>
+                <p-button label="Descargar Documento PDF" icon="" severity="secondary" [outlined]="true" (onClick)="descargarFacturaMovimiento(movimientoDetalle)"></p-button>
               </div>
               <div
                 style="margin: 0.5rem 0 0 0; font-size: 0.95rem; color: #dc2626; background: #fee2e2; padding: 0.8rem 1rem; border-radius: 6px;"
@@ -1051,7 +887,7 @@
       </div>
     </div>
     <div class="modal-footer" style="border-top: none; padding-top: 0;">
-      <button class="btn-primary" (click)="closeMovimientoDetallesModal()">Aceptar</button>
+      <p-button (onClick)="closeMovimientoDetallesModal()">Aceptar</p-button>
     </div>
   </div>
-</div>
+</p-dialog>

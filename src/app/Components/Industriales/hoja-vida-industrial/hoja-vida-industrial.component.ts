@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 import { CommonModule, Location } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,7 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { DividerModule } from 'primeng/divider';
 import { TimelineModule } from 'primeng/timeline';
-import { MantenimientoadminnavbarComponent } from '../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import Swal from 'sweetalert2';
 import { jwtDecode } from 'jwt-decode';
 
@@ -26,7 +27,7 @@ import { API_URL } from '../../../constantes';
     ButtonModule,
     TableModule,
     DividerModule,
-    MantenimientoadminnavbarComponent,
+    AppNavbarComponent,
     TimelineModule
   ],
   templateUrl: './hoja-vida-industrial.component.html',

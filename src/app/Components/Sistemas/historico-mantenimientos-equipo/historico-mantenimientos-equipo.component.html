@@ -163,6 +163,29 @@
         </div>
       </div>
 
+      <!-- Protocolo Preventivo -->
+      <div class="grid mb-3" *ngIf="rutina && rutina.length > 0">
+        <div class="col-12">
+          <h5 class="font-bold mb-2" style="color: #1e293b;">Rutina de Mantenimiento</h5>
+          <p-table [value]="rutina" responsiveLayout="scroll" styleClass="p-datatable-sm p-datatable-striped p-datatable-gridlines">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 70%">Descripción</th>
+                <th style="width: 15%">Cumplimiento</th>
+                <th style="width: 15%">Observaciones</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-protocolo>
+              <tr>
+                <td>{{ protocolo.protocolo?.paso || protocolo.paso }}</td>
+                <td>{{ protocolo.cumple === 'CUMPLE' ? 'Cumple' : (protocolo.cumple === 'NO_CUMPLE' ? 'No Cumple' : protocolo.cumple) }}</td>
+                <td>{{ protocolo.observaciones || '' }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+
       <!-- Repuestos -->
       @if (reporteSeleccionado.repuestos && reporteSeleccionado.repuestos.length > 0) {
         <div class="grid mb-3">

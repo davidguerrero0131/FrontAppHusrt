@@ -1,10 +1,11 @@
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { MesaadminnavbarComponent } from '../../navbars/mesaadminnavbar/mesaadminnavbar.component';
+
 import { jwtDecode } from 'jwt-decode';
 import { UserService } from '../../../Services/appServices/userServices/user.service';
 
@@ -19,7 +20,8 @@ export class HomeadminmesaserviciosComponent {
 
   userRole: string = '';
   userId: number | null = null;
-  isTiServiceAdmin: boolean = false;
+  canViewConfig: boolean = false;
+  canViewIndicadores: boolean = false;
 
   constructor(private router: Router, private userService: UserService) { }
 
@@ -34,30 +36,28 @@ export class HomeadminmesaserviciosComponent {
       this.userRole = decoded.rol;
       this.userId = decoded.id || decoded.id_usuario || decoded.userId;
 
-      if (this.userId) {
-        this.userService.getUserProfil(this.userId).then((user: any) => {
-          if (user && user.mesaServicioRolId === 1 && Number(user.servicioId) === 45) {
-             this.isTiServiceAdmin = true;
-          }
-        }).catch((err: any) => console.error("Error fetching user profile", err));
-      }
+      const configRoles = ['SUPERADMIN'];
+      const indicadoresRoles = ['SUPERADMIN', 'MESAADMIN'];
+
+      this.canViewConfig = configRoles.includes(this.userRole);
+      this.canViewIndicadores = indicadoresRoles.includes(this.userRole);
     }
   }
 
   viewCategorias() {
-    this.router.navigate(['/adminmesaservicios/config/categorias']);
+    this.router.navigate(['/mesaservicios/config/categorias']);
   }
 
   viewRoles() {
-    this.router.navigate(['/adminmesaservicios/config/roles']);
+    this.router.navigate(['/mesaservicios/config/roles']);
   }
 
   viewCasos() {
-    this.router.navigate(['/adminmesaservicios/casos']);
+    this.router.navigate(['/mesaservicios/casos']);
   }
 
   viewIndicadores() {
     // Placeholder for Phase 6
-    // this.router.navigate(['/adminmesaservicios/indicadores']);
+    // this.router.navigate(['/mesaservicios/indicadores']);
   }
 }

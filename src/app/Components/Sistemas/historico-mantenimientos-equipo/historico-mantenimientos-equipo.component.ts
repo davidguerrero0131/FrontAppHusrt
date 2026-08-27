@@ -76,8 +76,29 @@ export class HistoricoMantenimientosEquipoComponent implements OnInit {
     });
   }
 
-  verDetalle(m: SysMantenimiento) {
+  rutina: any[] = [];
+
+  async verDetalle(m: SysMantenimiento) {
     this.reporteSeleccionado = m;
+    
+    // Mapear repuestos desde movimientosStock si no están pre-mapeados
+    if ((m as any).movimientosStock && (!m.repuestos || m.repuestos.length === 0)) {
+        m.repuestos = (m as any).movimientosStock.map((mov: any) => ({
+            id: mov.id,
+            sysRepuestoIdFk: mov.id_repuesto_fk,
+            cantidad: mov.cantidad,
+            tipoRepuestoIdFk: mov.repuesto?.id_sys_tipo_repuesto_fk ?? null,
+            nombreInsumo: mov.repuesto?.nombre ?? '',
+            tipoNombre: mov.repuesto?.tipoRepuesto?.nombre ?? '',
+            comprobanteEgreso: mov.factura_ruta ?? 'N/A' // O la propiedad correcta
+        }));
+    }
+
+    if (m.id) {
+      this.rutina = await this.mantenimientoService.getCumplimientoProtocoloMantenimiento(m.id).catch(() => []);
+    } else {
+      this.rutina = [];
+    }
     this.modalDetalle = true;
   }
 

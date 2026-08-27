@@ -39,6 +39,20 @@ export class MesaService {
     }
 
     // --- Parametrización ---
+    getAllCategorias(activeOnly: boolean = false): Observable<any[]> {
+        let params = new HttpParams();
+        if (activeOnly) {
+            params = params.set('activo', 'true');
+        }
+        const options = {
+            headers: new HttpHeaders({
+                'authorization': sessionStorage.getItem('utoken') || ''
+            }),
+            params: params
+        };
+        return this.http.get<any[]>(`${this.apiUrl}/config/categorias/all`, options);
+    }
+
     getCategorias(servicioId: number, activeOnly: boolean = false): Observable<any[]> {
         let params = new HttpParams();
         if (activeOnly) {
@@ -136,6 +150,12 @@ export class MesaService {
         return this.http.patch<any>(`${this.apiUrl}/casos/${id}/equipo`, data, this.createHeaders());
     }
 
+    getEquiposByTipo(idTipo: number, servicioId?: number): Observable<any[]> {
+        let params = new HttpParams();
+        if (servicioId) params = params.set('servicioId', servicioId.toString());
+        return this.http.get<any[]>(`${this.apiUrl}/equipos/tipo/${idTipo}`, { params, headers: this.createHeaders().headers });
+    }
+
     // --- Interacciones ---
     addMensaje(casoId: number, data: any): Observable<any> {
         return this.http.post<any>(`${this.apiUrl}/casos/${casoId}/mensajes`, data, this.createHeaders());
@@ -159,5 +179,14 @@ export class MesaService {
 
     rateCaso(casoId: number, data: any): Observable<any> {
         return this.http.post<any>(`${this.apiUrl}/casos/${casoId}/calificar`, data, this.createHeaders());
+    }
+	
+	//SYSTEMS
+	createSysReporteMantenimiento(data: any): Observable<{ success: boolean; data: any }> {
+        return this.http.post<{ success: boolean; data: any }>(`${API_URL}/sysreportesmtto`, data, this.createHeaders());
+    }
+
+    getSysReportesMantenimiento(id_sysequipo: number): Observable<{ success: boolean; data: any[] }> {
+        return this.http.get<{ success: boolean; data: any[] }>(`${API_URL}/sysreportesmtto/equipo/${id_sysequipo}`, this.createHeaders());
     }
 }

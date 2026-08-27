@@ -4,19 +4,7 @@
 </div>
 
 <div *ngIf="showNavbar" class="global-navbar-container">
-    <app-superadminnavbar *ngIf="userRole === 'SUPERADMIN'"></app-superadminnavbar>
-    <app-biomedicaadminnavbar *ngIf="userRole === 'BIOMEDICAADMIN'"></app-biomedicaadminnavbar>
-    <app-biomedicatecniconavbar *ngIf="userRole === 'BIOMEDICATECNICO'"></app-biomedicatecniconavbar>
-    <app-biomedicausernavbar *ngIf="userRole === 'BIOMEDICAUSER' || userRole === 'INVITADO'"></app-biomedicausernavbar>
-    <app-sistemasadminnavbar
-        *ngIf="userRole === 'ADM' || userRole === 'AG' || userRole === 'ADMINISTRADOR'"></app-sistemasadminnavbar>
-    <app-mesaadminnavbar *ngIf="userRole === 'MESAADMIN'"></app-mesaadminnavbar>
-    <app-mesausernavbar
-        *ngIf="userRole === 'MESAUSER' || userRole === 'SOL' || userRole === 'OBS'"></app-mesausernavbar>
-    <app-mantenimientoadminnavbar *ngIf="userRole === 'MANTENIMIENTOADMIN'"></app-mantenimientoadminnavbar>
-    <app-adminespaciosnavbar *ngIf="userRole === 'ADMINESPACIORESERVA'"></app-adminespaciosnavbar>
-    <app-navbardashboardadmin *ngIf="userRole === 'DASHBOARDADMIN'"></app-navbardashboardadmin>
-    <app-navbardashboarduser *ngIf="userRole === 'DASHBOARDUSER'"></app-navbardashboarduser>
+    <app-navbar></app-navbar>
 </div>
 
 <router-outlet />

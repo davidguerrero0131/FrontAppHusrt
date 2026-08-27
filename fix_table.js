@@ -1,0 +1,1 @@
+const fs = require('fs'); const file = 'src/app/Components/Sistemas/repuestos/repuestos.component.html'; let code = fs.readFileSync(file, 'utf8'); code = code.replace(/<p-table \\[/g, '<p-table styleClass=\'p-datatable-sm p-datatable-striped\' responsiveLayout=\'scroll\' ['); fs.writeFileSync(file, code);

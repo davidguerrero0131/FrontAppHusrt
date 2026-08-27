@@ -1,13 +1,14 @@
+import { AppNavbarComponent } from '../../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { MantenimientoadminnavbarComponent } from '../../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 
 @Component({
   selector: 'app-reporte-options',
   standalone: true,
-  imports: [CommonModule, ButtonModule, MantenimientoadminnavbarComponent],
+  imports: [CommonModule, ButtonModule, AppNavbarComponent],
   templateUrl: './reporte-options.component.html',
   styleUrls: ['./reporte-options.component.css']
 })

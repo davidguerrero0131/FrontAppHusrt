@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, Location, isPlatformBrowser } from '@angular/common';
 import { CardModule } from 'primeng/card';
@@ -10,7 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { BiomedicausernavbarComponent } from '../../../navbars/biomedicausernavbar/biomedicausernavbar.component';
+
 import { HojavidaService } from './../../../../Services/appServices/biomedicaServices/hojavida/hojavida.service';
 import { ImagenesService } from './../../../../Services/appServices/general/imagenes/imagenes.service'
 import { MantenimientosService } from './../../../../Services/appServices/biomedicaServices/mantenimientos/mantenimientos.service';

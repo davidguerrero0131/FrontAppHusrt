@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { FieldsetModule } from 'primeng/fieldset';
 import { SysReporteEntregaService, SysReporteEntrega } from '../../../Services/appServices/sistemasServices/sysreporteentrega/sysreporteentrega.service';
 import { ServicioService } from '../../../Services/appServices/general/servicio/servicio.service';
 import { SysequiposService } from '../../../Services/appServices/sistemasServices/sysequipos/sysequipos.service';
@@ -13,7 +16,7 @@ import { extractError } from '../../../utils/error-utils';
 @Component({
   selector: 'app-sys-reporte-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, FieldsetModule],
   templateUrl: './sys-reporte-form.component.html',
   styleUrls: ['./sys-reporte-form.component.css']
 })
@@ -183,3 +186,4 @@ export class SysReporteFormComponent implements OnInit {
     }
   }
 }
+

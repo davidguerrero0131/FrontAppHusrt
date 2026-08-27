@@ -1,8 +1,9 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AppNavbarComponent } from '../../navbars/app-navbar/app-navbar.component';
 import { TabsModule } from 'primeng/tabs';
 import { PdfGeneratorService } from '../../../Services/appServices/biomedicaServices/pdf-generator/pdf-generator.service';
-import { BiomedicausernavbarComponent } from "../../navbars/biomedicausernavbar/biomedicausernavbar.component";
+
 import { TableModule } from 'primeng/table';
 import { Table } from 'primeng/table';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -12,7 +13,7 @@ import { CardModule } from "primeng/card";
 import { DialogModule } from 'primeng/dialog';
 import { SysReporteService } from '../../../Services/appServices/sistemasServices/sysreporte/sysreporte.service';
 /* import { ArchivosService } from '../../../Services/appServices/general/archivos/archivos.service';
- */import { SysprotocoloService } from '../../../Services/appServices/sistemasServices/sysprotocolo/sysprotocolo.service';
+ */
 import { SysmantenimientoService } from '../../../Services/appServices/sistemasServices/sysmantenimiento/sysmantenimiento.service';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
@@ -29,7 +30,7 @@ import { extractError } from '../../../utils/error-utils';
 @Component({
     selector: 'app-mantenimiento-tecnico',
     standalone: true,
-    imports: [CommonModule, TabsModule, TableModule, IconFieldModule, InputIconModule, InputTextModule, CardModule, DialogModule, ButtonModule, TooltipModule, DatePickerModule, FormsModule, TagModule],
+    imports: [AppNavbarComponent, CommonModule, TabsModule, TableModule, IconFieldModule, InputIconModule, InputTextModule, CardModule, DialogModule, ButtonModule, TooltipModule, DatePickerModule, FormsModule, TagModule],
     templateUrl: './mantenimiento-tecnico.component.html',
     styleUrl: './mantenimiento-tecnico.component.css'
 })
@@ -40,7 +41,7 @@ export class SisMantenimientoTecnicoComponent implements OnInit {
 
     reportesService = inject(SysReporteService);
     /* archivosServices = inject(ArchivosService); */
-    protocolosServices = inject(SysprotocoloService);
+    
     pdfGeneratorService = inject(PdfGeneratorService);
     router = inject(Router);
     mantenimientoServices = inject(SysmantenimientoService);
@@ -191,7 +192,7 @@ export class SisMantenimientoTecnicoComponent implements OnInit {
             // Let's assume it's the ID if getReporteById expects an ID.
             // Actually ManteniminetoComponent passed 'reporte' directly to getReporteById. 
             // If 'reporte' is the object from the table, we should use 'reporte.id'.
-            this.rutina = await this.protocolosServices.getCumplimientoProtocoloMantenimiento(this.reportSelected.id);
+            this.rutina = await this.mantenimientoServices.getCumplimientoProtocoloMantenimiento(this.reportSelected.id);
         } catch (e) {
             console.error(e);
         }
@@ -284,3 +285,4 @@ export class SisMantenimientoTecnicoComponent implements OnInit {
         this.router.navigate(['adminsistemas/reporteMantenimiento/', this.reportSelected.equipo.id]);
     }
 }
+

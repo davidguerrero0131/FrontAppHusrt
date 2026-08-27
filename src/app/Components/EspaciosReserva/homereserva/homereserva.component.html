@@ -1,0 +1,3 @@
+<app-admin-espacios-reserva *ngIf="role === 'SUPERADMIN'"></app-admin-espacios-reserva>
+<app-adminespacios-home *ngIf="role === 'ADMINESPACIORESERVA'"></app-adminespacios-home>
+<app-reservas-espacios-interno *ngIf="role !== 'SUPERADMIN' && role !== 'ADMINESPACIORESERVA'"></app-reservas-espacios-interno>

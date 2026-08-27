@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -8,7 +9,7 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
-import { MantenimientoadminnavbarComponent } from '../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { PlanMantenimientoService } from '../../../../Services/appServices/areasFisicas/plan-mantenimiento.service';
 import Swal from 'sweetalert2';
 
@@ -24,7 +25,7 @@ import Swal from 'sweetalert2';
     TooltipModule,
     SelectModule,
     FormsModule,
-    MantenimientoadminnavbarComponent
+    AppNavbarComponent
   ],
   templateUrl: './listado-programacion.component.html',
   styleUrl: './listado-programacion.component.css'

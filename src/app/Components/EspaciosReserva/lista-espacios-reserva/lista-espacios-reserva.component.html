@@ -10,7 +10,7 @@
   </div>
 
   <div class="card p-3 shadow-sm" style="border-radius: 8px;">
-    <p-table [value]="espacios" [paginator]="true" [rows]="10" [responsive]="true" [rowHover]="true" styleClass="p-datatable-sm">
+    <p-table [scrollable]="true" [value]="espacios" [paginator]="true" [rows]="10" [responsive]="true" [rowHover]="true" styleClass="p-datatable-sm">
       <ng-template pTemplate="caption">
         <div class="flex justify-content-between align-items-center">
           <h5 class="m-0">Lista de Espacios</h5>
@@ -62,7 +62,7 @@
   </div>
 </div>
 
-<p-dialog [(visible)]="espacioDialog" [style]="{width: '750px'}" header="Detalles del Espacio" [modal]="true" styleClass="p-fluid">
+<p-dialog [(visible)]="espacioDialog" [style]="{width: '750px'}" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" header="Detalles del Espacio" [modal]="true" styleClass="p-fluid">
   <ng-template pTemplate="content">
     <div class="formgrid grid mt-3">
       <!-- Fila 1: Nombre y Responsable -->

@@ -1,6 +1,7 @@
 import { LoginComponent } from '../../login/login.component';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ButtonModule } from 'primeng/button';
 import Swal from 'sweetalert2';
 import { extractError } from '../../../utils/error-utils';
 import { FormsModule } from '@angular/forms';
@@ -25,7 +26,7 @@ import { obtenerNombreMes, getDecodedAccessToken } from '../../../utilidades';
 @Component({
   selector: 'app-programar-mantenimiento',
   standalone: true,
-  imports: [CommonModule, FormsModule, CalendarModule,
+  imports: [CommonModule, FormsModule, CalendarModule, ButtonModule,
     DatePicker, Select, TableModule, IconFieldModule, InputIconModule, InputTextModule, DialogModule],
   templateUrl: './programar-mantenimiento.component.html',
   styleUrl: './programar-mantenimiento.component.css'
@@ -307,3 +308,4 @@ export class ProgramarMantenimientoComponent implements OnInit {
     return obtenerNombreMes(mes);
   }
 }
+

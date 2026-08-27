@@ -134,7 +134,7 @@
 </p-dialog>
 
 <p-dialog header="Agregar Fechas de Actividades Metrologicas" [modal]="true" [(visible)]="modalAddFechasCalibracion"
-  [style]="{ width: '25rem' }" [closable]="false">
+  [style]="{ width: '25rem' }" [breakpoints]="{'1199px': '75vw', '575px': '90vw'}" [closable]="false">
   <div *ngFor="let item of fechasCalibracion; let i = index; trackBy: trackByIndex" class="mb-4">
     <h5 class="mb-2 font-bold">Actividad {{ i + 1 }}</h5>
 

@@ -1,3 +1,4 @@
+import { AppNavbarComponent } from '../../../../navbars/app-navbar/app-navbar.component';
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,7 +13,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 
 
-import { MantenimientoadminnavbarComponent } from '../../../../navbars/mantenimientoadminnavbar/mantenimientoadminnavbar.component';
+
 import { PlanMantenimientoIndustrialesService } from '../../../../../Services/appServices/industrialesServices/planMantenimiento/planMantenimientoIndustriales.service';
 import Swal from 'sweetalert2';
 
@@ -29,7 +30,7 @@ import Swal from 'sweetalert2';
         TableModule,
         TableModule,
         TagModule,
-        MantenimientoadminnavbarComponent
+        AppNavbarComponent
     ],
     templateUrl: './programar-mantenimiento.component.html',
     styleUrl: './programar-mantenimiento.component.css'
