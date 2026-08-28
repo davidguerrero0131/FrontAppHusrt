@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule, Table } from 'primeng/table';
@@ -97,7 +97,7 @@ export class AdmtiposdocumentoComponent implements OnInit {
 
     deleteTipoDocumento(tipo: any) {
         this.confirmationService.confirm({
-            message: '¿Estás seguro de que quieres eliminar ' + tipo.nombres + '?',
+            message: 'Â¿EstÃ¡s seguro de que quieres eliminar ' + tipo.nombres + '?',
             header: 'Confirmar',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {

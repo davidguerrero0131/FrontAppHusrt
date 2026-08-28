@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { TableModule, Table } from 'primeng/table';
+import {  TableModule, Table  } from 'primeng/table';
+import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -20,11 +21,10 @@ import { UppercaseDirective } from '../../../Directives/uppercase.directive';
 @Component({
     selector: 'app-admproveedores',
     standalone: true,
-    imports: [
-        CommonModule, ReactiveFormsModule, FormsModule,
+    imports: [CommonModule, ReactiveFormsModule, FormsModule,
         TableModule, InputTextModule, ButtonModule, DialogModule, ToolbarModule, TooltipModule, TagModule,
         IconFieldModule, InputIconModule, UppercaseDirective
-    ],
+    , DropdownModule],
     templateUrl: './admproveedores.component.html',
     styleUrl: './admproveedores.component.css'
 })
@@ -40,6 +40,13 @@ export class AdmProveedoresComponent implements OnInit {
     selectedProveedor: any;
 
     formGroup: FormGroup;
+    areasAsociadas = [
+        { label: 'Biomédica', value: 'BIOMEDICA' },
+        { label: 'Sistemas (TI)', value: 'TI' },
+        { label: 'Industriales', value: 'INDUSTRIALES' }
+    ];
+    filteredAreas: any[] = [];
+    userRole: string = '';
     @ViewChild('dt') dt!: Table;
 
     isAdminBiomedica: boolean = false;
@@ -51,7 +58,8 @@ export class AdmProveedoresComponent implements OnInit {
             correo: ['', [Validators.required, Validators.email]],
             ciudad: ['', Validators.required],
             representante: ['', Validators.required],
-            telRepresentante: ['', Validators.required]
+            telRepresentante: ['', Validators.required],
+            area_asociada: ['BIOMEDICA', Validators.required]
         });
     }
 
@@ -60,12 +68,24 @@ export class AdmProveedoresComponent implements OnInit {
         this.loadProveedores();
     }
 
+    
     checkRole() {
         const token = sessionStorage.getItem('utoken');
         if (token) {
             const decoded = getDecodedAccessToken();
-            if (decoded?.rol === 'BIOMEDICAADMIN') {
-                this.isAdminBiomedica = true;
+            if (decoded?.rol) {
+                this.userRole = decoded.rol;
+                if (this.userRole === 'SUPERADMIN') {
+                    this.filteredAreas = [...this.areasAsociadas];
+                } else if (this.userRole === 'SYSTEMADMIN') {
+                    this.filteredAreas = this.areasAsociadas.filter(a => a.value === 'TI');
+                } else if (this.userRole === 'BIOMEDICAADMIN') {
+                    this.filteredAreas = this.areasAsociadas.filter(a => a.value === 'BIOMEDICA');
+                } else if (this.userRole === 'ADMINMANTENIMIENTO' || this.userRole === 'MANTENIMIENTOADMIN') {
+                    this.filteredAreas = this.areasAsociadas.filter(a => a.value === 'INDUSTRIALES');
+                } else {
+                    this.filteredAreas = [];
+                }
             }
         }
     }
@@ -73,7 +93,20 @@ export class AdmProveedoresComponent implements OnInit {
     async loadProveedores() {
         this.loading = true;
         try {
-            this.proveedores = await this.proveedorService.getProveedores();
+            let res = await this.proveedorService.getProveedores();
+            if (this.userRole !== 'SUPERADMIN') {
+                let targetArea = '';
+                if (this.userRole === 'SYSTEMADMIN') targetArea = 'TI';
+                else if (this.userRole === 'BIOMEDICAADMIN') targetArea = 'BIOMEDICA';
+                else if (this.userRole === 'ADMINMANTENIMIENTO' || this.userRole === 'MANTENIMIENTOADMIN') targetArea = 'INDUSTRIALES';
+                
+                if (targetArea) {
+                    res = res.filter((f: any) => f.area_asociada === targetArea);
+                } else {
+                    res = [];
+                }
+            }
+            this.proveedores = res;
         } catch (error) {
             console.error(error);
         }
@@ -87,6 +120,9 @@ export class AdmProveedoresComponent implements OnInit {
 
     openNew() {
         this.formGroup.reset();
+        if (this.filteredAreas.length > 0) {
+            this.formGroup.patchValue({ area_asociada: this.filteredAreas[0].value });
+        }
         this.isEditing = false;
         this.viewModal = true;
     }
@@ -100,7 +136,8 @@ export class AdmProveedoresComponent implements OnInit {
             correo: proveedor.correo,
             ciudad: proveedor.ciudad,
             representante: proveedor.representante,
-            telRepresentante: proveedor.telRepresentante
+            telRepresentante: proveedor.telRepresentante,
+            area_asociada: proveedor.area_asociada
         });
         this.viewModal = true;
     }

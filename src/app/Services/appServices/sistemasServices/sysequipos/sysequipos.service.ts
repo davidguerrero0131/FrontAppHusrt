@@ -84,6 +84,10 @@ export class SysequiposService {
     return this.http.post<SysEquipoResponse>(`${this.apiUrl}/${id}/hard-delete`, data);
   }
 
+    getEquiposServicioPublico(servicioId: number) {
+    return firstValueFrom(this.http.get<any>(`${API_URL}/publico/sistemas/equipos/servicio/${servicioId}`));
+  }
+
   getEquiposEnBodega(): Observable<SysEquipoResponse> {
     return this.http.get<SysEquipoResponse>(`${this.apiUrl}/bodega`);
   }

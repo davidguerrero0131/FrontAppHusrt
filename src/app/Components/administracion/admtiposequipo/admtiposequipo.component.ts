@@ -1,4 +1,4 @@
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+﻿import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ProtocolosService } from './../../../Services/appServices/biomedicaServices/protocolos/protocolos.service';
 import { CondicionInicialService } from './../../../Services/appServices/biomedicaServices/condicionesIniciales/condicion-inicial.service';
 import { TipoEquipoService } from './../../../Services/appServices/general/tipoEquipo/tipo-equipo.service';
@@ -218,7 +218,7 @@ export class AdmtiposequipoComponent implements OnInit {
         }
       }
     } else {
-      Swal.fire("Formulario inválido", "Completa los campos", "warning");
+      Swal.fire("Formulario invÃ¡lido", "Completa los campos", "warning");
     }
   }
 
@@ -297,7 +297,7 @@ export class AdmtiposequipoComponent implements OnInit {
 
   async addProtocolo() {
     if (!this.newProtocoloPaso.trim()) {
-      Swal.fire("Atención", "Escribe la descripción del paso", "warning");
+      Swal.fire("AtenciÃ³n", "Escribe la descripciÃ³n del paso", "warning");
       return;
     }
 
@@ -326,7 +326,7 @@ export class AdmtiposequipoComponent implements OnInit {
     }
   }
 
-  // Mediciones Específicas Logic
+  // Mediciones EspecÃ­ficas Logic
   viewMedicionesModal: boolean = false;
   medicionesTipoEquipo: any[] = [];
   newMedicionNombre: string = '';
@@ -347,7 +347,7 @@ export class AdmtiposequipoComponent implements OnInit {
 
   async addMedicion() {
     if (!this.newMedicionNombre.trim() || !this.newMedicionUnidad.trim()) {
-      Swal.fire("Atención", "Nombre y Unidad son requeridos", "warning");
+      Swal.fire("AtenciÃ³n", "Nombre y Unidad son requeridos", "warning");
       return;
     }
 
@@ -369,7 +369,7 @@ export class AdmtiposequipoComponent implements OnInit {
 
       Swal.fire({
         icon: 'success',
-        title: 'Medición agregada',
+        title: 'MediciÃ³n agregada',
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
@@ -377,7 +377,7 @@ export class AdmtiposequipoComponent implements OnInit {
       });
     } catch (error) {
       console.error(error);
-      Swal.fire("Error", "No se pudo agregar la medición", "error");
+      Swal.fire("Error", "No se pudo agregar la mediciÃ³n", "error");
     }
   }
 
@@ -391,7 +391,7 @@ export class AdmtiposequipoComponent implements OnInit {
 
       Swal.fire({
         icon: 'success',
-        title: `Medición ${newStatus ? 'activada' : 'desactivada'}`,
+        title: `MediciÃ³n ${newStatus ? 'activada' : 'desactivada'}`,
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
@@ -399,18 +399,18 @@ export class AdmtiposequipoComponent implements OnInit {
       });
     } catch (error) {
       console.error(error);
-      Swal.fire("Error", `No se pudo ${action} la medición`, "error");
+      Swal.fire("Error", `No se pudo ${action} la mediciÃ³n`, "error");
     }
   }
 
   async deleteMedicion(idMedicion: any) {
     this.viewMedicionesModal = false; // Hide modal temporarily
     Swal.fire({
-      title: "¿Eliminar medición?",
-      text: "Esta acción no se puede deshacer",
+      title: "Â¿Eliminar mediciÃ³n?",
+      text: "Esta acciÃ³n no se puede deshacer",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Sí, eliminar",
+      confirmButtonText: "SÃ­, eliminar",
       cancelButtonText: "Cancelar"
     }).then(async (result) => {
       this.viewMedicionesModal = true; // Re-open modal
@@ -451,7 +451,7 @@ export class AdmtiposequipoComponent implements OnInit {
 
   async addCondicionInicial() {
     if (!this.newCondicionDescripcion.trim()) {
-      Swal.fire("Atención", "Escribe la descripción de la condición", "warning");
+      Swal.fire("AtenciÃ³n", "Escribe la descripciÃ³n de la condiciÃ³n", "warning");
       return;
     }
     try {
@@ -475,7 +475,7 @@ export class AdmtiposequipoComponent implements OnInit {
 
       Swal.fire({
         icon: 'success',
-        title: 'Condición agregada',
+        title: 'CondiciÃ³n agregada',
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
@@ -502,7 +502,7 @@ export class AdmtiposequipoComponent implements OnInit {
       this.cd.detectChanges(); // Ensure table updates
       Swal.fire({
         icon: 'success',
-        title: `Condición ${newStatus ? 'activada' : 'desactivada'}`,
+        title: `CondiciÃ³n ${newStatus ? 'activada' : 'desactivada'}`,
         toast: true,
         position: 'top-end',
         showConfirmButton: false,

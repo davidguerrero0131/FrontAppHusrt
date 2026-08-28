@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+﻿import { Component, inject, OnInit, ViewChild } from '@angular/core';
 
 import { ServicioService } from '../../../Services/appServices/general/servicio/servicio.service';
 import { SedeService } from '../../../Services/appServices/general/sede/sede.service';
@@ -84,7 +84,7 @@ export class AdmserviciosComponent implements OnInit {
       try {
         const cantidadEquipos = await this.servicioServices.getCantidadEquipos(idServicio);
         if (cantidadEquipos > 0) {
-          Swal.fire("Acción no permitida", "El servicio tiene equipos activos relacionados y no puede ser desactivado.", "error");
+          Swal.fire("AcciÃ³n no permitida", "El servicio tiene equipos activos relacionados y no puede ser desactivado.", "error");
           return;
         }
       } catch (error) {
@@ -160,7 +160,7 @@ export class AdmserviciosComponent implements OnInit {
         Swal.fire("Error", "No se pudo guardar el servicio", "error");
       }
     } else {
-      Swal.fire("Formulario inválido", "Por favor completa los campos requeridos", "warning");
+      Swal.fire("Formulario invÃ¡lido", "Por favor completa los campos requeridos", "warning");
     }
   }
 }

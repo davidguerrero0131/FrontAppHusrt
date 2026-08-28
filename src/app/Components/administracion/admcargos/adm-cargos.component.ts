@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TableModule, Table } from 'primeng/table';
@@ -89,7 +89,7 @@ export class AdmCargosComponent implements OnInit {
         if (this.isEditing) {
             this.cargosService.updateCargo(this.selectedCargo.id, { ...cargoData, estado: this.selectedCargo.estado }).subscribe({
                 next: () => {
-                    Swal.fire('Éxito', 'Cargo actualizado', 'success');
+                    Swal.fire('Ã‰xito', 'Cargo actualizado', 'success');
                     this.loadCargos();
                     this.viewModal = false;
                 },
@@ -98,7 +98,7 @@ export class AdmCargosComponent implements OnInit {
         } else {
             this.cargosService.createCargo(cargoData).subscribe({
                 next: () => {
-                    Swal.fire('Éxito', 'Cargo creado', 'success');
+                    Swal.fire('Ã‰xito', 'Cargo creado', 'success');
                     this.loadCargos();
                     this.viewModal = false;
                 },

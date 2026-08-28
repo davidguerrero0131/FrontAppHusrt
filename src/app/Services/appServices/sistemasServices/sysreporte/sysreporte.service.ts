@@ -49,6 +49,10 @@ export class SysReporteService {
     return this.http.delete(`${this.base}/${id}`);
   }
 
+    getReportesPreventivosServicioMesPublico(servicioId: number, mes: number, anio: number) {
+    return firstValueFrom(this.http.get<any>(`${this.base.replace('/sysreporte', '/publico/sistemas/reportes/servicio/')}${servicioId}/mes/${mes}/anio/${anio}`));
+  }
+
   descargarPdfReporte(id: number): Promise<Blob> {
     return firstValueFrom(
       this.http.get(`${this.base}/${id}/pdf`, { responseType: 'blob' })

@@ -345,25 +345,36 @@
 
                     <!-- Estados Vacíos / Mensajes -->
                     <div class="empty-state-panel card-modern"
-                        *ngIf="!loadingPlanes && planesFiltrados.length === 0 && selectedServicio && mantenimientoTab === 'biomedica'">
+                        *ngIf="!loadingPlanes && planesFiltrados.length === 0 && selectedServicio && (mantenimientoTab === 'biomedica')">
                         <i class="pi pi-calendar-times empty-icon"></i>
                         <h3>Sin mantenimientos</h3>
                         <p>No se encontraron equipos programados para el servicio y mes seleccionados.</p>
                     </div>
 
-                    <div class="empty-state-panel card-modern" *ngIf="mantenimientoTab !== 'biomedica'">
+                    
+                    <!-- Módulo en desarrollo Infraestructura -->
+                    <div class="empty-state-panel card-modern" *ngIf="mantenimientoTab === 'infraestructura'">
                         <i class="pi pi-cog pi-spin empty-icon"></i>
                         <h3>Módulo en desarrollo</h3>
-                        <p>La integración de planes para <b>{{ mantenimientoTab === 'sistemas' ? 'Sistemas' :
-                                'Infraestructura' }}</b> estará disponible próximamente.</p>
+                        <p>La integración de planes para <b>Infraestructura</b> estará disponible próximamente.</p>
                     </div>
 
                     <div class="empty-state-panel card-modern"
-                        *ngIf="!selectedServicio && mantenimientoTab === 'biomedica'">
+                        *ngIf="!loadingPlanes && planesFiltrados.length === 0 && selectedServicio && mantenimientoTab === 'sistemas'">
+                        <i class="pi pi-calendar-times empty-icon"></i>
+                        <h3>Sin mantenimientos</h3>
+                        <p>No se encontraron equipos programados para el servicio y mes seleccionados en Sistemas.</p>
+                    </div>
+
+                    <div class="empty-state-panel card-modern"
+                        *ngIf="!selectedServicio && (mantenimientoTab === 'biomedica' || mantenimientoTab === 'sistemas')">
                         <i class="pi pi-info-circle empty-icon"></i>
                         <h3>Seleccione un servicio</h3>
                         <p>Para ver el plan de mantenimiento, por favor seleccione un servicio y el mes de interés.</p>
                     </div>
+
+
+                    
                 </section>
             </div>
 

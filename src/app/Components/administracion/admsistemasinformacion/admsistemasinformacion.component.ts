@@ -104,7 +104,8 @@ export class AmdSistemasInformacionComponent implements OnInit {
         this.esAdmin = ['SUPERADMIN', 'SYSTEMADMIN'].includes(decoded?.rol ?? '');
         this.loadSistemasInformacion();
         this.usuarios = await this.userService.getUsersSistemas();
-        this.proveedores = await this.responsableService.getAllResponsables();
+        const allProveedores = await this.responsableService.getAllResponsables();
+        this.proveedores = allProveedores.filter((p: any) => p.area_asociada === 'TI');
     }
 
     async loadSistemasInformacion() {

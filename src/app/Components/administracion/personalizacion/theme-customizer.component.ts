@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+﻿import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
@@ -74,8 +74,8 @@ export class ThemeCustomizerComponent implements OnInit {
     saveTheme() {
         this.themeService.saveThemeConfig(this.config);
         Swal.fire({
-            title: '¡Guardado!',
-            text: 'La configuración de estilo ha sido aplicada y guardada.',
+            title: 'Â¡Guardado!',
+            text: 'La configuraciÃ³n de estilo ha sido aplicada y guardada.',
             icon: 'success',
             confirmButtonColor: this.config.primaryColor
         });
@@ -83,11 +83,11 @@ export class ThemeCustomizerComponent implements OnInit {
 
     resetDefaults() {
         Swal.fire({
-            title: '¿Restablecer estilos?',
-            text: 'Se volverá a los colores y fuentes originales del aplicativo.',
+            title: 'Â¿Restablecer estilos?',
+            text: 'Se volverÃ¡ a los colores y fuentes originales del aplicativo.',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Sí, restablecer',
+            confirmButtonText: 'SÃ­, restablecer',
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {

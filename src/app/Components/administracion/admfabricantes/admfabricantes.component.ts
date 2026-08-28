@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { TableModule, Table } from 'primeng/table';
+import {  TableModule, Table  } from 'primeng/table';
+import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -20,11 +21,10 @@ import { UppercaseDirective } from '../../../Directives/uppercase.directive';
 @Component({
     selector: 'app-admfabricantes',
     standalone: true,
-    imports: [
-        CommonModule, ReactiveFormsModule, FormsModule,
+    imports: [CommonModule, ReactiveFormsModule, FormsModule,
         TableModule, InputTextModule, ButtonModule, DialogModule, ToolbarModule, TooltipModule, TagModule,
         IconFieldModule, InputIconModule, UppercaseDirective
-    ],
+    , DropdownModule],
     templateUrl: './admfabricantes.component.html',
     styleUrl: './admfabricantes.component.css'
 })
@@ -40,6 +40,13 @@ export class AdmFabricantesComponent implements OnInit {
     selectedFabricante: any;
 
     formGroup: FormGroup;
+    areasAsociadas = [
+        { label: 'Biomédica', value: 'BIOMEDICA' },
+        { label: 'Sistemas (TI)', value: 'TI' },
+        { label: 'Industriales', value: 'INDUSTRIALES' }
+    ];
+    filteredAreas: any[] = [];
+    userRole: string = '';
     @ViewChild('dt') dt!: Table;
 
     isAdminBiomedica: boolean = false;
@@ -47,7 +54,8 @@ export class AdmFabricantesComponent implements OnInit {
     constructor() {
         this.formGroup = this.formBuilder.group({
             nombres: ['', Validators.required],
-            pais: ['', Validators.required]
+            pais: ['', Validators.required],
+            area_asociada: ['BIOMEDICA', Validators.required]
         });
     }
 
@@ -56,12 +64,24 @@ export class AdmFabricantesComponent implements OnInit {
         this.loadFabricantes();
     }
 
+    
     checkRole() {
         const token = sessionStorage.getItem('utoken');
         if (token) {
             const decoded = getDecodedAccessToken();
-            if (decoded?.rol === 'BIOMEDICAADMIN') {
-                this.isAdminBiomedica = true;
+            if (decoded?.rol) {
+                this.userRole = decoded.rol;
+                if (this.userRole === 'SUPERADMIN') {
+                    this.filteredAreas = [...this.areasAsociadas];
+                } else if (this.userRole === 'SYSTEMADMIN') {
+                    this.filteredAreas = this.areasAsociadas.filter(a => a.value === 'TI');
+                } else if (this.userRole === 'BIOMEDICAADMIN') {
+                    this.filteredAreas = this.areasAsociadas.filter(a => a.value === 'BIOMEDICA');
+                } else if (this.userRole === 'ADMINMANTENIMIENTO' || this.userRole === 'MANTENIMIENTOADMIN') {
+                    this.filteredAreas = this.areasAsociadas.filter(a => a.value === 'INDUSTRIALES');
+                } else {
+                    this.filteredAreas = [];
+                }
             }
         }
     }
@@ -69,7 +89,20 @@ export class AdmFabricantesComponent implements OnInit {
     async loadFabricantes() {
         this.loading = true;
         try {
-            this.fabricantes = await this.fabricanteService.getFabricantes();
+            let res = await this.fabricanteService.getFabricantes();
+            if (this.userRole !== 'SUPERADMIN') {
+                let targetArea = '';
+                if (this.userRole === 'SYSTEMADMIN') targetArea = 'TI';
+                else if (this.userRole === 'BIOMEDICAADMIN') targetArea = 'BIOMEDICA';
+                else if (this.userRole === 'ADMINMANTENIMIENTO' || this.userRole === 'MANTENIMIENTOADMIN') targetArea = 'INDUSTRIALES';
+                
+                if (targetArea) {
+                    res = res.filter((f: any) => f.area_asociada === targetArea);
+                } else {
+                    res = [];
+                }
+            }
+            this.fabricantes = res;
         } catch (error) {
             console.error(error);
         }
@@ -83,6 +116,9 @@ export class AdmFabricantesComponent implements OnInit {
 
     openNew() {
         this.formGroup.reset();
+        if (this.filteredAreas.length > 0) {
+            this.formGroup.patchValue({ area_asociada: this.filteredAreas[0].value });
+        }
         this.isEditing = false;
         this.viewModal = true;
     }
@@ -92,7 +128,8 @@ export class AdmFabricantesComponent implements OnInit {
         this.isEditing = true;
         this.formGroup.patchValue({
             nombres: fabricante.nombres,
-            pais: fabricante.pais
+            pais: fabricante.pais,
+            area_asociada: fabricante.area_asociada
         });
         this.viewModal = true;
     }

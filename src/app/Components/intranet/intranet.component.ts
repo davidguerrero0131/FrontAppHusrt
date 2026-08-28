@@ -8,6 +8,11 @@ import { MantenimientosService } from '../../Services/appServices/biomedicaServi
 import { MetrologiaService } from '../../Services/appServices/biomedicaServices/metrologia/metrologia.service';
 import { EquiposService } from '../../Services/appServices/biomedicaServices/equipos/equipos.service';
 import { ReportesService } from '../../Services/appServices/biomedicaServices/reportes/reportes.service';
+
+import { SysequiposService } from '../../Services/appServices/sistemasServices/sysequipos/sysequipos.service';
+import { SysplanmantenimientoService } from '../../Services/appServices/sistemasServices/sysplanmantenimiento/sysplanmantenimiento.service';
+import { SysReporteService } from '../../Services/appServices/sistemasServices/sysreporte/sysreporte.service';
+
 import { DropdownModule } from 'primeng/dropdown';
 import { RafaIaService } from '../../Services/rafa-ia.service';
 import { ReservasEspaciosInternoComponent } from '../Interno/reservas-espacios-interno/reservas-espacios-interno.component';
@@ -38,6 +43,11 @@ export class IntranetComponent implements OnInit {
   private metrologiaService = inject(MetrologiaService);
   private equiposService = inject(EquiposService);
   private reportesService = inject(ReportesService);
+
+  private sysEquiposService = inject(SysequiposService);
+  private sysPlanMantenimientoService = inject(SysplanmantenimientoService);
+  private sysReporteService = inject(SysReporteService);
+
   private sanitizer = inject(DomSanitizer);
 
   safePowerBiUrl!: SafeResourceUrl;

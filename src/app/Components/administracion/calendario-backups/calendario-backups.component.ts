@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+﻿import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -37,7 +37,7 @@ export class CalendarioBackupsComponent implements OnInit {
     rangoFechas: Date[] = [];
     exportandoRango: boolean = false;
 
-    readonly diasSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    readonly diasSemana = ['Lun', 'Mar', 'MiÃ©', 'Jue', 'Vie', 'SÃ¡b', 'Dom'];
     esAdmin = false;
 
     ngOnInit(): void {
@@ -132,7 +132,7 @@ export class CalendarioBackupsComponent implements OnInit {
     }
 
     getTextoTooltip(backup: any): string {
-        return `Sistema: ${backup.sistemaNombre}\nEstado: ${backup.estado}\nFrecuencia: ${backup.frecuencia_backup ?? '—'}\nFecha: ${backup.fecha}`;
+        return `Sistema: ${backup.sistemaNombre}\nEstado: ${backup.estado}\nFrecuencia: ${backup.frecuencia_backup ?? 'â€”'}\nFecha: ${backup.fecha}`;
     }
 
     getClaseChip(estado: string): string {
@@ -161,14 +161,14 @@ export class CalendarioBackupsComponent implements OnInit {
 
     async marcarCompletado(): Promise<void> {
         const result = await Swal.fire({
-            title: '¿Marcar como Completado?',
+            title: 'Â¿Marcar como Completado?',
             text: `Backup de ${this.backupSeleccionado.sistemaNombre}`,
             input: 'textarea',
-            inputPlaceholder: 'Agregar observación (opcional)',
-            inputAttributes: { 'aria-label': 'Observación' },
+            inputPlaceholder: 'Agregar observaciÃ³n (opcional)',
+            inputAttributes: { 'aria-label': 'ObservaciÃ³n' },
             icon: 'question',
             showCancelButton: true,
-            confirmButtonText: 'Sí, completar',
+            confirmButtonText: 'SÃ­, completar',
             cancelButtonText: 'Cancelar'
         });
         if (result.isConfirmed) {
@@ -240,7 +240,7 @@ export class CalendarioBackupsComponent implements OnInit {
     }
 
     private generarExcelRango(backups: any[], fechaInicio: string, fechaFin: string): void {
-        const titulo = `BACKUPS PROGRAMADOS — ${fechaInicio} al ${fechaFin}`;
+        const titulo = `BACKUPS PROGRAMADOS â€” ${fechaInicio} al ${fechaFin}`;
         const nombreArchivo = `backups-${fechaInicio}_${fechaFin}.xlsx`;
         const ahora = new Date().toLocaleString('es-CO');
 
@@ -253,15 +253,15 @@ export class CalendarioBackupsComponent implements OnInit {
             [titulo, '', '', '', '', '', ''],
             [`Generado el: ${ahora}`, '', '', '', '', '', ''],
             [],
-            ['#', 'Fecha', 'Sistema de Información', 'Tipo', 'Frecuencia', 'Estado', 'Observación'],
+            ['#', 'Fecha', 'Sistema de InformaciÃ³n', 'Tipo', 'Frecuencia', 'Estado', 'ObservaciÃ³n'],
             ...backups.map((b, i) => [
                 i + 1,
-                b.fecha ?? '—',
-                b.sistemaNombre ?? '—',
-                b.tipo ?? '—',
-                b.frecuencia_backup ?? '—',
-                b.estado ?? '—',
-                b.observacion ?? '—'
+                b.fecha ?? 'â€”',
+                b.sistemaNombre ?? 'â€”',
+                b.tipo ?? 'â€”',
+                b.frecuencia_backup ?? 'â€”',
+                b.estado ?? 'â€”',
+                b.observacion ?? 'â€”'
             ]),
             [`Pendientes: ${pendientes}`, `Completados: ${completados}`, `Fallidos: ${fallidos}`, `No realizados: ${noRealizados}`, '', '', '']
         ];

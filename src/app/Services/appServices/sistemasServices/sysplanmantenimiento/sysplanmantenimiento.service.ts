@@ -61,7 +61,11 @@ export class SysplanmantenimientoService {
       this.http.get<any>(`${this.apiUrl}/planmantenimientotipoequipo/` + idTipoEquipo)
     )
   }
-    getPlanMantenimientoServicio(idServicio: any) {
+      getPlanMantenimientoServicioPublico(idServicio: any) {
+    return firstValueFrom(this.http.get<any>(`${API_URL}/publico/sistemas/planmantenimientoservicio/${idServicio}`));
+  }
+
+  getPlanMantenimientoServicio(idServicio: any) {
     return firstValueFrom(
       this.http.get<any>(`${this.apiUrl}/planmantenimientoservicio/` + idServicio)
     )

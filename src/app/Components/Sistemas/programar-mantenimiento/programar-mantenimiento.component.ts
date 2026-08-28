@@ -1,4 +1,4 @@
-import { LoginComponent } from '../../login/login.component';
+﻿import { LoginComponent } from '../../login/login.component';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -72,11 +72,13 @@ export class ProgramarMantenimientoComponent implements OnInit {
 
 
   viewPlanMes: boolean = true;
+  viewPlanGlobal: boolean = false;
+  equiposPlanGlobal: any[] = [];
 
   viewPlanMesMantenimiento: boolean = true;
 
   date: Date | undefined;
-  panelActivo: 'seguimiento' | 'mantenimientos' | 'mensuales' = 'seguimiento';
+  panelActivo: 'mantenimientos' | 'mensuales' = 'mantenimientos';
 
   sysMantenimientoServices = inject(SysmantenimientoService);
   sysPlanMantenimientoServices = inject(SysplanmantenimientoService);
@@ -109,13 +111,14 @@ export class ProgramarMantenimientoComponent implements OnInit {
 
   async ngOnInit() {
     this.equiposPlanPreventivoMes = await this.sysPlanMantenimientoServices.getByMes(this.mesPlan, this.anioPlan);
+    this.loadPlanGlobal();
 
     this.tiposEquipo = await this.tiposEquipoServices.getTiposEquiposSistemas();
     this.servicios = await this.serviciosServices.getAllServicios();
 
   }
 
-  setPanel(panel: 'seguimiento' | 'mantenimientos' | 'mensuales') {
+  setPanel(panel: 'mantenimientos' | 'mensuales') {
     this.panelActivo = panel;
   }
 
@@ -125,6 +128,7 @@ export class ProgramarMantenimientoComponent implements OnInit {
       this.anioPlan = this.date.getFullYear();
 
       this.equiposPlanPreventivoMes = await this.sysPlanMantenimientoServices.getByMes(this.mesPlan, this.anioPlan);
+    this.loadPlanGlobal();
     } else {
       Swal.fire({
         icon: 'error',
@@ -257,20 +261,43 @@ export class ProgramarMantenimientoComponent implements OnInit {
 
 
 
+  
+  viewPanelGlobal() {
+    this.viewPlanTipoEquipo = false;
+    this.viewPlanServicio = false;
+    this.viewPlanMes = false;
+    this.viewPlanGlobal = true;
+  }
+
+  async loadPlanGlobal() {
+    try {
+      this.loading = true;
+      const data = await this.sysPlanMantenimientoServices.getAll();
+      this.equiposPlanGlobal = this.agruparPorEquipo(data);
+      this.loading = false;
+    } catch (err) {
+      this.loading = false;
+      console.error(err);
+    }
+  }
+
   viewPanelTipoEquipo() {
     this.viewPlanTipoEquipo = true;
     this.viewPlanServicio = false;
     this.viewPlanMes = false;
+    this.viewPlanGlobal = false;
   }
   viewPanelServicio() {
     this.viewPlanTipoEquipo = false;
     this.viewPlanServicio = true;
     this.viewPlanMes = false;
+    this.viewPlanGlobal = false;
   }
   viewPanelMes() {
     this.viewPlanTipoEquipo = false;
     this.viewPlanServicio = false;
     this.viewPlanMes = true;
+    this.viewPlanGlobal = false;
   }
 
   viewPanelTipoEquipoMantenimiento() {

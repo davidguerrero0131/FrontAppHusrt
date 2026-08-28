@@ -150,7 +150,7 @@ export class CrearEquipoComponent implements OnInit {
           })).sort((a: any, b: any) => a.displayName.localeCompare(b.displayName));
         }).catch(err => console.error('Error cargando Servicios:', err)),
         this.responsablesServices.getAllResponsables().then(data => {
-          this.responsables = data.map(r => ({
+          this.responsables = data.filter((r: any) => r.area_asociada === 'BIOMEDICA').map(r => ({
             ...r,
             fullName: `${r.nombres} ${r.apellidos}`
           })).sort((a: any, b: any) => a.fullName.localeCompare(b.fullName));

@@ -33,6 +33,7 @@
                 <th pSortableColumn="nombres" style="min-width:15rem">Nombres <p-sortIcon field="nombres"></p-sortIcon>
                 </th>
                 <th pSortableColumn="pais" style="min-width:10rem">Pa&iacute;s <p-sortIcon field="pais"></p-sortIcon></th>
+                <th pSortableColumn="area_asociada" style="min-width:10rem">Área <p-sortIcon field="area_asociada"></p-sortIcon></th>
                 <th pSortableColumn="estado" style="min-width:10rem">Estado <p-sortIcon field="estado"></p-sortIcon>
                 </th>
                 <th style="min-width:10rem">Acciones</th>
@@ -43,6 +44,7 @@
             <tr>
                 <td>{{ fabricante.nombres }}</td>
                 <td>{{ fabricante.pais }}</td>
+                <td>{{ fabricante.area_asociada }}</td>
                 <td>
                     <p-tag [value]="fabricante.estado ? 'Activo' : 'Inactivo'"
                         [severity]="fabricante.estado ? 'success' : 'danger'"></p-tag>
@@ -90,6 +92,10 @@
                     <small class="p-error"
                         *ngIf="formGroup.controls['pais'].invalid && formGroup.controls['pais'].touched">Pa&iacute;s es
                         requerido.</small>
+                </div>
+                <div class="field">
+                    <label for="area_asociada">&Aacute;rea Asociada</label>
+                    <p-dropdown [options]="filteredAreas" formControlName="area_asociada" optionLabel="label" optionValue="value" placeholder="Seleccione un área" appendTo="body" class="w-full"></p-dropdown>
                 </div>
             </div>
         </form>

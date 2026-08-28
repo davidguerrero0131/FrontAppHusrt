@@ -37,6 +37,7 @@
                 <th pSortableColumn="ciudad">Ciudad <p-sortIcon field="ciudad"></p-sortIcon></th>
                 <th pSortableColumn="representante">Representante <p-sortIcon field="representante"></p-sortIcon></th>
                 <th pSortableColumn="telRepresentante">Tel. Rep. <p-sortIcon field="telRepresentante"></p-sortIcon></th>
+                <th pSortableColumn="area_asociada">&Aacute;rea <p-sortIcon field="area_asociada"></p-sortIcon></th>
                 <th pSortableColumn="estado">Estado <p-sortIcon field="estado"></p-sortIcon></th>
                 <th>Acciones</th>
             </tr>
@@ -50,6 +51,7 @@
                 <td>{{ proveedor.ciudad }}</td>
                 <td>{{ proveedor.representante }}</td>
                 <td>{{ proveedor.telRepresentante }}</td>
+                <td>{{ proveedor.area_asociada }}</td>
                 <td>
                     <p-tag [value]="proveedor.estado ? 'Activo' : 'Inactivo'"
                         [severity]="proveedor.estado ? 'success' : 'danger'"></p-tag>
@@ -115,6 +117,10 @@
                     <label for="telRepresentante">Tel. Representante</label>
                     <input type="text" pInputText id="telRepresentante" formControlName="telRepresentante" required
                         class="w-full" appUppercase />
+                </div>
+                <div class="field">
+                    <label for="area_asociada">&Aacute;rea Asociada</label>
+                    <p-dropdown [options]="filteredAreas" formControlName="area_asociada" optionLabel="label" optionValue="value" placeholder="Seleccione un área" appendTo="body" class="w-full"></p-dropdown>
                 </div>
             </div>
         </form>

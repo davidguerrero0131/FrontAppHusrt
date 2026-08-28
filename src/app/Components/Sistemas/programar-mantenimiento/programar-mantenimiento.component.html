@@ -1,11 +1,8 @@
+<div class="mb-4"><h1><i class="pi pi-calendar text-primary" style="font-size: 1.5rem"></i> Programaci&oacute;n de Mantenimientos</h1></div>
 
 
-<div class="mb-4"><h1 class="text-3xl font-bold text-center m-0 text-900">PROGRAMACION DE MANTENIMIENTOS</h1></div>
-
-
-<div class="flex justify-content-center gap-3 mb-4 mt-4">
-  <p-button [severity]="$any(panelActivo) === 'seguimiento' ? 'primary' : 'secondary'" [outlined]="$any(panelActivo) !== 'seguimiento'" label="Seguimiento Actividades" (onClick)="setPanel('seguimiento')"></p-button>
-  <p-button [severity]="$any(panelActivo) === 'mantenimientos' ? 'primary' : 'secondary'" [outlined]="$any(panelActivo) !== 'mantenimientos'" label="Programación Mantenimientos" (onClick)="setPanel('mantenimientos')"></p-button>
+<div class="tab-bar">
+  <p-button [severity]="$any(panelActivo) === 'mantenimientos' ? 'primary' : 'secondary'" [outlined]="$any(panelActivo) !== 'mantenimientos'" label="ProgramaciÃ³n Mantenimientos" (onClick)="setPanel('mantenimientos')"></p-button>
   <p-button [severity]="$any(panelActivo) === 'mensuales' ? 'primary' : 'secondary'" [outlined]="$any(panelActivo) !== 'mensuales'" label="Plan de Actividades" (onClick)="setPanel('mensuales')"></p-button>
 </div>
 
@@ -30,39 +27,30 @@
 </p-dialog>
 
 
-<div class="panelMantenimientos" *ngIf="$any(panelActivo) === 'seguimiento'">Contenido del panel Seguimiento</div>
 <div class="panelMantenimientos" *ngIf="$any(panelActivo) === 'mantenimientos'">
 
-  <div class="filtromes flex flex-column md:flex-row align-items-center gap-3" style="margin-bottom: 2%;">
-    <h6 class="m-0">Seleccione un mes para visualizar:</h6>
+  <div class="mov-filtros-bar">
+    <span class="font-medium text-600">Seleccione un mes:</span>
 
     <p-datepicker [(ngModel)]="date" view="month" dateFormat="mm/yy" [readonlyInput]="true"
       inputStyleClass="w-full md:w-10rem"></p-datepicker>
 
-    <button type="button" class="btn btn-dark" (click)="setDate()">
-      Buscar
-    </button>
+    <p-button label="Buscar" icon="pi pi-search" (onClick)="setDate()"></p-button>
   </div>
 
-  <div style="text-align: center;">
-    <h6>Plan de mantenimiento del mes: {{nombreMes()}} </h6>
+  <div class="mov-filtros-bar mb-3" style="justify-content: space-between;">
+    <h6 class="m-0"><i class="pi pi-calendar-times mr-2"></i> Plan de mantenimiento del mes: {{nombreMes()}}</h6>
+    <button *ngIf="canProgram" pButton label="Programar Mantenimientos" icon="pi pi-cog" class="p-button-success" (click)="programarMantenimiento()"></button>
   </div>
-  <div style="text-align: right; margin-right: 5%;">
-    <button *ngIf="canProgram" type="button" class="btn btn-success" style="width: 250px;"
-      (click)="programarMantenimiento()">Programar
-      Mantenimientos</button>
-    <h1> </h1>
-  </div>
+  
 
-  <div class="card" style="width: 90%; align-items: center; margin-left: 5%; margin-right: 5%;">
+  <div class="card">
     <p-table #dt2 [value]="equiposPlanPreventivoMes" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50, 100]"
       [loading]="loading" [paginator]="true" [tableStyle]="{ 'min-width': '10rem' }"
       [globalFilterFields]="['equipo.nombre_equipo', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'equipo.placa_inventario', 'equipo.servicios.nombres', 'equipo.ubicacion', 'equipo.id']">
       <ng-template pTemplate="caption">
         <div class="flex">
-          <button type="button" class="btn btn-info mr-3" (click)="viewScheduledPreventiveMonths()">
-            Ver Meses Programados
-          </button>
+          <p-button label="Meses Programados" icon="pi pi-calendar-plus" severity="info" class="mr-3" (onClick)="viewScheduledPreventiveMonths()"></p-button>
           <p-iconfield iconPosition="left" class="ml-auto">
             <p-inputicon>
               <i class="pi pi-search"></i>
@@ -118,30 +106,99 @@
 </div>
 
 <div class="panelMantenimientos" *ngIf="$any(panelActivo) === 'mensuales'">
-  <div class="contenedor" style="width: 98%; margin-left: 1%; ">
-    <div class="izquierda" style="background-color: white; align-items: center;">
-      <button type="button" class="btn" style="width: 60%; margin-top: 1%;" (click)="viewPanelMes()"
+  <div class="contenedor">
+    <div class="izquierda">
+      
+      <button type="button" class="btn" (click)="viewPanelGlobal()"
+        [ngClass]="viewPlanGlobal === true ? 'btn-primary' : 'btn-light'">Plan Global</button>
+      <button type="button" class="btn" (click)="viewPanelMes()"
         [ngClass]="viewPlanMes === true ? 'btn-primary' : 'btn-light'">Plan Mensual</button>
-      <button type="button" class="btn" style="width: 60%; margin-top: 1%;" (click)="viewPanelTipoEquipo()"
+      <button type="button" class="btn" (click)="viewPanelTipoEquipo()"
         [ngClass]="viewPlanTipoEquipo === true ? 'btn-primary' : 'btn-light'">Plan Tipo Equipo</button>
-      <button type="button" class="btn" style="width: 60%; margin-top: 1%;" (click)="viewPanelServicio()"
+      <button type="button" class="btn" (click)="viewPanelServicio()"
         [ngClass]="viewPlanServicio === true ? 'btn-primary' : 'btn-light'">Plan Servicio</button>
     </div>
-    <div class="derecha" style="background-color: white;">
+    <div class="derecha">
+      
+      <div *ngIf="viewPlanGlobal">
+        <div class="mov-filtros-bar mb-3">
+          <h6 class="m-0"><i class="pi pi-globe mr-2"></i> Plan Global de Mantenimientos</h6>
+        </div>
+        
+        <div class="card">
+          <p-table #dtGlobal [value]="equiposPlanGlobal" dataKey="id" [rows]="10"
+            [rowsPerPageOptions]="[10, 25, 50, 100]" [loading]="loading" [paginator]="true"
+            [tableStyle]="{ 'min-width': '10rem' }"
+            [globalFilterFields]="['equipo.nombre_equipo', 'equipo.marca', 'equipo.modelo', 'equipo.serie', 'equipo.placa_inventario', 'mesesStr', 'equipo.servicio.nombres', 'equipo.ubicacion', 'equipo.id_sysequipo']">
+            <ng-template pTemplate="caption">
+              <div class="flex">
+                <p-iconfield iconPosition="left" class="ml-auto">
+                  <p-inputicon>
+                    <i class="pi pi-search"></i>
+                  </p-inputicon>
+                  <input pInputText type="text" (input)="dtGlobal.filterGlobal($any($event.target).value, 'contains')"
+                    placeholder="B&uacute;squeda General" />
+                </p-iconfield>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width:10%; align-items: center; text-align: center">Nombre</th>
+                <th style="width:10%; align-items: center; text-align: center">Marca</th>
+                <th style="width:10%; align-items: center; text-align: center">Modelo</th>
+                <th style="width:10%; align-items: center; text-align: center">Serie</th>
+                <th style="width:10%; align-items: center; text-align: center">Placa</th>
+                <th style="width:10%; align-items: center; text-align: center">Meses</th>
+                <th style="width:10%; align-items: center; text-align: center">Servicio</th>
+                <th style="width:10%; align-items: center; text-align: center">Ubicaci&oacute;n</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-registro>
+              <tr class="fila-clickable" (click)="openHistoricoMantenimientos(registro.equipo)"
+                  title="Ver hist&oacute;rico de mantenimientos">
+                <td style="text-align: center;">
+                  <span class="ml-1 vertical-align-middle">{{registro.equipo.nombre_equipo}}</span>
+                </td>
+                <td style="text-align: center;">
+                  <span class="ml-1 vertical-align-middle">{{ registro.equipo.marca }}</span>
+                </td>
+                <td style="text-align: center;">
+                  <span class="ml-1 vertical-align-middle">{{ registro.equipo.modelo }}</span>
+                </td>
+                <td style="text-align: center;">
+                  <span class="ml-1 vertical-align-middle">{{ registro.equipo.serie }}</span>
+                </td>
+                <td style="text-align: center;">
+                  <span class="ml-1 vertical-align-middle">{{ registro.equipo.placa_inventario }}</span>
+                </td>
+                <td style="text-align: center;">
+                  <span class="ml-1 vertical-align-middle">{{ registro.mesesStr }}</span>
+                </td>
+                <td style="text-align: center;">
+                  <span class="ml-1 vertical-align-middle">{{ registro.equipo.servicio?.nombres }}</span>
+                </td>
+                <td style="text-align: center;">
+                  <span class="ml-1 vertical-align-middle">{{ registro.equipo.ubicacion }}</span>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="8">No hay registros.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+
       <div *ngIf="viewPlanMes">
-        <div class="filtromes flex flex-column md:flex-row align-items-center gap-3" style="margin-bottom: 2%;">
-          <h6 class="m-0">Seleccione un mes para visualizar:</h6>
+        <div class="mov-filtros-bar">
+          <span class="font-medium text-600">Seleccione un mes:</span>
           <p-datepicker [(ngModel)]="date" view="month" dateFormat="mm/yy" [readonlyInput]="true"
             inputStyleClass="w-full md:w-10rem"></p-datepicker>
-          <button type="button" class="btn btn-dark" (click)="setDate()">
-            Buscar
-          </button>
+          <p-button label="Buscar" icon="pi pi-search" (onClick)="setDate()"></p-button>
         </div>
-        <div class="flex justify-content-center gap-3 mb-4 mt-4">
-  <p-button [severity]="$any(panelActivo) === 'seguimiento' ? 'primary' : 'secondary'" [outlined]="$any(panelActivo) !== 'seguimiento'" label="Seguimiento Actividades" (onClick)="setPanel('seguimiento')"></p-button>
-  <p-button [severity]="$any(panelActivo) === 'mantenimientos' ? 'primary' : 'secondary'" [outlined]="$any(panelActivo) !== 'mantenimientos'" label="Programación Mantenimientos" (onClick)="setPanel('mantenimientos')"></p-button>
-  <p-button [severity]="$any(panelActivo) === 'mensuales' ? 'primary' : 'secondary'" [outlined]="$any(panelActivo) !== 'mensuales'" label="Plan de Actividades" (onClick)="setPanel('mensuales')"></p-button>
-</div>
+        
         <div *ngIf="viewPlanMesMantenimiento">
           <h6>Mantenimientos Mes: {{nombreMes()}} </h6>
           <div class="card">
@@ -208,8 +265,8 @@
 
       </div>
       <div *ngIf="viewPlanTipoEquipo">
-        <div class="filtromes flex flex-column md:flex-row align-items-center gap-3" style="margin-bottom: 2%;">
-          <h6 class="m-0">Seleccione un Tipo de Equipo para visualizar:</h6>
+        <div class="mov-filtros-bar">
+          <span class="font-medium text-600">Seleccione un Tipo de Equipo:</span>
           <p-select [options]="tiposEquipo" [(ngModel)]="selectedTipoEquipo" optionLabel="nombres" [filter]="true"
             filterBy="nombres" [showClear]="true" placeholder="Seleccione un Tipo de Equipo" class="w-full md:w-56">
             <ng-template #selectedItem let-selectedOption>
@@ -223,15 +280,9 @@
               </div>
             </ng-template>
           </p-select>
-          <button type="button" class="btn btn-dark" (click)="setTipoEquipo()">
-            Buscar
-          </button>
+          <p-button label="Buscar" icon="pi pi-search" (onClick)="setTipoEquipo()"></p-button>
         </div>
-        <div class="flex justify-content-center gap-3 mb-4 mt-4">
-  <p-button [severity]="$any(panelActivo) === 'seguimiento' ? 'primary' : 'secondary'" [outlined]="$any(panelActivo) !== 'seguimiento'" label="Seguimiento Actividades" (onClick)="setPanel('seguimiento')"></p-button>
-  <p-button [severity]="$any(panelActivo) === 'mantenimientos' ? 'primary' : 'secondary'" [outlined]="$any(panelActivo) !== 'mantenimientos'" label="Programación Mantenimientos" (onClick)="setPanel('mantenimientos')"></p-button>
-  <p-button [severity]="$any(panelActivo) === 'mensuales' ? 'primary' : 'secondary'" [outlined]="$any(panelActivo) !== 'mensuales'" label="Plan de Actividades" (onClick)="setPanel('mensuales')"></p-button>
-</div>
+        
         <div *ngIf="viewPlanTipoEquipoMantenimiento">
           <div *ngIf="selectedTipoEquipo">
             <h6>Plan de Mantenimientos de {{selectedTipoEquipo.nombres}} </h6>
@@ -304,8 +355,8 @@
 
       </div>
       <div *ngIf="viewPlanServicio">
-        <div class="filtromes flex flex-column md:flex-row align-items-center gap-3" style="margin-bottom: 2%;">
-          <h6 class="m-0">Seleccione un Servicio para visualizar:</h6>
+        <div class="mov-filtros-bar">
+          <span class="font-medium text-600">Seleccione un Servicio:</span>
           <p-select [options]="servicios" [(ngModel)]="selectedServicio" optionLabel="nombres" [filter]="true"
             filterBy="nombres" [showClear]="true" placeholder="Seleccione un Servicio" class="w-full md:w-56">
             <ng-template #selectedItem let-selectedOption>
@@ -319,15 +370,9 @@
               </div>
             </ng-template>
           </p-select>
-          <button type="button" class="btn btn-dark" (click)="setServicio()">
-            Buscar
-          </button>
+          <p-button label="Buscar" icon="pi pi-search" (onClick)="setServicio()"></p-button>
         </div>
-        <div class="flex justify-content-center gap-3 mb-4 mt-4">
-  <p-button [severity]="$any(panelActivo) === 'seguimiento' ? 'primary' : 'secondary'" [outlined]="$any(panelActivo) !== 'seguimiento'" label="Seguimiento Actividades" (onClick)="setPanel('seguimiento')"></p-button>
-  <p-button [severity]="$any(panelActivo) === 'mantenimientos' ? 'primary' : 'secondary'" [outlined]="$any(panelActivo) !== 'mantenimientos'" label="Programación Mantenimientos" (onClick)="setPanel('mantenimientos')"></p-button>
-  <p-button [severity]="$any(panelActivo) === 'mensuales' ? 'primary' : 'secondary'" [outlined]="$any(panelActivo) !== 'mensuales'" label="Plan de Actividades" (onClick)="setPanel('mensuales')"></p-button>
-</div>
+        
         <div *ngIf="viewPlanServicioMantenimiento">
           <div *ngIf="selectedServicio">
             <h6>Plan de Mantenimientos de {{selectedServicio.nombres}} </h6>

@@ -207,8 +207,10 @@ export class CrearHojavidaComponent implements OnInit {
 
   async cargarListas() {
     try {
-      this.proveedores = await this.proveedorService.getProveedores();
-      this.fabricantes = await this.fabricanteService.getFabricantes();
+      const allProveedores = await this.proveedorService.getProveedores();
+      this.proveedores = allProveedores.filter((p: any) => p.area_asociada === 'BIOMEDICA');
+      const allFabricantes = await this.fabricanteService.getFabricantes();
+      this.fabricantes = allFabricantes.filter((f: any) => f.area_asociada === 'BIOMEDICA');
     } catch (error) {
       console.error("Error cargando listas", error);
     }

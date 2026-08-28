@@ -56,12 +56,12 @@
   </div>
 
   <!-- Toolbar -->
-  <div class="toolbar">
-    <div class="search-box">
+  <div class="mov-filtros-bar">
+    <div class="search-box" style="flex: 1; max-width: 400px;">
       <i class="pi pi-search"></i>
       <input type="text" placeholder="Buscar por nombre, tipo, N° parte..." (input)="onSearch($event)" />
     </div>
-    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-left:auto;">
       <div class="dropdown" style="position: relative; display: inline-block; overflow: visible;">
         <p-button label="Exportar" icon="pi pi-download" severity="secondary" [outlined]="true" (onClick)="toggleExportOptions('repuestos')"></p-button>
         <div class="dropdown-content" *ngIf="showExportOptionsRepuestos"
@@ -234,14 +234,16 @@
      TAB: TIPOS DE REPUESTO
 ═══════════════════════════════════════════════════════ -->
 <div *ngIf="tabActual === 'tipos'">
-  <div class="toolbar">
-    <div class="search-box">
+  <div class="mov-filtros-bar">
+    <div class="search-box" style="flex: 1; max-width: 400px;">
       <i class="pi pi-search"></i>
       <input type="text" placeholder="BUSCAR TIPOS..." (input)="onSearchTipos($event)" />
     </div>
-    <p-button *ngIf="isAdmin" (onClick)="openCreateTipoModal()">
-      <i class="pi pi-plus"></i> Nuevo Tipo
-    </p-button>
+    <div style="margin-left:auto;">
+      <p-button *ngIf="isAdmin" (onClick)="openCreateTipoModal()">
+        <i class="pi pi-plus"></i> Nuevo Tipo
+      </p-button>
+    </div>
   </div>
   <div class="table-card">
     <div class="table-responsive">
@@ -382,11 +384,13 @@
      TAB: REGISTRO DE CAMBIOS
 ═══════════════════════════════════════════════════════ -->
 <div *ngIf="tabActual === 'registros'">
-  <div class="toolbar">
+  <div class="mov-filtros-bar">
     <span style="font-size:0.85rem;color:var(--text-color-secondary)">
       <i class="pi pi-history mr-1"></i> Historial detallado de registro, edición y activación/inactivación.
     </span>
-    <p-button label="Actualizar" icon="pi pi-refresh" severity="secondary" [outlined]="true" (onClick)="loadAuditoria()"></p-button>
+    <div style="margin-left:auto;">
+      <p-button label="Actualizar" icon="pi pi-refresh" severity="secondary" [outlined]="true" (onClick)="loadAuditoria()"></p-button>
+    </div>
   </div>
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
     <!-- Historial Repuestos -->

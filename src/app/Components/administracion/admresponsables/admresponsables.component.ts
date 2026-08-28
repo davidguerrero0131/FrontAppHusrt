@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { TableModule, Table } from 'primeng/table';
+import {  TableModule, Table  } from 'primeng/table';
+import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -22,11 +23,10 @@ import { UppercaseDirective } from '../../../Directives/uppercase.directive';
 @Component({
     selector: 'app-admresponsables',
     standalone: true,
-    imports: [
-        CommonModule, ReactiveFormsModule, FormsModule,
+    imports: [CommonModule, ReactiveFormsModule, FormsModule,
         TableModule, InputTextModule, ButtonModule, DialogModule, ToolbarModule, TooltipModule, TagModule,
         InputSwitchModule, InputNumberModule, IconFieldModule, InputIconModule, UppercaseDirective
-    ],
+    , DropdownModule],
     templateUrl: './admresponsables.component.html',
     styleUrl: './admresponsables.component.css'
 })
@@ -42,6 +42,13 @@ export class AdmResponsablesComponent implements OnInit {
     selectedResponsable: any;
 
     formGroup: FormGroup;
+    areasAsociadas = [
+        { label: 'Biomédica', value: 'BIOMEDICA' },
+        { label: 'Sistemas (TI)', value: 'TI' },
+        { label: 'Industriales', value: 'INDUSTRIALES' }
+    ];
+    filteredAreas: any[] = [];
+    userRole: string = '';
     @ViewChild('dt') dt!: Table;
 
     isAdminBiomedica: boolean = false;
@@ -53,7 +60,8 @@ export class AdmResponsablesComponent implements OnInit {
             garantia: [false, Validators.required],
             externo: [false, Validators.required],
             comodato: [false, Validators.required],
-            calificacion: [0, [Validators.required, Validators.min(0)]]
+            calificacion: [0, [Validators.required, Validators.min(0)]],
+            area_asociada: ['BIOMEDICA', Validators.required]
         });
     }
 
@@ -62,12 +70,24 @@ export class AdmResponsablesComponent implements OnInit {
         this.loadResponsables();
     }
 
+    
     checkRole() {
         const token = sessionStorage.getItem('utoken');
         if (token) {
             const decoded = getDecodedAccessToken();
-            if (decoded?.rol === 'BIOMEDICAADMIN') {
-                this.isAdminBiomedica = true;
+            if (decoded?.rol) {
+                this.userRole = decoded.rol;
+                if (this.userRole === 'SUPERADMIN') {
+                    this.filteredAreas = [...this.areasAsociadas];
+                } else if (this.userRole === 'SYSTEMADMIN') {
+                    this.filteredAreas = this.areasAsociadas.filter(a => a.value === 'TI');
+                } else if (this.userRole === 'BIOMEDICAADMIN') {
+                    this.filteredAreas = this.areasAsociadas.filter(a => a.value === 'BIOMEDICA');
+                } else if (this.userRole === 'ADMINMANTENIMIENTO' || this.userRole === 'MANTENIMIENTOADMIN') {
+                    this.filteredAreas = this.areasAsociadas.filter(a => a.value === 'INDUSTRIALES');
+                } else {
+                    this.filteredAreas = [];
+                }
             }
         }
     }
@@ -75,7 +95,20 @@ export class AdmResponsablesComponent implements OnInit {
     async loadResponsables() {
         this.loading = true;
         try {
-            this.responsables = await this.responsableService.getAllResponsables();
+            let res = await this.responsableService.getAllResponsables();
+            if (this.userRole !== 'SUPERADMIN') {
+                let targetArea = '';
+                if (this.userRole === 'SYSTEMADMIN') targetArea = 'TI';
+                else if (this.userRole === 'BIOMEDICAADMIN') targetArea = 'BIOMEDICA';
+                else if (this.userRole === 'ADMINMANTENIMIENTO' || this.userRole === 'MANTENIMIENTOADMIN') targetArea = 'INDUSTRIALES';
+                
+                if (targetArea) {
+                    res = res.filter((f: any) => f.area_asociada === targetArea);
+                } else {
+                    res = [];
+                }
+            }
+            this.responsables = res;
         } catch (error) {
             console.error(error);
         }
@@ -94,8 +127,12 @@ export class AdmResponsablesComponent implements OnInit {
             garantia: false,
             externo: false,
             comodato: false,
-            calificacion: 0
+            calificacion: 0,
+            area_asociada: 'BIOMEDICA'
         });
+        if (this.filteredAreas.length > 0) {
+            this.formGroup.patchValue({ area_asociada: this.filteredAreas[0].value });
+        }
         this.isEditing = false;
         this.viewModal = true;
     }
@@ -109,7 +146,8 @@ export class AdmResponsablesComponent implements OnInit {
             garantia: responsable.garantia,
             externo: responsable.externo,
             comodato: responsable.comodato,
-            calificacion: responsable.calificacion
+            calificacion: responsable.calificacion,
+            area_asociada: responsable.area_asociada
         });
         this.viewModal = true;
     }
