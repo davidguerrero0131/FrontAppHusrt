@@ -46,7 +46,6 @@
         <th style="width:15%">Cargo</th>
         <th style="width:15%">Servicio</th>
         <th style="width:15%">Rol Mesa</th>
-        <th style="width:15%">Rol General</th>
         <th pSortableColumn="estado" style="width:8%">Estado <p-sortIcon field="estado"></p-sortIcon></th>
         <th style="width:8%">Acciones</th>
       </tr>
@@ -62,7 +61,6 @@
         <td>{{ usuario.cargo?.nombre || 'Sin Cargo' }}</td>
         <td>{{ usuario.servicio?.nombres || 'Sin Servicio' }}</td>
         <td>{{ usuario.mesaServicioRol?.nombre || 'Sin Rol' }}</td>
-        <td>{{ usuario.rol?.nombre || 'Sin Rol' }}</td>
         <td>
           <p-tag [value]="usuario.estado ? 'ACTIVO' : 'INACTIVO'"
             [severity]="usuario.estado ? 'success' : 'danger'"></p-tag>
