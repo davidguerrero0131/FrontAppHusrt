@@ -84,12 +84,6 @@ export class LoginComponent implements OnInit {
         sessionStorage.setItem('idUser', response.idUser);
         sessionStorage.setItem('rol', response.rol);
 
-        Swal.fire({
-          icon: 'success',
-          title: 'Acceso Correcto',
-          text: 'Bienvenido Invitado',
-        })
-
         this.router.navigate(['/biomedica/home-invitado']);
       } else {
         console.error('Invalid response:', response);

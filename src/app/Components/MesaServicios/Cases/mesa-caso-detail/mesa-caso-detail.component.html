@@ -144,7 +144,7 @@
                             <div class="grid p-fluid">
                                 <div class="col-12">
                                     <label class="form-field-label">Tipo de Equipo</label>
-                                    <p-select [options]="tiposEquipos" [(ngModel)]="selectedTipoEquipo" optionLabel="nombres"
+                                    <p-select appendTo="body" [options]="tiposEquipos" [(ngModel)]="selectedTipoEquipo" optionLabel="nombres"
                                         placeholder="Filtrar por tipo" [filter]="true" filterBy="nombres"
                                         [showClear]="true" styleClass="w-full" (onChange)="selectedEquipo = null; $event.value ? loadEquipos($event.value.id) : filteredEquipos = []"
                                         [disabled]="caso.estado === 'CERRADO'">
@@ -152,8 +152,8 @@
                                 </div>
                                 <div class="col-12 mt-2">
                                     <label class="form-field-label">Equipo Específico</label>
-                                    <p-select [options]="filteredEquipos" [(ngModel)]="selectedEquipo" optionLabel="nombres"
-                                        placeholder="Seleccione el equipo" [filter]="true" filterBy="nombres,serie,placaInvima"
+                                    <p-select appendTo="body" [options]="filteredEquipos" [(ngModel)]="selectedEquipo" optionLabel="nombres"
+                                        placeholder="Seleccione el equipo" [filter]="true" filterBy="nombres,serie,placa,placaInvima,placa_inventario"
                                         [showClear]="true" [disabled]="!selectedTipoEquipo || caso.estado === 'CERRADO'" 
                                         emptyMessage="Seleccione primero un tipo de equipo" styleClass="w-full">
                                         <ng-template pTemplate="selectedItem" let-selected>
@@ -164,7 +164,7 @@
                                         <ng-template let-eq pTemplate="item">
                                             <div class="flex flex-column w-full">
                                                 <span class="font-bold border-bottom-1 border-100 pb-1 mb-1">{{ eq.nombres }}</span>
-                                                <span class="text-500 text-xs line-height-2">Serie: {{ eq.serie || 'N/A' }} | Placa: {{ eq.placaInvima || 'N/A' }}</span>
+                                                <span class="text-500 text-xs line-height-2">Serie: {{ eq.serie || 'N/A' }} | Placa: {{ eq.placa || eq.placa_inventario || eq.placaInvima || 'N/A' }}</span>
                                             </div>
                                         </ng-template>
                                     </p-select>
@@ -227,28 +227,28 @@
                             <div class="grid p-fluid bg-white p-2 border-round-lg shadow-1">
                                 <div class="col-12" *ngIf="isAdmin">
                                     <label class="form-field-label text-sm">Servicio Destino</label>
-                                    <p-select [options]="servicios" [(ngModel)]="selectedServicioDestino" optionLabel="nombres"
+                                    <p-select appendTo="body" [options]="servicios" [(ngModel)]="selectedServicioDestino" optionLabel="nombres"
                                         placeholder="Seleccione el servicio" [filter]="true" filterBy="nombres"
                                         styleClass="w-full" appendTo="body" (onChange)="onServicioDestinoChange()">
                                     </p-select>
                                 </div>
                                 <div class="col-12" [ngClass]="{'mt-2': isAdmin}">
                                     <label class="form-field-label text-sm">Categoría</label>
-                                    <p-select [options]="categorias" [(ngModel)]="selectedCategoria" optionLabel="nombre"
+                                    <p-select appendTo="body" [options]="categorias" [(ngModel)]="selectedCategoria" optionLabel="nombre"
                                         placeholder="Seleccione la categoría" [filter]="true" filterBy="nombre"
                                         styleClass="w-full" appendTo="body" (onChange)="onCategoriaChange()">
                                     </p-select>
                                 </div>
                                 <div class="col-12 mt-2">
                                     <label class="form-field-label text-sm">Subcategoría</label>
-                                    <p-select [options]="subcategoriasDisponibles" [(ngModel)]="selectedSubcategoria" optionLabel="nombre"
+                                    <p-select appendTo="body" [options]="subcategoriasDisponibles" [(ngModel)]="selectedSubcategoria" optionLabel="nombre"
                                         placeholder="Seleccione la subcategoría" [filter]="true" filterBy="nombre"
                                         [showClear]="true" emptyMessage="Seleccione primero una categoría" styleClass="w-full" appendTo="body">
                                     </p-select>
                                 </div>
                                 <div class="col-12 mt-2">
                                     <label class="form-field-label text-sm">Prioridad</label>
-                                    <p-select [options]="prioridades" [(ngModel)]="selectedPrioridad" optionLabel="label" optionValue="value"
+                                    <p-select appendTo="body" [options]="prioridades" [(ngModel)]="selectedPrioridad" optionLabel="label" optionValue="value"
                                         placeholder="Seleccione la prioridad" styleClass="w-full" appendTo="body">
                                     </p-select>
                                 </div>

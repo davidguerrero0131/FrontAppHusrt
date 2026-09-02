@@ -64,7 +64,7 @@ export class AppNavbarComponent implements OnInit, OnDestroy {
         } catch(e) {}
       }
 
-      if (idUserToFetch) {
+      if (idUserToFetch && idUserToFetch !== '0') {
         this.userService.getUserProfil(idUserToFetch).then((profile: any) => {
           if (profile) {
             // Actualizar la userData con los detalles completos de la base de datos
@@ -73,6 +73,9 @@ export class AppNavbarComponent implements OnInit, OnDestroy {
             this.userRole = profile.cargo?.nombre || profile.cargo || profile.nombre_cargo || this.userRole;
           }
         }).catch(err => console.error("Error al obtener perfil", err));
+      } else if (idUserToFetch === '0') {
+        this.userName = 'Invitado';
+        this.userRole = 'INVITADO';
       }
     }
 
